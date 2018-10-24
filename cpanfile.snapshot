@@ -1251,8 +1251,8 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
-  Mojolicious-8.02
-    pathname: S/SR/SRI/Mojolicious-8.02.tar.gz
+  Mojolicious-8.04
+    pathname: S/SR/SRI/Mojolicious-8.04.tar.gz
     provides:
       Mojo undef
       Mojo::Asset undef
@@ -1272,6 +1272,7 @@ DISTRIBUTIONS
       Mojo::DOM::CSS undef
       Mojo::DOM::HTML undef
       Mojo::Date undef
+      Mojo::DynamicMethods undef
       Mojo::EventEmitter undef
       Mojo::Exception undef
       Mojo::File undef
@@ -1321,7 +1322,7 @@ DISTRIBUTIONS
       Mojo::UserAgent::Transactor undef
       Mojo::Util undef
       Mojo::WebSocket undef
-      Mojolicious 8.02
+      Mojolicious 8.04
       Mojolicious::Command undef
       Mojolicious::Command::Author::cpanify undef
       Mojolicious::Command::Author::generate undef
@@ -1368,6 +1369,7 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 0
       IO::Socket::IP 0.37
       JSON::PP 2.27103
+      List::Util 1.41
       Pod::Simple 3.09
       Time::Local 1.2
       perl 5.010001

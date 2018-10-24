@@ -6,6 +6,7 @@ requires 'MooseX::NonMoose';
 requires 'Mojolicious';
 requires 'Mojolicious::Commands';
 requires 'Mojolicious::Plugin::Database';
+requires 'Mojo::DynamicMethods';
 
 requires 'String::Util';
 
