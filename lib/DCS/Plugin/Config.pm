@@ -1,20 +1,16 @@
 package DCS::Plugin::Config;
 use Mojo::Base 'Mojolicious::Plugin';
 
-use DCS::Constants qw(:config);
+use DCS::Constants qw(:symbols);
 
 sub register {
   my ($self, $app) = @_;
 
   $app->helper(
     conf => sub {
-      my $home = Mojo::Home->new;
-      $home->detect;
-      my $f = File::Spec->catfile($home,$app->moniker.".conf");
       state $config = DCS::Config->new(
-        _priority => $CONF_FROM_ENV,
-        _conf => do $f,
-         _def => do "$f.def"
+         _conf      => do File::Spec->catfile($app->home,join($PERIOD, $app->moniker, $app->mode, qw(conf))),
+         _def       => do File::Spec->catfile($app->home,join($PERIOD, $app->moniker, qw(conf def)))
       );
     }
   );
@@ -23,56 +19,92 @@ sub register {
 package DCS::Config;
 use Moose;
 use Moose::Util::TypeConstraints;
+use Mojo::DynamicMethods -dispatch;
 
+use Carp;
+use List::Util qw(reduce);
 use Data::DPath qw(dpath);
-use DCS::Constants qw(:boolean :config);
+
+use DCS::Constants qw(:boolean :symbols);
+Readonly::Scalar our $CONF_FROM_ENV   => q(env);
+Readonly::Scalar our $CONF_FROM_FILE  => q(conf);
 
 has '_base' => (
-  is => 'ro',
-  isa => 'Str',
-  default => ''
+  is      => 'ro',
+  isa     => 'Str',
+  default => '/'
 );
 
 has '_def' => (
-  is => 'ro',
-  isa => 'HashRef',
+  is       => 'ro',
+  isa      => 'HashRef',
   required => $TRUE
 );
 
 has '_conf' => (
-  is => 'ro',
-  isa => 'HashRef',
+  is       => 'ro',
+  isa      => 'HashRef',
   required => $TRUE
 );
 
 has '_priority' => (
-  is => 'rw',
-  isa => enum([$CONF_FROM_ENV,$CONF_FROM_FILE]),
+  is      => 'ro',
+  isa     => enum([$CONF_FROM_ENV,$CONF_FROM_FILE]),
   default => $CONF_FROM_ENV
 );
 
-sub AUTOLOAD {
-  my ($self, @params) = @_;
-  our $AUTOLOAD;
-  if($AUTOLOAD =~ /::([[:alpha:]]\w+)$/) {
-    my $path = join('/', $self->_base, $1);
-    if(my ($el) = @{dpath($path)->matchr($self->_def)}) {
-      if(exists($el->{isa})) {
-        my @val;
-        push(@val, @{dpath($path)->matchr($self->_conf)});
-        push(@val, $ENV{$el->{env}}) if(defined($el->{env}));
-        @val = grep {defined} @val;
+sub _add_helper {
+  Mojo::DynamicMethods::register __PACKAGE__, @_;
+}
 
-        my $priority = $self->_priority;
-        $priority = $el->{priority} if(defined($el->{priority}));
-        return ($priority eq $CONF_FROM_ENV) ? pop(@val) : shift(@val);
-      } else {
-        return __PACKAGE__->new(_conf => $self->_conf, _base => $path, _def => $self->_def, _priority => $self->_priority);
+sub _concat_path {
+  reduce { local $/=$SLASH; chomp($a); join(($b =~ m|^$SLASH|) ? $EMPTY : $SLASH, $a, $b) } @_
+}
+
+sub BUILD {
+  my $self = shift;
+
+  foreach my $el (dpath($self->_base)->match($self->_def)) {
+    if(ref($el) eq 'HASH') {
+      foreach my $def (keys(%$el)) {
+        my $path = _concat_path($self->_base, $def);
+        if(exists($el->{$def}->{isa})) {
+          # leaf
+          my $el = $el->{$def};
+          $self->_add_helper($def => sub {
+            my @val;
+            push(@val, @{dpath($path)->matchr($self->_conf)});
+            push(@val, $ENV{$el->{env}}) if(defined($el->{env}));
+            @val = grep {defined} @val;
+
+            my $priority = defined($el->{priority}) ? $el->{priority} : $self->_priority;
+            return ($priority eq $CONF_FROM_ENV) ? pop(@val) : shift(@val);
+          } );
+        } else {
+          # branch
+          $self->_add_helper($def => sub { 
+            return __PACKAGE__->new(
+              _base     => $path,
+              _conf     => $self->_conf,
+              _def      => $self->_def,
+              _priority => $self->_priority
+            ) 
+          } );
+        }
       }
     }
-    die(qq{Undefined configuration path "$path"});
   }
-  die(qq{Invalid configuration path});
+}
+
+sub BUILD_DYNAMIC {
+  my ($class, $method, $dyn_methods) = @_;
+  return sub {
+    my ($self, @args) = @_;
+    my $dynamic = $dyn_methods->{$self}{$method};
+    return $self->$dynamic(@args) if($dynamic);
+    my $package = ref $self;
+    croak qq{Can't locate object method "$method" via package "$package"};
+  }
 }
 
 1;
