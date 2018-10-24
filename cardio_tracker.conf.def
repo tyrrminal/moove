@@ -1,0 +1,17 @@
+{
+  db => {
+    dsn => {
+      isa => 'Str',
+      env => 'DB_DSN'
+    },
+    user => {
+      isa => 'Str',
+      env => 'DB_USER'
+    },
+    pass => {
+      isa => 'Str',
+      env => 'DB_PASS',
+      priority => 'env'
+    }
+  }
+}
