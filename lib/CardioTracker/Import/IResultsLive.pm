@@ -2,7 +2,7 @@ package CardioTracker::Import::IResultsLive;
 use Modern::Perl;
 use Moose;
 
-use DCS::Constants;
+use DCS::Constants qw(:boolean :existence);
 
 has 'base_url' => (
   is => 'ro',
@@ -54,23 +54,23 @@ sub get_results {
       } 
     })->to_array};
   shift(@col_map); # first column participant links
-  #say Data::Dumper->Dump([\@col_map]); return;
   
-  my (@results, @new);
-  do {
-    push(@results, @new); @new = ();
+  my @results;
+  while() {
+    my $n = 0;
     $res->dom->find('table.table-condensed > tbody > tr')->each(sub {
       my ($e,$num)=@_;
       my %record;
-      my $values = $e->children('td')->map('text')->to_array;
-      shift(@$values); # first column participant links
-      @record{@col_map} = @$values;
-      push(@new, {%record});
+      my @values = @{$e->children('td')->map('text')->to_array};
+      shift(@values); # first column participant links
+      @record{@col_map} = @values;
+      $n = push(@results, {%record});
     });
+    last unless $n;
 
-    $results->query(op => 'overall', eid => $eid, racename => $raceid, place => $results->query->param('place')+100);
+    $results->query(op => 'overall', eid => $eid, racename => $raceid, place => $n);
     $res = $ua->get($results)->result;
-  } while(@new);
+  }
 
   return {title => $title, results => [@results]};
 }
