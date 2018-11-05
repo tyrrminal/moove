@@ -2,6 +2,8 @@ package CardioTracker::Import::IResultsLive;
 use Modern::Perl;
 use Moose;
 
+use DateTime::Format::Strptime;
+
 use DCS::Constants qw(:boolean :existence);
 
 has 'base_url' => (
@@ -23,11 +25,36 @@ has 'key_map' => (
   }
 );
 
-sub get_races {
+sub get_metadata {
   my $self=shift;
-  my ($res)=@_;
+  my ($eid)=@_;
 
-  return { map { $_->text => $self->base_url.$_->attr('href') } @{$res->dom->find('ul.nav-tabs:not(.red) > li > a')->to_array} };
+  my $p = DateTime::Format::Strptime->new(
+    pattern => '%a %b %d, %Y',
+    locale => 'en_US',
+    time_zone => 'America/New_York'
+  );
+
+  my $md = Mojo::URL->new($self->base_url);
+  $md->query(op => 'summary', eid => $eid);
+
+  my $ua = Mojo::UserAgent->new();
+  my $res = $ua->get($md)->result;
+
+  my $title_c = $res->dom->find('div.container > h1');
+  my $title = $title_c->[0]->text;
+
+  my ($date,$location) = @{$res->dom->find('em')->map('text')->to_array()};
+  my $dt = $p->parse_datetime($date);
+
+  my $races = $res->dom->find('div.row')->[1]->find('td:first-child')->map('text')->to_array();
+
+  return {
+    title => $title,
+    location => $location,
+    date => $dt,
+    races => $races
+  };
 }
 
 sub get_results {
@@ -39,9 +66,6 @@ sub get_results {
 
   my $ua = Mojo::UserAgent->new();
   my $res = $ua->get($results)->result;
-
-  my $title_c = $res->dom->find('div.container > h1');
-  my $title = $title_c->[0]->text;
 
   #Column Headings
   my @col_map = #map { $self->get_key($_) // '' }
@@ -72,7 +96,7 @@ sub get_results {
     $res = $ua->get($results)->result;
   }
 
-  return {title => $title, results => [@results]};
+  return @results;
 }
 
 1;

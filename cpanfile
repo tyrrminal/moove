@@ -1,5 +1,7 @@
 requires 'Modern::Perl';
 
+requires 'DateTime::Format::Strptime';
+
 requires 'Moose';
 requires 'MooseX::NonMoose';
 

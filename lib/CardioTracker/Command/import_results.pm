@@ -32,10 +32,13 @@ sub run {
   say "id is required" and exit 1 unless(defined($id));
   say "results site is required" and exit 1 unless(defined($importer));
 
-  my $results = $importer->get_results($id,$race);
-  my $event = $self->app->model('Event')->search({name => $results->{title}})->first;
+  my $info = $importer->get_metadata($id);
+  die "Race identifier '$race' not found\n" unless(grep {$race eq $_} @{$info->{races}});
+  my @results = $importer->get_results($id,$race);
+  my $event = $self->app->model('Event')->search({name => $info->{title}})->first;
+  die "Event '".$info->{title}."' not found\n" unless(defined($event));
   
-  foreach my $p (@{$results->{results}}) {
+  foreach my $p (@results) {
     #lookup
     my $overall_place = $self->app->model('EventResultType')->find({description => 'Overall'});
     my $div_place = $self->app->model('EventResultType')->find({description => 'Division'});
