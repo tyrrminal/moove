@@ -40,6 +40,7 @@ __PACKAGE__->table("sex");
 =head2 id
 
   data_type: 'integer'
+  is_auto_increment: 1
   is_nullable: 0
 
 =head2 description
@@ -52,7 +53,7 @@ __PACKAGE__->table("sex");
 
 __PACKAGE__->add_columns(
   "id",
-  { data_type => "integer", is_nullable => 0 },
+  { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "description",
   { data_type => "varchar", is_nullable => 0, size => 45 },
 );
@@ -101,8 +102,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-10-15 20:45:31
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:9so1R2bHJbIqJK8BhOhqmg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-06 14:46:30
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:yhlheJYee0ZoJmNORGaQ+Q
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

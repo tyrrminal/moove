@@ -40,6 +40,7 @@ __PACKAGE__->table("donation");
 =head2 id
 
   data_type: 'integer'
+  is_auto_increment: 1
   is_nullable: 0
 
 =head2 event_id
@@ -58,7 +59,7 @@ __PACKAGE__->table("donation");
 
   data_type: 'decimal'
   is_nullable: 0
-  size: [4,2]
+  size: [6,2]
 
 =head2 date
 
@@ -82,13 +83,13 @@ __PACKAGE__->table("donation");
 
 __PACKAGE__->add_columns(
   "id",
-  { data_type => "integer", is_nullable => 0 },
+  { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "event_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "user_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "amount",
-  { data_type => "decimal", is_nullable => 0, size => [4, 2] },
+  { data_type => "decimal", is_nullable => 0, size => [6, 2] },
   "date",
   { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 0 },
   "person_id",
@@ -157,8 +158,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-10-15 20:45:31
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:TKFEe0Sk2d3jnozY/YMovg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-06 14:46:30
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:IDOlO491B1ikoNpXaUCxLg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

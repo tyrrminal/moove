@@ -40,6 +40,7 @@ __PACKAGE__->table("location");
 =head2 id
 
   data_type: 'integer'
+  is_auto_increment: 1
   is_nullable: 0
 
 =head2 street1
@@ -82,7 +83,7 @@ __PACKAGE__->table("location");
 
 __PACKAGE__->add_columns(
   "id",
-  { data_type => "integer", is_nullable => 0 },
+  { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "street1",
   { data_type => "varchar", is_nullable => 1, size => 45 },
   "street2",
@@ -157,8 +158,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-10-15 20:45:31
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:xGdktsEJ9vW2f+7oJ0GIkA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-06 14:46:30
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ZPId7MaUNSNq6KqBDLS7oQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

@@ -40,6 +40,7 @@ __PACKAGE__->table("user");
 =head2 id
 
   data_type: 'integer'
+  is_auto_increment: 1
   is_nullable: 0
 
 =head2 username
@@ -58,7 +59,7 @@ __PACKAGE__->table("user");
 
 __PACKAGE__->add_columns(
   "id",
-  { data_type => "integer", is_nullable => 0 },
+  { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "username",
   { data_type => "varchar", is_nullable => 0, size => 45 },
   "person_id",
@@ -149,8 +150,8 @@ Composing rels: L</user_activities> -> activity
 __PACKAGE__->many_to_many("activities", "user_activities", "activity");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-10-15 20:45:31
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:l80wYzqqITna8bfHNg0pgw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-06 14:46:30
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:VBJVIJfii8Q8mp8aLUNxVw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
