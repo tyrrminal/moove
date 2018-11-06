@@ -4,7 +4,7 @@ use Mojo::Base 'Mojolicious::Command';
 use DBIx::Class::Schema::Loader qw(make_schema_at);
 use Modern::Perl;
 use File::Spec;
-use DCS::Constants;
+use DCS::Constants qw(:boolean);
 
 has description => 'Import the database schema to DBIx classes';
 has usage => <<"USAGE";
