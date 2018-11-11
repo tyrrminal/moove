@@ -1,6 +1,10 @@
 requires 'Modern::Perl';
 
+requires 'IO::Socket::SSL';
+requires 'Lingua::EN::Titlecase';
+
 requires 'DateTime::Format::Strptime';
+requires 'DateTime::Format::MySQL';
 
 requires 'Moose';
 requires 'MooseX::NonMoose';
