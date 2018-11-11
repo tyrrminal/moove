@@ -509,6 +509,18 @@ DISTRIBUTIONS
       Try::Tiny 0.07
       namespace::clean 0.24
       perl 5.008001
+  DBIx-Class-InflateColumn-DateTime-Duration-0.01002
+    pathname: C/CU/CUBABIT/DBIx-Class-InflateColumn-DateTime-Duration-0.01002.tar.gz
+    provides:
+      DBIx::Class::InflateColumn::DateTime::Duration 0.01002
+    requirements:
+      Class::Accessor::Grouped 0.03
+      DBD::SQLite 1.11
+      DBIx::Class 0.07005
+      DateTime::Format::Duration::XSD 0.01
+      ExtUtils::MakeMaker 6.42
+      Try::Tiny 0.04
+      perl 5.008001
   DBIx-Class-InflateColumn-FS-0.01007
     pathname: M/MM/MMIMS/DBIx-Class-InflateColumn-FS-0.01007.tar.gz
     provides:
@@ -523,6 +535,17 @@ DISTRIBUTIONS
       File::Find 0
       Path::Class 0
       perl 5.006001
+  DBIx-Class-InflateColumn-Time-0.0.1
+    pathname: D/DR/DRZIGMAN/DBIx-Class-InflateColumn-Time-0.0.1.tar.gz
+    provides:
+      DBIx::Class::InflateColumn::Time 0.000001
+    requirements:
+      DBIx::Class 0
+      DateTime::Duration 0
+      Module::Build 0.3601
+      base 0
+      namespace::autoclean 0
+      perl 5.006
   DBIx-Class-Relationship-Predicate-0.07
     pathname: W/WR/WREIS/DBIx-Class-Relationship-Predicate-0.07.tar.gz
     provides:
@@ -761,6 +784,29 @@ DISTRIBUTIONS
       strict 0
       vars 0
       warnings 0
+  DateTime-Format-Duration-1.04
+    pathname: E/ET/ETHER/DateTime-Format-Duration-1.04.tar.gz
+    provides:
+      DateTime::Format::Duration 1.04
+    requirements:
+      Carp 0
+      Data::Dumper 0
+      DateTime::Duration 0
+      Exporter 0
+      ExtUtils::MakeMaker 0
+      Params::Validate 0
+      constant 0
+      perl 5.006
+      strict 0
+  DateTime-Format-Duration-XSD-0.01
+    pathname: N/NU/NUF/DateTime-Format-Duration-XSD-0.01.tar.gz
+    provides:
+      DateTime::Format::Duration::XSD 0.01
+    requirements:
+      DateTime 0.3
+      DateTime::Format::Duration 1.03
+      ExtUtils::MakeMaker 0
+      Test::More 0
   DateTime-Format-MySQL-0.06
     pathname: X/XM/XMIKEW/DateTime-Format-MySQL-0.06.tar.gz
     provides:

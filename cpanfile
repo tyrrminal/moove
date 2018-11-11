@@ -22,5 +22,7 @@ requires 'DBD::mysql';
 requires 'DBIx::Class::Schema::Loader';
 requires 'DBIx::Class::Relationship::Predicate';
 requires 'DBIx::Class::InflateColumn::FS';
+requires 'DBIx::Class::InflateColumn::DateTime';
+requires 'DBIx::Class::InflateColumn::Time';
 
 requires 'Data::DPath';
