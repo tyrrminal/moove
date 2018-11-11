@@ -23,11 +23,17 @@ use base 'DBIx::Class::Core';
 
 =item * L<DBIx::Class::InflateColumn::DateTime>
 
+=item * L<DBIx::Class::InflateColumn::Time>
+
 =back
 
 =cut
 
-__PACKAGE__->load_components("Relationship::Predicate", "InflateColumn::DateTime");
+__PACKAGE__->load_components(
+  "Relationship::Predicate",
+  "InflateColumn::DateTime",
+  "InflateColumn::Time",
+);
 
 =head1 TABLE: C<user>
 
@@ -150,8 +156,8 @@ Composing rels: L</user_activities> -> activity
 __PACKAGE__->many_to_many("activities", "user_activities", "activity");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-06 14:46:30
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:VBJVIJfii8Q8mp8aLUNxVw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-11 14:38:38
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Caz8gT/wwvKnDt6VEd8lWQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

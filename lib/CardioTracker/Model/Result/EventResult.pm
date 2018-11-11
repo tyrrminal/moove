@@ -23,11 +23,17 @@ use base 'DBIx::Class::Core';
 
 =item * L<DBIx::Class::InflateColumn::DateTime>
 
+=item * L<DBIx::Class::InflateColumn::Time>
+
 =back
 
 =cut
 
-__PACKAGE__->load_components("Relationship::Predicate", "InflateColumn::DateTime");
+__PACKAGE__->load_components(
+  "Relationship::Predicate",
+  "InflateColumn::DateTime",
+  "InflateColumn::Time",
+);
 
 =head1 TABLE: C<event_result>
 
@@ -118,8 +124,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-06 14:46:30
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:tWeoctt+cnKnkczkGZWCIw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-11 14:38:38
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:IB2jCdQ9Izln6t1aEZj8Tw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
