@@ -6,6 +6,18 @@ use DateTime::Format::Strptime;
 
 use DCS::Constants qw(:boolean :existence);
 
+has 'race_id' => (
+  is => 'rw',
+  isa => 'Str|Undef',
+  writer => '_set_race_id'
+);
+
+has 'event_id' => (
+  is => 'ro',
+  isa => 'Str',
+  required => $TRUE
+);
+
 has 'base_url' => (
   is => 'ro',
   isa => 'Str',
@@ -19,15 +31,17 @@ has 'key_map' => (
   isa => 'HashRef',
   default => sub { {
     'No.'      => 'bib_no',
+    'sex'      => 'gender',
+    'gun_time' => 'gross_time'
   } },
   handles => {
     'get_key' => 'get'
   }
 );
 
-sub get_metadata {
+sub fetch_metadata {
   my $self=shift;
-  my ($eid)=@_;
+  my $eid = $self->event_id;
 
   my $p = DateTime::Format::Strptime->new(
     pattern => '%a %b %d, %Y',
@@ -47,35 +61,59 @@ sub get_metadata {
   my ($date,$location) = @{$res->dom->find('em')->map('text')->to_array()};
   my $dt = $p->parse_datetime($date);
 
-  my $races = $res->dom->find('div.row')->[1]->find('td:first-child')->map('text')->to_array();
+  my $races_c  = $res->dom->find('div.row')->[1];
+  my $races    = $races_c->find('td:nth-child(1)')->map('text')->to_array();
+  my $entrants = $races_c->find('td:nth-child(2)')->map('text')->to_array();
+  my %races;
+  @races{@$races} = @$entrants;
 
   return {
     title => $title,
     location => $location,
     date => $dt,
-    races => $races
+    races => \%races
   };
 }
 
-sub get_results {
+sub find_and_update_event {
   my $self=shift;
-  my ($eid,$raceid)=@_;
+  my ($model)=@_;
+
+  my $info = $self->fetch_metadata();
+  my @races = keys(%{$info->{races}});
+  if(@races == 1) {
+    $self->_set_race_id($races[0]);
+  } elsif(!defined($info->{races}->{$self->race_id})) {
+    die "Race identifier '".$self->race_id."' not found\n";
+  }
+  my ($event) = grep { $_->activity->start_time->year == $info->{date}->year } $model->search({name => $info->{title}})->all;
+  die "Event '".$info->{title}."' not found\n" unless(defined($event));
+
+  $event->entrants($info->{races}->{$self->race_id});
+  $event->update;
+  return $event;
+}
+
+sub fetch_results {
+  my $self=shift;
 
   my $results = Mojo::URL->new($self->base_url);
-  $results->query(op => 'overall', eid => $eid, racename => $raceid, place => 0);
+  $results->query(op => 'overall', eid => $self->event_id, racename => $self->race_id);
 
   my $ua = Mojo::UserAgent->new();
   my $res = $ua->get($results)->result;
 
   #Column Headings
-  my @col_map = #map { $self->get_key($_) // '' }
-    @{$res->dom->find('table.table-condensed > thead > tr > th')->map(sub { 
+  my @col_map = 
+    @{$res->dom->find('table.table-condensed > thead > tr > th')->map(sub {
+      my $v;
       if($_->children('a')->size) { 
         my $url = Mojo::URL->new($_->children('a')->[0]->attr('href')); 
-        $url->query->param('sort'); # we want the sort param from the link's href if it's a link
+        $v = $url->query->param('sort'); # we want the sort param from the link's href if it's a link
       } else { 
-        $self->get_key($_->text); # and the cell text otherwise
+        $v = $_->text; # and the cell text otherwise
       } 
+      $self->get_key($v) // $v;
     })->to_array};
   shift(@col_map); # first column participant links
   
@@ -92,7 +130,7 @@ sub get_results {
     });
     last unless $n;
 
-    $results->query(op => 'overall', eid => $eid, racename => $raceid, place => $n);
+    $results->query(op => 'overall', eid => $self->event_id, racename => $self->race_id, place => $n);
     $res = $ua->get($results)->result;
   }
 
