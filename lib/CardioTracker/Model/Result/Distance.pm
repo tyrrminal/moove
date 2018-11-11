@@ -137,4 +137,11 @@ __PACKAGE__->belongs_to(
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+
+sub description {
+  my $self=shift;
+
+  return sprintf("%.2f %s", $self->value, $self->uom->abbreviation)
+}
+
 1;
