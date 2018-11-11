@@ -1,12 +1,12 @@
 use utf8;
-package CardioTracker::Model::Result::Sex;
+package CardioTracker::Model::Result::Gender;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-CardioTracker::Model::Result::Sex
+CardioTracker::Model::Result::Gender
 
 =cut
 
@@ -29,11 +29,11 @@ use base 'DBIx::Class::Core';
 
 __PACKAGE__->load_components("Relationship::Predicate", "InflateColumn::DateTime");
 
-=head1 TABLE: C<sex>
+=head1 TABLE: C<gender>
 
 =cut
 
-__PACKAGE__->table("sex");
+__PACKAGE__->table("gender");
 
 =head1 ACCESSORS
 
@@ -97,13 +97,13 @@ Related object: L<CardioTracker::Model::Result::Participant>
 __PACKAGE__->has_many(
   "participants",
   "CardioTracker::Model::Result::Participant",
-  { "foreign.sex_id" => "self.id" },
+  { "foreign.gender_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-06 14:46:30
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:yhlheJYee0ZoJmNORGaQ+Q
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-07 17:38:18
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:dcQU6lzi7hTsAQ0uYmjeEA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

@@ -52,7 +52,7 @@ __PACKAGE__->table("participant");
 =head2 bib_no
 
   data_type: 'integer'
-  is_nullable: 0
+  is_nullable: 1
 
 =head2 division_id
 
@@ -71,7 +71,7 @@ __PACKAGE__->table("participant");
   is_foreign_key: 1
   is_nullable: 0
 
-=head2 sex_id
+=head2 gender_id
 
   data_type: 'integer'
   is_foreign_key: 1
@@ -91,14 +91,14 @@ __PACKAGE__->add_columns(
   "result_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "bib_no",
-  { data_type => "integer", is_nullable => 0 },
+  { data_type => "integer", is_nullable => 1 },
   "division_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "age",
   { data_type => "integer", is_nullable => 1 },
   "person_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
-  "sex_id",
+  "gender_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "location_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
@@ -130,6 +130,26 @@ __PACKAGE__->belongs_to(
   "division",
   "CardioTracker::Model::Result::Division",
   { id => "division_id" },
+  {
+    is_deferrable => 1,
+    join_type     => "LEFT",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
+  },
+);
+
+=head2 gender
+
+Type: belongs_to
+
+Related object: L<CardioTracker::Model::Result::Gender>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "gender",
+  "CardioTracker::Model::Result::Gender",
+  { id => "gender_id" },
   {
     is_deferrable => 1,
     join_type     => "LEFT",
@@ -188,29 +208,9 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 sex
 
-Type: belongs_to
-
-Related object: L<CardioTracker::Model::Result::Sex>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "sex",
-  "CardioTracker::Model::Result::Sex",
-  { id => "sex_id" },
-  {
-    is_deferrable => 1,
-    join_type     => "LEFT",
-    on_delete     => "NO ACTION",
-    on_update     => "NO ACTION",
-  },
-);
-
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-06 14:46:30
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:SbEKtRLerbcUxS5d/ypbbA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-07 22:26:10
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:jbfzLBHRCqHU8s6winOy2Q
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
