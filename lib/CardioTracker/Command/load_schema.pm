@@ -20,7 +20,7 @@ sub run {
     'CardioTracker::Model', {
       debug => $TRUE,
       dump_directory => File::Spec->catfile($app->home,'lib'),
-      components => [qw(Relationship::Predicate InflateColumn::DateTime)],
+      components => [qw(Relationship::Predicate InflateColumn::DateTime InflateColumn::Time)],
       overwrite_modifications => $TRUE
     },
     [$db->dsn, $db->user, $db->pass],
