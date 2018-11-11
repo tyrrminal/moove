@@ -55,6 +55,11 @@ __PACKAGE__->table("unit_of_measure");
   is_nullable: 0
   size: 10
 
+=head2 conversion_factor
+
+  data_type: 'float'
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -64,6 +69,8 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", is_nullable => 0, size => 45 },
   "abbreviation",
   { data_type => "varchar", is_nullable => 0, size => 10 },
+  "conversion_factor",
+  { data_type => "float", is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY
@@ -122,8 +129,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-06 14:46:30
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/Z3q0Wr869DFlpVbBIzrTA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-11 14:19:12
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:00+dwxhVlXeC7aPkCUwvQg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
