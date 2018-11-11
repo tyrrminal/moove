@@ -53,7 +53,7 @@ __PACKAGE__->table("event");
 
   data_type: 'varchar'
   is_nullable: 0
-  size: 45
+  size: 100
 
 =head2 entrants
 
@@ -87,7 +87,7 @@ __PACKAGE__->add_columns(
   "activity_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "name",
-  { data_type => "varchar", is_nullable => 0, size => 45 },
+  { data_type => "varchar", is_nullable => 0, size => 100 },
   "entrants",
   { data_type => "integer", extra => { unsigned => 1 }, is_nullable => 1 },
   "event_type_id",
@@ -190,8 +190,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-06 14:46:30
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:gr+64wYs8fuNO7rrsxL1bA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-07 22:26:10
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:LNvdyFlJ3M60gZTNPqQI8g
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
