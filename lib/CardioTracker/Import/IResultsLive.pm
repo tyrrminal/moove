@@ -126,6 +126,7 @@ sub fetch_results {
       my @values = @{$e->children('td')->map('text')->to_array};
       shift(@values); # first column participant links
       @record{@col_map} = @values;
+      _fix_times(\%record);
       $n = push(@results, {%record});
     });
     last unless $n;
@@ -135,6 +136,18 @@ sub fetch_results {
   }
 
   return @results;
+}
+
+sub _fix_times {
+  my $p = shift;
+
+  foreach (qw(net_time gross_time pace)) {
+    if(defined($p->{$_})) {
+      unless($p->{$_} =~ /:\d{2}:/) { # force times to be h:mm:ss if they're just mm:ss
+        $p->{$_} = "0:".$p->{$_};
+      }
+    }
+  }
 }
 
 1;

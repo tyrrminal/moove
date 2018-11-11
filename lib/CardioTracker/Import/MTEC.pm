@@ -101,6 +101,7 @@ sub fetch_results {
       my @values = map { _trim($_->text) } @{$_->find('td > a')->to_array()};
       @record{@col_map} = @values;
       _fix_name(\%record);
+      _fix_times(\%record);
       _fix_location(\%record);
       _fix_place(\%record);
       _fix_age(\%record);
@@ -175,6 +176,18 @@ sub _fix_division {
       $s = sprintf("%02d",$i+1);
     }
     $v->{division} = sprintf('%s%s%s', $v->{gender},$s,$i);
+  }
+}
+
+sub _fix_times {
+  my $p = shift;
+
+  foreach (qw(net_time gross_time pace)) {
+    if(defined($p->{$_})) {
+      unless($p->{$_} =~ /:\d{2}:/) { # force times to be h:mm:ss if they're just mm:ss
+        $p->{$_} = "0:".$p->{$_};
+      }
+    }
   }
 }
 
