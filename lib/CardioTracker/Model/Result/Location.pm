@@ -58,13 +58,13 @@ __PACKAGE__->table("location");
 =head2 city
 
   data_type: 'varchar'
-  is_nullable: 0
+  is_nullable: 1
   size: 45
 
 =head2 state
 
   data_type: 'varchar'
-  is_nullable: 0
+  is_nullable: 1
   size: 45
 
 =head2 zip
@@ -79,6 +79,12 @@ __PACKAGE__->table("location");
   is_nullable: 1
   size: 14
 
+=head2 country
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 45
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -89,13 +95,15 @@ __PACKAGE__->add_columns(
   "street2",
   { data_type => "varchar", is_nullable => 1, size => 45 },
   "city",
-  { data_type => "varchar", is_nullable => 0, size => 45 },
+  { data_type => "varchar", is_nullable => 1, size => 45 },
   "state",
-  { data_type => "varchar", is_nullable => 0, size => 45 },
+  { data_type => "varchar", is_nullable => 1, size => 45 },
   "zip",
   { data_type => "varchar", is_nullable => 1, size => 10 },
   "phone",
   { data_type => "varchar", is_nullable => 1, size => 14 },
+  "country",
+  { data_type => "varchar", is_nullable => 1, size => 45 },
 );
 
 =head1 PRIMARY KEY
@@ -158,8 +166,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-06 14:46:30
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ZPId7MaUNSNq6KqBDLS7oQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-09 17:17:42
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:bnCfM3JHeXP0QrBJzEZ0pg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

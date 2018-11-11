@@ -2,17 +2,18 @@ package CardioTracker::Model::ResultSet::Location;
 
 use base qw(DBIx::Class::ResultSet);
 
-sub find_city_state {
+sub find_location {
   my $self=shift;
-  my ($city,$state) = @_;
+  my %v = @_;
 
   return $self->find_or_create({
       street1 => $NULL,
       street2 => $NULL,
-      city => $city,
-      state => $state,
+      city => $v{city},
+      state => $v{state},
       zip => $NULL,
-      phone => $NULL
+      phone => $NULL,
+      country => $v{country}
     });
 }
 
