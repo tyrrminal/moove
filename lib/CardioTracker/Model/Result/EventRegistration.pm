@@ -52,7 +52,7 @@ __PACKAGE__->table("event_registration");
 =head2 fee
 
   data_type: 'decimal'
-  is_nullable: 0
+  is_nullable: 1
   size: [6,2]
 
 =head2 fundraising_minimum
@@ -76,7 +76,7 @@ __PACKAGE__->add_columns(
   "user_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "fee",
-  { data_type => "decimal", is_nullable => 0, size => [6, 2] },
+  { data_type => "decimal", is_nullable => 1, size => [6, 2] },
   "fundraising_minimum",
   { data_type => "decimal", is_nullable => 1, size => [6, 2] },
   "registered",
@@ -153,8 +153,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-06 14:46:30
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:UzHlzMz0BStfKo5c/K1lng
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-07 17:38:18
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:kcPHu6+CcVngJSUA+fKqGw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
