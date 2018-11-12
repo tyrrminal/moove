@@ -150,4 +150,24 @@ __PACKAGE__->has_many(
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+
+# Pace is always minutes (net) per mile
+sub update_pace {
+  my $self=shift;
+
+  my ($min,$sec) = $self->net_time->in_units(qw(minutes seconds));
+  $min += $sec/60;
+
+  my $d = $self->activity->distance;
+  my $miles = $d->value * $d->uom->conversion_factor;
+
+  $self->update(pace => _minutes_to_time_str($min/$miles));
+}
+
+sub _minutes_to_time_str {
+  my ($t) = @_;
+  my $dec = $t - int($t);
+  return sprintf("00:%02d:%04.1f", int($t), $dec*60);
+}
+
 1;
