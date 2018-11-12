@@ -58,9 +58,9 @@ __PACKAGE__->table("event_result");
 =head2 place
 
   data_type: 'integer'
-  is_nullable: 1
+  is_nullable: 0
 
-=head2 event_result_type_id
+=head2 event_result_group_id
 
   data_type: 'integer'
   is_foreign_key: 1
@@ -74,8 +74,8 @@ __PACKAGE__->add_columns(
   "result_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "place",
-  { data_type => "integer", is_nullable => 1 },
-  "event_result_type_id",
+  { data_type => "integer", is_nullable => 0 },
+  "event_result_group_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
 );
 
@@ -93,18 +93,18 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
-=head2 event_result_type
+=head2 event_result_group
 
 Type: belongs_to
 
-Related object: L<CardioTracker::Model::Result::EventResultType>
+Related object: L<CardioTracker::Model::Result::EventResultGroup>
 
 =cut
 
 __PACKAGE__->belongs_to(
-  "event_result_type",
-  "CardioTracker::Model::Result::EventResultType",
-  { id => "event_result_type_id" },
+  "event_result_group",
+  "CardioTracker::Model::Result::EventResultGroup",
+  { id => "event_result_group_id" },
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
@@ -124,8 +124,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-11 14:38:38
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:IB2jCdQ9Izln6t1aEZj8Tw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-12 04:49:18
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:HCH0LcblRiZJlS80PK5cKA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

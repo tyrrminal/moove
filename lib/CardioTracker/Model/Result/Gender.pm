@@ -92,6 +92,21 @@ __PACKAGE__->add_unique_constraint("description_UNIQUE", ["description"]);
 
 =head1 RELATIONS
 
+=head2 event_result_groups
+
+Type: has_many
+
+Related object: L<CardioTracker::Model::Result::EventResultGroup>
+
+=cut
+
+__PACKAGE__->has_many(
+  "event_result_groups",
+  "CardioTracker::Model::Result::EventResultGroup",
+  { "foreign.gender_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 participants
 
 Type: has_many
@@ -108,8 +123,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-11 14:38:38
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:N5/YXIiZ1upIZjTDMwFOIw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-12 04:49:18
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:VdjVw8dN/sZpo4xiz9QP2w
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

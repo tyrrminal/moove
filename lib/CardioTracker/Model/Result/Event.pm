@@ -165,6 +165,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 event_result_groups
+
+Type: has_many
+
+Related object: L<CardioTracker::Model::Result::EventResultGroup>
+
+=cut
+
+__PACKAGE__->has_many(
+  "event_result_groups",
+  "CardioTracker::Model::Result::EventResultGroup",
+  { "foreign.event_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 event_type
 
 Type: belongs_to
@@ -196,8 +211,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-11 14:38:38
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Grq99TMgtyCNEjE0VStcRQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-12 04:49:18
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:PtJolKWgH7XSUUpzOk1sEA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
