@@ -74,6 +74,11 @@ __PACKAGE__->table("event_registration");
   extra: {list => ["Y","N"]}
   is_nullable: 0
 
+=head2 bib_no
+
+  data_type: 'integer'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -92,6 +97,8 @@ __PACKAGE__->add_columns(
     extra => { list => ["Y", "N"] },
     is_nullable => 0,
   },
+  "bib_no",
+  { data_type => "integer", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -159,8 +166,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-11 14:38:38
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:60QMniV/aHPdrq3uAkJnVQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-13 18:49:27
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:X8g6fcAuhEpMmP/Y1tqijg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
