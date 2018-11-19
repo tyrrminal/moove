@@ -49,6 +49,12 @@ __PACKAGE__->table("event_type");
   is_auto_increment: 1
   is_nullable: 0
 
+=head2 activity_type_id
+
+  data_type: 'integer'
+  is_foreign_key: 1
+  is_nullable: 0
+
 =head2 description
 
   data_type: 'varchar'
@@ -60,6 +66,8 @@ __PACKAGE__->table("event_type");
 __PACKAGE__->add_columns(
   "id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
+  "activity_type_id",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "description",
   { data_type => "varchar", is_nullable => 0, size => 45 },
 );
@@ -92,6 +100,21 @@ __PACKAGE__->add_unique_constraint("description_UNIQUE", ["description"]);
 
 =head1 RELATIONS
 
+=head2 activity_type
+
+Type: belongs_to
+
+Related object: L<CardioTracker::Model::Result::ActivityType>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "activity_type",
+  "CardioTracker::Model::Result::ActivityType",
+  { id => "activity_type_id" },
+  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
+);
+
 =head2 events
 
 Type: has_many
@@ -108,8 +131,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-11 14:38:38
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:0QDGRMJmDzM+PGR7tiz8Ug
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-19 18:40:37
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:IwBvkhczg//4MtKYhusavA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
