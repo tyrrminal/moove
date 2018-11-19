@@ -3,6 +3,8 @@ requires 'Modern::Perl';
 requires 'IO::Socket::SSL';
 requires 'Lingua::EN::Titlecase';
 
+requires 'DateTime::Span';
+requires 'DateTime::Format::Duration';
 requires 'DateTime::Format::Strptime';
 requires 'DateTime::Format::MySQL';
 
@@ -15,6 +17,7 @@ requires 'Mojolicious::Plugin::Database';
 requires 'Mojo::DynamicMethods';
 
 requires 'String::Util';
+requires 'Text::CSV_XS';
 
 requires 'DBI';
 requires 'DBD::mysql';

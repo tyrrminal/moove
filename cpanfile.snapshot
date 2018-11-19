@@ -509,18 +509,6 @@ DISTRIBUTIONS
       Try::Tiny 0.07
       namespace::clean 0.24
       perl 5.008001
-  DBIx-Class-InflateColumn-DateTime-Duration-0.01002
-    pathname: C/CU/CUBABIT/DBIx-Class-InflateColumn-DateTime-Duration-0.01002.tar.gz
-    provides:
-      DBIx::Class::InflateColumn::DateTime::Duration 0.01002
-    requirements:
-      Class::Accessor::Grouped 0.03
-      DBD::SQLite 1.11
-      DBIx::Class 0.07005
-      DateTime::Format::Duration::XSD 0.01
-      ExtUtils::MakeMaker 6.42
-      Try::Tiny 0.04
-      perl 5.008001
   DBIx-Class-InflateColumn-FS-0.01007
     pathname: M/MM/MMIMS/DBIx-Class-InflateColumn-FS-0.01007.tar.gz
     provides:
@@ -798,15 +786,6 @@ DISTRIBUTIONS
       constant 0
       perl 5.006
       strict 0
-  DateTime-Format-Duration-XSD-0.01
-    pathname: N/NU/NUF/DateTime-Format-Duration-XSD-0.01.tar.gz
-    provides:
-      DateTime::Format::Duration::XSD 0.01
-    requirements:
-      DateTime 0.3
-      DateTime::Format::Duration 1.03
-      ExtUtils::MakeMaker 0
-      Test::More 0
   DateTime-Format-MySQL-0.06
     pathname: X/XM/XMIKEW/DateTime-Format-MySQL-0.06.tar.gz
     provides:
@@ -865,6 +844,18 @@ DISTRIBUTIONS
       perl 5.008004
       strict 0
       warnings 0
+  DateTime-Set-0.3900
+    pathname: F/FG/FGLOCK/DateTime-Set-0.3900.tar.gz
+    provides:
+      DateTime::Set 0.3900
+      DateTime::Span undef
+      DateTime::SpanSet undef
+      Set::Infinite::_recurrence undef
+    requirements:
+      DateTime 0.12
+      Params::Validate 0
+      Set::Infinite 0.59
+      Test::More 0
   DateTime-TimeZone-2.21
     pathname: D/DR/DROLSKY/DateTime-TimeZone-2.21.tar.gz
     provides:
@@ -1510,12 +1501,6 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       Test::More 0
-  JSON-Relaxed-0.05
-    pathname: M/MI/MIKO/JSON-Relaxed-0.05.tar.gz
-    provides:
-      JSON::Relaxed 0.05
-    requirements:
-      Test::Most 0.34
   Lingua-EN-FindNumber-1.32
     pathname: N/NE/NEILB/Lingua-EN-FindNumber-1.32.tar.gz
     provides:
@@ -2727,6 +2712,16 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 0
       Test::More 0
       perl 5.006001
+  Set-Infinite-0.65
+    pathname: F/FG/FGLOCK/Set-Infinite-0.65.tar.gz
+    provides:
+      Set::Infinite 0.65
+      Set::Infinite::Arithmetic undef
+      Set::Infinite::Basic undef
+    requirements:
+      ExtUtils::MakeMaker 0
+      Test::More 0
+      Time::Local 0
   Snowball-Norwegian-1.2
     pathname: A/AS/ASKSH/Snowball-Norwegian-1.2.tar.gz
     provides:
@@ -2995,20 +2990,6 @@ DISTRIBUTIONS
       Try::Tiny 0.07
       strict 0
       warnings 0
-  Test-Most-0.35
-    pathname: O/OV/OVID/Test-Most-0.35.tar.gz
-    provides:
-      Test::Most 0.35
-      Test::Most::Exception 0.35
-    requirements:
-      Exception::Class 1.14
-      ExtUtils::MakeMaker 0
-      Test::Deep 0.119
-      Test::Differences 0.64
-      Test::Exception 0.43
-      Test::Harness 3.35
-      Test::More 1.302047
-      Test::Warn 0.30
   Test-Toolbox-0.4
     pathname: M/MI/MIKO/Test-Toolbox-0.4.tar.gz
     provides:
@@ -3025,6 +3006,16 @@ DISTRIBUTIONS
       Test::Builder 0.13
       Test::Builder::Tester 1.02
       perl 5.006
+  Text-CSV_XS-1.37
+    pathname: H/HM/HMBRAND/Text-CSV_XS-1.37.tgz
+    provides:
+      Text::CSV_XS 1.37
+    requirements:
+      Config 0
+      ExtUtils::MakeMaker 0
+      IO::Handle 0
+      Test::More 0
+      XSLoader 0
   Text-Diff-1.45
     pathname: N/NE/NEILB/Text-Diff-1.45.tar.gz
     provides:
