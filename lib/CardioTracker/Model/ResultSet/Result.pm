@@ -7,7 +7,7 @@ use DCS::Constants qw(:existence);
 sub needs_pace {
   my $self=shift;
 
-  return $self->search({ pace => $NULL })->all;
+  return $self->search({ pace => $NULL });
 }
 
 1;
