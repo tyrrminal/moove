@@ -73,7 +73,7 @@ __PACKAGE__->table("activity");
   is_foreign_key: 1
   is_nullable: 1
 
-=head2 activity_id
+=head2 event_id
 
   data_type: 'integer'
   is_foreign_key: 1
@@ -96,7 +96,7 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "result_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
-  "activity_id",
+  "event_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
 );
 
@@ -113,26 +113,6 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
-
-=head2 activity
-
-Type: belongs_to
-
-Related object: L<CardioTracker::Model::Result::Event>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "activity",
-  "CardioTracker::Model::Result::Event",
-  { id => "activity_id" },
-  {
-    is_deferrable => 1,
-    join_type     => "LEFT",
-    on_delete     => "NO ACTION",
-    on_update     => "NO ACTION",
-  },
-);
 
 =head2 activity_type
 
@@ -162,6 +142,26 @@ __PACKAGE__->belongs_to(
   "CardioTracker::Model::Result::Distance",
   { id => "distance_id" },
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
+);
+
+=head2 event
+
+Type: belongs_to
+
+Related object: L<CardioTracker::Model::Result::Event>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "event",
+  "CardioTracker::Model::Result::Event",
+  { id => "event_id" },
+  {
+    is_deferrable => 1,
+    join_type     => "LEFT",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
+  },
 );
 
 =head2 result
@@ -210,8 +210,8 @@ Composing rels: L</user_activities> -> user
 __PACKAGE__->many_to_many("users", "user_activities", "user");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-19 17:03:55
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:wWnEfSetvZfdf8zZdN8zSQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-19 17:38:07
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:TyoHMYOs+uLYn2Uvx8sWkg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

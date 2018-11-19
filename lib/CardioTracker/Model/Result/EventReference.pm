@@ -46,6 +46,7 @@ __PACKAGE__->table("event_reference");
 =head2 id
 
   data_type: 'integer'
+  is_auto_increment: 1
   is_nullable: 0
 
 =head2 event_id
@@ -76,7 +77,7 @@ __PACKAGE__->table("event_reference");
 
 __PACKAGE__->add_columns(
   "id",
-  { data_type => "integer", is_nullable => 0 },
+  { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "event_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "event_reference_type_id",
@@ -132,8 +133,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-19 17:03:55
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:iGLYJ10EQ9/dqk+U2Fdc2w
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-19 17:38:07
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:61iZwkU2l3Fwg1CKEqaFzA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

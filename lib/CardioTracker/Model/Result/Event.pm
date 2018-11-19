@@ -133,7 +133,7 @@ Related object: L<CardioTracker::Model::Result::Activity>
 __PACKAGE__->has_many(
   "activities",
   "CardioTracker::Model::Result::Activity",
-  { "foreign.activity_id" => "self.id" },
+  { "foreign.event_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
@@ -228,8 +228,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-19 17:03:55
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:UHFcHZDVsODg0DpBFDoSXA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-19 17:38:07
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:hndv1Y0Y+utjUEHkgTCcsQ
 
 use DCS::Constants qw(:boolean :existence :symbols);
 
