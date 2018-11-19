@@ -12,6 +12,7 @@ sub startup {
 
   $self->plugin('DCS::Plugin::Config');
   $self->plugin('CardioTracker::Helper::DB');
+  $self->plugin('CardioTracker::Helper::Session');
 
   # Router
   my $r = $self->routes;
