@@ -61,6 +61,12 @@ __PACKAGE__->table("event");
   is_nullable: 0
   size: 100
 
+=head2 scheduled_start
+
+  data_type: 'datetime'
+  datetime_undef_if_invalid: 1
+  is_nullable: 0
+
 =head2 entrants
 
   data_type: 'integer'
@@ -94,6 +100,12 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "name",
   { data_type => "varchar", is_nullable => 0, size => 100 },
+  "scheduled_start",
+  {
+    data_type => "datetime",
+    datetime_undef_if_invalid => 1,
+    is_nullable => 0,
+  },
   "entrants",
   { data_type => "integer", extra => { unsigned => 1 }, is_nullable => 1 },
   "event_type_id",
@@ -211,9 +223,54 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-12 04:49:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:PtJolKWgH7XSUUpzOk1sEA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-15 18:33:15
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:0ABmA2s8Qp5DdR8DkkO4aQ
 
+use DCS::Constants qw(:boolean :existence :symbols);
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+
+sub create_gender_result_group {
+  my $self=shift;
+  my ($gender) = @_;
+  my $schema = $self->result_source->schema;
+
+  my $rs_r = $schema->resultset('Result')->search({
+    'participants.gender_id' => $gender->id,
+    'events.id' => $self->id
+  },{
+    join => [
+      'participants',
+      { activity => 'events' }
+    ],
+    order_by => { -asc => 'net_time' }
+  });
+
+  my $group = $schema->resultset('EventResultGroup')->create({
+    event => $self,
+    gender => $gender,
+    division_id => $NULL,
+    count => $rs_r->count
+  });
+
+  my $i=1;
+  while (my $r = $rs_r->next) {
+    $schema->resultset('EventResult')->create({
+      result => $r,
+      place => $i++,
+      event_result_group => $group
+    });
+  }
+}
+
+sub description {
+  my $self=shift;
+  my $year = $self->scheduled_start->year;
+  my $name = $self->name;
+  unless($name =~ /$year/) {
+    $name = join($SPACE, $year, $name)
+  }
+  return $name;
+}
+
 1;

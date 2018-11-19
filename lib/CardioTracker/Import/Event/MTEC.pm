@@ -1,9 +1,10 @@
-package CardioTracker::Import::MTEC;
+package CardioTracker::Import::Event::MTEC;
 use Moose;
 use Modern::Perl;
 
 use Readonly;
 use Scalar::Util qw(looks_like_number);
+use CardioTracker::Import::Helper::Rectification qw(normalize_times);
 use Data::Dumper;
 
 use DCS::Constants qw(:boolean :existence :symbols);
@@ -77,7 +78,7 @@ sub find_and_update_event {
 
   my $info = $self->fetch_metadata;
 
-  my ($event) = grep { $_->activity->start_time->year == $info->{date}->year } $model->search({name => $info->{title}})->all;
+  my ($event) = grep { $_->scheduled_start->year == $info->{date}->year } $model->search({name => $info->{title}})->all;
   die sprintf("Event '%s' (%d) not found\n", $info->{title}, $info->{date}->year) unless(defined($event));
 
   return $event;
@@ -101,7 +102,7 @@ sub fetch_results {
       my @values = map { _trim($_->text) } @{$_->find('td > a')->to_array()};
       @record{@col_map} = @values;
       _fix_name(\%record);
-      _fix_times(\%record);
+      normalize_times(\%record);
       _fix_location(\%record);
       _fix_place(\%record);
       _fix_age(\%record);
@@ -176,18 +177,6 @@ sub _fix_division {
       $s = sprintf("%02d",$i+1);
     }
     $v->{division} = sprintf('%s%s%s', $v->{gender},$s,$i);
-  }
-}
-
-sub _fix_times {
-  my $p = shift;
-
-  foreach (qw(net_time gross_time pace)) {
-    if(defined($p->{$_})) {
-      unless($p->{$_} =~ /:\d{2}:/) { # force times to be h:mm:ss if they're just mm:ss
-        $p->{$_} = "0:".$p->{$_};
-      }
-    }
   }
 }
 

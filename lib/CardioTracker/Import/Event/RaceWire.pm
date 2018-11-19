@@ -1,9 +1,10 @@
-package CardioTracker::Import::RaceWire;
+package CardioTracker::Import::Event::RaceWire;
 use Modern::Perl;
 use Moose;
 
 use DateTime::Format::Strptime;
 use Lingua::EN::Titlecase;
+use CardioTracker::Import::Helper::Rectification qw(normalize_times);
 
 use DCS::Constants qw(:boolean :existence :symbols);
 
@@ -101,7 +102,7 @@ sub find_and_update_event {
 
   my $info = $self->get_metadata();
   
-  my ($event) = grep { $_->activity->start_time->year == $info->{date}->year } $model->search({name => $info->{title}})->all;
+  my ($event) = grep { $_->scheduled_start->year == $info->{date}->year } $model->search({name => $info->{title}})->all;
   die sprintf("Event '%s' (%d) not found\n", $info->{title}, $info->{date}->year) unless(defined($event));
 
   return $event;
@@ -126,7 +127,7 @@ sub _build_participant_hash {
   @p{@$keys} = @$values; #merge arrays
   delete($p{$EMPTY});    #remove unused components
   _fix_names(\%p);       #recapitalize names
-  _fix_times(\%p);
+  normalize_times(\%p);
   return {%p};
 }
 
@@ -147,16 +148,6 @@ sub _fix_names {
   }
 }
 
-sub _fix_times {
-  my $p = shift;
 
-  foreach (qw(net_time gross_time pace)) {
-    if(defined($p->{$_})) {
-      unless($p->{$_} =~ /:\d{2}:/) { # force times to be h:mm:ss if they're just mm:ss
-        $p->{$_} = "0:".$p->{$_};
-      }
-    }
-  }
-}
 
 1;

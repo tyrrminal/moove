@@ -1,8 +1,10 @@
-package CardioTracker::Import::IResultsLive;
+package CardioTracker::Import::Event::IResultsLive;
 use Modern::Perl;
 use Moose;
 
 use DateTime::Format::Strptime;
+
+use CardioTracker::Import::Helper::Rectification qw(normalize_times);
 
 use DCS::Constants qw(:boolean :existence);
 
@@ -86,7 +88,7 @@ sub find_and_update_event {
   } elsif(!defined($info->{races}->{$self->race_id})) {
     die "Race identifier '".$self->race_id."' not found\n";
   }
-  my ($event) = grep { $_->activity->start_time->year == $info->{date}->year } $model->search({name => $info->{title}})->all;
+  my ($event) = grep { $_->scheduled_start->year == $info->{date}->year } $model->search({name => $info->{title}})->all;
   die "Event '".$info->{title}."' not found\n" unless(defined($event));
 
   $event->entrants($info->{races}->{$self->race_id});
@@ -126,7 +128,7 @@ sub fetch_results {
       my @values = @{$e->children('td')->map('text')->to_array};
       shift(@values); # first column participant links
       @record{@col_map} = @values;
-      _fix_times(\%record);
+      normalize_times(\%record);
       $n = push(@results, {%record});
     });
     last unless $n;
@@ -136,18 +138,6 @@ sub fetch_results {
   }
 
   return @results;
-}
-
-sub _fix_times {
-  my $p = shift;
-
-  foreach (qw(net_time gross_time pace)) {
-    if(defined($p->{$_})) {
-      unless($p->{$_} =~ /:\d{2}:/) { # force times to be h:mm:ss if they're just mm:ss
-        $p->{$_} = "0:".$p->{$_};
-      }
-    }
-  }
 }
 
 1;

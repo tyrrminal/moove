@@ -49,12 +49,6 @@ __PACKAGE__->table("activity");
   is_auto_increment: 1
   is_nullable: 0
 
-=head2 start_time
-
-  data_type: 'datetime'
-  datetime_undef_if_invalid: 1
-  is_nullable: 0
-
 =head2 activity_type_id
 
   data_type: 'integer'
@@ -72,12 +66,6 @@ __PACKAGE__->table("activity");
 __PACKAGE__->add_columns(
   "id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-  "start_time",
-  {
-    data_type => "datetime",
-    datetime_undef_if_invalid => 1,
-    is_nullable => 0,
-  },
   "activity_type_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "distance_id",
@@ -184,8 +172,8 @@ Composing rels: L</user_activities> -> user
 __PACKAGE__->many_to_many("users", "user_activities", "user");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-11 14:38:38
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:mlGjQeGg8HJ9Oog+A8IYMQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-15 18:33:15
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Ujm8h6l5Gdy1XHbR93oI9w
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
