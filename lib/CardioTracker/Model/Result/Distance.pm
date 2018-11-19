@@ -84,6 +84,22 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("id");
 
+=head1 UNIQUE CONSTRAINTS
+
+=head2 C<distance_value_uom_uniq_idx>
+
+=over 4
+
+=item * L</value>
+
+=item * L</uom>
+
+=back
+
+=cut
+
+__PACKAGE__->add_unique_constraint("distance_value_uom_uniq_idx", ["value", "uom"]);
+
 =head1 RELATIONS
 
 =head2 activities
@@ -132,8 +148,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-11 14:38:38
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:LE0sM3xOJcthfNCwLTMNDg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-15 16:01:26
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:auMFHQQkJVySFeTP6ZYcZA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
