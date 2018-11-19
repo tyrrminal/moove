@@ -49,12 +49,6 @@ __PACKAGE__->table("event");
   is_auto_increment: 1
   is_nullable: 0
 
-=head2 activity_id
-
-  data_type: 'integer'
-  is_foreign_key: 1
-  is_nullable: 0
-
 =head2 name
 
   data_type: 'varchar'
@@ -96,8 +90,6 @@ __PACKAGE__->table("event");
 __PACKAGE__->add_columns(
   "id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-  "activity_id",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "name",
   { data_type => "varchar", is_nullable => 0, size => 100 },
   "scheduled_start",
@@ -122,29 +114,27 @@ __PACKAGE__->add_columns(
 
 =item * L</id>
 
-=item * L</activity_id>
-
 =back
 
 =cut
 
-__PACKAGE__->set_primary_key("id", "activity_id");
+__PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
-=head2 activity
+=head2 activities
 
-Type: belongs_to
+Type: has_many
 
 Related object: L<CardioTracker::Model::Result::Activity>
 
 =cut
 
-__PACKAGE__->belongs_to(
-  "activity",
+__PACKAGE__->has_many(
+  "activities",
   "CardioTracker::Model::Result::Activity",
-  { id => "activity_id" },
-  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
+  { "foreign.activity_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 =head2 distance
@@ -160,6 +150,21 @@ __PACKAGE__->belongs_to(
   "CardioTracker::Model::Result::Distance",
   { id => "distance_id" },
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
+);
+
+=head2 event_references
+
+Type: has_many
+
+Related object: L<CardioTracker::Model::Result::EventReference>
+
+=cut
+
+__PACKAGE__->has_many(
+  "event_references",
+  "CardioTracker::Model::Result::EventReference",
+  { "foreign.event_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 =head2 event_registrations
@@ -223,8 +228,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-15 18:33:15
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:0ABmA2s8Qp5DdR8DkkO4aQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-19 17:03:55
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:UHFcHZDVsODg0DpBFDoSXA
 
 use DCS::Constants qw(:boolean :existence :symbols);
 

@@ -49,18 +49,6 @@ __PACKAGE__->table("result");
   is_auto_increment: 1
   is_nullable: 0
 
-=head2 activity_id
-
-  data_type: 'integer'
-  is_foreign_key: 1
-  is_nullable: 0
-
-=head2 start_time
-
-  data_type: 'datetime'
-  datetime_undef_if_invalid: 1
-  is_nullable: 1
-
 =head2 gross_time
 
   data_type: 'time'
@@ -81,14 +69,6 @@ __PACKAGE__->table("result");
 __PACKAGE__->add_columns(
   "id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-  "activity_id",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
-  "start_time",
-  {
-    data_type => "datetime",
-    datetime_undef_if_invalid => 1,
-    is_nullable => 1,
-  },
   "gross_time",
   { data_type => "time", is_nullable => 1 },
   "net_time",
@@ -111,19 +91,19 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
-=head2 activity
+=head2 activities
 
-Type: belongs_to
+Type: has_many
 
 Related object: L<CardioTracker::Model::Result::Activity>
 
 =cut
 
-__PACKAGE__->belongs_to(
-  "activity",
+__PACKAGE__->has_many(
+  "activities",
   "CardioTracker::Model::Result::Activity",
-  { id => "activity_id" },
-  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
+  { "foreign.result_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 =head2 event_results
@@ -157,8 +137,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-15 18:33:15
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:bZZWzQB30HDz6auZQ/j9CA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-19 17:03:55
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:qypdoSDGVBY6bVrUl5QUPA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

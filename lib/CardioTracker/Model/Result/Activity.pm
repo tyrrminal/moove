@@ -55,11 +55,29 @@ __PACKAGE__->table("activity");
   is_foreign_key: 1
   is_nullable: 0
 
+=head2 start_time
+
+  data_type: 'datetime'
+  datetime_undef_if_invalid: 1
+  is_nullable: 1
+
 =head2 distance_id
 
   data_type: 'integer'
   is_foreign_key: 1
   is_nullable: 0
+
+=head2 result_id
+
+  data_type: 'integer'
+  is_foreign_key: 1
+  is_nullable: 1
+
+=head2 activity_id
+
+  data_type: 'integer'
+  is_foreign_key: 1
+  is_nullable: 1
 
 =cut
 
@@ -68,8 +86,18 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "activity_type_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+  "start_time",
+  {
+    data_type => "datetime",
+    datetime_undef_if_invalid => 1,
+    is_nullable => 1,
+  },
   "distance_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+  "result_id",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
+  "activity_id",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -85,6 +113,26 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
+
+=head2 activity
+
+Type: belongs_to
+
+Related object: L<CardioTracker::Model::Result::Event>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "activity",
+  "CardioTracker::Model::Result::Event",
+  { id => "activity_id" },
+  {
+    is_deferrable => 1,
+    join_type     => "LEFT",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
+  },
+);
 
 =head2 activity_type
 
@@ -116,34 +164,24 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 events
+=head2 result
 
-Type: has_many
-
-Related object: L<CardioTracker::Model::Result::Event>
-
-=cut
-
-__PACKAGE__->has_many(
-  "events",
-  "CardioTracker::Model::Result::Event",
-  { "foreign.activity_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-=head2 results
-
-Type: has_many
+Type: belongs_to
 
 Related object: L<CardioTracker::Model::Result::Result>
 
 =cut
 
-__PACKAGE__->has_many(
-  "results",
+__PACKAGE__->belongs_to(
+  "result",
   "CardioTracker::Model::Result::Result",
-  { "foreign.activity_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { id => "result_id" },
+  {
+    is_deferrable => 1,
+    join_type     => "LEFT",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
+  },
 );
 
 =head2 user_activities
@@ -172,8 +210,8 @@ Composing rels: L</user_activities> -> user
 __PACKAGE__->many_to_many("users", "user_activities", "user");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-15 18:33:15
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Ujm8h6l5Gdy1XHbR93oI9w
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-19 17:03:55
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:wWnEfSetvZfdf8zZdN8zSQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
