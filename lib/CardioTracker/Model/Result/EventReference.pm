@@ -61,6 +61,12 @@ __PACKAGE__->table("event_reference");
   is_foreign_key: 1
   is_nullable: 0
 
+=head2 referenced_name
+
+  data_type: 'varchar'
+  is_nullable: 0
+  size: 45
+
 =head2 ref_num
 
   data_type: 'varchar'
@@ -82,6 +88,8 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "event_reference_type_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+  "referenced_name",
+  { data_type => "varchar", is_nullable => 0, size => 45 },
   "ref_num",
   { data_type => "varchar", is_nullable => 0, size => 45 },
   "sub_ref_num",
@@ -133,8 +141,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-19 17:38:07
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:61iZwkU2l3Fwg1CKEqaFzA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-19 17:50:33
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:jpjwVDuiuqxSNXGnrKexsw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
