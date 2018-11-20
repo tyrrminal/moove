@@ -32,8 +32,22 @@ sub run {
     'millennium'   => sub { $import_class .= 'MillenniumRunning' },
     'mtec'         => sub { $import_class .= 'MTEC' },
     'id=s'         => \my $id,
-    'race=s'       => \my $race
+    'race=s'       => \my $race,
+    'all'          => \my $import_all
   );
+
+  if($import_all) {
+    foreach ($self->app->model('EventReference')->search({},{'join' => 'event', 'order_by' => 'event.scheduled_start'})) {
+      $self->import_event($import_class . $_->event_reference_type->description, $_->ref_num, $_->sub_ref_num);
+    }
+  } else {
+    $self->import_event($import_class, $id, $race);
+  }
+}
+
+sub import_event {
+  my $self = shift;
+  my ($import_class, $id, $race) = @_;
 
   say "id is required" and exit 1 unless(defined($id));
   say "results site is required" and exit 1 unless($import_class->can('new'));
@@ -59,7 +73,18 @@ sub run {
     } else {
       $person = $self->app->model('Person')->create({first_name => $p->{first_name}, last_name => $p->{last_name}});
     }
-    my $result = $self->app->model('Result')->create({start_time => $event->scheduled_start, gross_time => $p->{gross_time}, pace => $p->{pace}, net_time => $p->{net_time}, activity => $event->activity});
+    my $result = $self->app->model('Result')->create({
+      gross_time => $p->{gross_time},
+      pace       => $p->{pace},
+      net_time   => $p->{net_time}
+    });
+    my $activity = $self->app->model('Activity')->create({
+      activity_type => $event->event_type->activity_type,
+      start_time    => $event->scheduled_start,
+      distance      => $event->distance,
+      result        => $result,
+      event         => $event
+    });
 
     my $overall_group = $self->app->model('EventResultGroup')->find_or_create({event => $event, gender_id => $NULL, division_id => $NULL});
     $overall_group->update({count => $p->{overall_count}}) if(defined($p->{overall_count}));
@@ -83,7 +108,7 @@ sub run {
       division_id => defined($division) ? $division->id : undef,
       age         => $p->{age},
       person      => $person,
-      gender_id      => defined($gender) ? $gender->id : undef,
+      gender_id   => defined($gender) ? $gender->id : undef,
       location    => $location
     });
   }
