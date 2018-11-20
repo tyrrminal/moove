@@ -150,7 +150,7 @@ sub update_pace {
   my ($min,$sec) = $self->net_time->in_units(qw(minutes seconds));
   $min += $sec/60;
 
-  my $d = $self->activity->distance;
+  my $d = $self->activities->first->distance;
   my $miles = $d->value * $d->uom->conversion_factor;
 
   $self->update({pace => _minutes_to_time_str($min/$miles)});

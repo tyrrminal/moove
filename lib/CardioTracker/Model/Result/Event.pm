@@ -242,11 +242,11 @@ sub create_gender_result_group {
 
   my $rs_r = $schema->resultset('Result')->search({
     'participants.gender_id' => $gender->id,
-    'events.id' => $self->id
+    'event.id' => $self->id
   },{
     join => [
       'participants',
-      { activity => 'events' }
+      { activities => 'event' }
     ],
     order_by => { -asc => 'net_time' }
   });

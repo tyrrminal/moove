@@ -94,17 +94,19 @@ sub fix_bib_nos {
       my ($p) = $self->app->model('Participant')->search({
         'person.first_name' => $user->person->first_name,
         'person.last_name'  => $user->person->last_name,
-        'events.id' => $event->id 
+        'event.id' => $event->id 
       },{
         join => [
           'person',
-          { 'result' => { 'activity' => 'events' } }
+          { 'result' => { 'activities' => 'event' } }
         ]
       });
 
       my $to_delete = $p->person;
-      $p->person($user->person);
-      $p->bib_no($reg->bib_no);
+      $p->update({
+        person_id => $user->person->id,
+        bib_no    => $reg->bib_no
+      });
       $to_delete->delete();
     }
   }
