@@ -8,7 +8,14 @@ sub find_event {
   my $self=shift;
   my ($year,$name) = @_;
 
-  my ($event) = grep { $_->scheduled_start->year == $year } $self->search({name => $name})->all;
+  my ($event) = grep { $_->scheduled_start->year == $year } $self->search({
+    '-or' => [
+      'event_references.referenced_name' => $name,
+      'me.name' => $name
+    ]
+  },{
+    join => 'event_references'
+  })->all;
   return $event;
 }
 

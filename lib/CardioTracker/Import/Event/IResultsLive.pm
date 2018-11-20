@@ -88,7 +88,7 @@ sub find_and_update_event {
   } elsif(!defined($info->{races}->{$self->race_id})) {
     die "Race identifier '".$self->race_id."' not found\n";
   }
-  my ($event) = grep { $_->scheduled_start->year == $info->{date}->year } $model->search({name => $info->{title}})->all;
+  my ($event) = $model->find_event($info->{date}->year, $info->{title});
   die "Event '".$info->{title}."' not found\n" unless(defined($event));
 
   $event->entrants($info->{races}->{$self->race_id});

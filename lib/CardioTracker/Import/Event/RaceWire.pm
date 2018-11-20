@@ -102,7 +102,7 @@ sub find_and_update_event {
 
   my $info = $self->get_metadata();
   
-  my ($event) = grep { $_->scheduled_start->year == $info->{date}->year } $model->search({name => $info->{title}})->all;
+  my ($event) = $model->find_event($info->{date}->year, $info->{title});
   die sprintf("Event '%s' (%d) not found\n", $info->{title}, $info->{date}->year) unless(defined($event));
 
   return $event;
