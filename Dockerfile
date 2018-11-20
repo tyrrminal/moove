@@ -8,6 +8,9 @@ RUN apt-get update && apt-get install -qy \
   build-essential \
 	libssl-dev \
 	libnet-ssleay-perl \
+  libexpat1-dev \
+  libxml2 \
+  libxml2-dev \
   carton \
   cpanminus \
   libmysqlclient-dev \

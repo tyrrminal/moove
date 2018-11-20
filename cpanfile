@@ -29,3 +29,5 @@ requires 'DBIx::Class::InflateColumn::DateTime';
 requires 'DBIx::Class::InflateColumn::Time';
 
 requires 'Data::DPath';
+
+requires 'Geo::Gpx';
