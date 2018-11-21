@@ -47,11 +47,11 @@ sub run {
 
   my @event_results = map { $_->result } $user->person->participants;
 
-  my $importer = $import_class->new();
-  ACTIVITY: foreach my $activity ($importer->parse($file)) {
+  my $importer = $import_class->new(file => $file);
+  ACTIVITY: foreach my $activity ($importer->fetch_activities()) {
     foreach my $r ( @event_results) {
-      next unless($activity->{type} eq $r->activity->activity_type->description);
-      my $act_start = $r->activity->events->first->scheduled_start;
+      next unless($activity->{type} eq $r->activities->first->activity_type->description);
+      my $act_start = $r->activities->first->event->scheduled_start;
       next unless($activity->{date}->clone->truncate(to => 'day') == $act_start->clone->truncate(to => 'day'));
       
       my $a_span = DateTime::Span->from_datetime_and_duration(
@@ -79,21 +79,28 @@ sub import_user_activity {
   my $type = $self->app->model('ActivityType')->find({description => $activity->{type}});
   my $distance = $self->app->model('Distance')->find_or_create_from_miles($activity->{distance});
 
+  say "Importing ".$activity->{date}->strftime('%F')." ".$type->description;
+
   my $a;
   if(defined($result)) {
-    $result->start_time($activity->{date});
-    $a = $result->activity;
+    $a = $result->activities->first;
+    $result->heart_rate($activity->{heart_rate});
+    $result->pace($activity) unless(defined($result->pace));
+    $a->start_time($activity->{date});
+    $a->note($activity->{notes});
   } else {
-    $a = $self->app->model('Activity')->create({
-      activity_type => $type,
-      distance      => $distance
-    });
-    $self->app->model('Result')->create({
-      activity   => $a,
-      start_time => $activity->{date},
+    my $result = $self->app->model('Result')->create({
       gross_time => $activity->{gross_time},
       net_time   => $activity->{net_time},
-      pace       => $activity->{pace}
+      pace       => $activity->{pace},
+      heart_rate => $activity->{heart_rate} || $NULL
+    });
+    $a = $self->app->model('Activity')->create({
+      activity_type => $type,
+      start_time    => $activity->{date},
+      distance      => $distance,
+      result        => $result,
+      note          => $activity->{notes}
     });
   }
   $user->add_to_activities($a);

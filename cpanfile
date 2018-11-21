@@ -1,4 +1,5 @@
 requires 'Modern::Perl';
+requires 'Data::Printer';
 
 requires 'IO::Socket::SSL';
 requires 'Lingua::EN::Titlecase';
@@ -31,3 +32,4 @@ requires 'DBIx::Class::InflateColumn::Time';
 requires 'Data::DPath';
 
 requires 'Geo::Gpx';
+requires 'Archive::Zip';

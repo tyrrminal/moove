@@ -2,14 +2,31 @@ package CardioTracker::Import::Activity::RunKeeper;
 use Modern::Perl;
 use Moose;
 
+use File::Spec;
 use DateTime::Format::Strptime;
+use Archive::Zip;
 use Text::CSV_XS;
+use Geo::Gpx;
 
 use CardioTracker::Import::Helper::Rectification qw(normalize_times);
 
 use DCS::Constants qw(:boolean :existence :symbols);
 
-use Data::Dumper;
+use Data::Printer;
+
+has 'file' => (
+  is => 'ro',
+  isa => 'Str',
+  required => $TRUE
+);
+
+has '_zip' => (
+  is => 'ro',
+  isa => 'Archive::Zip::Archive',
+  init_arg => $NULL,
+  lazy => $TRUE,
+  builder => '_build_zip'
+);
 
 # Activity Id,Date,Type,Route Name,Distance (mi),Duration,Average Pace,Average Speed (mph),Calories Burned,
 # Climb (ft),Average Heart Rate (bpm),Friend's Tagged,Notes,GPX File
@@ -53,7 +70,8 @@ has 'type_map' => (
       'Cycling'  => 'Ride',
       'Swimming' => 'Swim',
       'Rowing'   => 'Kayak',
-      'Walking'  => 'Walk'
+      'Walking'  => 'Walk',
+      'Other'    => 'Walk'
     }
   },
   handles => {
@@ -61,9 +79,13 @@ has 'type_map' => (
   }
 );
 
-sub parse {
+sub _build_zip {
+  return Archive::Zip->new(shift->file);
+}
+
+sub fetch_activities {
   my $self=shift;
-  my ($f) = @_;
+  my $activities = $self->_zip->memberNamed('cardioActivities.csv')->contents;
 
   my $csv = Text::CSV_XS->new ({ binary => $TRUE, auto_diag => $TRUE });
   my $p = DateTime::Format::Strptime->new(
@@ -73,7 +95,7 @@ sub parse {
   );
 
   my @activities;
-  open(my $F, '<:encoding(utf8)', $f) or die($!);
+  open(my $F, '<:encoding(utf8)', \$activities) or die($!);
   my @col_map = map { $self->get_key($_) } @{$csv->getline($F)};
   while(my $row = $csv->getline($F)) {
     my %v;
@@ -82,9 +104,25 @@ sub parse {
     $v{type} = $self->get_type($v{type});
     $v{type} = 'Treadmill' if($v{type} eq 'Run' && $v{gpx} eq '');
     normalize_times(\%v);
+    $self->_calculate_gross_time(\%v) if($v{gpx});
     push(@activities, {%v});
   }
   return @activities;
+}
+
+sub _calculate_gross_time {
+  my $self=shift;
+  my ($v, $dir) = @_;
+  
+  my $data = $self->_zip->memberNamed($v->{gpx})->contents;
+  my $gpx = Geo::Gpx->new(xml => $data, use_datetime => $TRUE);
+  
+  my @segments = map { @{$_->{segments}} } @{$gpx->tracks};
+  my $f_p = $segments[0]->{points}->[0];
+  my $l_p = $segments[-1]->{points}->[-1];
+
+  $v->{gross_time} = $l_p->{time}->subtract_datetime($f_p->{time});
+  print "+";
 }
 
 1;
