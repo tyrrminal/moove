@@ -160,4 +160,16 @@ sub description {
   return sprintf("%.2f %s", $self->value, $self->uom->abbreviation)
 }
 
+sub description_normalized {
+  my $self=shift;
+
+  return sprintf("%.2f %s", $self->normalized_value, $self->result_source->schema->resultset('UnitOfMeasure')->normalization_unit->abbreviation)
+}
+
+sub normalized_value {
+  my $self=shift;
+
+  return $self->value * $self->uom->conversion_factor;
+}
+
 1;

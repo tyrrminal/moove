@@ -222,4 +222,18 @@ __PACKAGE__->many_to_many("users", "user_activities", "user");
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+
+sub is_outdoor_activity {
+  return shift->activity_type->description ne 'Treadmill';
+}
+
+sub is_running_activity {
+  my $self=shift;
+  return $self->activity_type->description eq 'Run' || $self->activity_type->description eq 'Treadmill';
+}
+
+sub is_cycling_activity {
+  return shift->activity_type->description eq 'Ride';
+}
+
 1;
