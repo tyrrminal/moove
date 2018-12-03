@@ -122,7 +122,6 @@ sub _calculate_gross_time {
   my $l_p = $segments[-1]->{points}->[-1];
 
   $v->{gross_time} = $l_p->{time}->subtract_datetime($f_p->{time});
-  print "+";
 }
 
 1;
