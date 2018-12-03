@@ -79,6 +79,13 @@ __PACKAGE__->table("event_reference");
   is_nullable: 1
   size: 45
 
+=head2 imported
+
+  data_type: 'enum'
+  default_value: 'N'
+  extra: {list => ["Y","N"]}
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -94,6 +101,13 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", is_nullable => 0, size => 45 },
   "sub_ref_num",
   { data_type => "varchar", is_nullable => 1, size => 45 },
+  "imported",
+  {
+    data_type => "enum",
+    default_value => "N",
+    extra => { list => ["Y", "N"] },
+    is_nullable => 0,
+  },
 );
 
 =head1 PRIMARY KEY
@@ -141,8 +155,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-19 21:18:29
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:PWETGJYeYPaVIgvqfOQXkg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-21 19:06:08
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Spa/JUNZ5ao5yD5RnqNUXw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

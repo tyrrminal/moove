@@ -4,6 +4,8 @@ use Mojo::Base 'Mojolicious::Command';
 use Modern::Perl;
 use Mojo::Util 'getopt';
 
+use DateTime;
+
 use CardioTracker::Import::Event::RaceWire;
 use CardioTracker::Import::Event::IResultsLive;
 use CardioTracker::Import::Event::MillenniumRunning;
@@ -37,7 +39,7 @@ sub run {
   );
 
   if($import_all) {
-    foreach ($self->app->model('EventReference')->search({},{'join' => 'event', 'order_by' => 'event.scheduled_start'})) {
+    foreach ($self->app->model('EventReference')->search({ imported => 'N' },{'join' => 'event', 'order_by' => 'event.scheduled_start'})) {
       $self->import_event($import_class . $_->event_reference_type->description, $_->ref_num, $_->sub_ref_num);
     }
   } else {
@@ -55,7 +57,7 @@ sub import_event {
   my $importer = $import_class->new(event_id => $id, race_id => $race);
 
   my $event = $importer->find_and_update_event($self->app->model('Event'));
-  say "Importing ".sprintf('%s (%d)', $event->name, $event->scheduled_start->year);
+  say DateTime->now()->strftime('%F %T')." Importing ". $event->description;
   
   foreach my $p ($importer->fetch_results()) {
     #lookup (create as needed)
@@ -111,6 +113,10 @@ sub import_event {
       gender_id   => defined($gender) ? $gender->id : undef,
       location    => $location
     });
+  }
+
+  if(my ($ref) = $self->app->model('EventReference')->search({ ref_num => $id, sub_ref_num => $race })) {
+    $ref->update({ imported => 'Y' });
   }
 }
 
