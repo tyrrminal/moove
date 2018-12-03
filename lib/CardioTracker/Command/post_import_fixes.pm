@@ -103,11 +103,13 @@ sub fix_bib_nos {
       });
 
       my $to_delete = $p->person;
-      $p->update({
-        person_id => $user->person->id,
-        bib_no    => $reg->bib_no
-      });
-      $to_delete->delete();
+      unless($to_delete->id == $user->person->id) {
+        $p->update({
+          person_id => $user->person->id,
+          bib_no    => $reg->bib_no
+        });
+        $to_delete->delete();
+      }
     }
   }
 }
