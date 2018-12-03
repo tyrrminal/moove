@@ -25,6 +25,7 @@ USAGE
 
 sub run {
   my ($self, @args) = @_;
+  local $| = 1;
 
   my $import_class= "CardioTracker::Import::Activity::";
 
@@ -45,65 +46,64 @@ sub run {
 
   my $d = DateTime::Format::Duration->new( pattern => '%r' );
 
+  my @events = $self->app->model('Event')->all;
+
   my @event_results = map { $_->result } $user->person->participants;
 
   my $importer = $import_class->new(file => $file);
+  my $act;
   ACTIVITY: foreach my $activity ($importer->fetch_activities()) {
-    foreach my $r ( @event_results) {
-      next unless($activity->{type} eq $r->activities->first->activity_type->description);
-      my $act_start = $r->activities->first->event->scheduled_start;
-      next unless($activity->{date}->clone->truncate(to => 'day') == $act_start->clone->truncate(to => 'day'));
-      
-      my $a_span = DateTime::Span->from_datetime_and_duration(
-        start    => $activity->{date}, 
-        duration => $d->parse_duration($activity->{net_time})
-      );
-      my $e_span = DateTime::Span->from_datetime_and_duration(
-        start    => $act_start, 
-        duration => ($r->gross_time // $r->net_time)
-      );
-      if($a_span->contains($act_start) || $e_span->contains($activity->{date})) {
-        #say "Skipping ", $r->activity->events->first->description;
-        $self->import_user_activity($user,$activity,$r);
+    foreach my $e (@events) {
+      next unless($e->event_type->activity_type->description eq $activity->{type});
+      next unless($e->scheduled_start->clone->truncate(to => 'day') == $activity->{date}->clone->truncate(to => 'day'));
+
+      if(DateTime::Span->from_datetime_and_duration(after => $e->scheduled_start, minutes => 30)->contains($activity->{date}) ||
+         DateTime::Span->from_datetime_and_duration(before => $e->scheduled_start, minutes => 5)->contains($activity->{date})) {
+        if(($act) = $e->activities->search({ 'participants.person_id' => $user->person->id },{ join => { result => 'participants' }})) {
+          $self->update_activity($activity, $act);
+        } else {
+          $act = $self->import_activity($activity, $e);
+        }
         next ACTIVITY;
       }
     }
-    $self->import_user_activity($user,$activity);
+    $act = $self->import_activity($activity);
+  } continue {
+    say "Importing ".$act->start_time->strftime('%F')." ".$act->activity_type->description;
+    $user->add_to_activities($act);
   }
 }
 
-sub import_user_activity {
+sub update_activity {
   my $self=shift;
-  my ($user,$activity,$result) = @_;
+  my ($data, $activity) = @_;
 
-  my $type = $self->app->model('ActivityType')->find({description => $activity->{type}});
-  my $distance = $self->app->model('Distance')->find_or_create_from_miles($activity->{distance});
+  $activity->update({
+    start_time => $data->{date},
+          note => $data->{notes}
+  });
+  $activity->result->update({ heart_rate => $data->{heart_rate} });
+  $activity->result->update({ pace => $data->{pace} }) unless(defined($activity->result->pace));
+}
 
-  say "Importing ".$activity->{date}->strftime('%F')." ".$type->description;
+sub import_activity {
+  my $self=shift;
+  my ($activity, $event) = @_;
 
-  my $a;
-  if(defined($result)) {
-    $a = $result->activities->first;
-    $result->heart_rate($activity->{heart_rate});
-    $result->pace($activity) unless(defined($result->pace));
-    $a->start_time($activity->{date});
-    $a->note($activity->{notes});
-  } else {
-    my $result = $self->app->model('Result')->create({
-      gross_time => $activity->{gross_time},
-      net_time   => $activity->{net_time},
-      pace       => $activity->{pace},
-      heart_rate => $activity->{heart_rate} || $NULL
-    });
-    $a = $self->app->model('Activity')->create({
-      activity_type => $type,
-      start_time    => $activity->{date},
-      distance      => $distance,
-      result        => $result,
-      note          => $activity->{notes}
-    });
-  }
-  $user->add_to_activities($a);
+  my $result = $self->app->model('Result')->create({
+    gross_time => $activity->{gross_time},
+    net_time   => $activity->{net_time},
+    pace       => $activity->{pace},
+    heart_rate => $activity->{heart_rate} || $NULL
+  });
+  return $self->app->model('Activity')->create({
+    activity_type => $self->app->model('ActivityType')->find({description => $activity->{type}}),
+    start_time    => $activity->{date},
+    distance      => $self->app->model('Distance')->find_or_create_from_miles($activity->{distance}),
+    result        => $result,
+    note          => $activity->{notes},
+    event_id      => defined($event) ? $event->id : $NULL
+  });
 }
 
 1;
