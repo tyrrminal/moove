@@ -1,5 +1,6 @@
 requires 'Modern::Perl';
 requires 'Data::Printer';
+requires 'Array::Utils';
 
 requires 'IO::Socket::SSL';
 requires 'Lingua::EN::Titlecase';

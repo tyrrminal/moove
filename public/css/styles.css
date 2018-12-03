@@ -1,0 +1,35 @@
+.container {
+  padding-top: 2em;
+  max-width: 200px;
+  margin: auto;
+}
+
+table.cardio {
+  font-family: "Calibri";
+  font-size: 12;
+}
+
+table.cardio th {
+  font-weight: bold;
+  border: 1px solid black;
+  padding-left: 1em;
+  padding-right: 1em;
+  line-height: 150%;
+}
+
+table.cardio td {
+  padding-left: 1em;
+  padding-right: 0.5em;
+  line-height: 110%;
+  border: 1px solid #DDDDDD;
+  text-align: right;
+}
+
+table.cardio td:nth-child(3), table.cardio td:nth-child(5) {
+  background-color: #ecc5c565;
+}
+
+table.cardio td.event {
+  border: 2px solid #888888;
+  cursor: pointer;
+}
