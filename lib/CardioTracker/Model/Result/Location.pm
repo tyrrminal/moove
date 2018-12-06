@@ -91,6 +91,12 @@ __PACKAGE__->table("location");
   is_nullable: 1
   size: 45
 
+=head2 email
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 200
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -110,6 +116,8 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", is_nullable => 1, size => 14 },
   "country",
   { data_type => "varchar", is_nullable => 1, size => 45 },
+  "email",
+  { data_type => "varchar", is_nullable => 1, size => 200 },
 );
 
 =head1 PRIMARY KEY
@@ -172,8 +180,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-11 14:38:38
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:sAB9MQ5XHMkfyuXDL9d0dQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-12-04 19:02:18
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:E6fv2Z3zGVGajS95bWX9Jg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
