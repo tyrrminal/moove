@@ -153,14 +153,27 @@ __PACKAGE__->has_many(
 # Pace is always minutes (net) per mile
 sub update_pace {
   my $self=shift;
+  $self->update({pace => _calculate_pace($self->net_time, $self->activities->first->distance)})
+}
 
-  my ($min,$sec) = $self->net_time->in_units(qw(minutes seconds));
+sub speed {
+  my $self=shift;
+
+  my $t = $self->net_time;
+  my $hrs = $t->hours + $t->minutes/60;
+
+  return $self->activities->first->distance->normalized_value/$hrs;
+}
+
+sub _calculate_pace {
+  my ($time,$distance) = @_;
+
+  my ($min,$sec) = $time->in_units(qw(minutes seconds));
   $min += $sec/60;
 
-  my $d = $self->activities->first->distance;
-  my $miles = $d->value * $d->uom->conversion_factor;
+  my $miles = $distance->value * $distance->uom->conversion_factor;
 
-  $self->update({pace => _minutes_to_time_str($min/$miles)});
+  return _minutes_to_time_str($min/$miles);
 }
 
 sub _minutes_to_time_str {
