@@ -1,0 +1,108 @@
+% layout 'default';
+% title 'CardioTracker :: Cardio Summary';
+% content header => begin
+    %= javascript '/yarn_components/jquery/dist/jquery.min.js'
+
+    %= javascript '/yarn_components/datatables.net/js/jquery.dataTables.min.js'
+    %= javascript '/yarn_components/datatables.net-bs4/js/dataTables.bootstrap4.min.js'
+    %= stylesheet '/yarn_components/datatables.net-bs4/css/dataTables.bootstrap4.min.css'
+
+    %= stylesheet '/yarn_components/bootstrap/dist/css/bootstrap.min.css'
+    %= javascript '/yarn_components/bootstrap/dist/js/bootstrap.min.js'
+
+    %= javascript '/js/main.js';;
+% end
+% use List::Util qw(max);
+
+% my $fillrow = begin
+  % my $num = shift;
+  % for (my $i=0;$i<$num;$i++) {
+            <td></td>
+  % }
+% end
+
+<div class="container">
+  <div class="stats">
+    <h4>Overall</h4>
+
+    <h5>Since Start</h5>
+    <div class="row">
+      <span class="column"><%= $stats->{overall}->{total_days} %> days</span>
+      <span class="column"><%= sprintf('%.02f', $stats->{overall}->{total_years}) %> years</span>
+    </div>
+
+    <h5>Total Distance</h5>
+    <div class="row">
+      <span class="column"><%= sprintf("%.02f mi", $stats->{overall}->{total_distance}) %></span>
+      <span class="column"><%= sprintf("%.02f mi/yr", $stats->{overall}->{total_distance}/$stats->{overall}->{total_years}) %></span>
+    </div>
+
+    <h5>Event Distance</h5>
+    <div class="row">
+      <span class="column"><%= sprintf("%.02f mi", $stats->{overall}->{event_distance}) %></span>
+      <span class="column"><%= pct_format($stats->{overall}->{event_distance}/$stats->{overall}->{total_distance}) %></span>
+    </div>
+
+    % foreach my $period ([qw(year Year)]) {
+    % my $p_stats = $stats->{$period->[0]};
+    <hr />
+    <h4>This <%= $period->[1] %></h4>
+
+    <h5>Day</h5>
+    <div class="row">
+      <span class="column"><%= $p_stats->{day_of} %>/<%= $p_stats->{length} %></span>
+      <span class="column"><%= pct_format($p_stats->{day_of}/$p_stats->{length}) %></span>
+    </div>
+
+    % foreach ([qw(run Running)],[qw(ride Cycling)]) {
+    % my $t_stats = $p_stats->{$_->[0]};
+    <h5><%= $_->[1] %> Goal</h5>
+    <div class="row">
+      <span class="column<%= $t_stats->{goal} > $t_stats->{distance} ? ' neg' : '' %>"><%= sprintf("%.02f", abs($t_stats->{distance} - $t_stats->{goal})) %> mi</span>
+      <span class="column"><%= pct_format($t_stats->{distance}/$t_stats->{goal}) %></span>
+    </div>
+    % }
+
+    % }
+  </div>
+
+  <section class="">
+    <div class="fixed-container pivot">
+      <table class="grid summary">
+        <thead>
+        <tr class="header">
+          <th>Year</th>
+          <th>Runs</th>
+          <th>Running Distance</th>
+          <th>Avg Running</th>
+          <th>Rides</th>
+          <th>Cycling Distance</th>
+          <th>Avg Cycling</th>
+        </thead>
+        <tbody>
+          % my ($r_max, $c_max) = (0,0);
+          % foreach my $y (sort(keys(%{$summary->{years}}))) {
+          % my $year = $y;
+          <tr class="year-disclose" data-year="<%= $year %>">
+            <td><span class="disclosure-open"></span><%= $y %></td>
+<%= $fillrow->(6) %>          </tr>
+
+            % foreach my $q (sort(keys(%{$summary->{years}->{$y}->{quarters}}))) {
+            % my $quarter = "$y$q";
+          <tr class="quarter-disclose" data-year="<%= $year %>" data-quarter="<%= $quarter %>">
+            <td><span class="disclosure-open"></span><%= $q %></td>
+<%= $fillrow->(6) %>          </tr>
+
+              % foreach my $m (sort(keys(%{$summary->{years}->{$y}->{quarters}->{$q}->{months}}))) {
+%= include 'fragments/summaryrow', _data => $summary->{years}->{$y}->{quarters}->{$q}->{months}->{$m}, label => $m =~ s/\d{2}-//r, year => $year, quarter => $quarter, period => 'month', total => 0
+              % }
+%= include 'fragments/summaryrow', _data => $summary->{years}->{$y}->{quarters}->{$q}, label => "$q Total", year => $year, quarter => $quarter, period => 'quarter', total => 1
+            % }
+%= include 'fragments/summaryrow', _data => $summary->{years}->{$y}, label => "$y Total", year => $year, quarter => "", period => 'year', total => 1
+          % }
+%= include 'fragments/summaryrow', _data => $summary->{overall}, label => "Grand Total", year => "", quarter => "", period => "overall", total => 1
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

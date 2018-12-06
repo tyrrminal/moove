@@ -15,7 +15,7 @@
 % use List::Util qw(max);
 
 <div class="container">
-  <table class="cardio">
+  <table class="grid cardio">
     <thead>
     <tr>
       <th>Date</th>
@@ -27,8 +27,6 @@
     <tbody>
       % my ($r_max, $c_max) = (0,0);
       % foreach (@$activities) {
-      % next unless($_->is_outdoor_activity);
-      % next unless($_->is_running_activity || $_->is_cycling_activity);
       <tr>
         <td data-order="<%= $_->start_time->strftime('%F') %>"><%= $_->start_time->strftime('%D') =~ s`(^|/)0`$1`rg; %></td>
       % if($_->is_running_activity) { $r_max = $r_max || $_->distance->normalized_value;
