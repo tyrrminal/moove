@@ -49,6 +49,7 @@ sub run {
       event => $event,
       user_id => $v->{user_id},
       fee => $v->{fee} eq '' ? $NULL : $v->{fee},
+      fundraising_minimum => $v->{fr_min} eq '' ? $NULL : $v->{fr_min},
       registered => $v->{registered},
       bib_no => $v->{bib_no} || $NULL
     });
