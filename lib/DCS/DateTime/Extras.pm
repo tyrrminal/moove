@@ -10,6 +10,7 @@ package DCS::DateTime::Extras;
 
   $l = DateTime->new(year => $g->year, month => $l->month, day => $l->day);
   if($l > $g) {
+    $whole_diff--;
     $l = DateTime->new(year => $g->year-1, month => $l->month, day => $l->day);
   }
   my $partial_diff = $g->delta_days($l)->in_units('days')/$l->year_length;
