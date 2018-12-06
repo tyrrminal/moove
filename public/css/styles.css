@@ -39,6 +39,7 @@ table.cardio td.event {
 
 table.events {
   font-size: 10pt;
+  width: 100%;
 }
 
 table.events td:nth-child(1), table.events td:nth-child(2) {

@@ -1,5 +1,7 @@
-% use List::Util qw(sum);
+% use List::Util qw(sum max);
 % use DateTime::Format::Duration;
+% use DCS::DateTime::Extras;
+
 % layout 'default';
 % title 'CardioTracker :: Cardio Events';
 % content header => begin
@@ -14,7 +16,6 @@
 
     %= javascript '/js/main.js';
 % end
-% use List::Util qw(max);
 
 <div class="container">
   <h3>Upcoming</h3>
@@ -31,23 +32,28 @@
       <th>Fee</th>
       <th>Fundraising</th>
     </tr>
+    % my $now = DateTime->now;
     % my @upcoming = grep { $_->event->scheduled_start > DateTime->now } reverse(@$registrations);
     % foreach my $reg (@upcoming) {
-    % my $event = $reg->event;
+      % my $event = $reg->event;
+      % my $days = $now->delta_days($event->scheduled_start)->in_units('days');
+      % my $weeks = $days/7;
+      % my $months = $event->scheduled_start->yearfrac($now)*12;
       <tr>
         <td><%= $event->name %></td>
         <td><%= $event->event_type->description %></td>
         <td><%= $event->scheduled_start->strftime('%a %D') =~ s|(?<=[ /])0||r %></td>
         <td><%= $event->distance->description %></td>
-        <td></td>
-        <td></td>
-        <td></td>
+        <td><%= $days %></td>
+        <td><%= dec_format($weeks, 1) %></td>
+        <td><%= dec_format($months, 1) %></td>
         <td><%= $reg->registered %></td>
         <td><%= currency_format($reg->fee) %></td>
         <td><%= $reg->fundraising_minimum ? currency_format(sum(map { $_->amount }$reg->donations)//0).'/'.currency_format($reg->fundraising_minimum) : '' %></td>
       </tr>
     % }
   </table>
+  <hr />
   <h3>Completed</h3>
   <table class="grid events">
     <tr>
