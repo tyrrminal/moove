@@ -222,6 +222,17 @@ DISTRIBUTIONS
       Class::Singleton 1.5
     requirements:
       ExtUtils::MakeMaker 0
+  Class-Tiny-1.006
+    pathname: D/DA/DAGOLDEN/Class-Tiny-1.006.tar.gz
+    provides:
+      Class::Tiny 1.006
+      Class::Tiny::Object 1.006
+    requirements:
+      Carp 0
+      ExtUtils::MakeMaker 6.17
+      perl 5.006
+      strict 0
+      warnings 0
   Class-Unload-0.11
     pathname: I/IL/ILMARI/Class-Unload-0.11.tar.gz
     provides:
@@ -242,6 +253,13 @@ DISTRIBUTIONS
       Time::HiRes 0
       XSLoader 0
       perl 5.008
+  Clone-0.41
+    pathname: G/GA/GARU/Clone-0.41.tar.gz
+    provides:
+      Clone 0.41
+    requirements:
+      ExtUtils::MakeMaker 0
+      Test::More 0
   Clone-Choose-0.010
     pathname: H/HE/HERMES/Clone-Choose-0.010.tar.gz
     provides:
@@ -856,6 +874,21 @@ DISTRIBUTIONS
       constant 0
       perl 5.006
       strict 0
+  DateTime-Format-Flexible-0.31
+    pathname: T/TH/THINC/DateTime-Format-Flexible-0.31.tar.gz
+    provides:
+      DateTime::Format::Flexible 0.31
+      DateTime::Format::Flexible::lang undef
+      DateTime::Format::Flexible::lang::de undef
+      DateTime::Format::Flexible::lang::en undef
+      DateTime::Format::Flexible::lang::es undef
+    requirements:
+      DateTime 0
+      DateTime::Format::Builder 0.74
+      DateTime::TimeZone 0
+      ExtUtils::MakeMaker 0
+      List::MoreUtils 0
+      Module::Pluggable 0
   DateTime-Format-ISO8601-0.08
     pathname: J/JH/JHOBLITT/DateTime-Format-ISO8601-0.08.tar.gz
     provides:
@@ -1328,6 +1361,30 @@ DISTRIBUTIONS
       perl 5.008004
       strict 0
       warnings 0
+  DateTimeX-Format-Excel-v0.14.0
+    pathname: J/JA/JANDREW/DateTimeX-Format-Excel-v0.14.0.tar.gz
+    provides:
+      DateTimeX::Format::Excel v0.14.0
+      DateTimeX::Format::Excel::Types v0.14.0
+    requirements:
+      Carp 0
+      DateTime 0
+      ExtUtils::MakeMaker 7.04
+      List::Util 1.33
+      Module::Runtime 0.014
+      Moose 2.1213
+      MooseX::HasDefaults::RO 0
+      MooseX::StrictConstructor 0
+      Smart::Comments 0
+      Test::Exception 0.43
+      Type::Library 1.000
+      Type::Utils 0
+      Types::Standard 0
+      lib 0
+      perl 5.010
+      strict 0
+      version 0.77
+      warnings 0
   Devel-CheckLib-1.13
     pathname: M/MA/MATTN/Devel-CheckLib-1.13.tar.gz
     provides:
@@ -1359,6 +1416,20 @@ DISTRIBUTIONS
       Sub::Identify 0
       overload 0
       perl 5.006
+      strict 0
+      warnings 0
+  Devel-PartialDump-0.20
+    pathname: E/ET/ETHER/Devel-PartialDump-0.20.tar.gz
+    provides:
+      Devel::PartialDump 0.20
+    requirements:
+      Carp 0
+      Class::Tiny 0
+      ExtUtils::MakeMaker 0
+      Scalar::Util 0
+      Sub::Exporter 0
+      namespace::clean 0.19
+      perl 5.006001
       strict 0
       warnings 0
   Devel-StackTrace-2.03
@@ -2630,6 +2701,18 @@ DISTRIBUTIONS
       parent 0.223
       strict 1.03
       warnings 1.03
+  MooseX-HasDefaults-0.03
+    pathname: S/SA/SARTAK/MooseX-HasDefaults-0.03.tar.gz
+    provides:
+      MooseX::HasDefaults 0.03
+      MooseX::HasDefaults::Meta::IsRO undef
+      MooseX::HasDefaults::Meta::IsRW undef
+      MooseX::HasDefaults::RO undef
+      MooseX::HasDefaults::RW undef
+    requirements:
+      ExtUtils::MakeMaker 6.42
+      Moose 0.94
+      Test::Exception 0
   MooseX-NonMoose-0.26
     pathname: D/DO/DOY/MooseX-NonMoose-0.26.tar.gz
     provides:
@@ -2646,6 +2729,95 @@ DISTRIBUTIONS
       Moose::Util 0
       Try::Tiny 0
       warnings 0
+  MooseX-ShortCut-BuildInstance-v1.44.2
+    pathname: J/JA/JANDREW/MooseX-ShortCut-BuildInstance-v1.44.2.tar.gz
+    provides:
+      MooseX::ShortCut::BuildInstance v1.44.2
+      MooseX::ShortCut::BuildInstance::Types v1.44.2
+    requirements:
+      Carp 0
+      Clone 0
+      Data::Dumper 0
+      ExtUtils::MakeMaker 7.04
+      Moose 2.1213
+      Moose::Exporter 0
+      Moose::Meta::Class 0
+      Moose::Util 0
+      MooseX::Types 0
+      MooseX::Types::Moose 0
+      MooseX::Types::Structured 0
+      lib 0
+      perl 5.010
+      utf8 0
+      version 0.77
+  MooseX-StrictConstructor-0.21
+    pathname: D/DR/DROLSKY/MooseX-StrictConstructor-0.21.tar.gz
+    provides:
+      MooseX::StrictConstructor 0.21
+      MooseX::StrictConstructor::Trait::Class 0.21
+      MooseX::StrictConstructor::Trait::Method::Constructor 0.21
+    requirements:
+      B 0
+      ExtUtils::MakeMaker 0
+      Moose 0.94
+      Moose::Exporter 0
+      Moose::Role 0
+      Moose::Util::MetaRole 0
+      namespace::autoclean 0
+      strict 0
+      warnings 0
+  MooseX-Types-0.50
+    pathname: E/ET/ETHER/MooseX-Types-0.50.tar.gz
+    provides:
+      MooseX::Types 0.50
+      MooseX::Types::Base 0.50
+      MooseX::Types::CheckedUtilExports 0.50
+      MooseX::Types::Combine 0.50
+      MooseX::Types::Moose 0.50
+      MooseX::Types::TypeDecorator 0.50
+      MooseX::Types::UndefinedType 0.50
+      MooseX::Types::Util 0.50
+      MooseX::Types::Wrapper 0.50
+    requirements:
+      Carp 0
+      Carp::Clan 6.00
+      Exporter 0
+      Module::Build::Tiny 0.034
+      Module::Runtime 0
+      Moose 1.06
+      Moose::Exporter 0
+      Moose::Meta::TypeConstraint::Union 0
+      Moose::Util::TypeConstraints 0
+      Scalar::Util 1.19
+      Sub::Exporter 0
+      Sub::Exporter::ForMethods 0.100052
+      Sub::Install 0
+      Sub::Name 0
+      base 0
+      namespace::autoclean 0.16
+      overload 0
+      perl 5.008
+      strict 0
+      warnings 0
+  MooseX-Types-Structured-0.36
+    pathname: E/ET/ETHER/MooseX-Types-Structured-0.36.tar.gz
+    provides:
+      MooseX::Types::Structured 0.36
+    requirements:
+      Devel::PartialDump 0.13
+      Module::Build::Tiny 0.034
+      Moose 0
+      Moose::Meta::TypeCoercion 0
+      Moose::Meta::TypeConstraint 0
+      Moose::Meta::TypeConstraint::Parameterizable 0
+      Moose::Util::TypeConstraints 1.06
+      MooseX::Types 0.22
+      Scalar::Util 0
+      Sub::Exporter 0.982
+      if 0
+      namespace::clean 0.19
+      overload 0
+      perl 5.008
   Mozilla-CA-20180117
     pathname: A/AB/ABH/Mozilla-CA-20180117.tar.gz
     provides:
@@ -2986,6 +3158,20 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 0
       Test::More 0
       Time::Local 0
+  Smart-Comments-1.06
+    pathname: N/NE/NEILB/Smart-Comments-1.06.tar.gz
+    provides:
+      Smart::Comments 1.06
+    requirements:
+      Carp 0
+      Data::Dumper 0
+      ExtUtils::MakeMaker 0
+      Filter::Simple 0
+      List::Util 0
+      Text::Balanced 0
+      perl 5.008
+      strict 0
+      warnings 0
   Snowball-Norwegian-1.2
     pathname: A/AS/ASKSH/Snowball-Norwegian-1.2.tar.gz
     provides:
@@ -3074,6 +3260,102 @@ DISTRIBUTIONS
       strict 0
       version 0.83
       warnings 0
+  Spreadsheet-Reader-ExcelXML-v0.16.8
+    pathname: J/JA/JANDREW/Spreadsheet-Reader-ExcelXML-v0.16.8.tar.gz
+    provides:
+      Spreadsheet::Reader::ExcelXML v0.16.8
+      Spreadsheet::Reader::ExcelXML::Cell v0.16.8
+      Spreadsheet::Reader::ExcelXML::CellToColumnRow v0.16.8
+      Spreadsheet::Reader::ExcelXML::Chartsheet v0.16.8
+      Spreadsheet::Reader::ExcelXML::Error v0.16.8
+      Spreadsheet::Reader::ExcelXML::Row v0.16.8
+      Spreadsheet::Reader::ExcelXML::SharedStrings v0.16.8
+      Spreadsheet::Reader::ExcelXML::Styles v0.16.8
+      Spreadsheet::Reader::ExcelXML::Types v0.16.8
+      Spreadsheet::Reader::ExcelXML::Workbook v0.16.8
+      Spreadsheet::Reader::ExcelXML::WorkbookFileInterface v0.16.8
+      Spreadsheet::Reader::ExcelXML::WorkbookMetaInterface v0.16.8
+      Spreadsheet::Reader::ExcelXML::WorkbookPropsInterface v0.16.8
+      Spreadsheet::Reader::ExcelXML::WorkbookRelsInterface v0.16.8
+      Spreadsheet::Reader::ExcelXML::Worksheet v0.16.8
+      Spreadsheet::Reader::ExcelXML::WorksheetToRow v0.16.8
+      Spreadsheet::Reader::ExcelXML::XMLReader v0.16.8
+      Spreadsheet::Reader::ExcelXML::XMLReader::FileWorksheet v0.16.8
+      Spreadsheet::Reader::ExcelXML::XMLReader::NamedSharedStrings v0.16.8
+      Spreadsheet::Reader::ExcelXML::XMLReader::NamedStyles v0.16.8
+      Spreadsheet::Reader::ExcelXML::XMLReader::NamedWorksheet v0.16.8
+      Spreadsheet::Reader::ExcelXML::XMLReader::PositionSharedStrings v0.16.8
+      Spreadsheet::Reader::ExcelXML::XMLReader::PositionStyles v0.16.8
+      Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookMeta v0.16.8
+      Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookProps v0.16.8
+      Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookRels v0.16.8
+      Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookXML v0.16.8
+      Spreadsheet::Reader::ExcelXML::ZipReader v0.16.8
+      Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookMeta v0.16.8
+      Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookProps v0.16.8
+      Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookRels v0.16.8
+    requirements:
+      Archive::Zip 1.30
+      Capture::Tiny 0
+      Carp 0
+      Clone 0
+      Data::Dumper 0
+      DateTime::Format::Flexible 0
+      DateTimeX::Format::Excel 0
+      Encode 0
+      ExtUtils::MakeMaker 7.04
+      FileHandle 0
+      IO::File 0
+      IO::Handle 1.25
+      Modern::Perl 1.20150127
+      Moose 0
+      Moose::Role 0
+      MooseX::HasDefaults::RO 0
+      MooseX::ShortCut::BuildInstance 1.040
+      MooseX::StrictConstructor 0
+      Spreadsheet::Reader::Format v0.6.4
+      Spreadsheet::Reader::Format::FmtDefault 0
+      Spreadsheet::Reader::Format::ParseExcelFormatStrings 0
+      Test::Moose 2.1801
+      Type::Library 1.000
+      Type::Utils 0
+      Types::Standard 0
+      lib 0
+      perl 5.010
+      strict 0
+      version 0.77
+      warnings 0
+  Spreadsheet-Reader-Format-v0.6.4
+    pathname: J/JA/JANDREW/Spreadsheet-Reader-Format-v0.6.4.tar.gz
+    provides:
+      Spreadsheet::Reader::Format v0.6.4
+      Spreadsheet::Reader::Format::FmtDefault v0.6.4
+      Spreadsheet::Reader::Format::ParseExcelFormatStrings v0.6.4
+      Spreadsheet::Reader::Format::Types v0.6.4
+    requirements:
+      Carp 0
+      Clone 0
+      DateTime 0
+      DateTime::Format::Flexible 0
+      DateTime::TimeZone 2.09
+      DateTimeX::Format::Excel 0.014
+      Encode 0
+      ExtUtils::MakeMaker 7.04
+      IO::File 0
+      Moose 0
+      Moose::Role 0
+      Test::Exception 0.43
+      Test::Moose 2.1801
+      Type::Coercion 0
+      Type::Library 1.000
+      Type::Tiny 0
+      Type::Utils 0
+      Types::Standard 0
+      lib 0
+      perl 5.010
+      strict 0
+      version 0.77
+      warnings 0
   String-ToIdentifier-EN-0.12
     pathname: R/RK/RKITOVER/String-ToIdentifier-EN-0.12.tar.gz
     provides:
@@ -3108,6 +3390,17 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 6.30
       Params::Util 0.14
       Sub::Install 0.92
+      strict 0
+      warnings 0
+  Sub-Exporter-ForMethods-0.100052
+    pathname: R/RJ/RJBS/Sub-Exporter-ForMethods-0.100052.tar.gz
+    provides:
+      Sub::Exporter::ForMethods 0.100052
+    requirements:
+      ExtUtils::MakeMaker 0
+      Scalar::Util 0
+      Sub::Exporter 0.978
+      Sub::Name 0
       strict 0
       warnings 0
   Sub-Exporter-Progressive-0.001013
@@ -3332,6 +3625,50 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
+  Type-Tiny-1.004002
+    pathname: T/TO/TOBYINK/Type-Tiny-1.004002.tar.gz
+    provides:
+      Devel::TypeTiny::Perl56Compat 1.004002
+      Devel::TypeTiny::Perl58Compat 1.004002
+      Error::TypeTiny 1.004002
+      Error::TypeTiny::Assertion 1.004002
+      Error::TypeTiny::Compilation 1.004002
+      Error::TypeTiny::WrongNumberOfParameters 1.004002
+      Eval::TypeTiny 1.004002
+      Reply::Plugin::TypeTiny 1.004002
+      Test::TypeTiny 1.004002
+      Type::Coercion 1.004002
+      Type::Coercion::FromMoose 1.004002
+      Type::Coercion::Union 1.004002
+      Type::Library 1.004002
+      Type::Params 1.004002
+      Type::Parser 1.004002
+      Type::Registry 1.004002
+      Type::Tiny 1.004002
+      Type::Tiny::Class 1.004002
+      Type::Tiny::Duck 1.004002
+      Type::Tiny::Enum 1.004002
+      Type::Tiny::Intersection 1.004002
+      Type::Tiny::Role 1.004002
+      Type::Tiny::Union 1.004002
+      Type::Utils 1.004002
+      Types::Common::Numeric 1.004002
+      Types::Common::String 1.004002
+      Types::Standard 1.004002
+      Types::Standard::ArrayRef 1.004002
+      Types::Standard::CycleTuple 1.004002
+      Types::Standard::Dict 1.004002
+      Types::Standard::HashRef 1.004002
+      Types::Standard::Map 1.004002
+      Types::Standard::ScalarRef 1.004002
+      Types::Standard::StrMatch 1.004002
+      Types::Standard::Tied 1.004002
+      Types::Standard::Tuple 1.004002
+      Types::TypeTiny 1.004002
+    requirements:
+      Exporter::Tiny 0.026
+      ExtUtils::MakeMaker 6.17
+      perl 5.006001
   URI-1.74
     pathname: E/ET/ETHER/URI-1.74.tar.gz
     provides:

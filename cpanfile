@@ -34,3 +34,4 @@ requires 'Data::DPath';
 
 requires 'Geo::Gpx';
 requires 'Archive::Zip';
+requires 'Spreadsheet::Reader::ExcelXML';
