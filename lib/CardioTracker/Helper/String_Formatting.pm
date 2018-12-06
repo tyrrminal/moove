@@ -25,6 +25,16 @@ sub register {
     }
   );
   
+  $app->helper(
+    dec_format => sub {
+      my $self=shift;
+      my ($num,$pl) = (@_,2);
+
+      return sprintf("%.0${pl}f", $num) if(defined($num));
+      return '';
+    }
+  )
+
 }
 
 1;
