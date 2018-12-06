@@ -84,6 +84,12 @@ __PACKAGE__->table("activity");
   data_type: 'mediumtext'
   is_nullable: 1
 
+=head2 whole_activity_id
+
+  data_type: 'integer'
+  is_foreign_key: 1
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -105,6 +111,8 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "note",
   { data_type => "mediumtext", is_nullable => 1 },
+  "whole_activity_id",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -120,6 +128,21 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
+
+=head2 activities
+
+Type: has_many
+
+Related object: L<CardioTracker::Model::Result::Activity>
+
+=cut
+
+__PACKAGE__->has_many(
+  "activities",
+  "CardioTracker::Model::Result::Activity",
+  { "foreign.whole_activity_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
 
 =head2 activity_type
 
@@ -206,6 +229,26 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 whole_activity
+
+Type: belongs_to
+
+Related object: L<CardioTracker::Model::Result::Activity>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "whole_activity",
+  "CardioTracker::Model::Result::Activity",
+  { id => "whole_activity_id" },
+  {
+    is_deferrable => 1,
+    join_type     => "LEFT",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
+  },
+);
+
 =head2 users
 
 Type: many_to_many
@@ -217,8 +260,8 @@ Composing rels: L</user_activities> -> user
 __PACKAGE__->many_to_many("users", "user_activities", "user");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-20 21:32:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:jdwo4ap6NV1nyD2LS1luwg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-12-05 22:40:06
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:DwrzeogF3YRz0htuqfLfig
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
@@ -234,6 +277,13 @@ sub is_running_activity {
 
 sub is_cycling_activity {
   return shift->activity_type->description eq 'Ride';
+}
+
+sub end_time {
+  my $self=shift;
+
+  return $self->start_time unless(defined($self->result));
+  return $self->start_time + ($self->result->gross_time // $self->result->net_time);
 }
 
 1;
