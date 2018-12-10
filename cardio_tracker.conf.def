@@ -13,5 +13,11 @@
       env => 'DB_PASS',
       priority => 'env'
     }
+  },
+  static_assets => {
+    path => {
+      isa => 'Str',
+      env => STATIC_ASSETS_PATH
+    }
   }
 }

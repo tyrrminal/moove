@@ -5,14 +5,14 @@
 % layout 'default';
 % title 'CardioTracker :: Cardio Events';
 % content header => begin
-    %= javascript '/yarn_components/jquery/dist/jquery.min.js'
+    %= javascript '/vendor/jquery/dist/jquery.min.js'
 
-    %= javascript '/yarn_components/datatables.net/js/jquery.dataTables.min.js'
-    %= javascript '/yarn_components/datatables.net-bs4/js/dataTables.bootstrap4.min.js'
-    %= stylesheet '/yarn_components/datatables.net-bs4/css/dataTables.bootstrap4.min.css'
+    %= javascript '/vendor/datatables.net/js/jquery.dataTables.min.js'
+    %= javascript '/vendor/datatables.net-bs4/js/dataTables.bootstrap4.min.js'
+    %= stylesheet '/vendor/datatables.net-bs4/css/dataTables.bootstrap4.min.css'
 
-    %= stylesheet '/yarn_components/bootstrap/dist/css/bootstrap.min.css'
-    %= javascript '/yarn_components/bootstrap/dist/js/bootstrap.min.js'
+    %= stylesheet '/vendor/bootstrap/dist/css/bootstrap.min.css'
+    %= javascript '/vendor/bootstrap/dist/js/bootstrap.min.js'
 
     %= javascript '/js/main.js';
 % end

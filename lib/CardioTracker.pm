@@ -5,15 +5,14 @@ use Mojo::Base 'Mojolicious';
 sub startup {
   my $self = shift;
 
-  # Load configuration from hash returned by "my_app.conf"
-  #my $config = $self->plugin('Config');
-
   push @{ $self->commands->namespaces }, 'CardioTracker::Command';
 
   $self->plugin('DCS::Plugin::Config');
   $self->plugin('CardioTracker::Helper::DB');
   $self->plugin('CardioTracker::Helper::Session');
   $self->plugin('CardioTracker::Helper::String_Formatting');
+
+  push @{$self->static->paths}, $self->conf->static_assets->path;
 
   # Router
   my $r = $self->routes;

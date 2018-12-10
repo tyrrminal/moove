@@ -26,5 +26,6 @@ RUN carton install --deployment
 
 COPY . .
 
+RUN yarn --modules-folder /static_assets/vendor
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["prodserver"]
