@@ -21,9 +21,10 @@ sub startup {
   # Normal route to controller
   $r->get('/')->to('example#welcome');
 
-  $r->get('/legacy/cardio')->to('legacy#cardio')->name('excel_cardio');
-  $r->get('/legacy/summary')->to('legacy#summary')->name('excel_summary');
-  $r->get('/legacy/events')->to('legacy#events')->name('excel_events');
+  my $legacy = $r->any('/legacy')->to(controller => 'legacy');
+    $legacy->get('/summary/:username')->to(action => 'summary', username => $self->current_user->username);
+    $legacy->get( '/events/:username')->to(action => 'events', username => $self->current_user->username);
+    $legacy->get( '/cardio/:username')->to(action => 'cardio', username => $self->current_user->username);
 }
 
 1;
