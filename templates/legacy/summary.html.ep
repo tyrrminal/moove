@@ -59,7 +59,7 @@
     <h5><%= $_->[1] %> Goal</h5>
     <div class="row">
       <span class="column<%= $t_stats->{goal} > $t_stats->{distance} ? ' neg' : '' %>"><%= sprintf("%.02f", abs($t_stats->{distance} - $t_stats->{goal})) %> mi</span>
-      <span class="column"><%= pct_format($t_stats->{distance}/$t_stats->{goal}) %></span>
+      <span class="column"><%= $t_stats->{goal} ? pct_format($t_stats->{distance}/$t_stats->{goal}) : "" %></span>
     </div>
     % }
 
