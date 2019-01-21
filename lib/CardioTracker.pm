@@ -11,6 +11,7 @@ sub startup {
   $self->plugin('CardioTracker::Helper::DB');
   $self->plugin('CardioTracker::Helper::Session');
   $self->plugin('CardioTracker::Helper::String_Formatting');
+  $self->plugin('CardioTracker::Helper::API');
 
   push @{$self->static->paths}, $self->conf->static_assets->path;
 
