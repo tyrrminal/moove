@@ -38,7 +38,7 @@
       % } elsif($_->is_cycling_activity) { $c_max = $c_max || $_->distance->normalized_value;
         <td data-search="cycling"></td>
         <td></td>
-        <td class="<%= $_->event ? 'event' : '' %>" title="<%= $_->event ? $_->event->description : '' %>"><%= $_->distance->description_normalized %></td>
+        <td class="<%= $_->has_event_visible_to(current_user) ? 'event' : '' %>" title="<%= $_->has_event_visible_to(current_user) ? $_->event->description : '' %>"><%= $_->distance->description_normalized %></td>
         <td><%= sprintf("%.2f", 100*($_->distance->normalized_value-$c_max)/$c_max) %>%</td>
       % $c_max = max($c_max, $_->distance->normalized_value);
       % }
