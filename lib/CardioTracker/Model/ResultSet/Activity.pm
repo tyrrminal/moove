@@ -37,6 +37,17 @@ sub core {
   })
 }
 
+sub by_type {
+  my $self=shift;
+  my ($type) = @_;
+
+  return $self->search({
+    'activity_type.description' => $type,
+  },{
+    'join' => 'activity_type'
+  })
+}
+
 sub outdoor {
   my $self=shift;
 
