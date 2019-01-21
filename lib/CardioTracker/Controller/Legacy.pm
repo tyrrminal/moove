@@ -10,7 +10,7 @@ use Data::Dumper;
 sub cardio {
   my $self=shift;
 
-  my $u = $self->app->current_user;
+  my $u = $self->app->model('User')->find({username => $self->stash('username')});
   my @activities = $self->app->model('Activity')->whole->for_user($u)->core->completed->ordered->all;
 
   $self->stash(activities => \@activities);
@@ -18,7 +18,7 @@ sub cardio {
 
 sub summary {
   my $self=shift;
-  my $u = $self->app->current_user;
+  my $u = $self->app->model('User')->find({username => $self->stash('username')});
   my $now = DateTime->now;
 
   my $start = $self->app->model('Activity')->whole->for_user($u)->ordered->first->start_time;
@@ -27,12 +27,12 @@ sub summary {
   my $running_miles_per_day = 1;
   my $running_season_start = DateTime->new(year => $now->year, month =>  1, day => 1);
   my $running_season_end   = DateTime->new(year => $now->year, month => 12, day => 31);
-  my $running_days = max(0, $now->day_of_year - $running_season_start->day_of_year) - max(0, $now->day_of_year - $running_season_end->day_of_year);
+  my $running_days = max(0, 1+$now->day_of_year - $running_season_start->day_of_year) - max(0, $now->day_of_year - $running_season_end->day_of_year);
 
   my $cycling_miles_per_day = 5;
   my $cycling_season_start = DateTime->new(year => $now->year, month =>  4, day => 1);
   my $cycling_season_end   = DateTime->new(year => $now->year, month => 10, day => 1);
-  my $cycling_days = max(0, $now->day_of_year - $cycling_season_start->day_of_year) - max(0, $now->day_of_year - $cycling_season_end->day_of_year);
+  my $cycling_days = max(0, 1+$now->day_of_year - $cycling_season_start->day_of_year) - max(0, $now->day_of_year - $cycling_season_end->day_of_year);
 
   $self->stash(stats => {
     overall => {
@@ -76,9 +76,9 @@ sub summary {
 
 sub events {
   my $self=shift;
-  my $u = $self->app->current_user;
+  my $u = $self->app->model('User')->find({username => $self->stash('username')});
 
-  my @reg = $self->app->model('EventRegistration')->for_user($u)->ordered->all;
+  my @reg = $self->app->model('EventRegistration')->for_user($u)->visible_to($self->app->current_user)->ordered->all;
   $self->stash(registrations => \@reg);
 }
 
