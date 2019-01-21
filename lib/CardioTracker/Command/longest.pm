@@ -24,17 +24,12 @@ sub run {
   my $interval = 7;
   getopt(
     \@args,
-    'interval:i' => \$interval,
+    'days:i' => \$interval,
     'top:i' => \$top
   );
 
-  my $me = $self->app->model('User')->find({username => 'digicow'});
-  my @activities = map { $_->activity} $me->user_activities->search({
-    'activity_type.description' => 'Run'
-  },{
-    join => { activity => 'activity_type'},
-    order_by => 'activity.start_time'
-  });
+  my $u = $self->app->model('User')->find({username => 'digicow'});
+  my @activities = $self->app->model('Activity')->for_user($u)->whole->by_type('Run')->ordered;
 
   my @d_sum;
   foreach my $c (@activities) {
