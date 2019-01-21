@@ -79,6 +79,13 @@ __PACKAGE__->table("event_registration");
   data_type: 'integer'
   is_nullable: 1
 
+=head2 is_public
+
+  data_type: 'enum'
+  default_value: 'Y'
+  extra: {list => ["Y","N"]}
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -99,6 +106,13 @@ __PACKAGE__->add_columns(
   },
   "bib_no",
   { data_type => "integer", is_nullable => 1 },
+  "is_public",
+  {
+    data_type => "enum",
+    default_value => "Y",
+    extra => { list => ["Y", "N"] },
+    is_nullable => 0,
+  },
 );
 
 =head1 PRIMARY KEY
@@ -166,8 +180,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-13 18:49:27
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:X8g6fcAuhEpMmP/Y1tqijg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-12-27 23:47:36
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:zUpMvyiOdd4ccP2xPjwsQQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
