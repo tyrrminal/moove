@@ -265,6 +265,23 @@ __PACKAGE__->many_to_many("users", "user_activities", "user");
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+use DCS::Constants qw(:boolean);
+
+sub has_event_visible_to {
+  my $self=shift;
+  my ($user) = @_;
+
+  return $FALSE unless(defined($self->event));
+  return $self->result_source->schema->resultset('EventRegistration')->search({
+    -and => [
+      'event_id' => $self->event_id,
+      -or => [
+        is_public => 'Y',
+        user_id => $user->id
+      ]
+    ]
+  })->count > 0
+}
 
 sub is_outdoor_activity {
   return shift->activity_type->description ne 'Treadmill';
