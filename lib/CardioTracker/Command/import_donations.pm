@@ -59,7 +59,7 @@ sub run {
       my $date = $v[5];
       say join("\t", "", $amt, $date);
 
-      my $person = $self->app->model('Person')->find_or_create_donor($row->[0],$row->[1]);
+      my $person = $self->app->model('Person')->find_or_create_donor($v[0],$v[1]);
       my $location = $self->app->model('Location')->find_or_create({
         street1 => $v[6]                 || $NULL,
         street2 => $NULL,
