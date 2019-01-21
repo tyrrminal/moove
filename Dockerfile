@@ -1,6 +1,8 @@
 FROM ubuntu:18.04
 LABEL maintainer="Mark Tyrrell <mtyrrell@digicowsoftware.com>"
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update && apt-get install -qy \
   --allow-downgrades --allow-remove-essential --allow-change-held-packages \
   perl \
@@ -14,7 +16,8 @@ RUN apt-get update && apt-get install -qy \
   carton \
   cpanminus \
   libmysqlclient-dev \
-  mysql-client
+  mysql-client \
+  tzdata
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
   echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
   apt-get update && apt-get install -qy yarn
