@@ -1810,6 +1810,17 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       Test::More 0
+  JSON-Validator-2.19
+    pathname: J/JH/JHTHORSEN/JSON-Validator-2.19.tar.gz
+    provides:
+      JSON::Validator 2.19
+      JSON::Validator::Error undef
+      JSON::Validator::Joi undef
+      JSON::Validator::OpenAPI undef
+      JSON::Validator::Ref undef
+    requirements:
+      ExtUtils::MakeMaker 0
+      Mojolicious 7.28
   LWP-MediaTypes-6.02
     pathname: G/GA/GAAS/LWP-MediaTypes-6.02.tar.gz
     provides:
@@ -2294,6 +2305,16 @@ DISTRIBUTIONS
       perl 5.010001
       strict 0
       warnings 0
+  Mojolicious-Plugin-OpenAPI-2.06
+    pathname: J/JH/JHTHORSEN/Mojolicious-Plugin-OpenAPI-2.06.tar.gz
+    provides:
+      JSON::Validator::OpenAPI::Mojolicious undef
+      Mojolicious::Plugin::OpenAPI 2.06
+      Mojolicious::Plugin::OpenAPI::Cors undef
+      Mojolicious::Plugin::OpenAPI::Security undef
+    requirements:
+      ExtUtils::MakeMaker 0
+      JSON::Validator 2.19
   Moo-2.003004
     pathname: H/HA/HAARG/Moo-2.003004.tar.gz
     provides:
@@ -3828,6 +3849,15 @@ DISTRIBUTIONS
       yaml_mapping undef
       yaml_scalar undef
       yaml_sequence undef
+    requirements:
+      ExtUtils::MakeMaker 0
+      perl 5.008001
+  YAML-LibYAML-0.75
+    pathname: T/TI/TINITA/YAML-LibYAML-0.75.tar.gz
+    provides:
+      YAML::LibYAML 0.75
+      YAML::XS 0.75
+      YAML::XS::LibYAML undef
     requirements:
       ExtUtils::MakeMaker 0
       perl 5.008001

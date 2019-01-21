@@ -1,0 +1,82 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Cardio Tracker",
+    "description": "",
+    "version": "1.0.0",
+    "contact": {
+      "email": "ct@digicow.net"
+    }
+  },
+  "host": "ct.digicow.net",
+  "schemes": [
+    "https"
+  ],
+  "basePath": "/api/v1",
+  "securityDefinitions": {
+    "user": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "X-API-Key"
+    },
+    "admin": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "X-API-Key"
+    }
+  },
+  "security": [
+    {
+      "user": []
+    }
+  ],
+  "paths": {
+    "/exercise": {
+      "get": {
+        "summary": "Get a set of exercises",
+        "x-mojo-to": "API::V1::Exercise#get",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description":  "Successful retrieval",
+            "schema": {
+              "$ref": "#/definitions/Exercise"
+            }
+          }
+        }
+      }
+    },
+    "/exercise/:id": {
+      "post": {
+        "summary": "Update an exercise",
+        "x-mojo-to": "API::V1::Exercise#update",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful update"
+          },
+          "401": {
+            "description": "Exercise not found"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Exercise": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id"
+      ]
+    }
+  }
+}

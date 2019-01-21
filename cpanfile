@@ -16,6 +16,7 @@ requires 'MooseX::NonMoose';
 requires 'Mojolicious';
 requires 'Mojolicious::Commands';
 requires 'Mojolicious::Plugin::Database';
+requires 'Mojolicious::Plugin::OpenAPI';
 requires 'Mojo::DynamicMethods';
 
 requires 'String::Util';
@@ -35,3 +36,4 @@ requires 'Data::DPath';
 requires 'Geo::Gpx';
 requires 'Archive::Zip';
 requires 'Spreadsheet::Reader::ExcelXML';
+requires 'YAML::XS';
