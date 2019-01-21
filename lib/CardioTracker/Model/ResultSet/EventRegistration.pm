@@ -11,6 +11,18 @@ sub for_user {
   })
 }
 
+sub visible_to {
+  my $self=shift;
+  my ($user) = shift;
+
+  return $self->search({
+    -or => [
+      is_public => 'Y',
+      user_id   => $user->id
+    ]
+  })
+}
+
 sub ordered {
   my $self=shift;
 
