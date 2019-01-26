@@ -1,12 +1,12 @@
 use utf8;
-package CardioTracker::Model::Result::Location;
+package CardioTracker::Model::Result::Address;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-CardioTracker::Model::Result::Location
+CardioTracker::Model::Result::Address
 
 =cut
 
@@ -35,11 +35,11 @@ __PACKAGE__->load_components(
   "InflateColumn::Time",
 );
 
-=head1 TABLE: C<location>
+=head1 TABLE: C<address>
 
 =cut
 
-__PACKAGE__->table("location");
+__PACKAGE__->table("address");
 
 =head1 ACCESSORS
 
@@ -145,7 +145,7 @@ Related object: L<CardioTracker::Model::Result::Donation>
 __PACKAGE__->has_many(
   "donations",
   "CardioTracker::Model::Result::Donation",
-  { "foreign.location_id" => "self.id" },
+  { "foreign.address_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
@@ -160,7 +160,7 @@ Related object: L<CardioTracker::Model::Result::Event>
 __PACKAGE__->has_many(
   "events",
   "CardioTracker::Model::Result::Event",
-  { "foreign.location_id" => "self.id" },
+  { "foreign.address_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
@@ -175,13 +175,13 @@ Related object: L<CardioTracker::Model::Result::Participant>
 __PACKAGE__->has_many(
   "participants",
   "CardioTracker::Model::Result::Participant",
-  { "foreign.location_id" => "self.id" },
+  { "foreign.address_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-12-04 19:02:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:E6fv2Z3zGVGajS95bWX9Jg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-01-26 10:01:56
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:o4gEmdHFWHpj+QjjutEFLQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

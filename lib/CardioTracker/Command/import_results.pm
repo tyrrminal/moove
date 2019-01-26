@@ -62,7 +62,7 @@ sub import_event {
   foreach my $p ($importer->fetch_results()) {
     #lookup (create as needed)
     my $division = $p->{division} ? $self->app->model('Division')->find_or_create({name => $p->{division}}) : $NULL;
-    my $location = $self->app->model('Location')->find_location(city => $p->{city}, state => $p->{state}, country => $p->{country});
+    my $address = $self->app->model('Address')->find_address(city => $p->{city}, state => $p->{state}, country => $p->{country});
     my $gender = $self->app->model('Gender')->find({description => $p->{gender}});
 
     #create
@@ -111,7 +111,7 @@ sub import_event {
       age         => $p->{age},
       person      => $person,
       gender_id   => defined($gender) ? $gender->id : undef,
-      location    => $location
+      address    => $address
     });
   }
 

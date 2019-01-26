@@ -20,7 +20,7 @@ USAGE
 sub run {
   my ($self, @args) = @_;
 
-  $self->fix_locations;
+  $self->fix_addresss;
   $self->fix_group_counts;
   $self->fix_paces;
   $self->fix_gender_groups;
@@ -28,7 +28,7 @@ sub run {
   $self->fix_bib_nos(2014,'2014 Fisher Cats Mother\'s Day 3k');
 }
 
-sub fix_locations {
+sub fix_addresss {
   my $self=shift;
 
   my %other_fields = map { $_ => $NULL} qw(street1 street2 zip phone country);
@@ -38,11 +38,11 @@ sub fix_locations {
     ['Pemroke' => 'Pembroke', 'MA' => 'MA'],
     ['Westofrd' => 'Westford', 'MA' => 'MA']
   ) {
-    my ($nl) = $self->app->model('Location')->find_or_create({ city => $_->[1], state => $_->[3], %other_fields });
-    my ($ol) = $self->app->model('Location')->search({ city => $_->[0], state => $_->[2], %other_fields });
+    my ($nl) = $self->app->model('Address')->find_or_create({ city => $_->[1], state => $_->[3], %other_fields });
+    my ($ol) = $self->app->model('Address')->search({ city => $_->[0], state => $_->[2], %other_fields });
     if(defined($ol) && defined($nl)) {
       say "Mapping $_[0] ".$_[2]//''.' to $_[1] $_[3]';
-      $ol->participants->update_all({location_id => $nl->id});
+      $ol->participants->update_all({address_id => $nl->id});
       $ol->delete();
     }
   }

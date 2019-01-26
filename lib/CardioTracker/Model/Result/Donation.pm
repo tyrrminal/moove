@@ -79,7 +79,7 @@ __PACKAGE__->table("donation");
   is_foreign_key: 1
   is_nullable: 0
 
-=head2 location_id
+=head2 address_id
 
   data_type: 'integer'
   is_foreign_key: 1
@@ -100,7 +100,7 @@ __PACKAGE__->add_columns(
   { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 0 },
   "person_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
-  "location_id",
+  "address_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
 );
 
@@ -118,6 +118,21 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
+=head2 address
+
+Type: belongs_to
+
+Related object: L<CardioTracker::Model::Result::Address>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "address",
+  "CardioTracker::Model::Result::Address",
+  { id => "address_id" },
+  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
+);
+
 =head2 event_registration
 
 Type: belongs_to
@@ -130,21 +145,6 @@ __PACKAGE__->belongs_to(
   "event_registration",
   "CardioTracker::Model::Result::EventRegistration",
   { event_id => "event_id", user_id => "user_id" },
-  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
-);
-
-=head2 location
-
-Type: belongs_to
-
-Related object: L<CardioTracker::Model::Result::Location>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "location",
-  "CardioTracker::Model::Result::Location",
-  { id => "location_id" },
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
@@ -164,8 +164,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-11 14:38:38
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Y8omwBVO8fkeUK6AwRovzA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-01-26 10:01:56
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:UfCWmGtpxVTZjvTWuSmFqg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

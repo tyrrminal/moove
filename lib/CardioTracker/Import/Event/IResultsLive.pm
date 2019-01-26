@@ -60,7 +60,7 @@ sub fetch_metadata {
   my $title_c = $res->dom->find('div.container > h1');
   my $title = $title_c->[0]->text;
 
-  my ($date,$location) = @{$res->dom->find('em')->map('text')->to_array()};
+  my ($date,$address) = @{$res->dom->find('em')->map('text')->to_array()};
   my $dt = $p->parse_datetime($date);
 
   my $races_c  = $res->dom->find('div.row')->[1];
@@ -71,7 +71,7 @@ sub fetch_metadata {
 
   return {
     title => $title,
-    location => $location,
+    address => $address,
     date => $dt,
     races => \%races
   };

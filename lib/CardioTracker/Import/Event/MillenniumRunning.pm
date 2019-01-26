@@ -75,7 +75,7 @@ sub _build_results_page {
   my $res = $ua->get($pre)->result;
 
   unless($res->body) {
-    return $ua->get($res->headers->location)->result;
+    return $ua->get($res->headers->address)->result;
   }
   return $pre;
 }
@@ -92,19 +92,19 @@ sub fetch_metadata {
 
   my $res = $self->results_page;
 
-  my ($location, $dt);
+  my ($address, $dt);
   my $md = $res->dom->find('div.header > h3')->[0]->text;
   $md =~ s|<br\s*/?>||;
   my ($title, $loc_date) = split($/, $md);
   $title =~ s/\x{2019}/'/g;
   if($loc_date =~ m|(\w+, \w{2}) (\d{2}/\d{2}/\d{4})|) {
-    $location = $1;
+    $address = $1;
     $dt = $p->parse_datetime($2);
   }
 
   return {
     title => $title,
-    location => $location,
+    address => $address,
     date => $dt
   };
 }
@@ -117,7 +117,7 @@ sub find_and_update_event {
   my ($event) = $model->find_event($info->{date}->year, $info->{title});
   die "Event '".$info->{title}."' not found\n" unless(defined($event));
 
-  $self->_event_state($event->location->state);
+  $self->_event_state($event->address->state);
 
   return $event;
 }
@@ -137,7 +137,7 @@ sub fetch_results {
     _fix_names(\%record);
     normalize_times(\%record);
     _fix_div_place(\%record);
-    _fix_location(\%record, $cs, $self->_event_state);
+    _fix_address(\%record, $cs, $self->_event_state);
     push(@results,{%record});
   });
 
@@ -161,7 +161,7 @@ sub _fix_names {
   $v->{first_name} = $tc->title(join($SPACE,@parts));
 }
 
-sub _fix_location {
+sub _fix_address {
   my ($v, $cs, $state) = @_;
   my $tc = Lingua::EN::Titlecase->new();
 

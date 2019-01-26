@@ -91,7 +91,7 @@ sub get_metadata {
 
   return {
     title => $title,
-    location => sprintf("%s, %s", $tc, uc($state)),
+    address => sprintf("%s, %s", $tc, uc($state)),
     date => $dt
   };
 }

@@ -1,8 +1,8 @@
-package CardioTracker::Model::ResultSet::Location;
+package CardioTracker::Model::ResultSet::Address;
 
 use base qw(DBIx::Class::ResultSet);
 
-sub find_location {
+sub find_address {
   my $self=shift;
   my %v = @_;
 

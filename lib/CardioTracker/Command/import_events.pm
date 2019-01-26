@@ -35,14 +35,14 @@ sub run {
     my $type = $self->app->model('EventType')->find({description => $v->{event_type}});
     my $uom = $self->app->model('UnitOfMeasure')->find({abbreviation => $v->{distance_l}});
     my $distance = $self->app->model('Distance')->find_or_create({value => $v->{distance_v}, uom => $uom->id});
-    my $location = $self->app->model('Location')->find_location(%r);
+    my $address = $self->app->model('Address')->find_address(%r);
 
     my $event = $self->app->model('Event')->create({
       name => $v->{name},
       scheduled_start => $v->{date},
       event_type_id => $type->id,
       distance => $distance,
-      location => $location
+      address => $address
     });
 
     my $reg = $self->app->model('EventRegistration')->create({

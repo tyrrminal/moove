@@ -2,7 +2,7 @@ Create Event:
   name
   Activity (create)
   Distance (create/link)
-  Location (create/link)
+  Address (create/link)
   Type (link)
 
 Create Activity:
@@ -14,7 +14,7 @@ Create Distance:
   value
   UoM (link)
 
-Create Location:
+Create Address:
   city
   state
 ==================================
@@ -24,7 +24,7 @@ Create Participant:
   Result (create)
   Person (create)
   Division (create/link)
-  Location (create/link)
+  Address (create/link)
   Gender (link)
 
 Create Result:
@@ -40,7 +40,7 @@ Create Person:
 Create Division:
   name
 
-Create Location:
+Create Address:
   city
   state
 

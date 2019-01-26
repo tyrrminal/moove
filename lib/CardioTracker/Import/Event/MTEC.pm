@@ -63,11 +63,11 @@ sub fetch_metadata {
   my $title = _trim($res->dom->find('.breadcrumb li > a')->[0]->text);
 
   my $info = _trim($res->dom->find('.raceinfobox div')->[1]->text);
-  my ($location,$date) = split(/\s*\n\s*/, $info);
+  my ($address,$date) = split(/\s*\n\s*/, $info);
   my $dt = $p->parse_datetime($date);
   return {
     title => $title,
-    location => $location,
+    address => $address,
     date  => $dt
   };
 }
@@ -103,7 +103,7 @@ sub fetch_results {
       @record{@col_map} = @values;
       _fix_name(\%record);
       normalize_times(\%record);
-      _fix_location(\%record);
+      _fix_address(\%record);
       _fix_place(\%record);
       _fix_age(\%record);
       _fix_division(\%record);
@@ -147,7 +147,7 @@ sub _fix_name {
   $v->{first_name} .= $SPACE . $s if(defined($v->{first_name}) && defined($s)); 
 }
 
-sub _fix_location {
+sub _fix_address {
   my ($v) = @_;
   $v->{country} = delete($v->{city}) unless(defined($v->{state}));
 }

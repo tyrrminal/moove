@@ -79,7 +79,7 @@ __PACKAGE__->table("event");
   is_foreign_key: 1
   is_nullable: 0
 
-=head2 location_id
+=head2 address_id
 
   data_type: 'integer'
   is_foreign_key: 1
@@ -104,7 +104,7 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "distance_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
-  "location_id",
+  "address_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
 );
 
@@ -135,6 +135,21 @@ __PACKAGE__->has_many(
   "CardioTracker::Model::Result::Activity",
   { "foreign.event_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 address
+
+Type: belongs_to
+
+Related object: L<CardioTracker::Model::Result::Address>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "address",
+  "CardioTracker::Model::Result::Address",
+  { id => "address_id" },
+  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 =head2 distance
@@ -212,24 +227,9 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 location
 
-Type: belongs_to
-
-Related object: L<CardioTracker::Model::Result::Location>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "location",
-  "CardioTracker::Model::Result::Location",
-  { id => "location_id" },
-  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
-);
-
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-19 17:38:07
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:hndv1Y0Y+utjUEHkgTCcsQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-01-26 10:01:56
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:KUctnLfMVGj045jNf+NR5w
 
 use DCS::Constants qw(:boolean :existence :symbols);
 

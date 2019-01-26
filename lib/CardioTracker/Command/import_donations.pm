@@ -60,7 +60,7 @@ sub run {
       say join("\t", "", $amt, $date);
 
       my $person = $self->app->model('Person')->find_or_create_donor($v[0],$v[1]);
-      my $location = $self->app->model('Location')->find_or_create({
+      my $address = $self->app->model('Address')->find_or_create({
         street1 => $v[6]                 || $NULL,
         street2 => $NULL,
         city    => $v[7]                 || $NULL,
@@ -77,7 +77,7 @@ sub run {
         amount   => $amt,
         date     => $date,
         person   => $person,
-        location => $location
+        address => $address
       });
 
     } until(($row = $sheet->fetchrow_arrayref) eq 'EOF');
