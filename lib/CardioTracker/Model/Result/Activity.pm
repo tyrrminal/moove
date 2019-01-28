@@ -144,6 +144,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 activity_points
+
+Type: has_many
+
+Related object: L<CardioTracker::Model::Result::ActivityPoint>
+
+=cut
+
+__PACKAGE__->has_many(
+  "activity_points",
+  "CardioTracker::Model::Result::ActivityPoint",
+  { "foreign.activity_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 activity_type
 
 Type: belongs_to
@@ -260,8 +275,8 @@ Composing rels: L</user_activities> -> user
 __PACKAGE__->many_to_many("users", "user_activities", "user");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-12-05 22:40:06
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:DwrzeogF3YRz0htuqfLfig
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-01-26 15:38:09
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:le53/0ggXd2wtdAjmzOYUw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
