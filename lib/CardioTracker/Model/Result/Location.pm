@@ -51,13 +51,15 @@ __PACKAGE__->table("location");
 
 =head2 latitude
 
-  data_type: 'float'
+  data_type: 'decimal'
   is_nullable: 0
+  size: [9,6]
 
 =head2 longitude
 
-  data_type: 'float'
+  data_type: 'decimal'
   is_nullable: 0
+  size: [9,6]
 
 =cut
 
@@ -65,9 +67,9 @@ __PACKAGE__->add_columns(
   "id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "latitude",
-  { data_type => "float", is_nullable => 0 },
+  { data_type => "decimal", is_nullable => 0, size => [9, 6] },
   "longitude",
-  { data_type => "float", is_nullable => 0 },
+  { data_type => "decimal", is_nullable => 0, size => [9, 6] },
 );
 
 =head1 PRIMARY KEY
@@ -115,8 +117,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-01-26 15:38:09
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:2RMPLb/iuv7kXhLaBYUwvQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-01-29 00:21:52
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:zg59RZF+HteBY67ifAUJzg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
