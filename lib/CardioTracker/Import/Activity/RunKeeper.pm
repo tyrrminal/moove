@@ -104,7 +104,10 @@ sub fetch_activities {
     $v{type} = $self->get_type($v{type});
     $v{type} = 'Treadmill' if($v{type} eq 'Run' && $v{gpx} eq '');
     normalize_times(\%v);
-    $self->_calculate_gross_time(\%v) if($v{gpx});
+    if($v{gpx}) {
+      $self->_calculate_gross_time(\%v);
+      $self->_add_points(\%v);
+    }
     push(@activities, {%v});
   }
   return @activities;
@@ -112,7 +115,7 @@ sub fetch_activities {
 
 sub _calculate_gross_time {
   my $self=shift;
-  my ($v, $dir) = @_;
+  my ($v) = @_;
   
   my $data = $self->_zip->memberNamed($v->{gpx})->contents;
   my $gpx = Geo::Gpx->new(xml => $data, use_datetime => $TRUE);
@@ -122,6 +125,16 @@ sub _calculate_gross_time {
   my $l_p = $segments[-1]->{points}->[-1];
 
   $v->{gross_time} = $l_p->{time}->subtract_datetime($f_p->{time});
+}
+
+sub _add_points {
+  my $self=shift;
+  my ($v) = @_;
+
+  my $data = $self->_zip->memberNamed($v->{gpx})->contents;
+  my $gpx = Geo::Gpx->new(xml => $data, use_datetime => $TRUE);
+
+  $v->{activity_points} = [map { @{$_->{points}} } map { @{$_->{segments}} } @{$gpx->tracks}];
 }
 
 1;

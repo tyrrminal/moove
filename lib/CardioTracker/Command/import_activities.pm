@@ -28,11 +28,13 @@ sub run {
   local $| = 1;
 
   my $import_class= "CardioTracker::Import::Activity::";
+  my $mode;
 
   my $user_id = 1;
   getopt(
     \@args,
     'runkeeper' => sub { $import_class .= 'RunKeeper' },
+    'rkup1' => sub { $import_class .= 'RunKeeper'; $mode = 'points'; },
     'file=s' => \my $file,
     'user=s' => \$user_id,
   );
@@ -44,13 +46,21 @@ sub run {
 
   say "You must specify a valid username or user ID" unless(defined($user));
 
-  my $d = DateTime::Format::Duration->new( pattern => '%r' );
+  my $importer = $import_class->new(file => $file);
+  if(defined($mode)) {
+    if($mode eq 'points') {
+      $self->import_points($importer,$user);
+    }
+  } else {
+    $self->import_all($importer, $user);
+  }
+}
+
+sub import_all {
+  my $self=shift;
+  my ($importer, $user) = @_;
 
   my @events = $self->app->model('Event')->all;
-
-  my @event_results = map { $_->result } $user->person->participants;
-
-  my $importer = $import_class->new(file => $file);
   my $act;
   ACTIVITY: foreach my $activity ($importer->fetch_activities()) {
     foreach my $e (@events) {
@@ -60,21 +70,32 @@ sub run {
       if(DateTime::Span->from_datetime_and_duration(after => $e->scheduled_start, minutes => 30)->contains($activity->{date}) ||
          DateTime::Span->from_datetime_and_duration(before => $e->scheduled_start, minutes => 5)->contains($activity->{date})) {
         if(($act) = $e->activities->search({ 'participants.person_id' => $user->person->id },{ join => { result => 'participants' }})) {
-          $self->update_activity($activity, $act);
+          $self->update_event_activity($activity, $act); #event with imported results
         } else {
-          $act = $self->import_activity($activity, $e);
+          $act = $self->import_activity($activity, $e); #event without results
         }
         next ACTIVITY;
       }
     }
-    $act = $self->import_activity($activity);
+    $act = $self->import_activity($activity); #non-event activity
   } continue {
     say "Importing ".$act->start_time->strftime('%F')." ".$act->activity_type->description;
     $user->add_to_activities($act);
   }
 }
 
-sub update_activity {
+sub import_points {
+  my $self=shift;
+  my ($importer, $user) = @_;
+
+  foreach my $activity ($importer->fetch_activities()) {
+    my $act = $self->app->model('Activity')->search({ start_time => $activity->{date} })->first;
+    say "Updating ".$act->start_time->strftime('%F')." ".$act->activity_type->description;
+    $self->store_points($act, @{$activity->{activity_points}});
+  }
+}
+
+sub update_event_activity {
   my $self=shift;
   my ($data, $activity) = @_;
 
@@ -84,6 +105,7 @@ sub update_activity {
   });
   $activity->result->update({ heart_rate => $data->{heart_rate} });
   $activity->result->update({ pace => $data->{pace} }) unless(defined($activity->result->pace));
+  $self->store_points($activity, @{$data->{activity_points}}) unless($activity->activity_points);
 }
 
 sub import_activity {
@@ -96,7 +118,7 @@ sub import_activity {
     pace       => $activity->{pace},
     heart_rate => $activity->{heart_rate} || $NULL
   });
-  return $self->app->model('Activity')->create({
+  my $act = $self->app->model('Activity')->create({
     activity_type => $self->app->model('ActivityType')->find({description => $activity->{type}}),
     start_time    => $activity->{date},
     distance      => $self->app->model('Distance')->find_or_create_from_miles($activity->{distance}),
@@ -104,6 +126,24 @@ sub import_activity {
     note          => $activity->{notes},
     event_id      => defined($event) ? $event->id : $NULL
   });
+  $self->store_points($act, @{$activity->{activity_points}});
+  return $act;
+}
+
+sub store_points {
+  my $self=shift;
+  my ($act, @points) = @_;
+
+  foreach my $ap (@points) {
+    my $loc = $self->app->model('Location')->create({
+      latitude => $ap->{lat},
+      longitude => $ap->{lon}
+    });
+    $act->add_to_activity_points({
+      location => $loc,
+      timestamp => $ap->{time}
+    });
+  }
 }
 
 1;
