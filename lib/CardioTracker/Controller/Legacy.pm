@@ -18,20 +18,21 @@ sub cardio {
 
 sub summary {
   my $self=shift;
+  my %tz = (time_zone => 'America/New_York');
   my $u = $self->app->model('User')->find({username => $self->stash('username')});
-  my $now = DateTime->now;
+  my $now = DateTime->now(%tz);
 
   my $start = $self->app->model('Activity')->whole->for_user($u)->ordered->first->start_time;
   my @activities = $self->app->model('Activity')->whole->for_user($u)->core->completed->all;
   
   my $running_miles_per_day = 1;
-  my $running_season_start = DateTime->new(year => $now->year, month =>  1, day => 1);
-  my $running_season_end   = DateTime->new(year => $now->year, month => 12, day => 31);
+  my $running_season_start = DateTime->new(year => $now->year, month =>  1, day => 1, %tz);
+  my $running_season_end   = DateTime->new(year => $now->year, month => 12, day => 31, %tz);
   my $running_days = max(0, 1+$now->day_of_year - $running_season_start->day_of_year) - max(0, $now->day_of_year - $running_season_end->day_of_year);
 
   my $cycling_miles_per_day = 5;
-  my $cycling_season_start = DateTime->new(year => $now->year, month =>  4, day => 1);
-  my $cycling_season_end   = DateTime->new(year => $now->year, month => 10, day => 1);
+  my $cycling_season_start = DateTime->new(year => $now->year, month =>  4, day => 1, %tz);
+  my $cycling_season_end   = DateTime->new(year => $now->year, month => 10, day => 1, %tz);
   my $cycling_days = max(0, 1+$now->day_of_year - $cycling_season_start->day_of_year) - max(0, $now->day_of_year - $cycling_season_end->day_of_year);
 
   $self->stash(stats => {
