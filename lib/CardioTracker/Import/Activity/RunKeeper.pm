@@ -98,12 +98,13 @@ sub fetch_activities {
   open(my $F, '<:encoding(utf8)', \$activities) or die($!);
   my @col_map = map { $self->get_key($_) } @{$csv->getline($F)};
   while(my $row = $csv->getline($F)) {
-    my %v;
+    my %v = ( importer => 'RunKeeper' );
     @v{@col_map} = @$row;
     $v{date} = $p->parse_datetime($v{date}) if(defined($v{date}));
     $v{type} = $self->get_type($v{type});
     $v{type} = 'Treadmill' if($v{type} eq 'Run' && $v{gpx} eq '');
     normalize_times(\%v);
+    $self->_extract_temp(\%v);
     if($v{gpx}) {
       $self->_calculate_gross_time(\%v);
       $self->_add_points(\%v);
@@ -135,6 +136,17 @@ sub _add_points {
   my $gpx = Geo::Gpx->new(xml => $data, use_datetime => $TRUE);
 
   $v->{activity_points} = [map { @{$_->{points}} } map { @{$_->{segments}} } @{$gpx->tracks}];
+}
+
+sub _extract_temp {
+  my $self=shift;
+  my ($v) = @_;
+
+  if(my $note = $v->{notes}) {
+    if($note =~ /(\d+(?:\.\d+)?) degrees/) {
+      $v->{temperature} = $1;
+    }
+  }
 }
 
 1;

@@ -79,6 +79,12 @@ __PACKAGE__->table("activity");
   is_foreign_key: 1
   is_nullable: 1
 
+=head2 temperature
+
+  data_type: 'decimal'
+  is_nullable: 1
+  size: [4,1]
+
 =head2 note
 
   data_type: 'mediumtext'
@@ -109,6 +115,8 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "event_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
+  "temperature",
+  { data_type => "decimal", is_nullable => 1, size => [4, 1] },
   "note",
   { data_type => "mediumtext", is_nullable => 1 },
   "whole_activity_id",
@@ -155,6 +163,21 @@ Related object: L<CardioTracker::Model::Result::ActivityPoint>
 __PACKAGE__->has_many(
   "activity_points",
   "CardioTracker::Model::Result::ActivityPoint",
+  { "foreign.activity_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 activity_references
+
+Type: has_many
+
+Related object: L<CardioTracker::Model::Result::ActivityReference>
+
+=cut
+
+__PACKAGE__->has_many(
+  "activity_references",
+  "CardioTracker::Model::Result::ActivityReference",
   { "foreign.activity_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
@@ -275,8 +298,8 @@ Composing rels: L</user_activities> -> user
 __PACKAGE__->many_to_many("users", "user_activities", "user");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-01-26 15:38:09
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:le53/0ggXd2wtdAjmzOYUw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-02-04 15:49:38
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:oCckowhXcLXwVxoFT+LzwA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

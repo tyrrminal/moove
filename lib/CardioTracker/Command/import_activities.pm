@@ -34,7 +34,6 @@ sub run {
   getopt(
     \@args,
     'runkeeper' => sub { $import_class .= 'RunKeeper' },
-    'rkup1' => sub { $import_class .= 'RunKeeper'; $mode = 'points'; },
     'file=s' => \my $file,
     'user=s' => \$user_id,
   );
@@ -48,8 +47,8 @@ sub run {
 
   my $importer = $import_class->new(file => $file);
   if(defined($mode)) {
-    if($mode eq 'points') {
-      $self->import_points($importer,$user);
+    if($mode eq 'refid') {
+      
     }
   } else {
     $self->import_all($importer, $user);
@@ -62,7 +61,17 @@ sub import_all {
 
   my @events = $self->app->model('Event')->all;
   my $act;
-  ACTIVITY: foreach my $activity ($importer->fetch_activities()) {
+  foreach my $activity ($importer->fetch_activities()) {
+    my $existing = $self->app->model('Activity')->search({ 
+      'activity_references.reference_id' => $activity->{activity_id}, 
+      'activity_references.import_class '=> $activity->{importer} 
+    },{
+      join => 'activity_references'
+    })->first;
+    if($existing) {
+      say "Skipping ".$existing->start_time->strftime('%F')." ".$existing->activity_type->description;
+      next;
+    }
     foreach my $e (@events) {
       next unless($e->event_type->activity_type->description eq $activity->{type});
       next unless($e->scheduled_start->clone->truncate(to => 'day') == $activity->{date}->clone->truncate(to => 'day'));
@@ -74,27 +83,30 @@ sub import_all {
         } else {
           $act = $self->import_activity($activity, $e); #event without results
         }
-        next ACTIVITY;
+        last;
       }
     }
-    $act = $self->import_activity($activity); #non-event activity
-  } continue {
+    $act = $self->import_activity($activity) unless($act); #non-event activity
     say "Importing ".$act->start_time->strftime('%F')." ".$act->activity_type->description;
     $user->add_to_activities($act);
   }
 }
 
-sub import_points {
+sub import_refids {
   my $self=shift;
   my ($importer, $user) = @_;
 
   foreach my $activity ($importer->fetch_activities()) {
-    my $act = $self->app->model('Activity')->search({ start_time => $activity->{date} })->first;
-    say "Updating ".$act->start_time->strftime('%F')." ".$act->activity_type->description;
-    $self->store_points($act, @{$activity->{activity_points}});
+    if(my $act = $self->app->model('Activity')->search({ start_time => $activity->{date} })->first) {
+      $self->app->model('ActivityReference')->create({
+        activity => $act,
+        reference_id => $activity->{activity_id},
+        import_class => $activity->{importer}
+      })
+    }
   }
 }
-
+ 
 sub update_event_activity {
   my $self=shift;
   my ($data, $activity) = @_;
@@ -123,8 +135,14 @@ sub import_activity {
     start_time    => $activity->{date},
     distance      => $self->app->model('Distance')->find_or_create_from_miles($activity->{distance}),
     result        => $result,
+    temperature   => $activity->{temperature},
     note          => $activity->{notes},
     event_id      => defined($event) ? $event->id : $NULL
+  });
+  $self->app->model('ActivityReference')->create({
+    activity => $act,
+    reference_id => $activity->{activity_id},
+    import_class => $activity->{importer}
   });
   $self->store_points($act, @{$activity->{activity_points}});
   return $act;
