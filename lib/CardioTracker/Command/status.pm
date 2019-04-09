@@ -38,6 +38,7 @@ sub run {
     'user=s' => \$user_id,
   );
 
+  my $n = $activity_type eq 'Ride' ? 5 : 1;
   my $user = $self->app->model('User')->find($user_id) // $self->app->model('User')->find({username => $user_id});
 
   my $doy = $now->day_of_year;
@@ -51,10 +52,10 @@ sub run {
   my $week_activities = $activities->search({ start_time => {'>' => $now->clone->truncate(to => 'local_week')->strftime('%F') } });
   my $day_activities  = $activities->search({ start_time => {'>' => $now->strftime('%F') } });
 
-  my $yd = sum(0,map { $_->distance->normalized_value } $year_activities->all ) - $doy;
-  my $md = sum(0,map { $_->distance->normalized_value } $month_activities->all) - $dom;
-  my $wd = sum(0,map { $_->distance->normalized_value } $week_activities->all ) - $dow;
-  my $dd = sum(0,map { $_->distance->normalized_value } $day_activities->all  ) - 1;
+  my $yd = sum(0,map { $_->distance->normalized_value } $year_activities->all ) - $n*$doy;
+  my $md = sum(0,map { $_->distance->normalized_value } $month_activities->all) - $n*$dom;
+  my $wd = sum(0,map { $_->distance->normalized_value } $week_activities->all ) - $n*$dow;
+  my $dd = sum(0,map { $_->distance->normalized_value } $day_activities->all  ) - $n;
 
   say $activity_type;
   foreach (['Year',$yd],['Month',$md],['Week',$wd],['Day',$dd]) {

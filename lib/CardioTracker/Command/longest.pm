@@ -21,13 +21,16 @@ sub run {
   my ($self, @args) = @_;
 
   my $top = 5;
+  my $type = 'days';
   my $interval = 7;
   getopt(
     \@args,
-    'days:i' => \$interval,
+    'days:i'   => sub { $interval = pop; $type = shift },
+    'weeks:i'  => sub { $interval = pop; $type = shift },
+    'months:i' => sub { $interval = pop; $type = shift },
+    'years:i'  => sub { $interval = pop; $type = shift },
     'top:i' => \$top
   );
-
   my $u = $self->app->model('User')->find({username => 'digicow'});
   my @activities = $self->app->model('Activity')->for_user($u)->whole->by_type('Run')->ordered;
 

@@ -58,6 +58,15 @@ sub outdoor {
   })
 }
 
+sub year {
+  my $self=shift;
+  my ($year) = @_;
+
+  return $self->search(
+    \['YEAR(start_time)=?', $year]
+  );
+}
+
 sub completed {
   my $self=shift;
 

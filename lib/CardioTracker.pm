@@ -8,23 +8,21 @@ sub startup {
   push @{ $self->commands->namespaces }, 'CardioTracker::Command';
 
   $self->plugin('DCS::Plugin::Config');
+  $self->secrets($self->conf->secrets);
+
   $self->plugin('CardioTracker::Helper::DB');
   $self->plugin('CardioTracker::Helper::Session');
   $self->plugin('CardioTracker::Helper::String_Formatting');
   $self->plugin('CardioTracker::Helper::API');
-
-  push @{$self->static->paths}, $self->conf->static_assets->path;
+  $self->plugin('CardioTracker::Helper::Vue');
 
   # Router
-  my $r = $self->routes;
+  # my $r = $self->routes;
 
-  # Normal route to controller
-  $r->get('/')->to('example#welcome');
-
-  my $legacy = $r->any('/legacy')->to(controller => 'legacy');
-    $legacy->get('/summary/:username')->to(action => 'summary', username => $self->current_user->username);
-    $legacy->get( '/events/:username')->to(action => 'events', username => $self->current_user->username);
-    $legacy->get( '/cardio/:username')->to(action => 'cardio', username => $self->current_user->username);
+  # my $legacy = $r->get('/legacy')->to(controller => 'legacy', username => $self->current_user->username);
+  #   $legacy->get('/summary/:username')->to(action => 'summary');
+  #   $legacy->get('/events/:username')->to(action => 'events');
+  #   $legacy->get('/activities/:username')->to(action => 'cardio');
 }
 
 1;

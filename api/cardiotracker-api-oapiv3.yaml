@@ -1,0 +1,207 @@
+openapi: 3.0.1
+info:
+  title: Cardio Tracker
+  description: ""
+  contact:
+    email: ct@digicow.net
+  version: 1.0.0
+servers:
+- url: https://ct.digicow.net/api/v1
+security:
+- user: []
+paths:
+  /legacy/summary/{username}:
+    get:
+      summary: Get a time-aggregate summary of a user's activities
+      x-mojo-to: API::V1::Legacy#get_summary
+      parameters:
+        - name: username
+          in: path
+          description: name of user
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeAggregatedActivities'
+  /legacy/events/{username}:
+    get:
+      summary: Get a list of a user's events
+      x-mojo-to: API::V1::Legacy#get_events
+      parameters:
+        - name: username
+          in: path
+          description: name of user
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  past_events:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RegisteredEvent'
+                  future_events:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RegisteredEvent'
+  /legacy/activities/{username}:
+    get:
+      summary: Get a list of a user's activities
+      x-mojo-to: API::V1::Legacy#get_activities
+      parameters:
+        - name: username
+          in: path
+          description: name of user
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: result page number (default 0)
+          schema:
+            type: integer
+        - name: perPage
+          in: query
+          description: results per page (default 10)
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  activities:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Activity'
+  /exercise:
+    get:
+      summary: Get a set of exercises
+      responses:
+        200:
+          description: Successful retrieval
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exercise'
+      x-mojo-to: API::V1::Exercise#get
+  /exercise/:id:
+    post:
+      summary: Update an exercise
+      responses:
+        200:
+          description: Successful update
+          content: {}
+        401:
+          description: Exercise not found
+          content: {}
+      x-mojo-to: API::V1::Exercise#update
+components:
+  schemas:
+    Exercise:
+      required:
+      - id
+      type: object
+      properties:
+        id:
+          type: integer
+    RegisteredEvent:
+      required:
+      - date
+      - event_type
+      - name
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+        name:
+          type: string
+        fee:
+          nullable: true
+          type: number
+        fr_min:
+          nullable: true
+          type: number
+        fr_raised:
+          nullable: true
+          type: number
+        registered:
+          type: string
+        event_type:
+          type: string
+        result:
+          $ref: '#/components/schemas/ActivityResult'
+        countdown:
+          $ref: '#/components/schemas/EventCountdown'
+    ActivityResult:
+      type: object
+      properties:
+        distance:
+          type: string
+        pace:
+          type: string
+        time:
+          type: string
+    EventCountdown:
+      required:
+      - days
+      - months
+      - weeks
+      type: object
+      properties:
+        days:
+          type: number
+        weeks:
+          type: number
+        months:
+          type: number
+    Activity:
+      type: object
+      properties:
+        date:
+          type: string
+        type:
+          type: string
+        event_id:
+          nullable: true
+          type: string
+        event_name:
+          nullable: true
+          type: string
+        running:
+          type: number
+        run_max:
+          type: number
+        cycling:
+          type: number
+        cycling_max:
+          type: number
+    TimeAggregatedActivities:
+      type: object
+      properties:
+        years:
+          type: array
+  securitySchemes:
+    admin:
+      type: apiKey
+      name: X-API-Key
+      in: header
+    user:
+      type: apiKey
+      name: X-API-Key
+      in: header
