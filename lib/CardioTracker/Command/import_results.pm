@@ -99,6 +99,11 @@ sub import_event($self, $import_class, $id, $race) {
       $self->app->model('EventResult')->create({result => $result, place => $p->{div_place}, event_result_group => $div_group});
     }
     
+    if ($p->{bib_no} =~ /\D/) {
+      print "Truncating ".$p->{bib_no}."\n";
+      $p->{bib_no} =~ s/\D//g;
+    }
+
     my $participant = $self->app->model('Participant')->create({
       result      => $result,
       bib_no      => $p->{bib_no},
