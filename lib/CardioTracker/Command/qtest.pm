@@ -1,7 +1,5 @@
 package CardioTracker::Command::qtest;
-use Mojo::Base 'Mojolicious::Command';
-
-use Modern::Perl;
+use Mojo::Base 'Mojolicious::Command', -signatures;
 
 use DCS::Constants;
 use Data::Dumper;
@@ -13,9 +11,7 @@ OPTIONS:
   ???
 USAGE
 
-sub run {
-  my ($self, @args) = @_;
-
+sub run($self, @args) {
   say $self->app->conf->db->pass;
 }
 

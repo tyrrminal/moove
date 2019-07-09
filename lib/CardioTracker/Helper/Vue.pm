@@ -1,13 +1,9 @@
 package CardioTracker::Helper::Vue;
+use Mojo::Base 'Mojolicious::Plugin', -signatures;
 
-use Mojo::Base 'Mojolicious::Plugin';
-
-sub register {
-  my ($self, $app) = @_;
-
+sub register($self, $app, $args) {
   # Route everything that other routes haven't picked up to Vue
-  $app->routes->any('/*catchall' => {catchall => ''} => sub {
-    my $c = shift;
+  $app->routes->any('/*catchall' => {catchall => ''} => sub($c) {
     $c->reply->static('index.html');
   })
 }

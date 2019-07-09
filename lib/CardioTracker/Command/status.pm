@@ -1,7 +1,6 @@
 package CardioTracker::Command::status;
-use Mojo::Base 'Mojolicious::Command';
+use Mojo::Base 'Mojolicious::Command', -signatures;
 
-use Modern::Perl;
 use Mojo::Util 'getopt';
 
 use DateTime;
@@ -23,8 +22,7 @@ OPTIONS:
 USAGE
 
 
-sub run {
-  my ($self, @args) = @_;
+sub run($self, @args) {
   local $| = 1;
 
   my %tz = (time_zone => 'America/New_York');

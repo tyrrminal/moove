@@ -1,7 +1,5 @@
 package CardioTracker::Command::yir;
-use Mojo::Base 'Mojolicious::Command';
-
-use Modern::Perl;
+use Mojo::Base 'Mojolicious::Command', -signatures;
 
 use DateTime;
 use DCS::Constants qw(:boolean :existence);
@@ -18,9 +16,7 @@ OPTIONS:
   ???
 USAGE
 
-sub run {
-  my ($self, @args) = @_;
-
+sub run($self, @args) {
   my $y;
   my $activity_type = 'Run';
   getopt(
@@ -69,8 +65,7 @@ sub run {
   }
 }
 
-sub print_v {
-  my ($t, $l) = @_;
+sub print_v($t, $l) {
   print color('bold red') if($t < $l);
   print sprintf("%6s", sprintf("%.2f",$t));
   print color('reset');

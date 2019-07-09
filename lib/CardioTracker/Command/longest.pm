@@ -1,7 +1,5 @@
 package CardioTracker::Command::longest;
-use Mojo::Base 'Mojolicious::Command';
-
-use Modern::Perl;
+use Mojo::Base 'Mojolicious::Command', -signatures;
 
 use DateTime;
 use DCS::Constants qw(:boolean :existence);
@@ -17,9 +15,8 @@ OPTIONS:
   ???
 USAGE
 
-sub run {
-  my ($self, @args) = @_;
-
+sub run($self, @args) {
+  my $act_type = 'Run';
   my $top = 5;
   my $type = 'days';
   my $interval = 7;

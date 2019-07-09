@@ -1,7 +1,5 @@
 package CardioTracker::Command::post_activities_fixes;
-use Mojo::Base 'Mojolicious::Command';
-
-use Modern::Perl;
+use Mojo::Base 'Mojolicious::Command', -signatures;
 
 use DateTime;
 use DCS::Constants qw(:boolean :existence);
@@ -19,9 +17,7 @@ OPTIONS:
   ???
 USAGE
 
-sub run {
-  my ($self, @args) = @_;
-
+sub run($self, @args) {
   foreach my $u ($self->app->model('User')->all) {
     my @activities = $self->app->model('Activity')->for_user($u)->ordered->all;
 
