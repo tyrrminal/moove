@@ -8,8 +8,8 @@ sub for_user {
 
   return $self->search(
     {
-    user_id => $user->id
-}
+      user_id => $user->id
+    }
     );
 }
 
@@ -19,21 +19,25 @@ sub visible_to {
 
   return $self->search(
     {
-    -or => [
-      is_public => 'Y',
-      user_id   => $user->id
-    ]
+      -or => [
+        is_public => 'Y',
+        user_id   => $user->id
+      ]
     }
     );
 }
 
 sub ordered {
-  my $self=shift;
+  my $self = shift;
+  my $direction = shift // '-asc';
 
-  return $self->search({},{
-    join => 'event',
-    order_by => 'event.scheduled_start'
-  })
+  return $self->search(
+    {},
+    {
+      join     => 'event',
+      order_by => { $direction => 'event.scheduled_start'}
+    }
+    );
 }
 
 1;
