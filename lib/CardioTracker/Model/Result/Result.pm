@@ -149,6 +149,7 @@ __PACKAGE__->has_many(
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+use DateTime::Format::Duration;
 
 # Pace is always minutes (net) per mile
 sub update_pace {
@@ -184,6 +185,35 @@ sub _minutes_to_time_str {
   my $dec = $t - int($t);
   return sprintf("00:%02d:%04.1f", int($t), $dec * 60);
 }
+
+sub _format_time {
+  my $t = shift;
+  return undef unless($t);
+
+  my $d = DateTime::Format::Duration->new(pattern => '%H:%M:%S', normalise => 1);
+  return $d->format_duration($t);
+}
+
+sub gross_time_formatted {
+  my $self = shift;
+
+  return _format_time($self->gross_time);
+}
+
+sub net_time_formatted {
+  my $self = shift;
+
+  return _format_time(
+    $self->net_time
+    );
+}
+
+sub pace_formatted {
+  my $self = shift;
+
+  return _format_time(
+    $self->pace
+  );
 }
 
 1;
