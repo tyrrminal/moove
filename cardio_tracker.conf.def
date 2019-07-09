@@ -1,4 +1,8 @@
 {
+  secrets => {
+    isa => 'Str',
+    default => '12345'
+  },
   db => {
     dsn => {
       isa => 'Str',
@@ -12,12 +16,6 @@
       isa => 'Str',
       env => 'DB_PASS',
       priority => 'env'
-    }
-  },
-  static_assets => {
-    path => {
-      isa => 'Str',
-      env => STATIC_ASSETS_PATH
     }
   }
 }

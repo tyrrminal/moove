@@ -5,7 +5,7 @@ use base qw(DBIx::Class::ResultSet);
 use DCS::Constants qw(:boolean :existence);
 
 sub missing_count {
-  my $self=shift;
+  my $self = shift;
   return $self->search({count => {'=', $NULL}});
 }
 

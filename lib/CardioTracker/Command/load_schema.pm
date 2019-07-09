@@ -1,8 +1,7 @@
 package CardioTracker::Command::load_schema;
-use Mojo::Base 'Mojolicious::Command';
+use Mojo::Base 'Mojolicious::Command', -signatures;
 
 use DBIx::Class::Schema::Loader qw(make_schema_at);
-use Modern::Perl;
 use File::Spec;
 use DCS::Constants qw(:boolean);
 
@@ -11,8 +10,7 @@ has usage => <<"USAGE";
 $0 load_schema
 USAGE
 
-sub run {
-  my ($self) = @_;
+sub run($self,@args) {
   my $app = $self->app;
 
   my $db = $app->conf->db;

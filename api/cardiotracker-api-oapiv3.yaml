@@ -1,0 +1,515 @@
+openapi: 3.0.1
+info:
+  title: Cardio Tracker
+  description: ""
+  contact:
+    email: ct@digicow.net
+  version: 1.0.0
+servers:
+- url: https://ct.digicow.net/api/v1
+security:
+- user: []
+paths:
+  /auth/login:
+    post:
+      summary: Initiate an authenticated login session
+      x-mojo-to: API::V1::Auth#login
+      requestBody:
+        description: user login parameters
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LoginForm'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LoginForm'
+      responses:
+        200:
+          description: Success
+          content:
+            'text/plain':
+              schema:
+                type: string
+        401:
+          description: Unauthorized
+          content:
+            'text/plain':
+              schema:
+                type: string
+        404:
+          description: Unauthorized
+          content:
+            'text/plain':
+              schema:
+                type: string
+  /auth/logout:
+    post:
+      summary: End a login session
+      x-mojo-to: API::V1::Auth#logout
+      responses:
+        200:
+          description: Success
+          content:
+            'text/plain':
+              schema:
+                type: string
+  /events/{user}:
+    get:
+      summary: Get the list of events for a user
+      x-mojo-to: API::V1::Event#list
+      parameters:
+        - in: path
+          name: user
+          description: the user registered for the event
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RegisteredEvent'
+  /event/{user}/{id}:
+    get:
+      summary: Get the details for an event
+      x-mojo-to: API::V1::Event#get
+      parameters:
+        - in: path
+          name: user
+          description: the user registered for the event
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: id
+          description: the event's ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisteredEvent'
+        404:
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /legacy/summary/{username}:
+    get:
+      summary: Get a time-aggregate summary of a user's activities
+      x-mojo-to: API::V1::Legacy#get_summary
+      parameters:
+        - name: username
+          in: path
+          description: name of user
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  activities:
+                    type: object
+                  overall:
+                    type: object
+  /legacy/activities/{username}:
+    get:
+      summary: Get a list of a user's activities
+      x-mojo-to: API::V1::Legacy#get_activities
+      parameters:
+        - name: username
+          in: path
+          description: name of user
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: result page number (default 0)
+          schema:
+            type: integer
+        - name: perPage
+          in: query
+          description: results per page (default 10)
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _meta:
+                    $ref: '#/components/schemas/Pagination'
+                  activities:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Activity'
+components:
+  schemas:
+    Activity:
+      type: object
+      properties:
+        id:
+          type: integer
+        activity_type:
+          $ref: '#/components/schemas/ActivityType'
+        start_time:
+          type: string
+          format: date-time
+        distance:
+          $ref: '#/components/schemas/Distance'
+        result:
+          $ref: '#/components/schemas/ActivityResult'
+        event:
+          $ref: '#/components/schemas/Event'
+        temperature:
+          nullable: true
+          type: number
+        note:
+          nullable: true
+          type: string
+        whole_activity:
+          $ref: '#/components/schemas/Activity'
+        prior_distance_pr:
+          $ref: '#/components/schemas/Activity'
+    ActivityResult:
+      type: object
+      properties:
+        id:
+          type: integer
+        gross_time:
+          type: string
+          format: time
+          nullable: true
+        net_time:
+          type: string
+          format: time
+        pace:
+          type: string
+          format: time
+        speed:
+          $ref: '#/components/schemas/ValueWithUnits'
+        heart_rate:
+          nullable: true
+          type: integer
+    ActivityType:
+      type: object
+      required:
+        - id
+        - description
+      properties:
+        id:
+          type: integer
+        description:
+          type: string
+    Address:
+      type: object
+      properties:
+        id:
+          type: integer
+        street1:
+          type: string
+          nullable: true
+        street2:
+          type: string
+          nullable: true
+        city:
+          type: string
+          nullable: true
+        state:
+          type: string
+          nullable: true
+        zip:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        country:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+    Distance:
+      type: object
+      required:
+        - value
+      properties:
+        id:
+          type: integer
+        value:
+          $ref: '#/components/schemas/ValueWithUnits'
+        normalized_value:
+          $ref: '#/components/schemas/ValueWithUnits'
+    Division:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        finishers:
+          type: integer
+    Donation:
+      type: object
+      required:
+        - amount
+        - date
+        - person
+        - address
+      properties:
+        id:
+          type: integer
+        amount:
+          type: number
+        date:
+          type: string
+          format: date-time
+        person:
+          $ref: '#/components/schemas/Person'
+        address:
+          $ref: '#/components/schemas/Address'
+    Event:
+      type: object
+      required:
+        - name
+        - scheduled_start
+        - event_type
+        - distance
+        - address
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        scheduled_start:
+          type: string
+          format: date-time
+        entrants:
+          type: integer
+          nullable: true
+        countdown:
+          $ref: '#/components/schemas/EventCountdown'
+        event_type:
+          $ref: '#/components/schemas/EventType'
+        distance:
+          $ref: '#/components/schemas/Distance'
+        address:
+          $ref: '#/components/schemas/Address'
+    EventCountdown:
+      required:
+      - days
+      - months
+      - weeks
+      type: object
+      properties:
+        days:
+          type: number
+        weeks:
+          type: number
+        months:
+          type: number
+    EventRegistration:
+      type: object
+      required:
+        - user
+        - is_public
+      properties:
+        event_id:
+          type: integer
+        user:
+          $ref: '#/components/schemas/User'
+        fee:
+          type: number
+          nullable: true
+        registered:
+          type: boolean
+          nullable: true
+        bib_no:
+          type: integer
+          nullable: true
+        is_public:
+          type: boolean
+        fundraising:
+          $ref: '#/components/schemas/Fundraising'
+    EventResult:
+      type: object
+      required:
+        - place
+        - finishers
+        - percentile
+      properties:
+        place:
+          type: integer
+        finishers:
+          type: integer
+        percentile:
+          type: number
+        division:
+          type: string
+        gender:
+          type: string
+    EventType:
+      type: object
+      required:
+        - id
+        - activity_type
+        - description
+      properties:
+        id:
+          type: integer
+        activity_type:
+          $ref: '#/components/schemas/ActivityType'
+        description:
+          type: string
+    Fundraising:
+      type: object
+      required:
+        - minimum
+        - total
+      properties:
+        minimum:
+          type: number
+        total:
+          type: number
+        donations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Donation'
+    Person:
+      type: object
+      required:
+        - first_name
+        - last_name
+      properties:
+        id:
+          type: integer
+        first_name:
+          type: string
+        last_name:
+          type: string
+    RegisteredEvent:
+      required:
+      - registration
+      - event
+      type: object
+      properties:
+        registration:
+          $ref: '#/components/schemas/EventRegistration'
+        event:
+          $ref: '#/components/schemas/Event'
+        activity:
+          $ref: '#/components/schemas/Activity'
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventResult'
+    Location:
+      type: object
+      required:
+        - latitude
+        - longitude
+      properties:
+        id:
+          type: integer
+        latitude:
+          type: number
+        longitude:
+          type: number
+    UnitOfMeasure:
+      type: object
+      required:
+        - id
+        - unit
+        - abbreviation
+        - normalization_factor
+      properties:
+        id:
+          type: integer
+        unit:
+          type: string
+        abbreviation:
+          type: string
+        normalization_factor:
+          type: number
+    User:
+      type: object
+      required:
+        - username
+        - person
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        person:
+          $ref: '#/components/schemas/Person'
+        location:
+          $ref: '#/components/schemas/Location'
+    ValueWithUnits:
+      type: object
+      required:
+        - value
+        - units
+      properties:
+        value:
+          type: number
+        units:
+          $ref: '#/components/schemas/UnitOfMeasure'
+    Error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+        code:
+          type: string
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        perPage:
+          type: integer
+        count:
+          type: integer
+    LoginForm:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+  securitySchemes:
+    admin:
+      type: apiKey
+      name: X-API-Key
+      in: header
+    user:
+      type: apiKey
+      name: X-API-Key
+      in: header

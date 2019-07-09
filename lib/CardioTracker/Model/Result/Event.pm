@@ -231,51 +231,86 @@ __PACKAGE__->belongs_to(
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-01-26 10:01:56
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:KUctnLfMVGj045jNf+NR5w
 
+use DCS::DateTime::Extras;
 use DCS::Constants qw(:boolean :existence :symbols);
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 
 sub create_gender_result_group {
-  my $self=shift;
+  my $self     = shift;
   my ($gender) = @_;
-  my $schema = $self->result_source->schema;
+  my $schema   = $self->result_source->schema;
 
-  my $rs_r = $schema->resultset('Result')->search({
-    'participants.gender_id' => $gender->id,
-    'event.id' => $self->id
-  },{
-    join => [
-      'participants',
-      { activities => 'event' }
-    ],
-    order_by => { -asc => 'net_time' }
-  });
+  my $rs_r = $schema->resultset('Result')->search(
+    {
+      'participants.gender_id' => $gender->id,
+      'event.id'               => $self->id
+    }, {
+      join     => ['participants', {activities => 'event'}],
+      order_by => {-asc            => 'net_time'}
+    }
+  );
 
-  my $group = $schema->resultset('EventResultGroup')->create({
-    event => $self,
-    gender => $gender,
-    division_id => $NULL,
-    count => $rs_r->count
-  });
+  my $group = $schema->resultset('EventResultGroup')->create(
+    {
+      event       => $self,
+      gender      => $gender,
+      division_id => $NULL,
+      count       => $rs_r->count
+    }
+  );
 
-  my $i=1;
+  my $i = 1;
   while (my $r = $rs_r->next) {
-    $schema->resultset('EventResult')->create({
-      result => $r,
-      place => $i++,
-      event_result_group => $group
-    });
+    $schema->resultset('EventResult')->create(
+      {
+        result             => $r,
+        place              => $i++,
+        event_result_group => $group
+      }
+    );
   }
 }
 
 sub description {
-  my $self=shift;
+  my $self = shift;
   my $year = $self->scheduled_start->year;
   my $name = $self->name;
-  unless($name =~ /$year/) {
-    $name = join($SPACE, $year, $name)
+  unless ($name =~ /$year/) {
+    $name = join(
+      $SPACE, $year, $name
+      );
   }
   return $name;
+}
+
+sub countdown {
+  my $self=shift;
+  my $now = DateTime->now(time_zone => 'local');
+  my $start = $self->scheduled_start;
+
+  my $days = $now->delta_days($start)->in_units('days');
+  return {
+    days => $days,
+    weeks => sprintf("%.01f", $days/7),
+    months => sprintf("%.01f", $start->yearfrac($now)*12)
+  }
+}
+
+sub to_hash {
+  my $self = shift;
+  my %cd = ($self->scheduled_start > DateTime->now(time_zone => 'local')) ? (countdown => $self->countdown) : ();
+
+  return {
+    id              => $self->id,
+    name            => $self->name,
+    scheduled_start => $self->scheduled_start->iso8601,
+    entrants        => $self->entrants,
+    event_type      => $self->event_type->to_hash,
+    distance        => $self->distance->to_hash,
+    address         => $self->address->to_hash,
+    %cd
+  };
 }
 
 1;

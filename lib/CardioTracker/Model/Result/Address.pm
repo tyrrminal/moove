@@ -185,4 +185,20 @@ __PACKAGE__->has_many(
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+sub to_hash {
+  my $self = shift;
+
+  return {
+    id      => $self->id,
+    street1 => $self->street1,
+    street2 => $self->street2,
+    city    => $self->city,
+    state   => $self->state,
+    zip     => $self->zip,
+    phone   => $self->phone,
+    country => $self->country,
+    email   => $self->email
+    };
+}
+
 1;
