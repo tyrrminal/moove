@@ -1,4 +1,5 @@
 FROM node:10 as vuebuild
+# By convention, our <app>-ui folder contains the Vuejs app
 COPY *-ui /app
 WORKDIR /app
 RUN npm install && npm run build
@@ -9,15 +10,14 @@ FROM perl:5.26 as cartoninstall
 RUN apt-get update && apt-get install -qy \
   --allow-downgrades --allow-remove-essential --allow-change-held-packages \
   build-essential \
-  libwww-perl libssl-dev libnet-ssleay-perl \
-  libexpat1-dev \
-  default-libmysqlclient-dev mysql-client \
+  libwww-perl \
   && rm -rf /var/lib/apt/lists/*
+RUN cpanm Carton
 ENV PERL5LIB=/usr/share/perl5
 
 WORKDIR /app
 COPY cpanfile* ./
-RUN cpanm -l /app/local --force --installdeps .
+RUN carton install --deployment
 
 #------------------------------------------------------------------------------------------
 
