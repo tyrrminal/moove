@@ -1,17 +1,19 @@
 package CardioTracker::Helper::Session;
 
-use Mojo::Base 'Mojolicious::Plugin';
+use Mojo::Base 'Mojolicious::Plugin', -signatures;
 
-sub register {
-  my ($self, $app) = @_;
+sub register($self, $app, $args) {
 
-  $app->helper(current_user => sub {
-    my $u = shift->model('User');
-    if(my $user = $u->find(1)) {
-      return $user;
+  $app->helper(current_user => sub($c) {
+    my $u = $c->model('User');
+    if(my $uid = $c->session('uid')) {
+      if(my $user = $u->find($uid)) {
+        return $user;
+      }
     }
     return $u->anonymous;
   });
+  
 }
 
 1;
