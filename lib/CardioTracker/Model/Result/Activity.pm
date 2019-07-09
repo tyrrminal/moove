@@ -316,13 +316,13 @@ sub has_event_visible_to {
   return $FALSE unless (defined($self->event));
   return $self->result_source->schema->resultset('EventRegistration')->search(
     {
-    -and => [
-      'event_id' => $self->event_id,
+      -and => [
+        'event_id' => $self->event_id,
         -or        => [
-        is_public => 'Y',
+          is_public => 'Y',
           user_id   => $user->id
+        ]
       ]
-    ]
     }
   )->count > 0;
 }
@@ -355,6 +355,25 @@ sub end_time {
 
   return $self->start_time unless (defined($self->result));
   return $self->start_time + ($self->result->gross_time // $self->result->net_time);
+}
+
+sub to_hash {
+  my $self = shift;
+  my %params = @_;
+
+  my $a = {
+    id            => $self->id,
+    activity_type => $self->activity_type->to_hash,
+    distance      => $self->distance->to_hash,
+    temperature   => $self->temperature,
+    note          => $self->note,
+  };
+  $a->{start_time}     = $self->start_time->iso8601     if (defined($self->start_time));
+  $a->{result}         = $self->result->to_hash         if (defined($self->result));
+  $a->{event}          = $self->event->to_hash          if (defined($self->event) && (!exists($params{event}) || $params{event} ));
+  $a->{whole_activity} = $self->whole_activity->to_hash if (defined($self->whole_activity));
+
+  return $a;
 }
 
 1;

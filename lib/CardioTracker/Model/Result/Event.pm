@@ -243,7 +243,7 @@ sub create_gender_result_group {
 
   my $rs_r = $schema->resultset('Result')->search(
     {
-    'participants.gender_id' => $gender->id,
+      'participants.gender_id' => $gender->id,
       'event.id'               => $self->id
     }, {
       join     => ['participants', {activities => 'event'}],
@@ -255,7 +255,7 @@ sub create_gender_result_group {
     {
       event       => $self,
       gender      => $gender,
-    division_id => $NULL,
+      division_id => $NULL,
       count       => $rs_r->count
     }
   );
@@ -266,7 +266,7 @@ sub create_gender_result_group {
       {
         result             => $r,
         place              => $i++,
-      event_result_group => $group
+        event_result_group => $group
       }
     );
   }
@@ -295,6 +295,22 @@ sub countdown {
     weeks => sprintf("%.01f", $days/7),
     months => sprintf("%.01f", $start->yearfrac($now)*12)
   }
+}
+
+sub to_hash {
+  my $self = shift;
+  my %cd = ($self->scheduled_start > DateTime->now(time_zone => 'local')) ? (countdown => $self->countdown) : ();
+
+  return {
+    id              => $self->id,
+    name            => $self->name,
+    scheduled_start => $self->scheduled_start->iso8601,
+    entrants        => $self->entrants,
+    event_type      => $self->event_type->to_hash,
+    distance        => $self->distance->to_hash,
+    address         => $self->address->to_hash,
+    %cd
+  };
 }
 
 1;

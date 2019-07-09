@@ -216,4 +216,20 @@ sub pace_formatted {
   );
 }
 
+sub to_hash {
+  my $self = shift;
+  
+  return {
+    id         => $self->id,
+    gross_time => $self->gross_time_formatted,
+    net_time   => $self->net_time_formatted,
+    pace       => $self->pace_formatted,
+    speed      => {
+      value => $self->speed,
+      units => $self->result_source->schema->resultset('UnitOfMeasure')->search({abbreviation => 'mph'})->first->to_hash
+    },
+    heart_rate => $self->heart_rate
+  };
+}
+
 1;

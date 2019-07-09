@@ -129,4 +129,23 @@ __PACKAGE__->belongs_to(
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+sub to_hash {
+  my $self=shift;
+
+  my $place = $self->place;
+  my $finishers =$self->event_result_group->count; 
+  my $pct = 100*$place/$finishers;
+
+  my $er = {
+    place => $place,
+    finishers => $finishers,
+    percentile => $pct
+  };
+
+  $er->{gender} = $self->event_result_group->gender->description if(defined($self->event_result_group->gender));
+  $er->{division} = $self->event_result_group->division->name if(defined($self->event_result_group->division));
+
+  return $er;
+}
+
 1;
