@@ -8,6 +8,8 @@ sub register($self, $app, $args) {
       my $origin = $c->req->headers->header('Origin');
       if(defined($origin) && $origin =~ /digicow.net/) {
         $c->res->headers->header('Access-Control-Allow-Origin' => $origin);
+        $c->res->headers->header('Access-Control-Allow-Credentials' => 'true');
+        $c->res->headers->header('Access-Control-Allow-Headers', 'authorization,content-type');
       }
     }
   );
