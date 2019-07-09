@@ -1,7 +1,6 @@
 package CardioTracker::Command::import_results;
-use Mojo::Base 'Mojolicious::Command';
+use Mojo::Base 'Mojolicious::Command', -signatures;
 
-use Modern::Perl;
 use Mojo::Util 'getopt';
 
 use DateTime;
@@ -23,8 +22,7 @@ OPTIONS:
   ???
 USAGE
 
-sub run {
-  my ($self,@args) = @_;
+sub run($self, @args) {
   my $import_class = 'CardioTracker::Import::Event::';
 
   getopt(
@@ -47,10 +45,7 @@ sub run {
   }
 }
 
-sub import_event {
-  my $self = shift;
-  my ($import_class, $id, $race) = @_;
-
+sub import_event($self, $import_class, $id, $race) {
   say "id is required" and exit 1 unless(defined($id));
   say "results site is required" and exit 1 unless($import_class->can('new'));
 
@@ -104,6 +99,11 @@ sub import_event {
       $self->app->model('EventResult')->create({result => $result, place => $p->{div_place}, event_result_group => $div_group});
     }
     
+    if ($p->{bib_no} =~ /\D/) {
+      print "Truncating ".$p->{bib_no}."\n";
+      $p->{bib_no} =~ s/\D//g;
+    }
+
     my $participant = $self->app->model('Participant')->create({
       result      => $result,
       bib_no      => $p->{bib_no},

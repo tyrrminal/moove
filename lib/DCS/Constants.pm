@@ -19,7 +19,7 @@ our @EXPORT_OK = (
     $NEWLINE
     $SLASH
     $PIPE
-  )
+    )
 );
 
 our %EXPORT_TAGS = (
@@ -27,12 +27,12 @@ our %EXPORT_TAGS = (
     qw(
       $TRUE
       $FALSE
-    )
+      )
   ],
   existence => [
     qw(
       $NULL
-    )
+      )
   ],
   symbols => [
     qw(
@@ -46,7 +46,7 @@ our %EXPORT_TAGS = (
       $NEWLINE
       $SLASH
       $PIPE
-    )
+      )
   ]
 );
 

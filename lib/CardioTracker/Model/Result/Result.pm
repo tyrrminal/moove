@@ -149,37 +149,87 @@ __PACKAGE__->has_many(
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+use DateTime::Format::Duration;
 
 # Pace is always minutes (net) per mile
 sub update_pace {
-  my $self=shift;
-  $self->update({pace => _calculate_pace($self->net_time, $self->activities->first->distance)})
+  my $self = shift;
+  $self->update(
+    {pace => _calculate_pace($self->net_time, $self->activities->first->distance)}
+    );
 }
 
 sub speed {
-  my $self=shift;
+  my $self = shift;
 
-  my $t = $self->net_time;
-  my $hrs = $t->hours + $t->minutes/60;
+  my $t   = $self->net_time;
+  my $hrs = $t->hours + $t->minutes / 60;
 
-  return $self->activities->first->distance->normalized_value/$hrs;
+  return 0 unless($hrs);
+  return $self->activities->first->distance->normalized_value / $hrs;
 }
 
 sub _calculate_pace {
-  my ($time,$distance) = @_;
+  my ($time, $distance) = @_;
 
-  my ($min,$sec) = $time->in_units(qw(minutes seconds));
-  $min += $sec/60;
+  my ($min, $sec) = $time->in_units(qw(minutes seconds));
+  $min += $sec / 60;
 
   my $miles = $distance->value * $distance->uom->conversion_factor;
 
-  return _minutes_to_time_str($min/$miles);
+  return _minutes_to_time_str($min / $miles);
 }
 
 sub _minutes_to_time_str {
   my ($t) = @_;
   my $dec = $t - int($t);
-  return sprintf("00:%02d:%04.1f", int($t), $dec*60);
+  return sprintf("00:%02d:%04.1f", int($t), $dec * 60);
+}
+
+sub _format_time {
+  my $t = shift;
+  return undef unless($t);
+
+  my $d = DateTime::Format::Duration->new(pattern => '%H:%M:%S', normalise => 1);
+  return $d->format_duration($t);
+}
+
+sub gross_time_formatted {
+  my $self = shift;
+
+  return _format_time($self->gross_time);
+}
+
+sub net_time_formatted {
+  my $self = shift;
+
+  return _format_time(
+    $self->net_time
+    );
+}
+
+sub pace_formatted {
+  my $self = shift;
+
+  return _format_time(
+    $self->pace
+  );
+}
+
+sub to_hash {
+  my $self = shift;
+  
+  return {
+    id         => $self->id,
+    gross_time => $self->gross_time_formatted,
+    net_time   => $self->net_time_formatted,
+    pace       => $self->pace_formatted,
+    speed      => {
+      value => $self->speed,
+      units => $self->result_source->schema->resultset('UnitOfMeasure')->search({abbreviation => 'mph'})->first->to_hash
+    },
+    heart_rate => $self->heart_rate
+  };
 }
 
 1;

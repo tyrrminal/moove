@@ -304,29 +304,45 @@ __PACKAGE__->many_to_many("users", "user_activities", "user");
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 use DCS::Constants qw(:boolean);
+use List::Util qw(max);
+
+use Moose;
+use MooseX::NonMoose;
 
 sub has_event_visible_to {
-  my $self=shift;
+  my $self = shift;
   my ($user) = @_;
 
-  return $FALSE unless(defined($self->event));
-  return $self->result_source->schema->resultset('EventRegistration')->search({
-    -and => [
-      'event_id' => $self->event_id,
-      -or => [
-        is_public => 'Y',
-        user_id => $user->id
+  return $FALSE unless (defined($self->event));
+  return $self->result_source->schema->resultset('EventRegistration')->search(
+    {
+      -and => [
+        'event_id' => $self->event_id,
+        -or        => [
+          is_public => 'Y',
+          user_id   => $user->id
+        ]
       ]
-    ]
-  })->count > 0
+    }
+  )->count > 0;
 }
+
+around 'note' => sub {
+  my $orig = shift;
+  my $self = shift;
+
+  my $v = $self->$orig(@_)//'';
+  $v =~ s/\s*$//m;
+  $v =~ s/^\s*//m;
+  return $v;
+};
 
 sub is_outdoor_activity {
   return shift->activity_type->description ne 'Treadmill';
 }
 
 sub is_running_activity {
-  my $self=shift;
+  my $self = shift;
   return $self->activity_type->description eq 'Run' || $self->activity_type->description eq 'Treadmill';
 }
 
@@ -335,10 +351,29 @@ sub is_cycling_activity {
 }
 
 sub end_time {
-  my $self=shift;
+  my $self = shift;
 
-  return $self->start_time unless(defined($self->result));
+  return $self->start_time unless (defined($self->result));
   return $self->start_time + ($self->result->gross_time // $self->result->net_time);
+}
+
+sub to_hash {
+  my $self = shift;
+  my %params = @_;
+
+  my $a = {
+    id            => $self->id,
+    activity_type => $self->activity_type->to_hash,
+    distance      => $self->distance->to_hash,
+    temperature   => $self->temperature,
+    note          => $self->note,
+  };
+  $a->{start_time}     = $self->start_time->iso8601     if (defined($self->start_time));
+  $a->{result}         = $self->result->to_hash         if (defined($self->result));
+  $a->{event}          = $self->event->to_hash          if (defined($self->event) && (!exists($params{event}) || $params{event} ));
+  $a->{whole_activity} = $self->whole_activity->to_hash if (defined($self->whole_activity));
+
+  return $a;
 }
 
 1;

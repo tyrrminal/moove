@@ -1,3 +1,5 @@
+requires 'Readonly';
+
 requires 'Modern::Perl';
 requires 'Data::Printer';
 requires 'Array::Utils';
