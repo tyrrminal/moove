@@ -1,7 +1,6 @@
 package CardioTracker::Command::import_events;
-use Mojo::Base 'Mojolicious::Command';
+use Mojo::Base 'Mojolicious::Command', -signatures;
 
-use Modern::Perl;
 use Mojo::Util 'getopt';
 
 use Text::CSV_XS;
@@ -15,9 +14,7 @@ OPTIONS:
   ???
 USAGE
 
-sub run {
-  my ($self, @args) = @_; 
-
+sub run($self, @args) {
   getopt(
     \@args,
     'file:s' => \my $filename

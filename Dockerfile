@@ -1,34 +1,55 @@
-FROM ubuntu:18.04
-LABEL maintainer="Mark Tyrrell <mtyrrell@digicowsoftware.com>"
+FROM node:10 as vuebuild
+COPY *-ui /app
+WORKDIR /app
+RUN npm install && npm run build
 
-ENV DEBIAN_FRONTEND=noninteractive
+#------------------------------------------------------------------------------------------
+
+FROM perl:5.26 as cartoninstall
+RUN apt-get update && apt-get install -qy \
+  --allow-downgrades --allow-remove-essential --allow-change-held-packages \
+  build-essential \
+  libwww-perl libssl-dev libnet-ssleay-perl \
+  libexpat1-dev \
+  default-libmysqlclient-dev mysql-client \
+  && rm -rf /var/lib/apt/lists/*
+ENV PERL5LIB=/usr/share/perl5
+
+WORKDIR /app
+COPY cpanfile* ./
+RUN cpanm -l /app/local --force --installdeps .
+
+#------------------------------------------------------------------------------------------
+
+FROM perl:5.26
+LABEL maintainer="Mark Tyrrell <mtyrrell@digicowsoftware.com>"
 
 RUN apt-get update && apt-get install -qy \
   --allow-downgrades --allow-remove-essential --allow-change-held-packages \
-  perl \
-	curl \
-  build-essential \
 	libssl-dev \
 	libnet-ssleay-perl \
   libexpat1-dev \
   libxml2 \
   libxml2-dev \
-  carton \
-  cpanminus \
-  libmysqlclient-dev \
+  default-libmysqlclient-dev \
   mysql-client \
-  tzdata
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
-  echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
-  apt-get update && apt-get install -qy yarn
+  && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
-ENV PERL_CARTON_PATH=/carton/local
-COPY cpanfile* ./
-RUN carton install --deployment
+COPY docker-entrypoint.sh /bin/
+COPY *.conf *.conf.def ./
+ADD api api/
+ADD lib lib/
+ADD script script/
+ADD t t/
 
-COPY . .
+COPY --from=cartoninstall /app/local local
+COPY --from=vuebuild      /app/dist  public
 
-RUN yarn --modules-folder /static_assets/vendor
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
+ENV PATH="/app/local/bin:${PATH}"
+ENV PERLLIB="/app/local/lib/perl5:/app/local/lib/perl5/x86_64-linux-gnu:${PERLLIB}"
+
+EXPOSE 8080
+
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["prodserver"]

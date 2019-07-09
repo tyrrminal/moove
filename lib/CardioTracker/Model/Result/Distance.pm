@@ -163,13 +163,30 @@ sub description {
 sub description_normalized {
   my $self=shift;
 
-  return sprintf("%.2f %s", $self->normalized_value, $self->result_source->schema->resultset('UnitOfMeasure')->normalization_unit->abbreviation)
+  return sprintf("%.2f %s", $self->normalized_value, $self->normalized_unit->abbreviation)
+}
+
+sub normalized_unit {
+  my $self=shift;
+
+  return $self->result_source->schema->resultset('UnitOfMeasure')->normalization_unit;
 }
 
 sub normalized_value {
   my $self=shift;
 
   return $self->value * $self->uom->conversion_factor;
+}
+
+sub to_hash {
+  my $self = shift;
+
+  my $d = {
+    id               => $self->id,
+    value            => {value => $self->value, units => $self->uom->to_hash},
+  };
+  $d->{normalized_value} = {value => $self->normalized_value, units => $self->normalized_unit->to_hash} unless($self->uom->conversion_factor == 1);
+  return $d;
 }
 
 1;

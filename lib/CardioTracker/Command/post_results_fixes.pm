@@ -1,7 +1,5 @@
 package CardioTracker::Command::post_results_fixes;
-use Mojo::Base 'Mojolicious::Command';
-
-use Modern::Perl;
+use Mojo::Base 'Mojolicious::Command', -signatures;
 
 use DateTime;
 
@@ -17,9 +15,7 @@ OPTIONS:
   ???
 USAGE
 
-sub run {
-  my ($self, @args) = @_;
-
+sub run($self, @args) {
   $self->fix_addresss;
   $self->fix_group_counts;
   $self->fix_paces;
@@ -84,9 +80,7 @@ sub fix_gender_groups {
   }
 }
 
-sub fix_bib_nos {
-  my $self=shift;
-  my ($year,$event_name) = @_;
+sub fix_bib_nos($self, $year, $event_name) {
   my $event = $self->app->model('Event')->find_event($year,$event_name);
 
   foreach my $user ($self->app->model('User')->all) {

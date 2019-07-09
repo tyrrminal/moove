@@ -11,11 +11,11 @@ fi
 case "$1" in
   devserver)
     echo "Starting server in development mode"
-    exec carton exec -- morbo -l 'http://*:8080' script/cardio_tracker
+    exec morbo -l 'http://*:8080' script/cardio_tracker
     ;;
   prodserver)
     echo "Starting server in production mode"
-    exec carton exec -- hypnotoad -f script/cardio_tracker
+    exec hypnotoad -f script/cardio_tracker
     ;;
   *)
     echo "Usage: $0 [devserver|prodserver]"

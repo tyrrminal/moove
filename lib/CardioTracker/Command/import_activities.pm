@@ -1,7 +1,6 @@
 package CardioTracker::Command::import_activities;
-use Mojo::Base 'Mojolicious::Command';
+use Mojo::Base 'Mojolicious::Command', -signatures;
 
-use Modern::Perl;
 use Mojo::Util 'getopt';
 
 use DateTime;
@@ -22,9 +21,7 @@ OPTIONS:
   ???
 USAGE
 
-
-sub run {
-  my ($self, @args) = @_;
+sub run($self, @args) {
   local $| = 1;
 
   my $import_class= "CardioTracker::Import::Activity::";
@@ -55,10 +52,7 @@ sub run {
   }
 }
 
-sub import_all {
-  my $self=shift;
-  my ($importer, $user) = @_;
-
+sub import_all($self, $importer, $user) {
   my @events = $self->app->model('Event')->all;
   my $act;
   foreach my $activity ($importer->fetch_activities()) {
@@ -92,10 +86,7 @@ sub import_all {
   }
 }
 
-sub import_refids {
-  my $self=shift;
-  my ($importer, $user) = @_;
-
+sub import_refids($self, $importer, $user) {
   foreach my $activity ($importer->fetch_activities()) {
     if(my $act = $self->app->model('Activity')->search({ start_time => $activity->{date} })->first) {
       $self->app->model('ActivityReference')->create({
@@ -107,10 +98,7 @@ sub import_refids {
   }
 }
  
-sub update_event_activity {
-  my $self=shift;
-  my ($data, $activity) = @_;
-
+sub update_event_activity($self, $data, $activity) {
   $activity->update({
     start_time => $data->{date},
           note => $data->{notes}
@@ -120,10 +108,7 @@ sub update_event_activity {
   $self->store_points($activity, @{$data->{activity_points}}) unless($activity->activity_points);
 }
 
-sub import_activity {
-  my $self=shift;
-  my ($activity, $event) = @_;
-
+sub import_activity($self, $activity, $event=undef) {
   my $result = $self->app->model('Result')->create({
     gross_time => $activity->{gross_time},
     net_time   => $activity->{net_time},
@@ -148,10 +133,7 @@ sub import_activity {
   return $act;
 }
 
-sub store_points {
-  my $self=shift;
-  my ($act, @points) = @_;
-
+sub store_points($self, $act, @points) {
   foreach my $ap (@points) {
     my $loc = $self->app->model('Location')->create({
       latitude => $ap->{lat},

@@ -1,7 +1,5 @@
 package CardioTracker::Command::longest;
-use Mojo::Base 'Mojolicious::Command';
-
-use Modern::Perl;
+use Mojo::Base 'Mojolicious::Command', -signatures;
 
 use DateTime;
 use DCS::Constants qw(:boolean :existence);
@@ -17,19 +15,22 @@ OPTIONS:
   ???
 USAGE
 
-sub run {
-  my ($self, @args) = @_;
-
+sub run($self, @args) {
+  my $act_type = 'Run';
   my $top = 5;
+  my $type = 'days';
   my $interval = 7;
   getopt(
     \@args,
-    'days:i' => \$interval,
-    'top:i' => \$top
+    'days:i'   => sub { $interval = pop; $type = shift },
+    'weeks:i'  => sub { $interval = pop; $type = shift },
+    'months:i' => sub { $interval = pop; $type = shift },
+    'years:i'  => sub { $interval = pop; $type = shift },
+    'top:i' => \$top,
+    'type:s' => \$act_type
   );
-
   my $u = $self->app->model('User')->find({username => 'digicow'});
-  my @activities = $self->app->model('Activity')->for_user($u)->whole->by_type('Run')->ordered;
+  my @activities = $self->app->model('Activity')->for_user($u)->whole->by_type($act_type)->ordered;
 
   my @d_sum;
   foreach my $c (@activities) {

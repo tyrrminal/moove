@@ -1,24 +1,21 @@
 package CardioTracker::Helper::DB;
-
-use Mojo::Base 'Mojolicious::Plugin';
+use Mojo::Base 'Mojolicious::Plugin', -signatures;
 
 use CardioTracker::Model;
 
 use Data::Dumper;
 
-sub register {
-  my ($self, $app) = @_;
+sub register($self, $app, $args) {
 
   $app->helper(
-    db => sub {
-      my $c = $app->conf->db;
-      state $db = CardioTracker::Model->new($c->dsn,$c->user,$c->pass);
+    db => sub($c) {
+      my $cfg = $app->conf->db;
+      state $db = CardioTracker::Model->new($cfg->dsn,$cfg->user,$cfg->pass);
     }
   );
 
   $app->helper(
-    model => sub {
-      my ($self, $model) = @_;
+    model => sub($self, $model) {
       return $self->db->resultset($model);
     }
   );

@@ -189,4 +189,15 @@ __PACKAGE__->many_to_many("activities", "user_activities", "activity");
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+sub to_hash {
+  my $self = shift;
+  my %loc = defined($self->location) ? (location => $self->location->to_hash) : ();
+
+  return {
+    id       => $self->id,
+    username => $self->username,
+    person   => $self->person->to_hash,
+    %loc
+  };
+}
 1;
