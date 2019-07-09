@@ -36,7 +36,7 @@ sub run($self, @args) {
     'user=s' => \$user_id,
   );
 
-  my $n = $activity_type eq 'Ride' ? 5 : 1;
+  my $n = $activity_type eq 'Ride' ? 10 : 1;
   my $user = $self->app->model('User')->find($user_id) // $self->app->model('User')->find({username => $user_id});
 
   my $doy = $now->day_of_year;

@@ -28,7 +28,7 @@ sub run($self, @args) {
   my $u = $self->app->model('User')->find({username => 'digicow'});
   my @activities = $self->app->model('Activity')->for_user($u)->whole->by_type($activity_type)->year($y)->ordered;
 
-  my $mpd = 1;
+  my $mpd = $activity_type eq 'Run' ? 1 : 10;
 
   my $total = 0;
   my %months;
