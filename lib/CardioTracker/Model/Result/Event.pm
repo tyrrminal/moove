@@ -231,6 +231,7 @@ __PACKAGE__->belongs_to(
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-01-26 10:01:56
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:KUctnLfMVGj045jNf+NR5w
 
+use DCS::DateTime::Extras;
 use DCS::Constants qw(:boolean :existence :symbols);
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
@@ -281,6 +282,19 @@ sub description {
       );
   }
   return $name;
+}
+
+sub countdown {
+  my $self=shift;
+  my $now = DateTime->now(time_zone => 'local');
+  my $start = $self->scheduled_start;
+
+  my $days = $now->delta_days($start)->in_units('days');
+  return {
+    days => $days,
+    weeks => sprintf("%.01f", $days/7),
+    months => sprintf("%.01f", $start->yearfrac($now)*12)
+  }
 }
 
 1;
