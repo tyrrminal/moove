@@ -306,6 +306,9 @@ __PACKAGE__->many_to_many("users", "user_activities", "user");
 use DCS::Constants qw(:boolean);
 use List::Util qw(max);
 
+use Moose;
+use MooseX::NonMoose;
+
 sub has_event_visible_to {
   my $self = shift;
   my ($user) = @_;
@@ -323,6 +326,16 @@ sub has_event_visible_to {
     }
   )->count > 0;
 }
+
+around 'note' => sub {
+  my $orig = shift;
+  my $self = shift;
+
+  my $v = $self->$orig(@_)//'';
+  $v =~ s/\s*$//m;
+  $v =~ s/^\s*//m;
+  return $v;
+};
 
 sub is_outdoor_activity {
   return shift->activity_type->description ne 'Treadmill';
