@@ -127,33 +127,6 @@ paths:
                     type: object
                   overall:
                     type: object
-  /legacy/events/{username}:
-    get:
-      summary: Get a list of a user's events
-      x-mojo-to: API::V1::Legacy#get_events
-      parameters:
-        - name: username
-          in: path
-          description: name of user
-          required: true
-          schema:
-            type: string
-      responses:
-        200:
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  past_events:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/RegisteredEvent'
-                  future_events:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/RegisteredEvent'
   /legacy/activities/{username}:
     get:
       summary: Get a list of a user's activities
