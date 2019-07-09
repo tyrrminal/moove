@@ -49,5 +49,7 @@ COPY --from=vuebuild      /app/dist  public
 ENV PATH="/app/local/bin:${PATH}"
 ENV PERLLIB="/app/local/lib/perl5:/app/local/lib/perl5/x86_64-linux-gnu:${PERLLIB}"
 
+EXPOSE 8080
+
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["prodserver"]
