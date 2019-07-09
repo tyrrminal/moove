@@ -3,24 +3,28 @@ package CardioTracker::Model::ResultSet::EventRegistration;
 use base qw(DBIx::Class::ResultSet);
 
 sub for_user {
-  my $self=shift;
+  my $self = shift;
   my ($user) = shift;
 
-  return $self->search({
+  return $self->search(
+    {
     user_id => $user->id
-  })
+}
+    );
 }
 
 sub visible_to {
-  my $self=shift;
+  my $self = shift;
   my ($user) = shift;
 
-  return $self->search({
+  return $self->search(
+    {
     -or => [
       is_public => 'Y',
       user_id   => $user->id
     ]
-  })
+    }
+    );
 }
 
 sub ordered {

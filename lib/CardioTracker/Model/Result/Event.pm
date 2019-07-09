@@ -236,44 +236,49 @@ use DCS::Constants qw(:boolean :existence :symbols);
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 
 sub create_gender_result_group {
-  my $self=shift;
+  my $self     = shift;
   my ($gender) = @_;
-  my $schema = $self->result_source->schema;
+  my $schema   = $self->result_source->schema;
 
-  my $rs_r = $schema->resultset('Result')->search({
+  my $rs_r = $schema->resultset('Result')->search(
+    {
     'participants.gender_id' => $gender->id,
-    'event.id' => $self->id
-  },{
-    join => [
-      'participants',
-      { activities => 'event' }
-    ],
-    order_by => { -asc => 'net_time' }
-  });
+      'event.id'               => $self->id
+    }, {
+      join     => ['participants', {activities => 'event'}],
+      order_by => {-asc            => 'net_time'}
+    }
+  );
 
-  my $group = $schema->resultset('EventResultGroup')->create({
-    event => $self,
-    gender => $gender,
+  my $group = $schema->resultset('EventResultGroup')->create(
+    {
+      event       => $self,
+      gender      => $gender,
     division_id => $NULL,
-    count => $rs_r->count
-  });
+      count       => $rs_r->count
+    }
+  );
 
-  my $i=1;
+  my $i = 1;
   while (my $r = $rs_r->next) {
-    $schema->resultset('EventResult')->create({
-      result => $r,
-      place => $i++,
+    $schema->resultset('EventResult')->create(
+      {
+        result             => $r,
+        place              => $i++,
       event_result_group => $group
-    });
+      }
+    );
   }
 }
 
 sub description {
-  my $self=shift;
+  my $self = shift;
   my $year = $self->scheduled_start->year;
   my $name = $self->name;
-  unless($name =~ /$year/) {
-    $name = join($SPACE, $year, $name)
+  unless ($name =~ /$year/) {
+    $name = join(
+      $SPACE, $year, $name
+      );
   }
   return $name;
 }

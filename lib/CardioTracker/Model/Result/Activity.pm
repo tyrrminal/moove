@@ -307,19 +307,21 @@ use DCS::Constants qw(:boolean);
 use List::Util qw(max);
 
 sub has_event_visible_to {
-  my $self=shift;
+  my $self = shift;
   my ($user) = @_;
 
-  return $FALSE unless(defined($self->event));
-  return $self->result_source->schema->resultset('EventRegistration')->search({
+  return $FALSE unless (defined($self->event));
+  return $self->result_source->schema->resultset('EventRegistration')->search(
+    {
     -and => [
       'event_id' => $self->event_id,
-      -or => [
+        -or        => [
         is_public => 'Y',
-        user_id => $user->id
+          user_id   => $user->id
       ]
     ]
-  })->count > 0
+    }
+  )->count > 0;
 }
 
 sub is_outdoor_activity {
@@ -327,7 +329,7 @@ sub is_outdoor_activity {
 }
 
 sub is_running_activity {
-  my $self=shift;
+  my $self = shift;
   return $self->activity_type->description eq 'Run' || $self->activity_type->description eq 'Treadmill';
 }
 
@@ -336,9 +338,9 @@ sub is_cycling_activity {
 }
 
 sub end_time {
-  my $self=shift;
+  my $self = shift;
 
-  return $self->start_time unless(defined($self->result));
+  return $self->start_time unless (defined($self->result));
   return $self->start_time + ($self->result->gross_time // $self->result->net_time);
 }
 
