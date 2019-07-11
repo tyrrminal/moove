@@ -82,6 +82,7 @@ const moment = require('moment');
 export default {
   data() {
     return {
+      user: null,
       futureEvents: [],
       pastEvents: []
     }
@@ -89,17 +90,16 @@ export default {
   created() {
     let self = this;
     let now = moment();
-    this.$http.get("events/" + self.user.id).then(response => {
+    this.$http.get("events/" + this.effective_user.id).then(response => {
       self.futureEvents = response.data.filter(e => moment(e.event.scheduled_start).diff(now) >  0);
       self.pastEvents   = response.data.filter(e => moment(e.event.scheduled_start).diff(now) <= 0);
     });
   },
   computed: {
-    user: function() {
-      var c = this.$cookie.get('cardiotracker');
-      if(!c)
-        return null;
-      return JSON.parse(atob(c));
+    effective_user: function() {
+      if(this.user)
+        return this.user;
+      return this.$store.getters.currentUser;
     },
     sortedFutureEvents: function() {
       return this.futureEvents.reverse();
