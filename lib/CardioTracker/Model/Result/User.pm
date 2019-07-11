@@ -196,7 +196,7 @@ sub to_hash {
   return {
     id       => $self->id,
     username => $self->username,
-    person   => $self->person->to_hash,
+    person   => $self->person_id ? $self->person->to_hash : { first_name => 'Guest', last_name => '' },
     %loc
   };
 }

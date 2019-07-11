@@ -4,7 +4,7 @@ use base qw(DBIx::Class::ResultSet);
 
 sub anonymous {
   my $self = shift;
-  return $self->new_result({id => 0, username => ''});
+  return $self->new_result({id => 0, username => 'guest'});
 }
 
 1;
