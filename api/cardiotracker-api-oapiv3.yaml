@@ -48,10 +48,10 @@ paths:
       summary: End a login session
       x-mojo-to: API::V1::Auth#logout
       responses:
-        200:
+        204:
           description: Success
           content:
-            'text/plain':
+            text/plain:
               schema:
                 type: string
   /events/{user}:
