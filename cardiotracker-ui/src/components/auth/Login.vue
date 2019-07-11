@@ -36,7 +36,7 @@ export default {
       let username = this.username;
       let password = this.password;
       this.$store
-        .dispatch("login",  { username, password })
+        .dispatch("auth/login",  { username, password })
         .then(() => self.$router.push("/"))
         .catch(err => self.error = err.response.data.message )
     }

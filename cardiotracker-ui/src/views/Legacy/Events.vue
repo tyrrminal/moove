@@ -99,7 +99,7 @@ export default {
     effective_user: function() {
       if(this.user)
         return this.user;
-      return this.$store.getters.currentUser;
+      return this.$store.getters['auth/currentUser'];
     },
     sortedFutureEvents: function() {
       return this.futureEvents.reverse();

@@ -43,7 +43,7 @@ export default {
         password: this.password
       };
       this.$store
-        .dispatch("register", data)
+        .dispatch("auth/register", data)
         .then(() => this.$router.push("/"))
         .catch(err => console.log(err));
     }

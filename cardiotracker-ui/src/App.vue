@@ -12,7 +12,7 @@ export default {
     NavBar
   },
   mounted() {
-    this.$store.dispatch("login_check");
+    this.$store.dispatch("auth/check");
   }
 }
 </script>

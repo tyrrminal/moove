@@ -10,15 +10,15 @@
 export default {
   computed: {
     isLoggedIn: function() {
-      return this.$store.getters.isLoggedIn;
+      return this.$store.getters['auth/isLoggedIn'];
     },
     username: function() {
-      return this.$store.getters.currentUser.username;
+      return this.$store.getters['auth/currentUser'].username;
     }
   },
   methods: {
     logout: function() {
-      this.$store.dispatch("logout").then(() => {
+      this.$store.dispatch("auth/logout").then(() => {
         this.$router.push("/login");
       })
     }
