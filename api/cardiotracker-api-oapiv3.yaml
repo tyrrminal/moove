@@ -28,21 +28,38 @@ paths:
         200:
           description: Success
           content:
-            'text/plain':
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/User'
         401:
           description: Unauthorized
           content:
-            'text/plain':
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/Error'
         404:
-          description: Unauthorized
+          description: User not found
           content:
-            'text/plain':
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/Error'
+  /auth/status:
+    get:
+      summary: Find out whether the user is logged in
+      x-mojo-to: API::V1::Auth#status
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        404:
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /auth/logout:
     post:
       summary: End a login session
