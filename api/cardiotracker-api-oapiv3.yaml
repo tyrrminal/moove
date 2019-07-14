@@ -396,11 +396,11 @@ components:
           type: integer
           nullable: true
     EventCountdown:
+      type: object
       required:
         - days
         - months
         - weeks
-      type: object
       properties:
         days:
           type: number
