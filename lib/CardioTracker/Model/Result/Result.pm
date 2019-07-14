@@ -177,7 +177,7 @@ sub speed {
 
   return 0 unless ($hrs);
   return {
-    value => $v,
+    value => $v/$hrs,
     units => $mph
   };
 }
