@@ -144,7 +144,7 @@ paths:
           description: the user registered for the event
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         200:
           description: Success
@@ -164,7 +164,7 @@ paths:
           description: the user registered for the event
           required: true
           schema:
-            type: integer
+            type: string
         - in: path
           name: id
           description: the event's ID
