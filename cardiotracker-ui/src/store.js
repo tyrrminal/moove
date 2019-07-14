@@ -77,14 +77,14 @@ export default new Vuex.Store({
           state.user = guest;
         },
         logout(state) {
-          state.status = '';
+          state.status = 'logout';
           state.user = guest;
         }
       },
       getters: {
         currentUser: state => state.user,
         isLoggedIn:  state => state.user.id > 0,
-        authStatus:  state => state.status
+        status:      state => state.status
       }
     }
   }

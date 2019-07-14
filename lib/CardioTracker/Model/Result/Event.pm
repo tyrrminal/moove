@@ -284,9 +284,19 @@ sub countdown {
 
   my $days = $now->delta_days($start)->in_units('days');
   return {
-    days => $days,
-    weeks => sprintf("%.01f", $days/7),
-    months => sprintf("%.01f", $start->yearfrac($now)*12)
+    days   => $days,
+    weeks  => sprintf("%.01f", $days / 7),
+    months => sprintf("%.01f", $start->yearfrac($now) * 12)
+  };
+}
+
+sub router_link {
+  my $self = shift;
+
+  return {
+    route_name => 'event',
+    params => { id => $self->id },
+    text => $self->description
   }
 }
 

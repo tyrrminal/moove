@@ -182,28 +182,35 @@ use DateTime;
 
 use List::Util qw(sum0);
 
+sub sequence {
+  my $self = shift;
+
+  return $self->result_source->schema->resultset('EventRegistration')->in_sequence($self->event->event_group->event_sequence_id)
+    ->for_user($self->user);
+}
+
 sub to_hash {
-  my $self=shift;
+  my $self   = shift;
   my %params = @_;
 
   my $er = {
-    event_id => $self->event_id,
-    user => $self->user->to_hash,
-    fee => $self->fee,
-    bib_no => $self->bib_no,
+    event_id  => $self->event_id,
+    user      => $self->user->to_hash,
+    fee       => $self->fee,
+    bib_no    => $self->bib_no,
     is_public => ($self->is_public eq 'Y'),
   };
 
   my @donations = $self->donations;
-  if(@donations || $self->fundraising_minimum) {
-    $er->{fundraising} = { 
-      minimum => $self->fundraising_minimum, 
-      total => sum0(map { $_->amount } @donations)
+  if (@donations || $self->fundraising_minimum) {
+    $er->{fundraising} = {
+      minimum => $self->fundraising_minimum,
+      total   => sum0(map {$_->amount} @donations)
     };
-    $er->{fundraising}->{donations} = [map { $_->to_hash } @donations] if(!exists($params{donations}) || $params{donations});
+    $er->{fundraising}->{donations} = [map {$_->to_hash} @donations] if (!exists($params{donations}) || $params{donations});
   }
 
-  $er->{registered} = $self->registered eq 'Y' if($self->registered);
+  $er->{registered} = $self->registered eq 'Y' if ($self->registered);
 
   return $er;
 }

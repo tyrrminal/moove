@@ -1,5 +1,6 @@
 import Vue from "vue";
 import Router from "vue-router";
+import store from './store.js'
 import Home from "./views/Home.vue";
 import Login from "@/components/auth/Login.vue";
 
@@ -28,24 +29,59 @@ let router = new Router({
     {
       path: "/event/:id",
       name: "event",
-      component: Event
+      component: Event,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: "/event/:user/:id",
+      name: "event_with_user",
+      component: Event,
     },
     {
       path: "/legacy/summary",
       name: "legacy_summary",
-      component: LegacySummary
+      component: LegacySummary,
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: "/legacy/events",
       name: "legacy_events",
-      component: LegacyEvents
+      component: LegacyEvents,
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: "/legacy/activities",
       name: "legacy_activities",
-      component: LegacyActivities
+      component: LegacyActivities,
+      meta: {
+        requiresAuth: true
+      }
     }
   ]
+});
+
+router.beforeEach((to, from, next) => {
+  let next_or_login = function() {
+    if(store.getters['auth/isLoggedIn'])
+      next();
+    else
+      next({ name: 'login', query: { from: to.path }});
+  };
+
+  if(to.matched.some(record => record.meta.requiresAuth)) {
+    if(store.getters['auth/status'] === '')
+      store.dispatch("auth/check").then(() => next_or_login());
+    else
+      next_or_login();
+  } else {
+    next();
+  }
 });
 
 export default router;
