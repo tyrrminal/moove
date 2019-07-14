@@ -71,6 +71,69 @@ paths:
             text/plain:
               schema:
                 type: string
+  /event/series/{user}/{id}:
+    get:
+      summary: Get the events in a particular series for a user
+      x-mojo-to: API::V1::EventSeries#list
+      parameters:
+        - in: path
+          name: user
+          description: the user registered for the events
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          description: the event sequence's ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  series:
+                    $ref: '#/components/schemas/EventSeries'
+                  events:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RegisteredEvent'
+        404:
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /event/sequence/{user}/{id}:
+    get:
+      summary: Get the events in a particular sequence for a user
+      x-mojo-to: API::V1::EventSequence#list
+      parameters:
+        - in: path
+          name: user
+          description: the user registered for the events
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          description: the event sequence's ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RegisteredEvent'
   /events/{user}:
     get:
       summary: Get the list of events for a user
@@ -81,7 +144,7 @@ paths:
           description: the user registered for the event
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         200:
           description: Success
@@ -101,7 +164,7 @@ paths:
           description: the user registered for the event
           required: true
           schema:
-            type: integer
+            type: string
         - in: path
           name: id
           description: the event's ID
@@ -114,7 +177,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RegisteredEvent'
+                type: object
+                properties:
+                  event:
+                    $ref: '#/components/schemas/RegisteredEvent'
+                  links:
+                    $ref: '#/components/schemas/EventLinks'
         404:
           description: Not Found
           content:
@@ -192,7 +260,7 @@ components:
           type: string
           format: date-time
         distance:
-          $ref: '#/components/schemas/Distance'
+          $ref: '#/components/schemas/Amount'
         result:
           $ref: '#/components/schemas/ActivityResult'
         event:
@@ -223,7 +291,7 @@ components:
           type: string
           format: time
         speed:
-          $ref: '#/components/schemas/ValueWithUnits'
+          $ref: '#/components/schemas/Amount'
         heart_rate:
           nullable: true
           type: integer
@@ -266,17 +334,6 @@ components:
         email:
           type: string
           nullable: true
-    Distance:
-      type: object
-      required:
-        - value
-      properties:
-        id:
-          type: integer
-        value:
-          $ref: '#/components/schemas/ValueWithUnits'
-        normalized_value:
-          $ref: '#/components/schemas/ValueWithUnits'
     Division:
       type: object
       required:
@@ -332,15 +389,18 @@ components:
         event_type:
           $ref: '#/components/schemas/EventType'
         distance:
-          $ref: '#/components/schemas/Distance'
+          $ref: '#/components/schemas/Amount'
         address:
           $ref: '#/components/schemas/Address'
+        event_sequence_id:
+          type: integer
+          nullable: true
     EventCountdown:
-      required:
-      - days
-      - months
-      - weeks
       type: object
+      required:
+        - days
+        - months
+        - weeks
       properties:
         days:
           type: number
@@ -348,6 +408,21 @@ components:
           type: number
         months:
           type: number
+    EventLinks:
+      type: object
+      properties:
+        next:
+          $ref: '#/components/schemas/RouterLink'
+        prev:
+          $ref: '#/components/schemas/RouterLink'
+        series_next:
+          $ref: '#/components/schemas/RouterLink'
+        series_prev:
+          $ref: '#/components/schemas/RouterLink'
+        sequence_next:
+          $ref: '#/components/schemas/RouterLink'
+        sequence_prev:
+          $ref: '#/components/schemas/RouterLink'
     EventRegistration:
       type: object
       required:
@@ -388,6 +463,15 @@ components:
           type: string
         gender:
           type: string
+    EventSeries:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        year:
+          type: integer
     EventType:
       type: object
       required:
@@ -443,6 +527,17 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/EventResult'
+    RouterLink:
+      type: object
+      required:
+        - route_name
+      properties:
+        route_name:
+          type: string
+        params:
+          type: object
+        text:
+          type: string
     Location:
       type: object
       required:
@@ -458,7 +553,6 @@ components:
     UnitOfMeasure:
       type: object
       required:
-        - id
         - unit
         - abbreviation
         - normalization_factor
@@ -485,7 +579,16 @@ components:
           $ref: '#/components/schemas/Person'
         location:
           $ref: '#/components/schemas/Location'
-    ValueWithUnits:
+    Amount:
+      type: object
+      required:
+        - quantity
+      properties:
+        quantity:
+          $ref: '#/components/schemas/DimensionedQuantity'
+        normalized_quantity:
+          $ref: '#/components/schemas/DimensionedQuantity'
+    DimensionedQuantity:
       type: object
       required:
         - value

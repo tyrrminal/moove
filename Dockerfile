@@ -48,7 +48,7 @@ COPY --from=cartoninstall /app/local local
 COPY --from=vuebuild      /app/dist  public
 
 ENV PATH="/app/local/bin:${PATH}"
-ENV PERLLIB="/app/local/lib/perl5:/app/local/lib/perl5/x86_64-linux-gnu:${PERLLIB}"
+ENV PERL5LIB="/app/local/lib/perl5:/app/local/lib/perl5/x86_64-linux-gnu:${PERL5LIB}"
 
 EXPOSE 8080
 
