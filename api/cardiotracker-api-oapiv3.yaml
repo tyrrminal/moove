@@ -369,10 +369,6 @@ components:
       type: object
       required:
         - name
-        - scheduled_start
-        - event_type
-        - distance
-        - address
       properties:
         id:
           type: integer
@@ -412,17 +408,17 @@ components:
       type: object
       properties:
         next:
-          $ref: '#/components/schemas/RouterLink'
+          $ref: '#/components/schemas/Event'
         prev:
-          $ref: '#/components/schemas/RouterLink'
+          $ref: '#/components/schemas/Event'
         series_next:
-          $ref: '#/components/schemas/RouterLink'
+          $ref: '#/components/schemas/Event'
         series_prev:
-          $ref: '#/components/schemas/RouterLink'
+          $ref: '#/components/schemas/Event'
         sequence_next:
-          $ref: '#/components/schemas/RouterLink'
+          $ref: '#/components/schemas/Event'
         sequence_prev:
-          $ref: '#/components/schemas/RouterLink'
+          $ref: '#/components/schemas/Event'
     EventRegistration:
       type: object
       required:
@@ -527,17 +523,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/EventResult'
-    RouterLink:
-      type: object
-      required:
-        - route_name
-      properties:
-        route_name:
-          type: string
-        params:
-          type: object
-        text:
-          type: string
     Location:
       type: object
       required:

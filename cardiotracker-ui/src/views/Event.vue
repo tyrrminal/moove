@@ -3,13 +3,13 @@
     <b-container v-if="event">
       <b-row>
         <b-col sm="2">
-          <Links :links="links" direction="prev" />
+          <Links :links="links" :user="effectiveUser" direction="prev" />
         </b-col>
         <b-col sm="9" md="7" lg="5" class="mx-auto">
           <EventDetails :event="event.event" />
         </b-col>
         <b-col sm="2">
-          <Links :links="links" direction="next" />
+          <Links :links="links" :user="effectiveUser" direction="next" />
         </b-col>
       </b-row>
 

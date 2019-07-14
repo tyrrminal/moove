@@ -1,7 +1,7 @@
 <template>
   <b-list-group>
     <b-list-group-item v-for="(l,index) in relevant" :key="`link-${index}`">
-      <router-link :to="{ name: links[l].route_name, params: links[l].params }" :title="links[l].text"><font-awesome-icon :icon="iconMap[l]" /></router-link>
+      <router-link :to="{ name: 'event_with_user', params: {id: links[l].id, user: user } }" :title="links[l].name"><font-awesome-icon :icon="iconMap[l]" /></router-link>
     </b-list-group-item>
   </b-list-group>
 </template>
@@ -20,7 +20,8 @@ export default {
   },
   props: {
     links: Object,
-    direction: String
+    direction: String,
+    user: String
   },
   computed: {
     relevant: function() {

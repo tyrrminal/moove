@@ -36,7 +36,7 @@ sub get {
       );
       foreach (keys(%l)) {
         if(defined($l{$_})) {
-          $l{$_} = $l{$_}->event->router_link;
+          $l{$_} = { id => $l{$_}->event->id, name => $l{$_}->event->description};
         } else {
           delete($l{$_});
         }
