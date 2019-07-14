@@ -180,7 +180,7 @@ paths:
                 type: object
                 properties:
                   event:
-                $ref: '#/components/schemas/RegisteredEvent'
+                    $ref: '#/components/schemas/RegisteredEvent'
                   links:
                     $ref: '#/components/schemas/EventLinks'
         404:
@@ -260,7 +260,7 @@ components:
           type: string
           format: date-time
         distance:
-          $ref: '#/components/schemas/Distance'
+          $ref: '#/components/schemas/Amount'
         result:
           $ref: '#/components/schemas/ActivityResult'
         event:
@@ -291,7 +291,7 @@ components:
           type: string
           format: time
         speed:
-          $ref: '#/components/schemas/ValueWithUnits'
+          $ref: '#/components/schemas/Amount'
         heart_rate:
           nullable: true
           type: integer
@@ -334,17 +334,6 @@ components:
         email:
           type: string
           nullable: true
-    Distance:
-      type: object
-      required:
-        - value
-      properties:
-        id:
-          type: integer
-        value:
-          $ref: '#/components/schemas/ValueWithUnits'
-        normalized_value:
-          $ref: '#/components/schemas/ValueWithUnits'
     Division:
       type: object
       required:
@@ -400,7 +389,7 @@ components:
         event_type:
           $ref: '#/components/schemas/EventType'
         distance:
-          $ref: '#/components/schemas/Distance'
+          $ref: '#/components/schemas/Amount'
         address:
           $ref: '#/components/schemas/Address'
         event_sequence_id:
@@ -408,9 +397,9 @@ components:
           nullable: true
     EventCountdown:
       required:
-      - days
-      - months
-      - weeks
+        - days
+        - months
+        - weeks
       type: object
       properties:
         days:
@@ -564,7 +553,6 @@ components:
     UnitOfMeasure:
       type: object
       required:
-        - id
         - unit
         - abbreviation
         - normalization_factor
@@ -591,7 +579,16 @@ components:
           $ref: '#/components/schemas/Person'
         location:
           $ref: '#/components/schemas/Location'
-    ValueWithUnits:
+    Amount:
+      type: object
+      required:
+        - quantity
+      properties:
+        quantity:
+          $ref: '#/components/schemas/DimensionedQuantity'
+        normalized_quantity:
+          $ref: '#/components/schemas/DimensionedQuantity'
+    DimensionedQuantity:
       type: object
       required:
         - value
