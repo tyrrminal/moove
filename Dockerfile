@@ -9,15 +9,16 @@ FROM perl:5.26 as cartoninstall
 RUN apt-get update && apt-get install -qy \
   --allow-downgrades --allow-remove-essential --allow-change-held-packages \
   build-essential \
-  libwww-perl libssl-dev libnet-ssleay-perl \
+  libwww-perl \
+  libssl-dev libnet-ssleay-perl \
   libexpat1-dev \
   default-libmysqlclient-dev mysql-client \
   && rm -rf /var/lib/apt/lists/*
+RUN cpanm Carton
 ENV PERL5LIB=/usr/share/perl5
-
 WORKDIR /app
 COPY cpanfile* ./
-RUN cpanm -l /app/local --force --installdeps .
+RUN carton install --deployment
 
 #------------------------------------------------------------------------------------------
 
