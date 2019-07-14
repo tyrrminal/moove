@@ -196,7 +196,14 @@ sub _calculate_pace {
 sub _minutes_to_time_str {
   my ($t) = @_;
   my $dec = $t - int($t);
-  return sprintf("00:%02d:%04.1f", int($t), $dec * 60);
+
+  my ($min,$sec) = (int($t), $dec * 60);
+  if($sec > 59.94) {
+    $min++;
+    $sec = 0;
+  }
+
+  return sprintf("00:%02d:%04.1f", $min, $sec);
 }
 
 sub _format_time {
