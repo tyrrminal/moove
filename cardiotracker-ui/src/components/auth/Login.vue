@@ -22,40 +22,28 @@
 </template>
 
 <script>
-import { EventBus } from '@/services/event-bus.js';
-
 export default {
   data() {
     return {
       username: "",
       password: "",
-      error: ''
-    };
+      error: ""
+    }
   },
   methods: {
     login: function() {
       let self = this;
-      const qs = require("qs");
-      this.$http
-        .post(
-          "/auth/login",
-          qs.stringify({ username: this.username, password: this.password }),
-          { headers: { "Content-Type": "application/x-www-form-urlencoded", "Accept": "text/plain" } }
-        )
-        .then(() => {
-          EventBus.$emit('login-status-changed', true);
-          this.$router.replace(this.$route.query.redirect || "/");
-        })
-        .catch(function(error) {
-          self.error = error.response.data;
-        });
+      let username = this.username;
+      let password = this.password;
+      this.$store
+        .dispatch("auth/login",  { username, password })
+        .then(() => self.$router.replace(this.$route.query.from || '/'))
+        .catch(err => self.error = err.response.data.message )
     }
   }
-};
+}
 </script>
 
-<style scoped>
-input {
-  border: 1px solid gray;
-}
+<style>
+
 </style>

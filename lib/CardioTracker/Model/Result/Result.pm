@@ -144,8 +144,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-20 21:32:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:uetz95tb9gHqCiXVrPfrsA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-11 22:42:34
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:6ezHL09ftRs4VX9rLvrNpg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
@@ -154,19 +154,32 @@ use DateTime::Format::Duration;
 # Pace is always minutes (net) per mile
 sub update_pace {
   my $self = shift;
-  $self->update(
-    {pace => _calculate_pace($self->net_time, $self->activities->first->distance)}
-    );
+  $self->update({pace => _calculate_pace($self->net_time, $self->activities->first->distance)});
 }
 
 sub speed {
   my $self = shift;
 
-  my $t   = $self->net_time;
-  my $hrs = $t->hours + $t->minutes / 60;
+  my $v;
+  my $d = $self->activities->first->distance;
+  my $miles = $self->result_source->schema->resultset('UnitOfMeasure')->find({abbreviation => 'mi'});
+  if ($d->uom->id == $miles->id) {
+    $v = $d->value;
+  } elsif ($miles->conversion_factor == 1) {
+    $v = $d->normalized_value;
+  } else {
+    $v = $d->normalized_value / $miles->conversion_factor;
+  }
+  my $mph = $self->result_source->schema->resultset('UnitOfMeasure')->find({abbreviation => 'mph'});
 
-  return 0 unless($hrs);
-  return $self->activities->first->distance->normalized_value / $hrs;
+  my $t = $self->net_time;
+  my $hrs = $t->hours + ($t->minutes / 60) + ($t->seconds / (60 * 60));
+
+  return 0 unless ($hrs);
+  return {
+    value => $v,
+    units => $mph
+  };
 }
 
 sub _calculate_pace {
@@ -183,12 +196,19 @@ sub _calculate_pace {
 sub _minutes_to_time_str {
   my ($t) = @_;
   my $dec = $t - int($t);
-  return sprintf("00:%02d:%04.1f", int($t), $dec * 60);
+
+  my ($min,$sec) = (int($t), $dec * 60);
+  if($sec > 59.94) {
+    $min++;
+    $sec = 0;
+  }
+
+  return sprintf("00:%02d:%04.1f", $min, $sec);
 }
 
 sub _format_time {
   my $t = shift;
-  return undef unless($t);
+  return undef unless ($t);
 
   my $d = DateTime::Format::Duration->new(pattern => '%H:%M:%S', normalise => 1);
   return $d->format_duration($t);
@@ -203,30 +223,34 @@ sub gross_time_formatted {
 sub net_time_formatted {
   my $self = shift;
 
-  return _format_time(
-    $self->net_time
-    );
+  return _format_time($self->net_time);
 }
 
 sub pace_formatted {
   my $self = shift;
 
-  return _format_time(
-    $self->pace
-  );
+  return _format_time($self->pace);
 }
 
 sub to_hash {
   my $self = shift;
-  
+
+  my $norm = $self->result_source->schema->resultset('UnitOfMeasure')->find({dimension => 'speed', conversion_factor => 1});
+
   return {
     id         => $self->id,
     gross_time => $self->gross_time_formatted,
     net_time   => $self->net_time_formatted,
     pace       => $self->pace_formatted,
     speed      => {
-      value => $self->speed,
-      units => $self->result_source->schema->resultset('UnitOfMeasure')->search({abbreviation => 'mph'})->first->to_hash
+      quantity => {
+        value => $self->speed->{value},
+        units => $self->speed->{units}->to_hash
+      },
+      normalized_quantity => {
+        value => $self->speed->{value} * $norm->conversion_factor,
+        units => $norm->to_hash
+      }
     },
     heart_rate => $self->heart_rate
   };

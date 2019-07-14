@@ -49,6 +49,12 @@ __PACKAGE__->table("unit_of_measure");
   is_auto_increment: 1
   is_nullable: 0
 
+=head2 dimension
+
+  data_type: 'varchar'
+  is_nullable: 0
+  size: 45
+
 =head2 uom
 
   data_type: 'varchar'
@@ -71,6 +77,8 @@ __PACKAGE__->table("unit_of_measure");
 __PACKAGE__->add_columns(
   "id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
+  "dimension",
+  { data_type => "varchar", is_nullable => 0, size => 45 },
   "uom",
   { data_type => "varchar", is_nullable => 0, size => 45 },
   "abbreviation",
@@ -135,8 +143,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-11 14:38:38
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:6nSqhmKRIq6f081MQfsE3Q
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-11 11:22:39
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:mVdkfhNWPICgWWd0nAFemA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

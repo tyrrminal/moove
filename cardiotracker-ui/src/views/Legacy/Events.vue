@@ -21,11 +21,11 @@
           <td><router-link :to="{ name: 'event', params: { id: e.event.id }}">{{ e.event.name }}</router-link></td>
           <td>{{ e.event.event_type.description }}</td>
           <td>{{ e.event.scheduled_start | moment("M/D/YY h:mma") }}</td>
-          <td class="right">{{ e.event.distance.value.value + " " + e.event.distance.value.units.abbreviation }}</td>
+          <td class="right">{{ e.event.distance | format_distance }}</td>
           <td>{{ e.event.countdown.days}}</td>
           <td>{{ e.event.countdown.weeks }}</td>
           <td>{{ e.event.countdown.months }}</td>
-          <td>{{ e.registration.registered ? 'Y' : 'N' }}</td>
+          <td><template v-if="e.registration.hasOwnProperty('registered')">{{ e.registration.registered ? 'Y' : 'N' }}</template></td>
           <td><template v-if="e.registration.fee !== null">{{ e.registration.fee | currency }}</template></td>
           <td><template v-if="e.registration.hasOwnProperty('fundraising')">{{ e.registration.fundraising.total | currency }}/{{ e.registration.fundraising.minimum | currency }}</template></td>
         </tr>
@@ -53,13 +53,13 @@
           <td><router-link :to="{ name: 'event', params: { id: e.event.id }}">{{ e.event.name }}</router-link></td>
           <td>{{ e.event.event_type.description }}</td>
           <td>{{ e.event.scheduled_start | moment("M/D/YY h:mma") }}</td>
-          <td class="right">{{ e.event.distance.value.value + " " + e.event.distance.value.units.abbreviation }}</td>
+          <td class="right">{{ e.event.distance | format_distance }}</td>
           <template v-if="e.hasOwnProperty('activity')">
             <template v-if="e.activity.hasOwnProperty('result')">
-              <td class="right">{{ e.activity.distance.value.value + " " + e.activity.distance.value.units.abbreviation }}</td>
+              <td class="right">{{ e.activity.distance | format_distance }}</td>
               <td>{{ e.activity.result.net_time }}</td>
               <td><template v-if="e.activity.activity_type.description === 'Run'">{{ e.activity.result.pace }}</template></td>
-              <td><template v-if="e.activity.activity_type.description !== 'Run'">{{ Number(e.activity.result.speed.value).toFixed(2) + " " + e.activity.result.speed.units.abbreviation }}</template></td>
+              <td><template v-if="e.activity.activity_type.description !== 'Run'">{{ e.activity.result.speed | format_distance }}</template></td>
             </template>
             <template v-else>
               <td class="dnf table-danger" colspan="4"></td>
@@ -78,10 +78,12 @@
 
 <script>
 const moment = require('moment');
+import '@/filters/event_filters.js';
 
 export default {
   data() {
     return {
+      user: null,
       futureEvents: [],
       pastEvents: []
     }
@@ -89,26 +91,20 @@ export default {
   created() {
     let self = this;
     let now = moment();
-    this.$http.get("events/" + self.user.id).then(response => {
+    this.$http.get("events/" + this.effective_user.id).then(response => {
       self.futureEvents = response.data.filter(e => moment(e.event.scheduled_start).diff(now) >  0);
       self.pastEvents   = response.data.filter(e => moment(e.event.scheduled_start).diff(now) <= 0);
     });
   },
   computed: {
-    user: function() {
-      var c = this.$cookie.get('cardiotracker');
-      if(!c)
-        return null;
-      return JSON.parse(atob(c));
+    effective_user: function() {
+      if(this.user)
+        return this.user;
+      return this.$store.getters['auth/currentUser'];
     },
     sortedFutureEvents: function() {
-      return this.futureEvents.reverse();
+      return this.futureEvents.slice().reverse();
     }
-  },
-  filters: {
-    currency: function(value) {
-      return '$'+Number(value).toFixed(2);
-    },
   }
 }
 </script>
