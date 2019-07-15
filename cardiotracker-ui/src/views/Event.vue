@@ -25,7 +25,7 @@
         </b-col>
 
         <b-col v-if="event.results" sm="4">
-          <EventResult :results="event.results" />
+          <EventResult :results="event.results" :results_url="event.event.results_url" />
         </b-col>
 
         <b-col v-if="event.registration.fundraising" sm="6">
@@ -71,7 +71,6 @@ export default {
   methods: {
     init() {
       let self = this;
-      console.log(this.$route.params.id);
       this.$http.get("event/" + self.effectiveUser + "/" + this.$route.params.id)
       .then(response => {
         self.event = response.data.event;

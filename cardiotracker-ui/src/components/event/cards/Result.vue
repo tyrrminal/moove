@@ -1,5 +1,6 @@
 <template>
-  <b-card title="Results" class="event-results">
+  <b-card class="event-results">
+    <b-card-title>Results <a v-if="results_url" :href="results_url" target="_blank"><font-awesome-icon icon="external-link-alt" /></a></b-card-title>
     <b-list-group flush>
       <b-list-group-item v-for="(r,index) in results" :key="`result-${index}`">
         <label>{{ r | eventResultLabel }}</label>: {{ r.place }}/{{ r.finishers }} ({{ 100-Number(r.percentile).toFixed(1) }}%)
@@ -11,6 +12,7 @@
 <script>
 export default {
   props: {
+    results_url: String,
     results: Array
   },
   filters: {
