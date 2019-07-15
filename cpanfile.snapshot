@@ -2192,6 +2192,7 @@ DISTRIBUTIONS
       Mojo::DynamicMethods undef
       Mojo::EventEmitter undef
       Mojo::Exception undef
+      Mojo::Exception::_Guard undef
       Mojo::File undef
       Mojo::Headers undef
       Mojo::HelloWorld undef

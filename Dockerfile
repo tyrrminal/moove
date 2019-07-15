@@ -1,4 +1,5 @@
 FROM node:10 as vuebuild
+# By convention, our <app>-ui folder contains the Vuejs app
 COPY *-ui /app
 WORKDIR /app
 RUN npm install && npm run build
