@@ -334,7 +334,7 @@ sub to_hash {
   my $self = shift;
   my %cd = ($self->scheduled_start > DateTime->now(time_zone => 'local')) ? (countdown => $self->countdown) : ();
 
-  return {
+  my $e = {
     id                => $self->id,
     name              => $self->event_group->name,
     url               => $self->event_url,
@@ -343,10 +343,12 @@ sub to_hash {
     entrants          => $self->entrants,
     event_type        => $self->event_type->to_hash,
     distance          => $self->distance->to_hash,
-    address           => $self->address->to_hash,
     event_sequence_id => $self->event_group->event_sequence_id,
     %cd
   };
+  $e->{address} = $self->address->to_hash unless($self->address->is_empty);
+
+  return $e;
 }
 
 1;
