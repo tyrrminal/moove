@@ -27,6 +27,14 @@ has 'base_url' => (
   default  => 'http://www.iresultslive.com/'
 );
 
+has '_url' => (
+  is       => 'ro',
+  isa      => 'Mojo::URL',
+  init_arg => $NULL,
+  lazy     => $TRUE,
+  builder  => '_build_url'
+);
+
 has 'key_map' => (
   traits  => ['Hash'],
   is      => 'ro',
@@ -42,6 +50,17 @@ has 'key_map' => (
     'get_key' => 'get'
   }
 );
+
+sub _build_url {
+  my $self = shift;
+
+  my $md = Mojo::URL->new($self->base_url);
+  return $md->query(op => 'overall', eid => $self->event_id, racename => $self->race_id);
+}
+
+sub url {
+  return shift->_url->to_string;
+}
 
 sub fetch_metadata {
   my $self = shift;
@@ -101,11 +120,8 @@ sub find_and_update_event {
 sub fetch_results {
   my $self = shift;
 
-  my $results = Mojo::URL->new($self->base_url);
-  $results->query(op => 'overall', eid => $self->event_id, racename => $self->race_id);
-
   my $ua  = Mojo::UserAgent->new();
-  my $res = $ua->get($results)->result;
+  my $res = $ua->get($self->_url)->result;
 
   #Column Headings
   my @col_map = @{
@@ -140,6 +156,7 @@ sub fetch_results {
     );
     last unless $n;
 
+    my $results = Mojo::URL->new($self->base_url);
     $results->query(op => 'overall', eid => $self->event_id, racename => $self->race_id, place => $n);
     $res = $ua->get($results)->result;
   }
