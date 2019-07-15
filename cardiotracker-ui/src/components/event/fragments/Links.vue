@@ -1,9 +1,9 @@
 <template>
-  <b-list-group>
-    <b-list-group-item v-for="(l,index) in relevant" :key="`link-${index}`">
-      <router-link :to="{ name: 'event_with_user', params: {id: links[l].id, user: user } }" :title="links[l].name"><font-awesome-icon :icon="iconMap[l]" /></router-link>
-    </b-list-group-item>
-  </b-list-group>
+  <div>
+    <b-button v-for="(l,index) in relevant" :key="`link-${index}`" @click="$router.push({name: 'event_with_user', params: {id: links[l].id, user: user }})" variant="dark" size="md" block :title="event_title(l, links[l].name)">
+      <font-awesome-icon :icon="iconMap[l]" />
+    </b-button>
+  </div>
 </template>
 
 <script>
@@ -15,6 +15,12 @@ export default {
         'prev': 'angle-left',
         'sequence_next': 'angle-double-right',
         'sequence_prev': 'angle-double-left'
+      },
+      tooltipMap: {
+        'next': "Next",
+        'prev': "Previous",
+        'sequence_next': "Next in Sequence",
+        'sequence_prev': "Previous in Sequence"
       }
     }
   },
@@ -32,6 +38,11 @@ export default {
         }
       }
       return l;
+    }
+  },
+  methods: {
+    event_title: function(type, title) {
+      return this.tooltipMap[type] + ": " + title;
     }
   }
 }
