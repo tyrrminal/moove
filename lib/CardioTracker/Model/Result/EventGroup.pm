@@ -60,6 +60,12 @@ __PACKAGE__->table("event_group");
   data_type: 'integer'
   is_nullable: 0
 
+=head2 url
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 512
+
 =head2 address_id
 
   data_type: 'integer'
@@ -81,6 +87,8 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", is_nullable => 0, size => 100 },
   "year",
   { data_type => "integer", is_nullable => 0 },
+  "url",
+  { data_type => "varchar", is_nullable => 1, size => 512 },
   "address_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "event_sequence_id",
@@ -177,8 +185,8 @@ Composing rels: L</event_group_series> -> event_series
 __PACKAGE__->many_to_many("event_series", "event_group_series", "event_series");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-11 22:42:34
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:bLHIJ+VkvSFVkG36dyYnDA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-14 20:30:54
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:SZCmtcmjxgsaLYH2BqnejA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
