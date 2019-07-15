@@ -218,6 +218,11 @@ __PACKAGE__->belongs_to(
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-11 22:42:34
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:aOiNtJsm49ck1IfhCyc/UQ
 
+use CardioTracker::Import::Event::RaceWire;
+use CardioTracker::Import::Event::IResultsLive;
+use CardioTracker::Import::Event::MTEC;
+use CardioTracker::Import::Event::MillenniumRunning;
+
 use DCS::DateTime::Extras;
 use DCS::Constants qw(:boolean :existence :symbols);
 
@@ -300,6 +305,31 @@ sub router_link {
   }
 }
 
+sub event_url {
+  my $self=shift;
+
+  my $url = $self->event_group->url;
+  return $url if(defined($url));
+
+  if(my $seq = $self->event_group->event_sequence) {
+    return $seq->url;
+  }
+  return undef;
+}
+
+sub results_url {
+  my $self=shift;
+
+  my @urls;
+  foreach ($self->event_references) {
+    my $ert = $_->event_reference_type;
+    my $importer = sprintf('CardioTracker::Import::Event::%s', $ert->description)->new(event_id => $_->ref_num, race_id => $_->sub_ref_num);
+    push(@urls, $importer->url);
+  }
+
+  return $urls[0];
+}
+
 sub to_hash {
   my $self = shift;
   my %cd = ($self->scheduled_start > DateTime->now(time_zone => 'local')) ? (countdown => $self->countdown) : ();
@@ -307,6 +337,8 @@ sub to_hash {
   return {
     id                => $self->id,
     name              => $self->event_group->name,
+    url               => $self->event_url,
+    results_url       => $self->results_url,
     scheduled_start   => $self->scheduled_start->iso8601,
     entrants          => $self->entrants,
     event_type        => $self->event_type->to_hash,
