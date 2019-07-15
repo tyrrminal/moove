@@ -24,9 +24,10 @@ import { faAngleRight } from '@fortawesome/free-solid-svg-icons'
 import { faAngleLeft } from '@fortawesome/free-solid-svg-icons'
 import { faAngleDoubleRight } from '@fortawesome/free-solid-svg-icons'
 import { faAngleDoubleLeft } from '@fortawesome/free-solid-svg-icons'
+import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faAngleRight, faAngleLeft, faAngleDoubleRight, faAngleDoubleLeft)
+library.add(faAngleRight, faAngleLeft, faAngleDoubleRight, faAngleDoubleLeft, faExternalLinkAlt )
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 Vue.config.productionTip = false;
