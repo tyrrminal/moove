@@ -1,6 +1,7 @@
 <template>
-  <b-card :sub-title="this.$options.filters.format_distance(event.distance) + ' ' + event.event_type.description" class="mb-2" bg-variant="dark" text-variant="white">
+  <b-card class="mb-2 text-center" :border-variant="border" :bg-variant="background" :text-variant="color">
     <b-card-title>{{ event.name }} <a v-if="event.url" :href="event.url" target="_blank"><font-awesome-icon icon="external-link-alt" /></a></b-card-title>
+    <b-card-sub-title>{{ event.distance | format_distance }} {{ event.event_type.description }}</b-card-sub-title>
     <h6 slot="footer">{{ event.scheduled_start | moment("M/D/YY h:mma") }}<template v-if="event.hasOwnProperty('address')"> &mdash; {{ event.address.city }}, {{ event.address.state }}</template></h6>
   </b-card>
 </template>
@@ -9,8 +10,14 @@
 import '@/filters/event_filters.js';
 
 export default {
+  computed: {
+    border:     function() { return this.isPublic ? "dark"  : "default"; },
+    background: function() { return this.isPublic ? "light" : "dark";    },
+    color:      function() { return this.isPublic ? "dark"  : "light";   },
+  },
   props: {
-    event: Object
+    event: Object,
+    isPublic: Boolean
   }
 }
 </script>

@@ -8,7 +8,7 @@
           <Links :links="links" :user="effectiveUser" direction="prev" />
         </b-col>
         <b-col sm="9" md="7" lg="5" class="mx-auto">
-          <EventDetails :event="event.event" />
+          <EventDetails :event="event.event" :isPublic="event.registration.is_public" />
         </b-col>
         <b-col sm="2">
           <Links :links="links" :user="effectiveUser" direction="next" />
