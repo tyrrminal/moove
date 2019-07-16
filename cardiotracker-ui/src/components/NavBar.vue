@@ -1,7 +1,7 @@
 <template>
   <div>
     <b-navbar toggleable="lg" type="dark" variant="secondary" class="mb-2" sticky>
-      <b-navbar-brand :to="{ name: 'home' }">CardioTracker</b-navbar-brand>
+      <b-navbar-brand :to="{ name: 'home' }">Moo've</b-navbar-brand>
 
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
