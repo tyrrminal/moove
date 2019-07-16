@@ -113,10 +113,12 @@ export default {
 
 <style scoped>
 .dns {
-  font-weight: bold
+  font-weight: bold;
+  text-align: center;
 }
 .dnf {
-  color: orange
+  font-weight: bold;
+  text-align: center;
 }
 .dns::after {
   content: "Did Not Start"
