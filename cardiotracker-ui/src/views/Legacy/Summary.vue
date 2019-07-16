@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <vue-headful title="Cardio Tracker / Summary[Legacy]" />
+    <vue-headful title="Moo've / Summary[Legacy]" />
 
     <div class="row">
       <div class="col-3">
