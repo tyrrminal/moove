@@ -1,5 +1,5 @@
 <template>
-  <b-row>
+  <b-row class="text-center">
     <template v-if="registration.bib_no">
       <b-col>
         <h4 class="bib_no">{{ participantName }} #{{ registration.bib_no }}</h4>
