@@ -1,5 +1,6 @@
 <template>
   <b-container>
+    <vue-headful title="Cardio Tracker Login" />
     <b-row>
       <b-col sm="9" md="7" lg="5" class="mx-auto">
         <b-card title="Login" class="card-signin my-5">
