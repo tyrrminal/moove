@@ -1,9 +1,9 @@
 <template>
-  <div>
-    <b-button v-for="(l,index) in relevant" :key="`link-${index}`" @click="$router.push({name: 'event_with_user', params: {id: links[l].id, user: user }})" variant="dark" size="md" block :title="event_title(l, links[l].name)">
+  <b-button-group>
+    <b-button v-for="(l,index) in relevant" :key="`link-${index}`" @click="$router.push({name: 'event_with_user', params: {id: links[l].id, user: user }})" variant="secondary" size="md" :title="event_title(l, links[l].name)">
       <font-awesome-icon :icon="iconMap[l]" />
     </b-button>
-  </div>
+  </b-button-group>
 </template>
 
 <script>
