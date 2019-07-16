@@ -1,6 +1,6 @@
 <template>
   <div>
-    <vue-headful :title="'Cardio Tracker / Events: ' + event.event.name" />
+    <vue-headful :title="'Moo\'ve / Events: ' + event.event.name" />
 
     <b-container v-if="event">
       <b-row>

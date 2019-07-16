@@ -1,7 +1,7 @@
 <template>
   <div class="home">
-    <vue-headful title="Cardio Tracker" />
-    <h3>Welcome to Cardio Tracker</h3>
+    <vue-headful title="Moo've" />
+    <h3>Welcome to Moo've</h3>
   </div>
 </template>
 
