@@ -1,4 +1,4 @@
-# cardiotracker-ui
+# moo've
 
 ## Project setup
 ```
