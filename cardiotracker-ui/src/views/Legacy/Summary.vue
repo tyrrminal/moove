@@ -1,5 +1,7 @@
 <template>
   <div class="container">
+    <vue-headful title="Cardio Tracker / Summary[Legacy]" />
+
     <div class="row">
       <div class="col-3">
         <h4>Overall</h4>

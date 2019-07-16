@@ -1,5 +1,7 @@
 <template>
   <div class="container">
+    <vue-headful title="Cardio Tracker / Events[Legacy]" />
+
     <h3>Upcoming</h3>
     <table class="table table-striped table-bordered">
       <thead>
