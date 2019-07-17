@@ -22,16 +22,18 @@ import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap-vue/dist/bootstrap-vue.css";
 
 // Symbols and icons
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { faAngleRight } from '@fortawesome/free-solid-svg-icons'
-import { faAngleLeft } from '@fortawesome/free-solid-svg-icons'
-import { faAngleDoubleRight } from '@fortawesome/free-solid-svg-icons'
-import { faAngleDoubleLeft } from '@fortawesome/free-solid-svg-icons'
-import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons'
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faAngleRight } from '@fortawesome/free-solid-svg-icons';
+import { faAngleLeft } from '@fortawesome/free-solid-svg-icons';
+import { faAngleDoubleRight } from '@fortawesome/free-solid-svg-icons';
+import { faAngleDoubleLeft } from '@fortawesome/free-solid-svg-icons';
+import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-library.add(faAngleRight, faAngleLeft, faAngleDoubleRight, faAngleDoubleLeft, faExternalLinkAlt )
-Vue.component('font-awesome-icon', FontAwesomeIcon)
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+library.add(faAngleRight, faAngleLeft, faAngleDoubleRight, faAngleDoubleLeft, faExternalLinkAlt, faTimes, faCheck );
+Vue.component('font-awesome-icon', FontAwesomeIcon);
 
 // Vue
 Vue.config.productionTip = false;
