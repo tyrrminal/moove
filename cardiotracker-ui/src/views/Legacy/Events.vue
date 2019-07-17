@@ -1,5 +1,9 @@
 <template>
-  <div class="container">
+  <layout-default>
+    <template #sidebar>
+      <SideBar :items="sidebarOps" />
+    </template>
+
     <vue-headful title="Moo've / Events[Legacy]" />
 
     <h3>Upcoming</h3>
@@ -75,19 +79,28 @@
         </tr>
       </tbody>
     </table>
-  </div>
+  </layout-default>
 </template>
 
 <script>
 const moment = require('moment');
+import LayoutDefault from '@/layouts/LayoutDefault.vue';
+import SideBar from '@/components/SideBar.vue';
 import '@/filters/event_filters.js';
 
 export default {
+  components: {
+    LayoutDefault,
+    SideBar
+  },
   data() {
     return {
       user: null,
       futureEvents: [],
-      pastEvents: []
+      pastEvents: [],
+      sidebarOps: [
+        { text: 'Add Event', to: { name: 'event_add' } }
+      ]
     }
   },
   created() {
@@ -113,10 +126,12 @@ export default {
 
 <style scoped>
 .dns {
-  font-weight: bold
+  font-weight: bold;
+  text-align: center;
 }
 .dnf {
-  color: orange
+  font-weight: bold;
+  text-align: center;
 }
 .dns::after {
   content: "Did Not Start"
