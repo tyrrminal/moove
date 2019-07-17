@@ -1,13 +1,17 @@
 <template>
-  <div>
-    <vue-headful :title="'Moo\'ve / Events: ' + event.event.name" />
-
+  <layout-default>
+    <template #sidebar>
+      <SideBar :items="sidebarOps" />
+    </template>
+    
     <b-container v-if="event">
+      <vue-headful :title="'Moo\'ve / Events: ' + event.event.name" />
       <b-row>
         <b-col sm="2">
           <Links :links="links" :user="effectiveUser" direction="prev" />
         </b-col>
         <b-col sm="9" md="7" lg="5" class="mx-auto">
+          <RegistrationStatus :registration="event.registration" :isInFuture="eventIsInFuture" />
           <EventDetails :event="event.event" :isPublic="event.registration.is_public" />
         </b-col>
         <b-col sm="2">
@@ -15,9 +19,7 @@
         </b-col>
       </b-row>
 
-      <RegistrationStatus :registration="event.registration" :isInFuture="eventIsInFuture" />
-
-      <b-row>
+      <b-row class="mt-2">
         <b-col v-if="event.event.countdown" sm="12">
           <Countdown :event="event.event" />
         </b-col>
@@ -39,10 +41,13 @@
     <b-container v-else>
       <h3>{{ error }}</h3>
     </b-container>
-  </div>
+  </layout-default>
 </template>
 
 <script>
+import LayoutDefault from '@/layouts/LayoutDefault.vue';
+import SideBar from '@/components/SideBar.vue';
+
 import EventDetails from '@/components/event/cards/EventDetails.vue';
 import RegistrationStatus from '@/components/event/fragments/Registered.vue';
 import Countdown from '@/components/event/cards/Countdown.vue';
@@ -55,6 +60,9 @@ const moment = require('moment');
 
 export default {
   components: {
+    LayoutDefault,
+    SideBar,
+
     EventDetails,
     RegistrationStatus,
     Countdown,
@@ -67,7 +75,11 @@ export default {
     return {
       event: null,
       links: null,
-      error: ""
+      error: "",
+      sidebarOps: [
+        { text: 'Edit Event', to: { name: 'edit_event' } },
+        { text: 'Delete Event', to: { name: 'delete_event' }, variant: "danger" }
+      ]
     }
   },
   methods: {
