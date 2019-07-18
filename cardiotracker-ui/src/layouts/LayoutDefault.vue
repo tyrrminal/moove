@@ -1,6 +1,6 @@
 <template>
   <b-container fluid>
-    <b-row >
+    <b-row>
       <b-col sm="2">
         <slot name="sidebar" />
       </b-col>
@@ -16,4 +16,3 @@ export default {
 
 }
 </script>
-
