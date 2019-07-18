@@ -11,6 +11,7 @@ import LegacyEvents from "./views/Legacy/Events.vue";
 import LegacyActivities from "./views/Legacy/Activities.vue";
 
 Vue.use(Router);
+Vue.use(require('vue-moment'));
 
 let router = new Router({
   mode: "history",
@@ -67,21 +68,15 @@ let router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-  let next_or_login = function() {
-    if(store.getters['auth/isLoggedIn'])
-      next();
-    else
-      next({ name: 'login', query: { from: to.path }});
-  };
-
-  if(to.matched.some(record => record.meta.requiresAuth)) {
-    if(store.getters['auth/status'] === '')
-      store.dispatch("auth/check").then(() => next_or_login());
-    else
-      next_or_login();
-  } else {
-    next();
+  let exp = store.getters['auth/expiration'];
+  if(exp.diff(Vue.moment()) < 0) {
+    store.dispatch('auth/logout').then(() => next());
   }
+
+  if(store.getters['auth/status'] === '')
+    store.dispatch('auth/check').then(() => next());
+  else
+    next();
 });
 
 export default router;
