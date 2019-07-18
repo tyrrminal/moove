@@ -76,7 +76,7 @@ export default {
       event: null,
       links: null,
       error: "",
-      sidebarOps: [
+      eventSidebarOps: [
         { text: 'Edit Event', to: { name: 'edit_event' } },
         { text: 'Delete Event', to: { name: 'delete_event' }, variant: "danger" }
       ]
@@ -112,6 +112,13 @@ export default {
     },
     eventIsInFuture: function() {
       return moment(this.event.event.scheduled_start).diff(moment()) > 0;
+    },
+    computed: {
+      sidebarOps: function() {
+        if(this.event)
+          return this.eventSidebarOps;
+        return [];
+      } 
     }
   }
 }
