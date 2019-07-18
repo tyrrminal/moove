@@ -20,17 +20,17 @@ paths:
         content:
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/LoginForm'
+              $ref: '#/components/schemas/UserCredentials'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/LoginForm'
+              $ref: '#/components/schemas/UserCredentials'
       responses:
         200:
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Session'
         401:
           description: Unauthorized
           content:
@@ -53,7 +53,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Session'
         404:
           description: User not found
           content:
@@ -558,6 +558,17 @@ components:
           type: string
         normalization_factor:
           type: number
+    Session:
+      type: object
+      required:
+        - user
+        - expiration
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        expiration:
+          type: string
+          format: date-time
     User:
       type: object
       required:
@@ -609,7 +620,7 @@ components:
           type: integer
         count:
           type: integer
-    LoginForm:
+    UserCredentials:
       type: object
       properties:
         username:
