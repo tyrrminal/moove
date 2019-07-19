@@ -4,6 +4,7 @@ import store from './store.js'
 import Home from "./views/Home.vue";
 import Login from "@/components/auth/Login.vue";
 
+import User from '@/views/User.vue';
 import Event from "./views/Event.vue";
 
 import LegacySummary from "./views/Legacy/Summary.vue";
@@ -26,6 +27,11 @@ let router = new Router({
       path: "/",
       name: "home",
       component: Home
+    },
+    {
+      path: "/user/:id",
+      name: "user",
+      component: User
     },
     {
       path: "/event/:id",
