@@ -11,6 +11,8 @@ import LegacySummary from "./views/Legacy/Summary.vue";
 import LegacyEvents from "./views/Legacy/Events.vue";
 import LegacyActivities from "./views/Legacy/Activities.vue";
 
+import ErrorNotFound from '@/error/NotFound.vue';
+
 Vue.use(Router);
 Vue.use(require('vue-moment'));
 
@@ -69,6 +71,11 @@ let router = new Router({
       meta: {
         requiresAuth: true
       }
+    },
+    {
+      path: '*',
+      name: 'error_not_found',
+      component: ErrorNotFound
     }
   ]
 });
