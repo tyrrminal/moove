@@ -31,13 +31,21 @@ let router = new Router({
       component: Home
     },
     {
+      path: "/user",
+      name: "user_own",
+      component: User,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
       path: "/user/:id",
       name: "user",
       component: User
     },
     {
       path: "/event/:id",
-      name: "event",
+      name: "event_own",
       component: Event,
       meta: {
         requiresAuth: true
@@ -45,7 +53,7 @@ let router = new Router({
     },
     {
       path: "/event/:user/:id",
-      name: "event_with_user",
+      name: "event",
       component: Event,
     },
     {
