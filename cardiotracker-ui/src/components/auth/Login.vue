@@ -40,7 +40,7 @@ export default {
       let password = this.password;
       this.$store
         .dispatch("auth/login",  { username, password })
-        .then(() => self.$router.replace(this.$route.query.from || '/'))
+        .then(() => self.$router.replace(this.$route.query.from || { name: 'user', params: { user: this.$store.getters['auth/currentUser'].username } }))
         .catch(err => self.error = err.response.data.message )
     }
   }
