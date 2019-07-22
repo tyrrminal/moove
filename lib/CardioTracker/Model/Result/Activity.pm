@@ -357,6 +357,22 @@ sub end_time {
   return $self->start_time + ($self->result->gross_time // $self->result->net_time);
 }
 
+sub first_activity_point {
+  my $self=shift;
+
+  return $self->activity_points->search({},{
+    order_by => {'-asc' => 'timestamp'}
+  })->first
+}
+
+sub last_activity_point {
+  my $self=shift;
+
+  return $self->activity_points->search({},{
+    order_by => {'-desc' => 'timestamp'}
+  })->first
+}
+
 sub to_hash {
   my $self = shift;
   my %params = @_;
