@@ -27,12 +27,9 @@ sub get {
       }
 
       my $all = $c->model('EventRegistration')->for_user($u)->visible_to($c->current_user);
-      my $sequence = $er->sequence->visible_to($c->current_user);
       my %l = (
         next =>  $all->after($er->event)->first,
-        prev =>  $all->before($er->event)->first,
-        sequence_next => $sequence->after($er->event)->first,
-        sequence_prev => $sequence->before($er->event)->first
+        prev =>  $all->before($er->event)->first
       );
       foreach (keys(%l)) {
         if(defined($l{$_})) {
