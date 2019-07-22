@@ -169,7 +169,7 @@ sub description_normalized {
 sub normalized_unit {
   my $self = shift;
 
-  return $self->result_source->schema->resultset('UnitOfMeasure')->normalization_unit;
+  return $self->result_source->schema->resultset('UnitOfMeasure')->normalization_unit('distance');
 }
 
 sub normalized_value {
