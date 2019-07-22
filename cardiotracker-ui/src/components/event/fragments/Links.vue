@@ -1,6 +1,6 @@
 <template>
   <b-button-group>
-    <b-button v-for="(l,index) in relevant" :key="`link-${index}`" @click="$router.push({name: 'event_with_user', params: {id: links[l].id, user: user }})" variant="secondary" size="md" :title="event_title(l, links[l].name)">
+    <b-button v-for="(l,index) in relevant" :key="`link-${index}`" @click="$router.push({name: 'event', params: {id: links[l].id, user: user }})" variant="primary" size="md" :title="event_title(l, links[l].name)">
       <font-awesome-icon :icon="iconMap[l]" />
     </b-button>
   </b-button-group>
