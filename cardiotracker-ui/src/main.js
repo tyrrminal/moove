@@ -6,6 +6,10 @@ import store from "./store";
 // Moment (Date formatting)
 Vue.use(require('vue-moment'));
 
+//String Formatting
+import VuePluralize from 'vue-pluralize';
+Vue.use(VuePluralize);
+
 // Headful (page titles & meta)
 import vueHeadful from 'vue-headful';
 Vue.component('vue-headful', vueHeadful);
