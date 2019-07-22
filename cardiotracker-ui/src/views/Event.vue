@@ -7,16 +7,20 @@
     <b-container v-if="event">
       <vue-headful :title="'Moo\'ve / Events: ' + event.event.name" />
       <b-row>
-        <b-col sm="2">
+        <b-col sm="1">
           <Links :links="links" :user="effectiveUser" direction="prev" />
         </b-col>
-        <b-col sm="9" md="7" lg="5" class="mx-auto">
+        <b-col sm="10" md="7" lg="5" class="mx-auto">
           <RegistrationStatus :registration="event.registration" :isInFuture="eventIsInFuture" />
           <EventDetails :event="event.event" :isPublic="event.registration.is_public" />
         </b-col>
-        <b-col sm="2">
+        <b-col sm="1">
           <Links :links="links" :user="effectiveUser" direction="next" />
         </b-col>
+      </b-row>
+
+      <b-row v-if="sequence && sequence.length > 1">
+        <EventSequence class="mx-auto" :id="event.event.event_sequence_id" :events="sequence" :current="event.event.id" />
       </b-row>
 
       <b-row class="mt-2">
@@ -34,6 +38,15 @@
 
         <b-col v-if="event.registration.fundraising" sm="6">
           <Fundraising :fundraising="event.registration.fundraising" />
+        </b-col>
+      </b-row>
+
+      <b-row v-if="event.activity.note">
+        <b-col class="mx-auto mt-4" sm="6">
+          <b-card bg-variant="info" text-variant="light">
+            <b-card-title>Notes</b-card-title>
+            <b-card-body>{{ event.activity.note }}</b-card-body>  
+          </b-card>
         </b-col>
       </b-row>
 
@@ -55,6 +68,7 @@ import ActivityResult from '@/components/activity/cards/Result.vue';
 import EventResult from '@/components/event/cards/Result.vue';
 import Fundraising from '@/components/event/cards/Fundraising.vue';
 import Links from '@/components/event/fragments/Links.vue';
+import EventSequence from '@/components/event/fragments/Sequence.vue';
 
 const moment = require('moment');
 
@@ -69,26 +83,36 @@ export default {
     ActivityResult,
     EventResult,
     Fundraising,
-    Links
+    Links,
+    EventSequence
   },
   data() {
     return {
       event: null,
       links: null,
       error: "",
+      sequence: [],
       eventSidebarOps: [
-        { text: 'Edit Event', to: { name: 'edit_event' } },
-        { text: 'Delete Event', to: { name: 'delete_event' }, variant: "danger" }
+        { text: 'Edit Registration', to: { name: 'edit_event' } },
+        { text: 'Remove from My Events', to: { name: 'delete_event' }, variant: "danger" }
       ]
     }
   },
   methods: {
     init() {
       let self = this;
+      this.sequence = [];
       this.$http.get("event/" + self.effectiveUser + "/" + this.$route.params.id)
       .then(response => {
         self.event = response.data.event;
         self.links = response.data.links;
+
+        if(self.event.event.event_sequence_id) {
+          self.$http.get('/event/sequence/'+ self.effectiveUser + "/" + self.event.event.event_sequence_id)
+          .then(response => {
+            self.sequence = response.data
+          })
+        }
       })
       .catch(err => self.error = err.response.data.message);
     }
@@ -113,13 +137,11 @@ export default {
     eventIsInFuture: function() {
       return moment(this.event.event.scheduled_start).diff(moment()) > 0;
     },
-    computed: {
-      sidebarOps: function() {
-        if(this.event)
-          return this.eventSidebarOps;
-        return [];
-      } 
-    }
+    sidebarOps: function() {
+      if(this.event)
+        return this.eventSidebarOps;
+      return [];
+    } 
   }
 }
 </script>
