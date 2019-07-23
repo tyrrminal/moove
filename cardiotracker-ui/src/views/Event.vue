@@ -41,7 +41,7 @@
         </b-col>
       </b-row>
 
-      <b-row v-if="event.activity.note">
+      <b-row v-if="event.activity && event.activity.note">
         <b-col class="mx-auto mt-4" sm="6">
           <b-card bg-variant="info" text-variant="light">
             <b-card-title>Notes</b-card-title>
