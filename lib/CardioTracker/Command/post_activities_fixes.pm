@@ -46,13 +46,13 @@ sub run($self, @args) {
 
         my $w = $self->app->model('Activity')->create({
           activity_type => $act->activity_type,
+          user_id       => $u->id,
           start_time    => $prev->start_time,
           distance      => $d,
           result        => $r,
           event_id      => $NULL,
           note          => join("\n\n", $prev->note, $act->note),
         });
-        $u->add_to_user_activities($w);
 
         $prev->whole_activity($w);
         $prev->update();

@@ -11,11 +11,9 @@ sub for_user {
 
   return $self->search(
     {
-      'user_activities.user_id' => $user->id
-    }, {
-      'join' => 'user_activities'
+      'user_id' => $user->id
     }
-    );
+  );
 }
 
 sub whole {

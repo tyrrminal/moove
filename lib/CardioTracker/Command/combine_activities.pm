@@ -42,14 +42,14 @@ sub get_activity_ids($self, $user,$date,$type) {
       \['DATE(start_time) = ?'   => $date],
       'activity_type.description'   => $type,
       '-or' => {
-        'user_activities.user_id'   => $user,
-        'user.username'             => $user
+        'user.id'       => $user,
+        'user.username' => $user
       }
     ],
   },{
     join => [
       'activity_type',
-      {'user_activities' => 'user'}
+      'user'
     ],
     order_by => 'start_time'
   })->all;
@@ -126,7 +126,7 @@ sub combine_activities($self,@acts) {
   });
   print "Linking to user\n";
   my $ua = $self->app->model('UserActivity')->create({
-    user_id => $acts[0]->user_activities->first->user_id,
+    user_id => $acts[0]->user_id,
     activity_id => $activity->id
   });
   print "Linking partial activities\n";

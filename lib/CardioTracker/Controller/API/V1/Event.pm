@@ -18,7 +18,7 @@ sub get {
         registration => $er->to_hash,
         event        => $er->event->to_hash
       };
-      if (my $activity = $er->event->activities->search({user_id => $u->id}, {join => 'user_activities'})->first) {
+      if (my $activity = $er->event->activities->search({user_id => $u->id})->first) {
         $h->{activity} = $activity->to_hash(event => $FALSE);
 
         if (my @results = $activity->result->event_results) {
@@ -74,7 +74,7 @@ sub list {
         registration => $er->to_hash(donations => $FALSE),
         event        => $er->event->to_hash
       };
-      if (my $activity = $er->event->activities->search({user_id => $u->id}, {join => 'user_activities'})->first) {
+      if (my $activity = $er->event->activities->search({user_id => $u->id})->first) {
         $h->{activity} = $activity->to_hash(event => $FALSE);
 
         if (my @results = $activity->result->event_results) {
