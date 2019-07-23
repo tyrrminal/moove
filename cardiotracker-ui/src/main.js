@@ -10,6 +10,10 @@ Vue.use(require('vue-moment'));
 import VuePluralize from 'vue-pluralize';
 Vue.use(VuePluralize);
 
+//Number Formatting
+import vueNumeralFilterInstaller from 'vue-numeral-filter';
+Vue.use(vueNumeralFilterInstaller);
+
 // Headful (page titles & meta)
 import vueHeadful from 'vue-headful';
 Vue.component('vue-headful', vueHeadful);
