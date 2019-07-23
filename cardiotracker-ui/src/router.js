@@ -39,7 +39,7 @@ let router = new Router({
       }
     },
     {
-      path: "/user/:id",
+      path: "/user/:user",
       name: "user",
       component: User
     },
