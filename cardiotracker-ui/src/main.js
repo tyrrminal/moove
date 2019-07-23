@@ -19,6 +19,12 @@ import VueAxios from "vue-axios";
 import axios from './services/axios';
 Vue.use(VueAxios, axios);
 
+import VueTimeago from 'vue-timeago'
+Vue.use(VueTimeago, {
+  name: 'Timeago',
+  locale: 'en'
+});
+
 // Layout and design
 import BootstrapVue from "bootstrap-vue";
 Vue.use(BootstrapVue);
