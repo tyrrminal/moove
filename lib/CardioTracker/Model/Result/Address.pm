@@ -149,17 +149,17 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 events
+=head2 event_groups
 
 Type: has_many
 
-Related object: L<CardioTracker::Model::Result::Event>
+Related object: L<CardioTracker::Model::Result::EventGroup>
 
 =cut
 
 __PACKAGE__->has_many(
-  "events",
-  "CardioTracker::Model::Result::Event",
+  "event_groups",
+  "CardioTracker::Model::Result::EventGroup",
   { "foreign.address_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
@@ -180,11 +180,19 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-01-26 10:01:56
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:o4gEmdHFWHpj+QjjutEFLQ
-
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-11 22:42:34
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:sZ13CzrO8A+in9pQeaVApQ
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+
+use Readonly;
+
+Readonly::Scalar my $null_address => 8;
+
+sub is_empty {
+  return (shift->id == $null_address);
+}
+
 sub to_hash {
   my $self = shift;
 

@@ -11,11 +11,9 @@ sub for_user {
 
   return $self->search(
     {
-      'user_activities.user_id' => $user->id
-    }, {
-      'join' => 'user_activities'
+      'user_id' => $user->id
     }
-    );
+  );
 }
 
 sub whole {
@@ -83,8 +81,9 @@ sub completed {
 
 sub ordered {
   my $self = shift;
+  my ($direction) = (@_, '-asc');
 
-  return $self->search({}, {order_by => 'me.start_time'});
+  return $self->search({}, {order_by => {$direction => 'me.start_time'}});
 }
 
 1;

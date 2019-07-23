@@ -148,32 +148,32 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-15 16:01:26
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:auMFHQQkJVySFeTP6ZYcZA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-11 22:42:34
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:AR60Ml3GNrbIYTPyppU8Hw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 
 sub description {
-  my $self=shift;
+  my $self = shift;
 
-  return sprintf("%.2f %s", $self->value, $self->uom->abbreviation)
+  return sprintf("%.2f %s", $self->value, $self->uom->abbreviation);
 }
 
 sub description_normalized {
-  my $self=shift;
+  my $self = shift;
 
-  return sprintf("%.2f %s", $self->normalized_value, $self->normalized_unit->abbreviation)
+  return sprintf("%.2f %s", $self->normalized_value, $self->normalized_unit->abbreviation);
 }
 
 sub normalized_unit {
-  my $self=shift;
+  my $self = shift;
 
-  return $self->result_source->schema->resultset('UnitOfMeasure')->normalization_unit;
+  return $self->result_source->schema->resultset('UnitOfMeasure')->normalization_unit('distance');
 }
 
 sub normalized_value {
-  my $self=shift;
+  my $self = shift;
 
   return $self->value * $self->uom->conversion_factor;
 }
@@ -181,12 +181,16 @@ sub normalized_value {
 sub to_hash {
   my $self = shift;
 
-  my $d = {
-    id               => $self->id,
-    value            => {value => $self->value, units => $self->uom->to_hash},
+  return {
+    quantity => {
+      value => $self->value,
+      units => $self->uom->to_hash
+    },
+    normalized_quantity => {
+      value => $self->normalized_value,
+      units => $self->normalized_unit->to_hash
+    }
   };
-  $d->{normalized_value} = {value => $self->normalized_value, units => $self->normalized_unit->to_hash} unless($self->uom->conversion_factor == 1);
-  return $d;
 }
 
 1;

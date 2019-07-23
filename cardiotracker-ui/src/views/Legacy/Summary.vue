@@ -1,5 +1,7 @@
 <template>
-  <div class="container">
+  <layout-default>
+    <vue-headful title="Moo've / Summary[Legacy]" />
+
     <div class="row">
       <div class="col-3">
         <h4>Overall</h4>
@@ -36,10 +38,11 @@
         <vue-ads-table :columns="columns" :rows="rows"></vue-ads-table>
       </div>
     </div>
-  </div>
+  </layout-default>
 </template>
 
 <script>
+import LayoutDefault from '@/layouts/LayoutDefault.vue';
 import { VueAdsTable } from "vue-ads-table-tree";
 
 import "vue-ads-table-tree/dist/vue-ads-table-tree.css";
@@ -47,6 +50,7 @@ import "@fortawesome/fontawesome-free/css/all.css";
 
 export default {
   components: {
+    LayoutDefault,
     VueAdsTable
   },
   data() {

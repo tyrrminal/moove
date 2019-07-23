@@ -1,35 +1,34 @@
 <template>
-  <div id="app">
+  <div>
     <NavBar />
-    <router-view />
+    <template v-if="isAuthorized()">
+      <router-view />
+    </template>
+    <template v-else>
+      <Unauthorized />
+    </template>
   </div>
 </template>
 
 <script>
 import NavBar from '@/components/NavBar.vue';
+import Unauthorized from '@/components/auth/Unauthorized.vue';
 export default {
   components: {
-    NavBar
+    NavBar,
+    Unauthorized
+  },
+  methods: {
+    isAuthorized: function() {
+      if(this.$route.meta.requiresAuth) {
+        return this.$store.getters['auth/isLoggedIn'];
+      }
+      return true;
+    }
   }
 }
 </script>
 
 <style lang="scss">
-#app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-#nav {
-  padding: 30px;
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
-}
+
 </style>

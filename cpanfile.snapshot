@@ -2168,8 +2168,8 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
-  Mojolicious-8.19
-    pathname: S/SR/SRI/Mojolicious-8.19.tar.gz
+  Mojolicious-8.20
+    pathname: S/SR/SRI/Mojolicious-8.20.tar.gz
     provides:
       Mojo undef
       Mojo::Asset undef
@@ -2225,7 +2225,6 @@ DISTRIBUTIONS
       Mojo::Server::Morbo::Backend undef
       Mojo::Server::Morbo::Backend::Poll undef
       Mojo::Server::PSGI undef
-      Mojo::Server::PSGI::_IO undef
       Mojo::Server::Prefork undef
       Mojo::Template undef
       Mojo::Transaction undef
@@ -2240,7 +2239,7 @@ DISTRIBUTIONS
       Mojo::UserAgent::Transactor undef
       Mojo::Util undef
       Mojo::WebSocket undef
-      Mojolicious 8.19
+      Mojolicious 8.20
       Mojolicious::Command undef
       Mojolicious::Command::Author::cpanify undef
       Mojolicious::Command::Author::generate undef

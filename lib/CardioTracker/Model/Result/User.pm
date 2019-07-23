@@ -108,6 +108,21 @@ __PACKAGE__->add_unique_constraint("username_UNIQUE", ["username"]);
 
 =head1 RELATIONS
 
+=head2 activities
+
+Type: has_many
+
+Related object: L<CardioTracker::Model::Result::Activity>
+
+=cut
+
+__PACKAGE__->has_many(
+  "activities",
+  "CardioTracker::Model::Result::Activity",
+  { "foreign.user_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 event_registrations
 
 Type: has_many
@@ -158,34 +173,9 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 user_activities
 
-Type: has_many
-
-Related object: L<CardioTracker::Model::Result::UserActivity>
-
-=cut
-
-__PACKAGE__->has_many(
-  "user_activities",
-  "CardioTracker::Model::Result::UserActivity",
-  { "foreign.user_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-=head2 activities
-
-Type: many_to_many
-
-Composing rels: L</user_activities> -> activity
-
-=cut
-
-__PACKAGE__->many_to_many("activities", "user_activities", "activity");
-
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-01-26 15:38:09
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:OH2H/BwHGSKmCFzGSN29Bw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-22 21:29:09
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:kOGL99HE7d/ReMKPinZFAA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
@@ -196,7 +186,7 @@ sub to_hash {
   return {
     id       => $self->id,
     username => $self->username,
-    person   => $self->person->to_hash,
+    person   => $self->person_id ? $self->person->to_hash : { first_name => 'Guest', last_name => '' },
     %loc
   };
 }

@@ -1,124 +1,148 @@
 <template>
-  <b-container v-if="event">
-    <b-row>
-      <b-col sm="9" md="7" lg="5" class="mx-auto">
-        <b-card :title="event.event.name" :sub-title="event.event.distance.value.value + ' ' + event.event.distance.value.units.abbreviation + ' ' + event.event.event_type.description" class="mb-2" bg-variant="dark" text-variant="white">
-          <h6 slot="footer">{{ event.event.scheduled_start | moment("M/D/YY h:mma") }} &mdash; {{ event.event.address.city }}, {{ event.event.address.state }}</h6>
-        </b-card>
-      </b-col>
-    </b-row>
+  <layout-default>
+    <template #sidebar>
+      <SideBar :items="sidebarOps" />
+    </template>
+    
+    <b-container v-if="event">
+      <vue-headful :title="'Moo\'ve / Events: ' + event.event.name" />
+      <b-row>
+        <b-col sm="1">
+          <Links :links="links" :user="effectiveUser" direction="prev" />
+        </b-col>
+        <b-col sm="10" md="7" lg="5" class="mx-auto">
+          <RegistrationStatus :registration="event.registration" :isInFuture="eventIsInFuture" />
+          <EventDetails :event="event.event" :isPublic="event.registration.is_public" />
+        </b-col>
+        <b-col sm="1">
+          <Links :links="links" :user="effectiveUser" direction="next" />
+        </b-col>
+      </b-row>
 
-    <b-row v-if="event.event.countdown && event.registration.hasOwnProperty('registered')">
-      <b-col>
-        <h5 :class="event.registration.registered === true ? 'registered' : 'notregistered' ">Registered</h5>
-      </b-col>
-    </b-row>
+      <b-row v-if="sequence && sequence.length > 1">
+        <EventSequence class="mx-auto" :id="event.event.event_sequence_id" :events="sequence" :current="event.event.id" />
+      </b-row>
 
-    <b-row>
-      <b-col v-if="event.event.countdown" sm="12">
-        <b-card title="Countdown">
-          <b-list-group flush>
-            <b-list-group-item>{{ event.event.countdown.days }} days</b-list-group-item>
-            <b-list-group-item>{{ event.event.countdown.weeks }} weeks</b-list-group-item>
-            <b-list-group-item>{{ event.event.countdown.months }} months</b-list-group-item>
-          </b-list-group>
-        </b-card>
-      </b-col>
+      <b-row class="mt-2">
+        <b-col v-if="event.event.countdown" sm="12">
+          <Countdown :event="event.event" />
+        </b-col>
 
-      <b-col v-if="event.activity" sm="4">
-        <b-card title="Activity" class="activity">
-          <b-list-group flush>
-            <b-list-group-item><label>Actual distance</label>: {{ event.activity.distance.value.value }} {{ event.activity.distance.value.units.abbreviation }}</b-list-group-item>
-            <b-list-group-item><label>Moving Time</label>: {{ event.activity.result.net_time }}</b-list-group-item>
-            <b-list-group-item v-if="event.activity.result.gross_time"><label>Total Time</label>: {{ event.activity.result.gross_time }}</b-list-group-item>
-            <b-list-group-item v-if="event.activity.activity_type.description === 'Run'"><label>Pace</label>: {{ event.activity.result.pace }}</b-list-group-item>
-            <b-list-group-item v-else><label>Speed</label>: {{ Number(event.activity.result.speed.value).toFixed(2) }} {{ event.activity.result.speed.units.abbreviation }}</b-list-group-item>
-            <b-list-group-item v-if="event.activity.temperature"><label>Temperature</label>: {{ event.activity.temperature }}&deg;F</b-list-group-item>
-          </b-list-group>
-        </b-card>
-      </b-col>
+        <b-col v-if="event.activity" sm="4">
+          <ActivityResult :activity="event.activity" />
+        </b-col>
 
-      <b-col v-if="event.results" sm="4">
-        <b-card title="Results" class="event-results">
-          <b-list-group flush>
-            <b-list-group-item v-for="(r,index) in event.results" :key="`result-${index}`">
-              <label>{{ r | eventResultLabel }}</label>: {{ r.place }}/{{ r.finishers }} ({{ 100-Number(r.percentile).toFixed(1) }}%)
-            </b-list-group-item>
-          </b-list-group>
-        </b-card>
-      </b-col>
+        <b-col v-if="event.results" sm="4">
+          <EventResult :results="event.results" :results_url="event.event.results_url" />
+        </b-col>
 
-      <b-col v-if="event.registration.fundraising" sm="6">
-        <b-card title="Donations" class="fundraising">
-          <b-list-group flush>
-            <b-list-group-item><label>Required</label>: ${{ event.registration.fundraising.minimum }}</b-list-group-item>
-            <b-list-group-item><label>Raised</label>: ${{ event.registration.fundraising.total }}</b-list-group-item>
-            <b-list-group-item>{{ event.registration.fundraising.donations.map(d => d.person.first_name + "&nbsp;" + d.person.last_name).join(", ") }}</b-list-group-item>
-          </b-list-group>
-        </b-card>
-      </b-col>
-    </b-row>
+        <b-col v-if="event.registration.fundraising" sm="6">
+          <Fundraising :fundraising="event.registration.fundraising" />
+        </b-col>
 
-  </b-container>
+        <b-col v-if="event.activity && event.activity.note" sm="4">
+          <Notes :text="event.activity.note" />
+        </b-col>
+      </b-row>
+
+    </b-container>
+    <b-container v-else>
+      <h3>{{ error }}</h3>
+    </b-container>
+  </layout-default>
 </template>
 
 <script>
+import LayoutDefault from '@/layouts/LayoutDefault.vue';
+import SideBar from '@/components/SideBar.vue';
+
+import EventDetails from '@/components/event/cards/EventDetails.vue';
+import RegistrationStatus from '@/components/event/fragments/Registered.vue';
+import Countdown from '@/components/event/cards/Countdown.vue';
+import ActivityResult from '@/components/activity/cards/Result.vue';
+import EventResult from '@/components/event/cards/Result.vue';
+import Fundraising from '@/components/event/cards/Fundraising.vue';
+import Notes from '@/components/event/cards/Notes.vue';
+import Links from '@/components/event/fragments/Links.vue';
+import EventSequence from '@/components/event/fragments/Sequence.vue';
+
+const moment = require('moment');
+
 export default {
+  components: {
+    LayoutDefault,
+    SideBar,
+
+    EventDetails,
+    RegistrationStatus,
+    Countdown,
+    ActivityResult,
+    EventResult,
+    Fundraising,
+    Notes,
+    Links,
+    EventSequence
+  },
   data() {
     return {
-      event: null
+      event: null,
+      links: null,
+      error: "",
+      sequence: [],
+      eventSidebarOps: [
+        { text: 'Edit Registration', to: { name: 'edit_event' } },
+        { text: 'Remove from My Events', to: { name: 'delete_event' }, variant: "danger" }
+      ]
     }
   },
-  created() {
-    let self = this;
-    this.$http.get("event/" + self.user.id + "/" + this.$route.params.id).then(response => {
-      self.event = response.data
-    });
-  },  
+  methods: {
+    init() {
+      let self = this;
+      this.sequence = [];
+      this.$http.get("event/" + self.effectiveUser + "/" + this.$route.params.id)
+      .then(response => {
+        self.event = response.data.event;
+        self.links = response.data.links;
+
+        if(self.event.event.event_sequence_id) {
+          self.$http.get('/event/sequence/'+ self.effectiveUser + "/" + self.event.event.event_sequence_id)
+          .then(response => {
+            self.sequence = response.data
+          })
+        }
+      })
+      .catch(err => self.error = err.response.data.message);
+    }
+  },
+  mounted() {
+    this.init();
+  },
+  watch: {
+    '$route.params': {
+      handler(newValue) {
+        this.init();
+      },
+      immediate: true
+    }
+  },
   computed: {
-    user: function() {
-      var c = this.$cookie.get('cardiotracker');
-      if(!c)
-        return null;
-      return JSON.parse(atob(c));
-    }
-  },
-  filters: {
-    eventResultLabel: function(v) {
-      if(v.division)
-        return v.division;
-      if(v.gender)
-        return v.gender;
-      return 'Overall';
-    }
+    effectiveUser: function() {
+      if(this.$route.params.user)
+        return this.$route.params.user;
+      return this.$store.getters['auth/currentUser'].username;
+    },
+    eventIsInFuture: function() {
+      return moment(this.event.event.scheduled_start).diff(moment()) > 0;
+    },
+    sidebarOps: function() {
+      if(this.event)
+        return this.eventSidebarOps;
+      return [];
+    } 
   }
 }
 </script>
 
 <style scoped>
-.registered {
-  color: green;
-  font-weight: bold;
-}
-.registered::before {
-  content: "\2713 ";
-}
-.notregistered {
-  color: red;
-  font-weight: bold
-}
-.notregistered::before {
-  content: "\2716 ";
-}
-
-.activity label {
-  width: 8rem;
-  text-align: right;
-}
-
-.event-results label {
-  width: 4rem;
-  text-align: right;
-}
 
 </style>
