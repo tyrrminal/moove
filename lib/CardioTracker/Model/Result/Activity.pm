@@ -55,6 +55,12 @@ __PACKAGE__->table("activity");
   is_foreign_key: 1
   is_nullable: 0
 
+=head2 user_id
+
+  data_type: 'integer'
+  is_foreign_key: 1
+  is_nullable: 1
+
 =head2 start_time
 
   data_type: 'datetime'
@@ -103,6 +109,8 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "activity_type_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+  "user_id",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "start_time",
   {
     data_type => "datetime",
@@ -252,19 +260,24 @@ __PACKAGE__->belongs_to(
   },
 );
 
-=head2 user_activities
+=head2 user
 
-Type: has_many
+Type: belongs_to
 
-Related object: L<CardioTracker::Model::Result::UserActivity>
+Related object: L<CardioTracker::Model::Result::User>
 
 =cut
 
-__PACKAGE__->has_many(
-  "user_activities",
-  "CardioTracker::Model::Result::UserActivity",
-  { "foreign.activity_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+__PACKAGE__->belongs_to(
+  "user",
+  "CardioTracker::Model::Result::User",
+  { id => "user_id" },
+  {
+    is_deferrable => 1,
+    join_type     => "LEFT",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
+  },
 );
 
 =head2 whole_activity
@@ -287,19 +300,9 @@ __PACKAGE__->belongs_to(
   },
 );
 
-=head2 users
 
-Type: many_to_many
-
-Composing rels: L</user_activities> -> user
-
-=cut
-
-__PACKAGE__->many_to_many("users", "user_activities", "user");
-
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-02-04 15:49:38
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:oCckowhXcLXwVxoFT+LzwA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-22 21:29:09
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:w2OO8Dn6U8AI8mrsBqr5Ng
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
@@ -355,6 +358,22 @@ sub end_time {
 
   return $self->start_time unless (defined($self->result));
   return $self->start_time + ($self->result->gross_time // $self->result->net_time);
+}
+
+sub first_activity_point {
+  my $self=shift;
+
+  return $self->activity_points->search({},{
+    order_by => {'-asc' => 'timestamp'}
+  })->first
+}
+
+sub last_activity_point {
+  my $self=shift;
+
+  return $self->activity_points->search({},{
+    order_by => {'-desc' => 'timestamp'}
+  })->first
 }
 
 sub to_hash {

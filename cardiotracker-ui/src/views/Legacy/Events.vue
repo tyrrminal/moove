@@ -24,10 +24,10 @@
       </thead>
       <tbody>
         <tr v-for="e in sortedFutureEvents" :key="e.event.id" :class="(e.registration.hasOwnProperty('registered') && !e.registration.registered) ? 'table-warning' : '' ">
-          <td><router-link :to="{ name: 'event', params: { id: e.event.id }}">{{ e.event.name }}</router-link></td>
+          <td><router-link :to="{ name: 'event', params: { id: e.event.id, user: effective_user.username }}">{{ e.event.name }}</router-link></td>
           <td>{{ e.event.event_type.description }}</td>
           <td>{{ e.event.scheduled_start | moment("M/D/YY h:mma") }}</td>
-          <td class="right">{{ e.event.distance | format_distance }}</td>
+          <td class="right">{{ e.event.distance | format_distance_trim }}</td>
           <td>{{ e.event.countdown.days}}</td>
           <td>{{ e.event.countdown.weeks }}</td>
           <td>{{ e.event.countdown.months }}</td>
@@ -56,10 +56,10 @@
       </thead>
       <tbody>
         <tr v-for="e in pastEvents" class="" :key="e.event.id">
-          <td><router-link :to="{ name: 'event', params: { id: e.event.id }}">{{ e.event.name }}</router-link></td>
+          <td><router-link :to="{ name: 'event', params: { id: e.event.id, user: effective_user.username }}">{{ e.event.name }}</router-link></td>
           <td>{{ e.event.event_type.description }}</td>
           <td>{{ e.event.scheduled_start | moment("M/D/YY h:mma") }}</td>
-          <td class="right">{{ e.event.distance | format_distance }}</td>
+          <td class="right">{{ e.event.distance | format_distance_trim }}</td>
           <template v-if="e.hasOwnProperty('activity')">
             <template v-if="e.activity.hasOwnProperty('result')">
               <td class="right">{{ e.activity.distance | format_distance }}</td>

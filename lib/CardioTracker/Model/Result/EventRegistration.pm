@@ -182,6 +182,8 @@ use DateTime;
 
 use List::Util qw(sum0);
 
+use DCS::Constants qw(:boolean);
+
 sub sequence {
   my $self = shift;
 
@@ -211,6 +213,21 @@ sub to_hash {
   }
 
   $er->{registered} = $self->registered eq 'Y' if ($self->registered);
+
+  if ($params{complete}) {
+    my $h = {
+      registration => $er,
+      event        => $self->event->to_hash
+    };
+    if (my $activity = $self->event->activities->search({user_id => $self->user_id})->first) {
+      $h->{activity} = $activity->to_hash(event => $FALSE);
+
+      if (my @results = $activity->result->event_results) {
+        $h->{results} = [map {$_->to_hash} @results];
+      }
+    }
+    return $h;
+  }
 
   return $er;
 }

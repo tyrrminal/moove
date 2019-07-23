@@ -6,6 +6,14 @@ import store from "./store";
 // Moment (Date formatting)
 Vue.use(require('vue-moment'));
 
+//String Formatting
+import VuePluralize from 'vue-pluralize';
+Vue.use(VuePluralize);
+
+//Number Formatting
+import vueNumeralFilterInstaller from 'vue-numeral-filter';
+Vue.use(vueNumeralFilterInstaller);
+
 // Headful (page titles & meta)
 import vueHeadful from 'vue-headful';
 Vue.component('vue-headful', vueHeadful);
@@ -14,6 +22,12 @@ Vue.component('vue-headful', vueHeadful);
 import VueAxios from "vue-axios";
 import axios from './services/axios';
 Vue.use(VueAxios, axios);
+
+import VueTimeago from 'vue-timeago'
+Vue.use(VueTimeago, {
+  name: 'Timeago',
+  locale: 'en'
+});
 
 // Layout and design
 import BootstrapVue from "bootstrap-vue";

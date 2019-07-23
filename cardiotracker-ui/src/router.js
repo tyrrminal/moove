@@ -4,6 +4,7 @@ import store from './store.js'
 import Home from "./views/Home.vue";
 import Login from "@/components/auth/Login.vue";
 
+import User from '@/views/User.vue';
 import Event from "./views/Event.vue";
 
 import LegacySummary from "./views/Legacy/Summary.vue";
@@ -30,8 +31,21 @@ let router = new Router({
       component: Home
     },
     {
+      path: "/user",
+      name: "user_own",
+      component: User,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: "/user/:user",
+      name: "user",
+      component: User
+    },
+    {
       path: "/event/:id",
-      name: "event",
+      name: "event_own",
       component: Event,
       meta: {
         requiresAuth: true
@@ -39,7 +53,7 @@ let router = new Router({
     },
     {
       path: "/event/:user/:id",
-      name: "event_with_user",
+      name: "event",
       component: Event,
     },
     {

@@ -36,10 +36,7 @@ sub in_sequence {
 
   return $self->search(
     {
-      '-and' => [
-        {'event_group.event_sequence_id' => $sequence_id},
-        {'event_group.event_sequence_id' => {'<>' => undef }}
-      ]
+      '-and' => [{'event_group.event_sequence_id' => $sequence_id}, {'event_group.event_sequence_id' => {'<>' => undef}}]
     }, {
       join => {event => 'event_group'}
     }
@@ -96,5 +93,30 @@ sub ordered {
     }
   );
 }
+
+sub past {
+  my $self = shift;
+
+  return $self->search(
+    {
+      'event.scheduled_start' => {'<=' => DateTime::Format::MySQL->format_datetime(DateTime->now(time_zone => 'local'))}
+    }, {
+      join => 'event'
+    }
+  );
+}
+
+sub future {
+  my $self = shift;
+
+  return $self->search(
+    {
+      'event.scheduled_start' => {'>' => DateTime::Format::MySQL->format_datetime(DateTime->now(time_zone => 'local'))}
+    }, {
+      join => 'event'
+    }
+  );
+}
+
 
 1;
