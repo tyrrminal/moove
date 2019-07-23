@@ -39,14 +39,9 @@
         <b-col v-if="event.registration.fundraising" sm="6">
           <Fundraising :fundraising="event.registration.fundraising" />
         </b-col>
-      </b-row>
 
-      <b-row v-if="event.activity && event.activity.note">
-        <b-col class="mx-auto mt-4" sm="6">
-          <b-card bg-variant="info" text-variant="light">
-            <b-card-title>Notes</b-card-title>
-            <b-card-body>{{ event.activity.note }}</b-card-body>  
-          </b-card>
+        <b-col v-if="event.activity && event.activity.note" sm="4">
+          <Notes :text="event.activity.note" />
         </b-col>
       </b-row>
 
@@ -67,6 +62,7 @@ import Countdown from '@/components/event/cards/Countdown.vue';
 import ActivityResult from '@/components/activity/cards/Result.vue';
 import EventResult from '@/components/event/cards/Result.vue';
 import Fundraising from '@/components/event/cards/Fundraising.vue';
+import Notes from '@/components/event/cards/Notes.vue';
 import Links from '@/components/event/fragments/Links.vue';
 import EventSequence from '@/components/event/fragments/Sequence.vue';
 
@@ -83,6 +79,7 @@ export default {
     ActivityResult,
     EventResult,
     Fundraising,
+    Notes,
     Links,
     EventSequence
   },
