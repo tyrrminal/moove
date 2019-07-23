@@ -189,6 +189,44 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /user/{user}/summary:
+    get:
+      summary: Get basic activity/event information for a user
+      x-mojo-to: API::V1::User#get_summary
+      parameters:
+        - name: user
+          in: path
+          description: username or user ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/UserSummary'
+                  recent_activities:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Activity'
+                  events:
+                    type: object
+                    properties:
+                      next:
+                        $ref: '#/components/schemas/RegisteredEvent'
+                      previous:
+                        $ref: '#/components/schemas/RegisteredEvent'
+        404:
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /legacy/summary/{username}:
     get:
       summary: Get a time-aggregate summary of a user's activities
@@ -583,6 +621,11 @@ components:
           $ref: '#/components/schemas/Person'
         location:
           $ref: '#/components/schemas/Location'
+    UserSummary:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
     Amount:
       type: object
       required:
