@@ -10,9 +10,8 @@ sub get {
 
   my $event_id     = $c->validation->param('id');
   my $user_id      = $c->validation->param('user');
-  my $search_field = ($user_id =~ /\D/) ? 'username' : 'id';
 
-  if (my $u = $c->model('User')->find({$search_field => $user_id})) {
+  if (my $u = $c->model('User')->find_user($user_id)) {
     if (my ($er) = $c->model('EventRegistration')->search({event_id => $event_id})->for_user($u)->visible_to($c->current_user)) {
       my $h = {
         registration => $er->to_hash,
@@ -64,10 +63,9 @@ sub list {
   my $message;
 
   my $user_id = $c->validation->param('user');
-  my $search_field = ($user_id =~ /\D/) ? 'username' : 'id';
 
   my $i = 0;
-  if (my $u = $c->model('User')->find({$search_field => $user_id})) {
+  if (my $u = $c->model('User')->find_user($user_id)) {
     my @events;
     foreach my $er ($c->model('EventRegistration')->for_user($u)->visible_to($c->current_user)->ordered('-desc')) {
       my $h = {
