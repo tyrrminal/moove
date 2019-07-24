@@ -313,30 +313,31 @@ sub router_link {
 
   return {
     route_name => 'event',
-    params => { id => $self->id },
-    text => $self->description
-  }
+    params     => {id => $self->id},
+    text       => $self->description
+    };
 }
 
 sub event_url {
-  my $self=shift;
+  my $self = shift;
 
   my $url = $self->event_group->url;
-  return $url if(defined($url));
+  return $url if (defined($url));
 
-  if(my $seq = $self->event_group->event_sequence) {
+  if (my $seq = $self->event_group->event_sequence) {
     return $seq->url;
   }
   return undef;
 }
 
 sub results_url {
-  my $self=shift;
+  my $self = shift;
 
   my @urls;
   foreach ($self->event_references) {
     my $ert = $_->event_reference_type;
-    my $importer = sprintf('CardioTracker::Import::Event::%s', $ert->description)->new(event_id => $_->ref_num, race_id => $_->sub_ref_num);
+    my $importer =
+      sprintf('CardioTracker::Import::Event::%s', $ert->description)->new(event_id => $_->ref_num, race_id => $_->sub_ref_num);
     push(@urls, $importer->url);
   }
 
@@ -359,7 +360,7 @@ sub to_hash {
     event_sequence_id => $self->event_group->event_sequence_id,
     %cd
   };
-  $e->{address} = $self->address->to_hash unless($self->address->is_empty);
+  $e->{address} = $self->address->to_hash unless ($self->address->is_empty);
 
   return $e;
 }
