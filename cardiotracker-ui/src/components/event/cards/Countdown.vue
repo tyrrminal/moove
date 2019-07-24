@@ -7,8 +7,6 @@
 </template>
 
 <script>
-var pluralize = require('pluralize');
-
 export default {
   data() {
     return {
