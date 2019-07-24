@@ -32,8 +32,8 @@
           <td>{{ e.event.countdown.weeks }}</td>
           <td>{{ e.event.countdown.months }}</td>
           <td><template v-if="e.registration.hasOwnProperty('registered')">{{ e.registration.registered ? 'Y' : 'N' }}</template></td>
-          <td><template v-if="e.registration.fee !== null">{{ e.registration.fee | currency }}</template></td>
-          <td><template v-if="e.registration.hasOwnProperty('fundraising')">{{ e.registration.fundraising.total | currency }}/{{ e.registration.fundraising.minimum | currency }}</template></td>
+          <td><template v-if="e.registration.fee !== null">{{ e.registration.fee | format_dollars }}</template></td>
+          <td><template v-if="e.registration.hasOwnProperty('fundraising')">{{ e.registration.fundraising.total | format_dollars }}/{{ e.registration.fundraising.minimum | format_dollars }}</template></td>
         </tr>
       </tbody>
     </table>
@@ -74,8 +74,8 @@
           <template v-else>
             <td class="dns table-warning" colspan="4"></td>
           </template>
-          <td><template v-if="e.registration.fee !== null">{{ e.registration.fee | currency }}</template></td>
-          <td><template v-if="e.registration.hasOwnProperty('fundraising')">{{ e.registration.fundraising.total | currency }}/{{ e.registration.fundraising.minimum | currency }}</template></td>
+          <td><template v-if="e.registration.fee !== null">{{ e.registration.fee | format_dollars }}</template></td>
+          <td><template v-if="e.registration.hasOwnProperty('fundraising')">{{ e.registration.fundraising.total | format_dollars }}/{{ e.registration.fundraising.minimum | format_dollars }}</template></td>
         </tr>
       </tbody>
     </table>
