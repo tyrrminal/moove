@@ -19,7 +19,9 @@ JOIN unit_of_measure u
 	ON d.uom=u.id
 JOIN unit_of_measure prime
   ON prime.conversion_factor=1
-  AND prime.dimension = 'distance'
+JOIN dimension di
+  ON prime.dimension_id=di.id
+  AND di.description = 'distance'
 WHERE a.user_id IS NOT NULL
 AND a.whole_activity_id IS NULL
 GROUP BY a.user_id,a.activity_type_id
@@ -34,7 +36,9 @@ JOIN unit_of_measure u
 	ON d.uom=u.id
 JOIN unit_of_measure prime
   ON prime.conversion_factor=1
-  AND prime.dimension = 'distance'
+JOIN dimension di
+  ON prime.dimension_id=di.id
+  AND di.description = 'distance'
 WHERE a.user_id IS NOT NULL
 AND a.whole_activity_id IS NULL
 GROUP BY a.user_id,a.activity_type_id,YEAR(a.start_time)

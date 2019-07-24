@@ -234,8 +234,7 @@ sub pace_formatted {
 
 sub to_hash {
   my $self = shift;
-
-  my $norm = $self->result_source->schema->resultset('UnitOfMeasure')->find({dimension => 'speed', conversion_factor => 1});
+  my $norm = $self->result_source->schema->resultset('UnitOfMeasure')->normalization_unit('speed');
 
   return {
     id         => $self->id,
