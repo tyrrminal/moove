@@ -29,21 +29,23 @@ sub run($self, @args) {
   my $now = DateTime->now(%tz);
 
   my $user_id = 1;
-  my $activity_type;
+  my $act_type = 'Run';
   getopt(
     \@args,
-    'type=s' => \$activity_type,
+    'type=s' => \$act_type,
     'user=s' => \$user_id,
   );
 
-  my $n = $activity_type eq 'Ride' ? 10 : 1;
+  
   my $user = $self->app->model('User')->find($user_id) // $self->app->model('User')->find({username => $user_id});
 
   my $doy = $now->day_of_year;
   my $dom = $now->day;
   my $dow = $now->local_day_of_week;
 
+  my $activity_type = $self->app->model('ActivityType')->find({ description => $act_type });
   my $activities = $self->app->model('Activity')->for_user($user)->by_type($activity_type);
+  my $n = $activity_type->description eq 'Ride' ? 10 : 1;
 
   my $year_activities = $activities->search({ start_time => {'>' => $now->clone->truncate(to => 'year')->strftime('%F') } });
   my $month_activities = $activities->search({ start_time => {'>' => $now->clone->truncate(to => 'month')->strftime('%F') } });
@@ -55,7 +57,7 @@ sub run($self, @args) {
   my $wd = sum(0,map { $_->distance->normalized_value } $week_activities->all ) - $n*$dow;
   my $dd = sum(0,map { $_->distance->normalized_value } $day_activities->all  ) - $n;
 
-  say $activity_type;
+  say $activity_type->description;
   foreach (['Year',$yd],['Month',$md],['Week',$wd],['Day',$dd]) {
     my ($label,$v) = @$_;
     print sprintf("  %7s", "[$label]");

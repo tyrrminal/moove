@@ -128,14 +128,10 @@ sub by_type {
   my $self = shift;
   my ($type) = @_;
 
-  return $self->search(
-    {
-      'activity_type.description' => $type,
-    }, {
-      'join' => 'activity_type'
+  return $self->search({
+    activity_type_id => $type->id,
+  });
     }
-    );
-}
 
 sub outdoor {
   my $self = shift;
