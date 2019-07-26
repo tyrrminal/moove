@@ -5,9 +5,85 @@ use Modern::Perl;
 
 use DCS::Constants qw(:existence);
 
+sub add_imported_activity {
+  my $self = shift;
+  my ($activity, $user) = @_;
+  my $status = 'add';
+  my $schema = $self->result_source->schema;
+
+  my $activity_type = $schema->resultset('ActivityType')->find({ description => $activity->{type} });
+
+  if(my $existing = $self->search(
+      {
+        'activity_references.reference_id'  => $activity->{activity_id},
+        'activity_references.import_class ' => $activity->{importer}
+      }, {
+        join => 'activity_references'
+      }
+  )->first) {
+    $status = 'skip';
+    return wantarray ? ($existing,$status) : $existing;
+  }
+  my $act;
+  my $event = $schema->resultset('Event')->for_user($user)->of_type($activity_type)->near_datetime($activity->{date}, 5, 30)->first;
+  if($event && ($act = $event->activities->for_person($user->person->id)->first)) {
+    $status = 'update';
+    $act->update({
+      user_id    => $user->id,
+      start_time => $activity->{date},
+      note       => $activity->{notes}
+    });
+    $act->result->update({heart_rate => $activity->{heart_rate}});
+    $act->result->update({pace       => $activity->{pace}}) unless (defined($act->result->pace));
+  } else {
+    # Create the activity and result
+    my $result = $schema->resultset('Result')->create(
+      {
+        gross_time => $activity->{gross_time},
+        net_time   => $activity->{net_time},
+        pace       => $activity->{pace},
+        heart_rate => $activity->{heart_rate} || $NULL
+      }
+    );
+    $act = $self->create(
+      {
+        user_id       => $user->id,
+        activity_type => $activity_type,
+        start_time    => $activity->{date},
+        distance      => $schema->resultset('Distance')->find_or_create_from_miles($activity->{distance}),
+        result        => $result,
+        temperature   => $activity->{temperature},
+        note          => $activity->{notes},
+        event_id      => defined($event) ? $event->id : $NULL
+      }
+    );
+    $schema->resultset('ActivityReference')->create(
+      {
+        activity     => $act,
+        reference_id => $activity->{activity_id},
+        import_class => $activity->{importer}
+      }
+    );
+  }
+  unless ($act->activity_points) {
+    my @points = @{$activity->{activity_points}};
+    foreach my $ap (@points) {
+      my $loc = $self->app->model('Location')->create({
+        latitude  => $ap->{lat},
+        longitude => $ap->{lon}
+      });
+      $act->add_to_activity_points({
+        location  => $loc,
+        timestamp => $ap->{time}
+      });
+    }
+  }
+  return wantarray ? ($act,$status) : $act;
+}
+
 sub for_user {
   my $self = shift;
-  my ($user) = shift;
+  my ($user) = @_;
 
   return $self->search(
     {
@@ -16,29 +92,36 @@ sub for_user {
   );
 }
 
+sub for_person {
+  my $self = shift;
+  my ($person) = @_;
+
+  return $self->search({
+    'participants.person_id' => $person->id
+  },{
+    join => { result => 'participants' }
+  });
+}
+
 sub whole {
   my $self = shift;
 
-  return $self->search(
-    {
-      'whole_activity_id' => $NULL
-    }
-  );
+  return $self->search({
+    'whole_activity_id' => $NULL
+  });
 }
 
 sub core {
   my $self = shift;
 
-  return $self->search(
-    {
-      '-or' => [
-        'activity_type.description' => 'Run',
-        'activity_type.description' => 'Ride'
-      ]
-    }, {
-      'join' => 'activity_type'
-    }
-    );
+  return $self->search({
+    '-or' => [
+      'activity_type.description' => 'Run',
+      'activity_type.description' => 'Ride'
+    ]
+  }, {
+    'join' => 'activity_type'
+  });
 }
 
 sub by_type {
