@@ -173,9 +173,24 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
+=head2 user_goals
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-22 21:29:09
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:kOGL99HE7d/ReMKPinZFAA
+Type: has_many
+
+Related object: L<CardioTracker::Model::Result::UserGoal>
+
+=cut
+
+__PACKAGE__->has_many(
+  "user_goals",
+  "CardioTracker::Model::Result::UserGoal",
+  { "foreign.user_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-26 11:48:44
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:kg4l/oR9y5Nl+TC0bc1VSA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

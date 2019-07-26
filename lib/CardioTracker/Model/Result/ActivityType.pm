@@ -122,9 +122,24 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 goals
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-19 18:40:37
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:BFVBnHfsK63e2AwK+/V7Cg
+Type: has_many
+
+Related object: L<CardioTracker::Model::Result::Goal>
+
+=cut
+
+__PACKAGE__->has_many(
+  "goals",
+  "CardioTracker::Model::Result::Goal",
+  { "foreign.activity_type_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-26 11:48:44
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:+WosjV6Lt5MUm5e4a20Rcg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

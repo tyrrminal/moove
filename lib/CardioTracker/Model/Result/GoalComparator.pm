@@ -104,9 +104,26 @@ __PACKAGE__->set_primary_key("id");
 
 __PACKAGE__->add_unique_constraint("operator_UNIQUE", ["operator"]);
 
+=head1 RELATIONS
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-24 10:54:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:wPQg+bJYGB6HwXolboqefw
+=head2 goals
+
+Type: has_many
+
+Related object: L<CardioTracker::Model::Result::Goal>
+
+=cut
+
+__PACKAGE__->has_many(
+  "goals",
+  "CardioTracker::Model::Result::Goal",
+  { "foreign.goal_comparator_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-26 11:48:44
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:6dl6Z/RL/DrB/GnNXC454Q
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

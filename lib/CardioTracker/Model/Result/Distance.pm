@@ -132,6 +132,51 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 goal_distances
+
+Type: has_many
+
+Related object: L<CardioTracker::Model::Result::Goal>
+
+=cut
+
+__PACKAGE__->has_many(
+  "goal_distances",
+  "CardioTracker::Model::Result::Goal",
+  { "foreign.distance_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 goal_max_distances
+
+Type: has_many
+
+Related object: L<CardioTracker::Model::Result::Goal>
+
+=cut
+
+__PACKAGE__->has_many(
+  "goal_max_distances",
+  "CardioTracker::Model::Result::Goal",
+  { "foreign.max_distance_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 goal_min_distances
+
+Type: has_many
+
+Related object: L<CardioTracker::Model::Result::Goal>
+
+=cut
+
+__PACKAGE__->has_many(
+  "goal_min_distances",
+  "CardioTracker::Model::Result::Goal",
+  { "foreign.min_distance_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 uom
 
 Type: belongs_to
@@ -148,8 +193,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-11 22:42:34
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:AR60Ml3GNrbIYTPyppU8Hw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-26 11:48:44
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:2G4zz+WTiHU/mMJiUYgmiQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

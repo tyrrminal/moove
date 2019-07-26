@@ -92,6 +92,21 @@ __PACKAGE__->add_unique_constraint("description_UNIQUE", ["description"]);
 
 =head1 RELATIONS
 
+=head2 goals
+
+Type: has_many
+
+Related object: L<CardioTracker::Model::Result::Goal>
+
+=cut
+
+__PACKAGE__->has_many(
+  "goals",
+  "CardioTracker::Model::Result::Goal",
+  { "foreign.dimension_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 units_of_measure
 
 Type: has_many
@@ -108,8 +123,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-24 10:27:09
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:zGjJkU8L9LqBYjopsAvt+Q
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-26 11:48:44
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:fxNnUpqplBfOlNCclKsPkA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
