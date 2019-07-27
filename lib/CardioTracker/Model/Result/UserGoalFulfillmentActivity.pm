@@ -1,12 +1,12 @@
 use utf8;
-package CardioTracker::Model::Result::UserGoalActivity;
+package CardioTracker::Model::Result::UserGoalFulfillmentActivity;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-CardioTracker::Model::Result::UserGoalActivity
+CardioTracker::Model::Result::UserGoalFulfillmentActivity
 
 =cut
 
@@ -35,15 +35,15 @@ __PACKAGE__->load_components(
   "InflateColumn::Time",
 );
 
-=head1 TABLE: C<user_goal_activity>
+=head1 TABLE: C<user_goal_fulfillment_activity>
 
 =cut
 
-__PACKAGE__->table("user_goal_activity");
+__PACKAGE__->table("user_goal_fulfillment_activity");
 
 =head1 ACCESSORS
 
-=head2 user_goal_id
+=head2 user_goal_fulfillment_id
 
   data_type: 'integer'
   is_foreign_key: 1
@@ -58,7 +58,7 @@ __PACKAGE__->table("user_goal_activity");
 =cut
 
 __PACKAGE__->add_columns(
-  "user_goal_id",
+  "user_goal_fulfillment_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "activity_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
@@ -68,7 +68,7 @@ __PACKAGE__->add_columns(
 
 =over 4
 
-=item * L</user_goal_id>
+=item * L</user_goal_fulfillment_id>
 
 =item * L</activity_id>
 
@@ -76,7 +76,7 @@ __PACKAGE__->add_columns(
 
 =cut
 
-__PACKAGE__->set_primary_key("user_goal_id", "activity_id");
+__PACKAGE__->set_primary_key("user_goal_fulfillment_id", "activity_id");
 
 =head1 RELATIONS
 
@@ -95,24 +95,24 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 user_goal
+=head2 user_goal_fulfillment
 
 Type: belongs_to
 
-Related object: L<CardioTracker::Model::Result::UserGoal>
+Related object: L<CardioTracker::Model::Result::UserGoalFulfillment>
 
 =cut
 
 __PACKAGE__->belongs_to(
-  "user_goal",
-  "CardioTracker::Model::Result::UserGoal",
-  { id => "user_goal_id" },
+  "user_goal_fulfillment",
+  "CardioTracker::Model::Result::UserGoalFulfillment",
+  { id => "user_goal_fulfillment_id" },
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-26 11:48:44
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Zo6EJiQEjEtl5zY0CaVtXA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-27 12:13:43
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:UKKXhkSnNaSFf02U3IudMQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

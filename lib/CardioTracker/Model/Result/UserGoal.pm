@@ -132,34 +132,24 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 user_goal_activities
+=head2 user_goal_fulfillments
 
 Type: has_many
 
-Related object: L<CardioTracker::Model::Result::UserGoalActivity>
+Related object: L<CardioTracker::Model::Result::UserGoalFulfillment>
 
 =cut
 
 __PACKAGE__->has_many(
-  "user_goal_activities",
-  "CardioTracker::Model::Result::UserGoalActivity",
+  "user_goal_fulfillments",
+  "CardioTracker::Model::Result::UserGoalFulfillment",
   { "foreign.user_goal_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 activities
 
-Type: many_to_many
-
-Composing rels: L</user_goal_activities> -> activity
-
-=cut
-
-__PACKAGE__->many_to_many("activities", "user_goal_activities", "activity");
-
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-26 11:48:44
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:JO9cPvYS6JXnenaXi6yh2A
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-27 12:13:43
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:oR2u4XufIMjFJbYR5/054w
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
