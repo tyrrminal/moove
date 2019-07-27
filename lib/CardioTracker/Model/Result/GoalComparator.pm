@@ -127,4 +127,13 @@ __PACKAGE__->has_many(
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+
+sub is_superlative {
+  return shift->superlative eq 'Y';
+}
+
+sub order_by {
+  return shift->operator eq 'maximum' ? '-desc' : '-asc';
+}
+
 1;
