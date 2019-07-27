@@ -29,7 +29,11 @@ use base 'DBIx::Class::Core';
 
 =cut
 
-__PACKAGE__->load_components("Relationship::Predicate", "InflateColumn::DateTime", "InflateColumn::Time",);
+__PACKAGE__->load_components(
+  "Relationship::Predicate",
+  "InflateColumn::DateTime",
+  "InflateColumn::Time",
+);
 
 =head1 TABLE: C<event_registration>
 
@@ -86,26 +90,28 @@ __PACKAGE__->table("event_registration");
 
 __PACKAGE__->add_columns(
   "event_id",
-  {data_type => "integer", is_foreign_key => 1, is_nullable => 0},
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "user_id",
-  {data_type => "integer", is_foreign_key => 1, is_nullable => 0},
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "fee",
-  {data_type => "decimal", is_nullable => 1, size => [6, 2]},
+  { data_type => "decimal", is_nullable => 1, size => [6, 2] },
   "fundraising_minimum",
-  {data_type => "decimal", is_nullable => 1, size => [6, 2]},
-  "registered", {
-    data_type     => "enum",
+  { data_type => "decimal", is_nullable => 1, size => [6, 2] },
+  "registered",
+  {
+    data_type => "enum",
     default_value => "N",
-    extra         => {list => ["Y", "P", "N"]},
-    is_nullable   => 1,
+    extra => { list => ["Y", "P", "N"] },
+    is_nullable => 1,
   },
   "bib_no",
-  {data_type => "integer", is_nullable => 1},
-  "is_public", {
-    data_type     => "enum",
+  { data_type => "integer", is_nullable => 1 },
+  "is_public",
+  {
+    data_type => "enum",
     default_value => "Y",
-    extra         => {list => ["Y", "N"]},
-    is_nullable   => 0,
+    extra => { list => ["Y", "N"] },
+    is_nullable => 0,
   },
 );
 
@@ -135,11 +141,12 @@ Related object: L<CardioTracker::Model::Result::Donation>
 
 __PACKAGE__->has_many(
   "donations",
-  "CardioTracker::Model::Result::Donation", {
+  "CardioTracker::Model::Result::Donation",
+  {
     "foreign.event_id" => "self.event_id",
     "foreign.user_id"  => "self.user_id",
   },
-  {cascade_copy => 0, cascade_delete => 0},
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 =head2 event
@@ -153,8 +160,8 @@ Related object: L<CardioTracker::Model::Result::Event>
 __PACKAGE__->belongs_to(
   "event",
   "CardioTracker::Model::Result::Event",
-  {id            => "event_id"},
-  {is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION"},
+  { id => "event_id" },
+  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 =head2 user
@@ -168,13 +175,13 @@ Related object: L<CardioTracker::Model::Result::User>
 __PACKAGE__->belongs_to(
   "user",
   "CardioTracker::Model::Result::User",
-  {id            => "user_id"},
-  {is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION"},
+  { id => "user_id" },
+  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-11 11:26:45
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:I2KToX+f7/xQNEny5syLsg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-27 12:13:42
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:yLu84ZyBJGrm+hUGBNwWsA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
