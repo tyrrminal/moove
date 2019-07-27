@@ -131,7 +131,7 @@ sub by_type {
   return $self->search({
     activity_type_id => $type->id,
   });
-    }
+}
 
 sub outdoor {
   my $self = shift;
@@ -163,6 +163,65 @@ sub ordered {
   my ($direction) = (@_, '-asc');
 
   return $self->search({}, {order_by => {$direction => 'me.start_time'}});
+}
+
+sub after_date {
+  my $self = shift;
+  my ($date) = @_;
+
+  return $self->search({
+    start_time => {'>=' => DateTime::Format::MySQL->format_datetime($date)}
+  });
+}
+
+sub before_date {
+  my $self = shift;
+  my ($date) = @_;
+
+  return $self->search({
+    start_time => {'<=' => DateTime::Format::MySQL->format_datetime($date)}
+  });
+}
+
+sub near_distance {
+  my $self = shift;
+  my ($d) = @_;
+
+  my $v = $d->normalized_value;
+  my $margin = $d->normalized_value * 0.05;
+
+  return $self->search({
+    -and => [
+      \['distance.value * uom.conversion_factor >= ?' => $v-$margin],
+      \['distance.value * uom.conversion_factor <= ?' => $v+$margin]
+    ]
+  },{
+    join => { distance => 'uom' }
+  })
+}
+
+sub min_distance {
+  my $self = shift;
+  my ($d) = @_;
+
+  return $self->search({
+    -and => [
+      \['distance.value * uom.conversion_factor >= ?' => $d->normalized_value],
+    ]
+  },{
+    join => { distance => 'uom' }
+  })
+}
+
+sub max_distance {
+  my $self = shift;
+  my ($d) = @_;
+
+  return $self->search({
+    \['distance.value * uom.conversion_factor <= ?' => $d->normalized_value]
+  },{
+    join => { distance => 'uom' }
+  })
 }
 
 1;
