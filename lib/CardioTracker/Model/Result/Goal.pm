@@ -66,7 +66,7 @@ __PACKAGE__->table("goal");
   data_type: 'enum'
   default_value: 'N'
   extra: {list => ["Y","N"]}
-  is_nullable: 1
+  is_nullable: 0
 
 =head2 dimension_id
 
@@ -141,7 +141,7 @@ __PACKAGE__->add_columns(
     data_type => "enum",
     default_value => "N",
     extra => { list => ["Y", "N"] },
-    is_nullable => 1,
+    is_nullable => 0,
   },
   "dimension_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
@@ -334,8 +334,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-26 11:48:44
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:vn6M3tXrY3viBSidYES2jg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-27 12:13:43
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:X1TeFybrCFW9CutMRaryUA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
