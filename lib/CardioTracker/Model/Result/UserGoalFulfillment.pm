@@ -136,4 +136,53 @@ __PACKAGE__->many_to_many("activities", "user_goal_fulfillment_activities", "act
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+
+use List::Util qw(reduce);
+
+sub get_goal_value {
+  my $self = shift;
+  my $d = $self->user_goal->goal->dimension->description;
+  my %dimension_lookup_map = (
+    time     => sub {shift->result->net_time},
+    pace     => sub {shift->result->pace},
+    distance => sub {shift->distance},
+    speed    => sub {shift->result->speed}
+  );
+
+  my %aggregation_lookup_map = (
+    time     => sub { reduce { $a + $b } @_ },
+    distance => sub {
+      my $v = reduce { $a+$b } map { $_->normalized_value } @_;
+      my $schema = $self->result_source->schema;
+      return $schema->resultset('Distance')->new_result({
+        value => $v,
+        uom   => $schema->resultset('UnitOfMeasure')->normalization_unit('distance')
+      })
+    }
+  );
+
+  my $act_rs = $self->user_goal_fulfillment_activities;
+  my $lu = $dimension_lookup_map{$d};
+  if(defined($self->user_goal->goal->goal_span)) {
+    my @v = map { $lu->($_->activity) } $act_rs->all;
+    return $aggregation_lookup_map{$d}->(@v);
+  } else {
+    return $lu->($act_rs->first->activity);
+  }
+}
+
+sub get_goal_description {
+  my $self = shift;
+  my $tf = DateTime::Format::Duration->new(pattern => '%T', normalize => 1);
+  my %dimension_desc_map = (
+    time => sub { $tf->format_duration(shift) },
+    pace => sub { $tf->format_duration(shift) },
+    distance => sub { shift->description },
+    speed => sub { sprintf('%.02f', $_[0]->{value}) ." ". $_[0]->{units}->abbreviation }
+  );
+
+  my $desc = $dimension_desc_map{$self->user_goal->goal->dimension->description};
+  return $desc->($self->get_goal_value);
+}
+
 1;
