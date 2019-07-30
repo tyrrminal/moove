@@ -111,6 +111,17 @@ sub whole {
   });
 }
 
+sub whole_or_event {
+    my $self = shift;
+
+  return $self->search({
+    '-or' => [
+      {'event_id' => {'!=', $NULL} },
+      {'whole_activity_id' => $NULL}
+    ]
+  });
+}
+
 sub core {
   my $self = shift;
 
@@ -127,6 +138,8 @@ sub core {
 sub by_type {
   my $self = shift;
   my ($type) = @_;
+
+  return $self unless(defined($type));
 
   return $self->search({
     activity_type_id => $type->id,
