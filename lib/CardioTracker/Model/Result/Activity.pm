@@ -341,6 +341,12 @@ use List::Util qw(max);
 use Moose;
 use MooseX::NonMoose;
 
+sub description {
+  my $self = shift;
+
+  return sprintf('%s %s %s', $self->start_time->strftime('%F'), $self->distance->description, $self->activity_type->description);
+}
+
 sub has_event_visible_to {
   my $self = shift;
   my ($user) = @_;
