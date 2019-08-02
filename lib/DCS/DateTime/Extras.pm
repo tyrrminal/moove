@@ -51,4 +51,15 @@ sub DateTime::start_of_week_in_year($self) {
   }
 }
 
+sub DateTime::Duration::to_hash($self) {
+  my $r;
+  my $act = 0;
+  foreach (qw(years months weeks days hours minutes seconds)) {
+    my $v = $self->$_;
+    $act |= $v > 0;
+    $r->{$_} = $v if ($act);
+  }
+  return $r;
+}
+
 1;
