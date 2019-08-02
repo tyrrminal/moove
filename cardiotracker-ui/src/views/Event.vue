@@ -28,19 +28,27 @@
           <Countdown :event="event.event" />
         </b-col>
 
-        <b-col v-if="event.activity" sm="4">
+        <b-col v-if="event.activity" sm="4" class="mb-2">
           <ActivityResult :activity="event.activity" />
         </b-col>
 
-        <b-col v-if="event.results" sm="4">
+        <b-col v-if="event.results" sm="4" class="mb-2">
           <EventResult :results="event.results" :results_url="event.event.results_url" />
         </b-col>
 
-        <b-col v-if="event.registration.fundraising" sm="6">
+        <b-col v-if="event.activity && event.activity.records" sm="6" class="mb-2">
+          <ActivityRecords :records="event.activity.records" />
+        </b-col>
+
+        <b-col v-if="event.activity && event.activity.achievements" sm="3" class="mb-2">
+          <ActivityAchievements :records="event.activity.achievements" />
+        </b-col>
+
+        <b-col v-if="event.registration.fundraising" sm="6" class="mb-2">
           <Fundraising :fundraising="event.registration.fundraising" />
         </b-col>
 
-        <b-col v-if="event.activity && event.activity.note" sm="4">
+        <b-col v-if="event.activity && event.activity.note" sm="4" class="mb-2">
           <Notes :text="event.activity.note" />
         </b-col>
       </b-row>
@@ -60,6 +68,8 @@ import EventDetails from '@/components/event/cards/EventDetails.vue';
 import RegistrationStatus from '@/components/event/fragments/Registered.vue';
 import Countdown from '@/components/event/cards/Countdown.vue';
 import ActivityResult from '@/components/activity/cards/Result.vue';
+import ActivityRecords from '@/components/activity/cards/Records.vue';
+import ActivityAchievements from '@/components/activity/cards/Achievements.vue';
 import EventResult from '@/components/event/cards/Result.vue';
 import Fundraising from '@/components/event/cards/Fundraising.vue';
 import Notes from '@/components/event/cards/Notes.vue';
@@ -77,6 +87,8 @@ export default {
     RegistrationStatus,
     Countdown,
     ActivityResult,
+    ActivityRecords,
+    ActivityAchievements,
     EventResult,
     Fundraising,
     Notes,
