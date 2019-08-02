@@ -1,3 +1,4 @@
+#<<<
 use utf8;
 package CardioTracker::Model::Result::Gender;
 
@@ -121,10 +122,10 @@ __PACKAGE__->has_many(
   { "foreign.gender_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
+#>>>
 
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-12 04:49:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:VdjVw8dN/sZpo4xiz9QP2w
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-02 13:17:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Xg2eFR6iiAit3z+DCR+Z4Q
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

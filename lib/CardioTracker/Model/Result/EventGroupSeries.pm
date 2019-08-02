@@ -1,3 +1,4 @@
+#<<<
 use utf8;
 package CardioTracker::Model::Result::EventGroupSeries;
 
@@ -109,10 +110,10 @@ __PACKAGE__->belongs_to(
   { id => "event_series_id" },
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
+#>>>
 
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-11 22:42:34
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:0RF8Kq5h7o7vQ+GFr5E7sA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-02 13:17:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:iBRmgDmnhXQZBpDZxZ7IUA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

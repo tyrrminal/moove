@@ -1,3 +1,4 @@
+#<<<
 use utf8;
 package CardioTracker::Model::Result::Event;
 
@@ -226,10 +227,10 @@ __PACKAGE__->belongs_to(
   { id => "event_type_id" },
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
+#>>>
 
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-24 10:27:09
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:sVZtRZ8/Ef2+jTbFvB6Ocw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-02 13:17:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:tVskdgFWW4HQUZGwxH/OvQ
 
 use CardioTracker::Import::Event::RaceWire;
 use CardioTracker::Import::Event::IResultsLive;

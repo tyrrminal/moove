@@ -1,3 +1,4 @@
+#<<<
 use utf8;
 package CardioTracker::Model::Result::EventSeries;
 
@@ -133,10 +134,10 @@ Composing rels: L</event_group_series> -> event_group
 =cut
 
 __PACKAGE__->many_to_many("event_groups", "event_group_series", "event_group");
+#>>>
 
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-27 12:13:43
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:PFgsi/EycvzPkZp5BeaOJw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-02 13:17:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:g/qmoxucHA/CRMEsB5KWLA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

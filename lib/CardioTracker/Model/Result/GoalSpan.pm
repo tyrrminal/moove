@@ -1,3 +1,4 @@
+#<<<
 use utf8;
 package CardioTracker::Model::Result::GoalSpan;
 
@@ -106,11 +107,17 @@ __PACKAGE__->has_many(
   { "foreign.goal_span_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
+#>>>
+
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-02 13:17:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:nP+fHwZyVh8J5uM9v2qCkQ
+
+
+# You can replace this text with custom code or comments, and it will be preserved on regeneration
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-26 11:48:44
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:BTHy5aE1NCSUBsqPjopa/A
 
 
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;

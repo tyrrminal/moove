@@ -1,3 +1,4 @@
+#<<<
 use utf8;
 package CardioTracker::Model::Result::EventSequence;
 
@@ -92,10 +93,10 @@ __PACKAGE__->has_many(
   { "foreign.event_sequence_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
+#>>>
 
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-27 12:13:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:s2iWL8mvRVvwOxlybDCySA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-02 13:17:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:WGFcr1HzyxMz1YOUDRqhZQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

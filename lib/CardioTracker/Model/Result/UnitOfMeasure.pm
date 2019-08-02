@@ -1,3 +1,4 @@
+#<<<
 use utf8;
 package CardioTracker::Model::Result::UnitOfMeasure;
 
@@ -157,10 +158,10 @@ __PACKAGE__->has_many(
   { "foreign.uom" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
+#>>>
 
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-24 10:27:09
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/VEB7XgDbZ5UhS1A/8DB5Q
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-02 13:17:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:EWqdBdIdwopXN50hGtNQgg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

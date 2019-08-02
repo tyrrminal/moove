@@ -1,3 +1,4 @@
+#<<<
 use utf8;
 package CardioTracker::Model::Result::UserGoal;
 
@@ -146,10 +147,10 @@ __PACKAGE__->has_many(
   { "foreign.user_goal_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
+#>>>
 
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-27 12:13:43
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:oR2u4XufIMjFJbYR5/054w
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-02 13:17:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:+mmNB4H3VgqAfz3DEVnT9Q
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

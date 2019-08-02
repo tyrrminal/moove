@@ -1,3 +1,4 @@
+#<<<
 use utf8;
 package CardioTracker::Model;
 
@@ -10,10 +11,10 @@ use warnings;
 use base 'DBIx::Class::Schema';
 
 __PACKAGE__->load_namespaces;
+#>>>
 
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-10-15 20:45:31
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/52uPKaUORjyvFwyae56TA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-02 13:17:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:RGdTPJMdcPmlPkyv/YGbbQ
 use v5.20;
 use feature qw(signatures);
 no warnings qw(experimental::signatures);

@@ -1,3 +1,4 @@
+#<<<
 use utf8;
 package CardioTracker::Model::Result::ActivityPoint;
 
@@ -121,10 +122,10 @@ __PACKAGE__->belongs_to(
   { id => "location_id" },
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
+#>>>
 
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-01-26 15:38:09
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:wcATXny8MwyA8h26zWZ4Fw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-02 13:17:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:v3W+z5FSDvPLc5xxo+Aj1Q
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

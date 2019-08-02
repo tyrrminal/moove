@@ -1,3 +1,4 @@
+#<<<
 use utf8;
 package CardioTracker::Model::Result::Activity;
 
@@ -328,10 +329,10 @@ __PACKAGE__->many_to_many(
   "user_goal_fulfillment_activities",
   "user_goal_fulfillment",
 );
+#>>>
 
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-27 12:13:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:tgF2xxN4DZ+Ic+ybQTDF2w
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-02 13:17:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:v9GZXy0RurzGX0lM3hpj0w
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
