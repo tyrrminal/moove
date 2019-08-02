@@ -370,7 +370,7 @@ around 'note' => sub {
   my $orig = shift;
   my $self = shift;
 
-  my $v = $self->$orig(@_)//'';
+  my $v = $self->$orig(@_) // '';
   $v =~ s/\s*$//m;
   $v =~ s/^\s*//m;
   return $v;
@@ -397,23 +397,29 @@ sub end_time {
 }
 
 sub first_activity_point {
-  my $self=shift;
+  my $self = shift;
 
-  return $self->activity_points->search({},{
-    order_by => {'-asc' => 'timestamp'}
-  })->first
+  return $self->activity_points->search(
+    {},
+    {
+      order_by => {'-asc' => 'timestamp'}
+    }
+  )->first;
 }
 
 sub last_activity_point {
-  my $self=shift;
+  my $self = shift;
 
-  return $self->activity_points->search({},{
-    order_by => {'-desc' => 'timestamp'}
-  })->first
+  return $self->activity_points->search(
+    {},
+    {
+      order_by => {'-desc' => 'timestamp'}
+    }
+  )->first;
 }
 
 sub to_hash {
-  my $self = shift;
+  my $self   = shift;
   my %params = @_;
 
   my $a = {
@@ -425,8 +431,18 @@ sub to_hash {
   };
   $a->{start_time}     = $self->start_time->iso8601     if (defined($self->start_time));
   $a->{result}         = $self->result->to_hash         if (defined($self->result));
-  $a->{event}          = $self->event->to_hash          if (defined($self->event) && (!exists($params{event}) || $params{event} ));
+  $a->{event}          = $self->event->to_hash          if (defined($self->event) && (!exists($params{event}) || $params{event}));
   $a->{whole_activity} = $self->whole_activity->to_hash if (defined($self->whole_activity));
+  if (my @goals =
+    map {$_->user_goal_fulfillment} grep {$_->user_goal_fulfillment->user_goal->is_pr} $self->user_goal_fulfillment_activities)
+  {
+    $a->{records} = [map {$_->to_hash} @goals];
+  }
+  if (my @goals =
+    map {$_->user_goal_fulfillment} grep {!$_->user_goal_fulfillment->user_goal->is_pr} $self->user_goal_fulfillment_activities)
+  {
+    $a->{achievements} = [map {$_->to_hash} @goals];
+  }
 
   return $a;
 }
