@@ -65,6 +65,12 @@ __PACKAGE__->table("result");
   data_type: 'time'
   is_nullable: 1
 
+=head2 speed
+
+  data_type: 'decimal'
+  is_nullable: 1
+  size: [7,3]
+
 =head2 heart_rate
 
   data_type: 'integer'
@@ -81,6 +87,8 @@ __PACKAGE__->add_columns(
   { data_type => "time", is_nullable => 0 },
   "pace",
   { data_type => "time", is_nullable => 1 },
+  "speed",
+  { data_type => "decimal", is_nullable => 1, size => [7, 3] },
   "heart_rate",
   { data_type => "integer", is_nullable => 1 },
 );
@@ -150,6 +158,9 @@ __PACKAGE__->has_many(
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+use Moose;
+use MooseX::NonMoose;
+
 use DateTime::Format::Duration;
 
 # Pace is always minutes (net) per mile
@@ -158,30 +169,17 @@ sub update_pace {
   $self->update({pace => _calculate_pace($self->net_time, $self->activities->first->distance)});
 }
 
-sub speed {
+around 'speed' => sub {
+  my $orig = shift;
   my $self = shift;
 
-  my $v;
-  my $d = $self->activities->first->distance;
-  my $miles = $self->result_source->schema->resultset('UnitOfMeasure')->find({abbreviation => 'mi'});
-  if ($d->uom->id == $miles->id) {
-    $v = $d->value;
-  } elsif ($miles->conversion_factor == 1) {
-    $v = $d->normalized_value;
-  } else {
-    $v = $d->normalized_value / $miles->conversion_factor;
-  }
-  my $mph = $self->result_source->schema->resultset('UnitOfMeasure')->find({abbreviation => 'mph'});
-
-  my $t = $self->net_time;
-  my $hrs = $t->hours + ($t->minutes / 60) + ($t->seconds / (60 * 60));
-
-  return 0 unless ($hrs);
-  return {
-    value => $v/$hrs,
-    units => $mph
-  };
-}
+  return $self->result_source->schema->resultset('Distance')->new_result(
+    {
+      value => $self->$orig,
+      uom   => $self->result_source->schema->resultset('UnitOfMeasure')->find({abbreviation => 'mph'})->id
+    }
+  );
+};
 
 sub _calculate_pace {
   my ($time, $distance) = @_;
@@ -198,8 +196,8 @@ sub _minutes_to_time_str {
   my ($t) = @_;
   my $dec = $t - int($t);
 
-  my ($min,$sec) = (int($t), $dec * 60);
-  if($sec > 59.94) {
+  my ($min, $sec) = (int($t), $dec * 60);
+  if ($sec > 59.94) {
     $min++;
     $sec = 0;
   }
@@ -235,23 +233,13 @@ sub pace_formatted {
 
 sub to_hash {
   my $self = shift;
-  my $norm = $self->result_source->schema->resultset('UnitOfMeasure')->normalization_unit('speed');
 
   return {
     id         => $self->id,
     gross_time => $self->gross_time_formatted,
     net_time   => $self->net_time_formatted,
     pace       => $self->pace_formatted,
-    speed      => {
-      quantity => {
-        value => $self->speed->{value},
-        units => $self->speed->{units}->to_hash
-      },
-      normalized_quantity => {
-        value => $self->speed->{value} * $norm->conversion_factor,
-        units => $norm->to_hash
-      }
-    },
+    speed      => $self->speed->to_hash,
     heart_rate => $self->heart_rate
   };
 }
