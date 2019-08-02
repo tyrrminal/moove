@@ -122,12 +122,6 @@ __PACKAGE__->table("goal");
   is_foreign_key: 1
   is_nullable: 1
 
-=head2 avg
-
-  data_type: 'enum'
-  extra: {list => ["Y","N"]}
-  is_nullable: 1
-
 =cut
 
 __PACKAGE__->add_columns(
@@ -162,8 +156,6 @@ __PACKAGE__->add_columns(
   { data_type => "time", is_nullable => 1 },
   "distance_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
-  "avg",
-  { data_type => "enum", extra => { list => ["Y", "N"] }, is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
