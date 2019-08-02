@@ -1,3 +1,4 @@
+#<<<
 use utf8;
 package CardioTracker::Model::Result::UserGoalFulfillment;
 
@@ -129,19 +130,20 @@ Composing rels: L</user_goal_fulfillment_activities> -> activity
 =cut
 
 __PACKAGE__->many_to_many("activities", "user_goal_fulfillment_activities", "activity");
+#>>>
 
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-27 12:13:43
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:OO5YMxJ5EtuO+XyhQaUzlw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-02 13:17:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:O/ti2E0+X2Zl4Sk+ZuXNYQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 
-use List::Util qw(reduce);
+use DCS::DateTime::Extras;
+use List::Util qw(sum reduce);
 
 sub get_goal_value {
-  my $self = shift;
-  my $d = $self->user_goal->goal->dimension->description;
+  my $self                 = shift;
+  my $d                    = $self->user_goal->goal->dimension->description;
   my %dimension_lookup_map = (
     time     => sub {shift->result->net_time},
     pace     => sub {shift->result->pace},
@@ -150,21 +152,34 @@ sub get_goal_value {
   );
 
   my %aggregation_lookup_map = (
-    time     => sub { reduce { $a + $b } @_ },
-    distance => sub {
-      my $v = reduce { $a+$b } map { $_->normalized_value } @_;
+    speed => sub {
+      my @v      = map {$_->{value}} @_;
+      my $v      = sum(@v) / @v;
       my $schema = $self->result_source->schema;
-      return $schema->resultset('Distance')->new_result({
+      return {
         value => $v,
-        uom   => $schema->resultset('UnitOfMeasure')->normalization_unit('distance')
-      })
+        units => $schema->resultset('UnitOfMeasure')->normalization_unit('speed')
+      };
+    },
+    time => sub {
+      reduce {$a + $b} @_;
+    },
+    distance => sub {
+      my $v = reduce {$a + $b} map {$_->normalized_value} @_;
+      my $schema = $self->result_source->schema;
+      return $schema->resultset('Distance')->new_result(
+        {
+          value => $v,
+          uom   => $schema->resultset('UnitOfMeasure')->normalization_unit('distance')
+        }
+      );
     }
   );
 
   my $act_rs = $self->user_goal_fulfillment_activities;
-  my $lu = $dimension_lookup_map{$d};
-  if(defined($self->user_goal->goal->goal_span)) {
-    my @v = map { $lu->($_->activity) } $act_rs->all;
+  my $lu     = $dimension_lookup_map{$d};
+  if (defined($self->user_goal->goal->goal_span)) {
+    my @v = map {$lu->($_->activity)} $act_rs->all;
     return $aggregation_lookup_map{$d}->(@v);
   } else {
     return $lu->($act_rs->first->activity);
@@ -172,17 +187,30 @@ sub get_goal_value {
 }
 
 sub get_goal_description {
-  my $self = shift;
-  my $tf = DateTime::Format::Duration->new(pattern => '%T', normalize => 1);
+  my $self               = shift;
+  my $tf                 = DateTime::Format::Duration->new(pattern => '%T', normalize => 1);
   my %dimension_desc_map = (
-    time => sub { $tf->format_duration(shift) },
-    pace => sub { $tf->format_duration(shift) },
-    distance => sub { shift->description },
-    speed => sub { sprintf('%.02f', $_[0]->{value}) ." ". $_[0]->{units}->abbreviation }
+    time     => sub {$tf->format_duration(shift)},
+    pace     => sub {$tf->format_duration(shift)},
+    distance => sub {shift->description},
+    speed    => sub {shift->description}
   );
 
   my $desc = $dimension_desc_map{$self->user_goal->goal->dimension->description};
   return $desc->($self->get_goal_value);
+}
+
+sub to_hash {
+  my $self = shift;
+
+  return {
+    id          => $self->user_goal->goal->id,
+    is_current  => $self->user_goal->user_goal_fulfillments->ordered('-desc')->first->date <= $self->date,
+    dimension   => $self->user_goal->goal->dimension->description,
+    name        => $self->user_goal->goal->name,
+    description => $self->get_goal_description,
+    value       => $self->get_goal_value->can('to_hash') ? $self->get_goal_value->to_hash : $self->get_goal_value
+  };
 }
 
 1;
