@@ -114,10 +114,41 @@ __PACKAGE__->has_many(
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+use DCS::Constants qw(:boolean);
 
+sub datetimes_share_span {
+  my $self = shift;
+  my ($a1,@activities) = @_;
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-26 11:48:44
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:BTHy5aE1NCSUBsqPjopa/A
+  foreach my $a2 (@activities) {
+    if($self->description eq 'day') {
+      return $FALSE unless($a1->truncate(to => 'day') == $a2->truncate(to => 'day'));
 
+    } elsif($self->description eq 'week') {
+      return $FALSE unless($a1->year == $a2->year && $a1->week_number == $a2->week_number);
+
+    } elsif($self->description eq 'month') {
+      return $FALSE unless($a1->year == $a2->year && $a1->month == $a2->month);
+
+    } elsif($self->description eq 'quarter') {
+      return $FALSE unless($a1->year == $a2->year && $a1->quarter == $a2->quarter);
+
+    } elsif($self->description eq 'year') {
+      return $FALSE unless($a1->year == $a2->year);
+    }
+  }
+
+  return $TRUE;
+}
+
+sub sql_comp_func {
+  my %map = (
+    day   => [qw(YEAR MONTH DAYOFMONTH)],
+    week  => [qw(YEAR WEEK)],
+    month => [qw(YEAR MONTH)],
+    year  => [qw(YEAR)]
+  );
+  return $map{shift->description};
+}
 
 1;
