@@ -662,19 +662,19 @@ components:
       type: object
       properties:
         years:
-          type: integer
+          type: number
         months:
-          type: integer
+          type: number
         weeks:
-          type: integer
+          type: number
         days:
-          type: integer
+          type: number
         hours:
-          type: integer
+          type: number
         minutes:
-          type: integer
+          type: number
         seconds:
-          type: integer
+          type: number
     Error:
       type: object
       required:
