@@ -1,7 +1,10 @@
 <template>
   <b-card title="Personal Records" class="records">
     <b-list-group flush>
-      <b-list-group-item v-for="r in records" :key="r.id"><label>{{ r.name }}</label>: <span :class="displayClass(r)">{{ r.description }}</span></b-list-group-item>
+      <b-list-group-item v-for="r in records" :key="r.id">
+        <label>{{ r.name }}</label>:
+        <span :class="displayClass(r)">{{ r.fulfillments[0].description }}</span>
+      </b-list-group-item>
     </b-list-group>
   </b-card>
 </template>
@@ -13,10 +16,10 @@ export default {
   },
   methods: {
     displayClass: function(r) {
-      return r.is_current ? 'current' : 'text-muted';
+      return r.fulfillments[0].is_current ? "current" : "text-muted";
     }
   }
-}
+};
 </script>
 
 <style scoped>
