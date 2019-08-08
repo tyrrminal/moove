@@ -23,7 +23,7 @@ sub run ($self, @args) {
   my @goals = $self->app->model('UserGoal')->for_user($user);
 
   print "--- PRs ---\n";
-  foreach my $goal (grep {$_->is_pr} @goals) {
+  foreach my $goal (grep {$_->goal->is_pr} @goals) {
     $goal->recalculate();
 
     print $goal->goal->name;
@@ -35,7 +35,7 @@ sub run ($self, @args) {
   }
 
   print "\n--- Achievements ---\n";
-  foreach my $goal (grep {!$_->is_pr} @goals) {
+  foreach my $goal (grep {!$_->goal->is_pr} @goals) {
     $goal->recalculate();
 
     print $goal->goal->name . ":";
