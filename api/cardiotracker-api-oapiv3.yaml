@@ -189,6 +189,50 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /goals/{user}:
+    get:
+      summary: Get goals and goal fulfillments for a user
+      x-mojo-to: API::V1::User#get_goals
+      parameters:
+        - name: user
+          in: path
+          description: username or user ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Goal'
+  /goal/{user}/{goal}:
+    get:
+      summary: Get a single goal
+      x-mojo-to: API::V1::User#get_goal
+      parameters:
+        - name: user
+          in: path
+          description: username or user ID
+          required: true
+          schema:
+            type: string
+        - name: goal
+          in: path
+          description: goal ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Goal'
   /user/{user}/summary:
     get:
       summary: Get basic activity/event information for a user
@@ -316,7 +360,7 @@ components:
         records:
           type: array
           items:
-            $ref: '#/components/schemas/GoalRecord'
+            $ref: '#/components/schemas/Goal'
     ActivityResult:
       type: object
       properties:
@@ -532,13 +576,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Donation'
-    GoalRecord:
+    Goal:
       type: object
       required:
-        - description
         - dimension
         - name
-        - is_current
       properties:
         id:
           type: integer
@@ -546,6 +588,19 @@ components:
           type: string
         dimension:
           type: string
+        is_pr:
+          type: boolean
+        fulfillments:
+          type: array
+          items:
+            $ref: '#/components/schemas/GoalRecord'
+    GoalRecord:
+      type: object
+      required:
+        - description
+        - is_current
+        - value
+      properties:
         description:
           type: string
         is_current:
