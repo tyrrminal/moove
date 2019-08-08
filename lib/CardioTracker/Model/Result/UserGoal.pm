@@ -164,23 +164,23 @@ sub _dimension_field_map {
     time     => 'result.net_time',
     pace     => 'result.pace',
     speed    => 'result.speed'
-  )
+  );
 }
 
 sub _dimension_value_map {
   (
-    distance => sub { shift->distance->normalized_value },
-    speed    => sub { shift->distance->normalized_value },
-    time => sub { DateTime::Format::Duration->new(pattern => '%T')->format_duration(shift->time) },
-    pace => sub { DateTime::Format::Duration->new(pattern => '%T')->format_duration(shift->time) }
-  )
+    distance => sub {shift->distance->normalized_value},
+    speed    => sub {shift->distance->normalized_value},
+    time     => sub {DateTime::Format::Duration->new(pattern => '%T')->format_duration(shift->time)},
+    pace     => sub {DateTime::Format::Duration->new(pattern => '%T')->format_duration(shift->time)}
+  );
 }
 
 sub _dimension_aggregation_map {
   (
     distance => 'SUM(distance.value * uom.conversion_factor)',
     time     => 'SUM(result.net_time)',
-  )
+  );
 }
 
 sub recalculate {
@@ -196,17 +196,13 @@ sub recalculate {
   }
 }
 
-sub is_pr {
-  shift->goal->goal_comparator->is_superlative
-}
-
 sub update {
-  my $self=shift;
+  my $self = shift;
   my ($activity) = @_;
 
-  if($self->is_pr) {
+  if ($self->goal->is_pr) {
     $self->_calculate_pr($activity);
-  } elsif(!$self->is_fulfilled) {
+  } elsif (!$self->is_fulfilled) {
     $self->_calculate_achievement($activity);
   }
 }
@@ -218,55 +214,76 @@ sub _calculate_achievement {
   my %fmap = defined($self->goal->goal_span) ? _dimension_aggregation_map : _dimension_field_map;
   my %vmap = _dimension_value_map;
 
-  my $act_rs = $self->_get_rs->ordered('-asc')->search({
-    start_time => {'<=' => DateTime::Format::MySQL->format_datetime($activity->start_time) },
-  });
-  
-  my $cond = \[sprintf($fmap{$self->goal->dimension->description}.' %s ?', $self->goal->goal_comparator->operator) => $vmap{$self->goal->dimension->description}->($self->goal)];
+  my $act_rs = $self->_get_rs->ordered('-asc')->search(
+    {
+      start_time => {'<=' => DateTime::Format::MySQL->format_datetime($activity->start_time)},
+    }
+  );
 
-  if(defined($self->goal->goal_span)) {
-    my $a = $act_rs->search({},{
-      group_by => [map { \["$_(start_time)"] } @{$self->goal->goal_span->sql_comp_func}],
-      having => $cond
-    })->first;
-    return unless(defined($a));
+  my $cond = \[
+    sprintf($fmap{$self->goal->dimension->description} . ' %s ?', $self->goal->goal_comparator->operator) =>
+      $vmap{$self->goal->dimension->description}->($self->goal)
+  ];
 
-    my @search = map { \["$_(start_time) = (SELECT $_(start_time) FROM activity WHERE id = ?)" => $a->id] } @{$self->goal->goal_span->sql_comp_func};
-    $act_rs = $self->_get_rs->search({
-      start_time => {'<=' => DateTime::Format::MySQL->format_datetime($activity->start_time) },
-      -and => \@search
-    },{});
+  if (defined($self->goal->goal_span)) {
+    my $a = $act_rs->search(
+      {},
+      {
+        group_by => [map {\["$_(start_time)"]} @{$self->goal->goal_span->sql_comp_func}],
+        having   => $cond
+      }
+    )->first;
+    return unless (defined($a));
+
+    my @search = map {\["$_(start_time) = (SELECT $_(start_time) FROM activity WHERE id = ?)" => $a->id]}
+      @{$self->goal->goal_span->sql_comp_func};
+    $act_rs = $self->_get_rs->search(
+      {
+        start_time => {'<=' => DateTime::Format::MySQL->format_datetime($activity->start_time)},
+        -and       => \@search
+      },
+      {}
+    );
   } else {
-    $act_rs = $act_rs->search({
-      '-and' => [$cond]
-    });
+    $act_rs = $act_rs->search(
+      {
+        '-and' => [$cond]
+      }
+    );
   }
-  return unless($act_rs->count);
+  return unless ($act_rs->count);
 
   # Create new activity set
-  my $ugf = $self->create_related('user_goal_fulfillments', { date => DateTime::Format::MySQL->format_datetime($act_rs->ordered('-desc')->first->start_time) });
-  while(my $a = $act_rs->next) {
-    $ugf->add_to_user_goal_fulfillment_activities({ user_goal_fulfillment_id => $ugf->id, activity_id => $a->id });
+  foreach ($self->user_goal_fulfillments) {
+    $_->update({is_current => 'N'});
+  }
+  my $ugf = $self->create_related('user_goal_fulfillments',
+    {date => DateTime::Format::MySQL->format_datetime($act_rs->ordered('-desc')->first->start_time)});
+  while (my $a = $act_rs->next) {
+    $ugf->add_to_user_goal_fulfillment_activities({user_goal_fulfillment_id => $ugf->id, activity_id => $a->id});
   }
 }
 
 sub _get_rs {
-  my $self = shift;
-  my $act_rs = $self->user->activities->whole_or_event->by_type($self->goal->activity_type)->search({},{
-    join => [
-      'result',
-      {distance => 'uom' },
-    ]
-  });
-  $act_rs = $act_rs->search({ event_id => {'!=', undef} }) if($self->goal->event_only eq 'Y');
-  if(defined($self->goal->min_distance) && defined($self->goal->max_distance) && $self->goal->min_distance->id == $self->goal->max_distance->id) {
+  my $self   = shift;
+  my $act_rs = $self->user->activities->whole_or_event->by_type($self->goal->activity_type)->search(
+    {},
+    {
+      join => ['result', {distance => 'uom'},]
+    }
+  );
+  $act_rs = $act_rs->search({event_id => {'!=', undef}}) if ($self->goal->event_only eq 'Y');
+  if ( defined($self->goal->min_distance)
+    && defined($self->goal->max_distance)
+    && $self->goal->min_distance->id == $self->goal->max_distance->id)
+  {
     $act_rs = $act_rs->near_distance($self->goal->min_distance);
   } else {
-    $act_rs = $act_rs->min_distance($self->goal->min_distance) if(defined($self->goal->min_distance));
-    $act_rs = $act_rs->max_distance($self->goal->max_distance) if(defined($self->goal->max_distance));
+    $act_rs = $act_rs->min_distance($self->goal->min_distance) if (defined($self->goal->min_distance));
+    $act_rs = $act_rs->max_distance($self->goal->max_distance) if (defined($self->goal->max_distance));
   }
-  $act_rs = $act_rs->after_date($self->goal->min_date) if(defined($self->goal->min_date));
-  $act_rs = $act_rs->before_date($self->goal->max_date) if(defined($self->goal->max_date));
+  $act_rs = $act_rs->after_date($self->goal->min_date)  if (defined($self->goal->min_date));
+  $act_rs = $act_rs->before_date($self->goal->max_date) if (defined($self->goal->max_date));
   return $act_rs;
 }
 
@@ -276,39 +293,51 @@ sub _calculate_pr {
 
   my %map = defined($self->goal->goal_span) ? _dimension_aggregation_map : _dimension_field_map;
 
-  my $act_rs = $self->_get_rs->search({
-    start_time => {'<=' => DateTime::Format::MySQL->format_datetime($activity->start_time) }
-  },{
-    order_by => { $self->goal->goal_comparator->order_by => \[$map{$self->goal->dimension->description}] },
-    rows => 1
-  });
-  if(defined($self->goal->goal_span)) {
-    my @group = map { \["$_(start_time)"] } @{$self->goal->goal_span->sql_comp_func};
-    $act_rs = $act_rs->search({},{
-      group_by => \@group,
-    });
-    return if($act_rs->ordered('-desc')->first->start_time > $activity->start_time);
+  my $act_rs = $self->_get_rs->search(
+    {
+      start_time => {'<=' => DateTime::Format::MySQL->format_datetime($activity->start_time)}
+    }, {
+      order_by => {$self->goal->goal_comparator->order_by => \[$map{$self->goal->dimension->description}]},
+      rows     => 1
+    }
+  );
+  if (defined($self->goal->goal_span)) {
+    my @group = map {\["$_(start_time)"]} @{$self->goal->goal_span->sql_comp_func};
+    $act_rs = $act_rs->search(
+      {},
+      {
+        group_by => \@group,
+      }
+    );
+    return if ($act_rs->ordered('-desc')->first->start_time > $activity->start_time);
 
-    my @search = map { \["$_(start_time) = (SELECT $_(start_time) FROM activity WHERE id = ?)" => $act_rs->first->id] } @{$self->goal->goal_span->sql_comp_func};
-    $act_rs = $self->_get_rs->search({
-      start_time => {'<=' => DateTime::Format::MySQL->format_datetime($activity->start_time) },
-      -and => \@search
-    },{});
+    my @search = map {\["$_(start_time) = (SELECT $_(start_time) FROM activity WHERE id = ?)" => $act_rs->first->id]}
+      @{$self->goal->goal_span->sql_comp_func};
+    $act_rs = $self->_get_rs->search(
+      {
+        start_time => {'<=' => DateTime::Format::MySQL->format_datetime($activity->start_time)},
+        -and       => \@search
+      },
+      {}
+    );
   }
-  unless($act_rs->count) {
+  unless ($act_rs->count) {
     return;
   }
 
-  my @r = sort { DateTime->compare($a->start_time,$b->start_time) } $act_rs->all;
+  my @r = sort {DateTime->compare($a->start_time, $b->start_time)} $act_rs->all;
   my $ugf;
-  if($ugf = $self->user_goal_fulfillments->most_recent) {
-    return if($ugf->user_goal_fulfillment_activities->ordered('-desc')->first->activity->start_time >= $r[-1]->start_time);
+  if ($ugf = $self->user_goal_fulfillments->most_recent) {
+    return if ($ugf->user_goal_fulfillment_activities->ordered('-desc')->first->activity->start_time >= $r[-1]->start_time);
   }
-  
+
   # Create new activity set
-  $ugf = $self->create_related('user_goal_fulfillments', { date => DateTime::Format::MySQL->format_datetime($r[-1]->start_time) });
+  foreach ($self->user_goal_fulfillments) {
+    $_->update({is_current => 'N'});
+  }
+  $ugf = $self->create_related('user_goal_fulfillments', {date => DateTime::Format::MySQL->format_datetime($r[-1]->start_time)});
   foreach (@r) {
-    $ugf->add_to_user_goal_fulfillment_activities({ user_goal_fulfillment_id => $ugf->id, activity_id => $_->id });
+    $ugf->add_to_user_goal_fulfillment_activities({user_goal_fulfillment_id => $ugf->id, activity_id => $_->id});
   }
 }
 
@@ -324,7 +353,7 @@ sub history {
 
 sub get_goal_value {
   my $self = shift;
-  
+
   return $self->user_goal_fulfillments->most_recent->get_goal_value;
 }
 
