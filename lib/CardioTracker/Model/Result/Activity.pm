@@ -433,15 +433,23 @@ sub to_hash {
   $a->{result}         = $self->result->to_hash         if (defined($self->result));
   $a->{event}          = $self->event->to_hash          if (defined($self->event) && (!exists($params{event}) || $params{event}));
   $a->{whole_activity} = $self->whole_activity->to_hash if (defined($self->whole_activity));
-  if (my @goals =
-    map {$_->user_goal_fulfillment} grep {$_->user_goal_fulfillment->user_goal->is_pr} $self->user_goal_fulfillment_activities)
-  {
-    $a->{records} = [map {$_->to_hash} @goals];
-  }
-  if (my @goals =
-    map {$_->user_goal_fulfillment} grep {!$_->user_goal_fulfillment->user_goal->is_pr} $self->user_goal_fulfillment_activities)
-  {
-    $a->{achievements} = [map {$_->to_hash} @goals];
+  if (!defined($params{goals}) || $params{goals}) {
+    if (
+      my @goals =
+      map  {$_->user_goal_fulfillment}
+      grep {$_->user_goal_fulfillment->user_goal->goal->is_pr} $self->user_goal_fulfillment_activities
+      )
+    {
+      $a->{records} = [map {my $g = $_->user_goal->goal->to_hash; $g->{fulfillments} = [$_->to_hash]; $g} @goals];
+    }
+    if (
+      my @goals =
+      map  {$_->user_goal_fulfillment}
+      grep {!$_->user_goal_fulfillment->user_goal->goal->is_pr} $self->user_goal_fulfillment_activities
+      )
+    {
+      $a->{achievements} = [map {my $g = $_->user_goal->goal->to_hash; $g->{fulfillments} = [$_->to_hash]; $g} @goals];
+    }
   }
 
   return $a;
