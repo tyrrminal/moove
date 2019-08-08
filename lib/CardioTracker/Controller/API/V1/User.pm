@@ -43,4 +43,44 @@ sub get_summary($self) {
   );
 }
 
+sub get_goals($self) {
+  my $c = $self->openapi->valid_input or return;
+
+  my $user_id = $c->validation->param('user');
+
+  if (my $u = $c->model('User')->find_user($user_id)) {
+
+    my $s = $u->user_goals;
+    my @goals;
+    while (my $ug = $s->next) {
+      my $g = $ug->goal->to_hash;
+      $g->{fulfillments} = [map {$_->to_hash(activities => $FALSE)} $ug->user_goal_fulfillments];
+      push(@goals, $g);
+    }
+
+    return $c->render(
+      status  => 200,
+      openapi => \@goals
+    );
+  }
+}
+
+sub get_goal($self) {
+  my $c = $self->openapi->valid_input or return;
+
+  my $user_id = $c->validation->param('user');
+  my $goal_id = $c->validation->param('goal');
+
+  if (my $u = $c->model('User')->find_user($user_id)) {
+    my $ug = $u->user_goals->search({goal_id => $goal_id})->first;
+    my $g = $ug->goal->to_hash;
+    $g->{fulfillments} = [map {$_->to_hash(activities => $TRUE)} $ug->user_goal_fulfillments];
+
+    return $c->render(
+      status  => 200,
+      openapi => $g
+    );
+  }
+}
+
 1;
