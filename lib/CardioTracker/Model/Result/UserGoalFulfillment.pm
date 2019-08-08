@@ -62,6 +62,13 @@ __PACKAGE__->table("user_goal_fulfillment");
   datetime_undef_if_invalid: 1
   is_nullable: 0
 
+=head2 is_current
+
+  data_type: 'enum'
+  default_value: 'Y'
+  extra: {list => ["Y","N"]}
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -73,6 +80,13 @@ __PACKAGE__->add_columns(
   {
     data_type => "datetime",
     datetime_undef_if_invalid => 1,
+    is_nullable => 0,
+  },
+  "is_current",
+  {
+    data_type => "enum",
+    default_value => "Y",
+    extra => { list => ["Y", "N"] },
     is_nullable => 0,
   },
 );
@@ -132,66 +146,71 @@ Composing rels: L</user_goal_fulfillment_activities> -> activity
 __PACKAGE__->many_to_many("activities", "user_goal_fulfillment_activities", "activity");
 #>>>
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-02 13:17:32
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:O/ti2E0+X2Zl4Sk+ZuXNYQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-06 15:42:54
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:xfa7IZQYor7FUfpHp6w33A
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
-
 use DCS::DateTime::Extras;
 use List::Util qw(sum reduce);
 
+use DCS::Constants qw(:boolean);
+
 sub get_goal_value {
-  my $self                 = shift;
-  my $d                    = $self->user_goal->goal->dimension->description;
-  my %dimension_lookup_map = (
-    time     => sub {shift->result->net_time},
-    pace     => sub {shift->result->pace},
-    distance => sub {shift->distance},
-    speed    => sub {shift->result->speed}
-  );
+  my $self = shift;
+  unless (exists($self->{_goal_value})) {    # goal_value is computationally intensive, so we'll cache the result
+    my $d                    = $self->user_goal->goal->dimension->description;
+    my %dimension_lookup_map = (
+      time     => sub {shift->result->net_time},
+      pace     => sub {shift->result->pace},
+      distance => sub {shift->distance},
+      speed    => sub {shift->result->speed}
+    );
 
-  my %aggregation_lookup_map = (
-    speed => sub {
-      my @v      = map {$_->{value}} @_;
-      my $v      = sum(@v) / @v;
-      my $schema = $self->result_source->schema;
-      return {
-        value => $v,
-        units => $schema->resultset('UnitOfMeasure')->normalization_unit('speed')
-      };
-    },
-    time => sub {
-      reduce {$a + $b} @_;
-    },
-    distance => sub {
-      my $v = reduce {$a + $b} map {$_->normalized_value} @_;
-      my $schema = $self->result_source->schema;
-      return $schema->resultset('Distance')->new_result(
-        {
+    my %aggregation_lookup_map = (
+      speed => sub {
+        my @v      = map {$_->{value}} @_;
+        my $v      = sum(@v) / @v;
+        my $schema = $self->result_source->schema;
+        return {
           value => $v,
-          uom   => $schema->resultset('UnitOfMeasure')->normalization_unit('distance')
-        }
-      );
-    }
-  );
+          units => $schema->resultset('UnitOfMeasure')->normalization_unit('speed')
+        };
+      },
+      time => sub {
+        reduce {$a + $b} @_;
+      },
+      distance => sub {
+        my $v = reduce {$a + $b} map {$_->normalized_value} @_;
+        my $schema = $self->result_source->schema;
+        return $schema->resultset('Distance')->new_result(
+          {
+            value => $v,
+            uom   => $schema->resultset('UnitOfMeasure')->normalization_unit('distance')
+          }
+        );
+      }
+    );
 
-  my $act_rs = $self->user_goal_fulfillment_activities;
-  my $lu     = $dimension_lookup_map{$d};
-  if (defined($self->user_goal->goal->goal_span)) {
-    my @v = map {$lu->($_->activity)} $act_rs->all;
-    return $aggregation_lookup_map{$d}->(@v);
-  } else {
-    return $lu->($act_rs->first->activity);
+    my $act_rs = $self->user_goal_fulfillment_activities;
+    my $lu     = $dimension_lookup_map{$d};
+    if (defined($self->user_goal->goal->goal_span)) {
+      my @v = map {$lu->($_->activity)} $act_rs->all;
+      $self->{_goal_value} = $aggregation_lookup_map{$d}->(@v);
+    } else {
+      $self->{_goal_value} = $lu->($act_rs->first->activity);
+    }
   }
+  return $self->{_goal_value};
 }
 
 sub get_goal_description {
   my $self               = shift;
   my $tf                 = DateTime::Format::Duration->new(pattern => '%T', normalize => 1);
+  my $pf                 = DateTime::Format::Duration->new(pattern => '%T /mi', normalize => 1);
   my %dimension_desc_map = (
     time     => sub {$tf->format_duration(shift)},
-    pace     => sub {$tf->format_duration(shift)},
+    pace     => sub {$pf->format_duration(shift)},
     distance => sub {shift->description},
     speed    => sub {shift->description}
   );
@@ -201,16 +220,19 @@ sub get_goal_description {
 }
 
 sub to_hash {
-  my $self = shift;
+  my $self   = shift;
+  my %params = @_;
 
-  return {
-    id          => $self->user_goal->goal->id,
-    is_current  => $self->user_goal->user_goal_fulfillments->ordered('-desc')->first->date <= $self->date,
-    dimension   => $self->user_goal->goal->dimension->description,
-    name        => $self->user_goal->goal->name,
+  my $r = {
+    is_current  => $self->is_current eq 'Y',
+    date        => $self->date->iso8601,
     description => $self->get_goal_description,
     value       => $self->get_goal_value->can('to_hash') ? $self->get_goal_value->to_hash : $self->get_goal_value
   };
+  if (!defined($params{activities}) || $params{activities}) {
+    $r->{activities} = [map {$_->activity->to_hash(goals => $FALSE)} $self->user_goal_fulfillment_activities->ordered('-desc')];
+  }
+  return $r;
 }
 
 1;
