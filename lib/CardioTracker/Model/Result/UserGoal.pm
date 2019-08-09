@@ -363,4 +363,25 @@ sub get_goal_description {
   return $self->user_goal_fulfillments->most_recent->get_goal_description;
 }
 
+sub to_hash {
+  my $self = shift;
+  my $cb   = InclusionCallback->new(@_);
+
+  my $r = {
+    id        => $self->goal->id,
+    name      => $self->goal->name,
+    is_pr     => $self->goal->is_pr,
+    dimension => $self->goal->dimension->description,
+  };
+  if ($cb->allow_group('fulfillment')) {
+    $r->{fulfillments} = [];
+    foreach my $f ($self->user_goal_fulfillments) {
+      push(@{$r->{fulfillments}}, $f->to_hash(@_)) if (
+        $cb->allow('fulfillment', $f)
+        );
+    }
+  }
+  return $r;
+}
+
 1;
