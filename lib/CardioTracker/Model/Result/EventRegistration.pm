@@ -187,6 +187,7 @@ __PACKAGE__->belongs_to(
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 use DateTime;
+use InclusionCallback;
 
 use List::Util qw(sum0);
 
@@ -200,12 +201,12 @@ sub sequence {
 }
 
 sub to_hash {
-  my $self   = shift;
-  my %params = @_;
+  my $self = shift;
+  my $cb   = InclusionCallback->new(@_);
 
   my $er = {
     event_id  => $self->event_id,
-    user      => $self->user->to_hash,
+    user      => $self->user->to_hash(@_),
     fee       => $self->fee,
     bib_no    => $self->bib_no,
     is_public => ($self->is_public eq 'Y'),
@@ -217,27 +218,34 @@ sub to_hash {
       minimum => $self->fundraising_minimum,
       total   => sum0(map {$_->amount} @donations)
     };
-    $er->{fundraising}->{donations} = [map {$_->to_hash} @donations] if (!exists($params{donations}) || $params{donations});
+    if ($cb->allow_group('donation')) {
+      foreach my $d (@donations) {
+        push(@{$er->{fundraising}->{donations}}, $d->to_hash(@_)) if ($cb->allow('donation', $d));
+      }
+    }
   }
 
   $er->{registered} = $self->registered eq 'Y' if ($self->registered);
 
-  if ($params{complete}) {
-    my $h = {
-      registration => $er,
-      event        => $self->event->to_hash
-    };
-    if (my $activity = $self->event->activities->search({user_id => $self->user_id})->first) {
-      $h->{activity} = $activity->to_hash(event => $FALSE);
-
-      if (my @results = $activity->result->event_results) {
-        $h->{results} = [map {$_->to_hash} @results];
-      }
-    }
-    return $h;
-  }
-
   return $er;
+}
+
+sub to_hash_complete {
+  my $self = shift;
+  my $cb   = InclusionCallback->new(@_);
+
+  my $h = {
+    registration => $self->to_hash(@_),
+    event        => $self->event->to_hash(@_)
+  };
+  if (my $activity = $self->event->activities->search({user_id => $self->user_id})->first) {
+    $h->{activity} = $activity->to_hash(@_, event => $FALSE);
+
+    if (my @results = $activity->result->event_results) {
+      $h->{results} = [map {$_->to_hash(@_)} @results];
+    }
+  }
+  return $h;
 }
 
 1;
