@@ -49,18 +49,9 @@ sub get_goals($self) {
   my $user_id = $c->validation->param('user');
 
   if (my $u = $c->model('User')->find_user($user_id)) {
-
-    my $s = $u->user_goals;
-    my @goals;
-    while (my $ug = $s->next) {
-      my $g = $ug->goal->to_hash;
-      $g->{fulfillments} = [map {$_->to_hash(activities => $FALSE)} $ug->user_goal_fulfillments];
-      push(@goals, $g);
-    }
-
     return $c->render(
       status  => 200,
-      openapi => \@goals
+      openapi => [map {$_->to_hash(fulfillments => $TRUE)} $u->user_goals->all]
     );
   }
 }
