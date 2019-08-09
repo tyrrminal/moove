@@ -332,19 +332,8 @@ __PACKAGE__->has_many(
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
-
 sub is_pr {
   shift->goal_comparator->is_superlative;
 }
 
-sub to_hash {
-  my $self = shift;
-
-  return {
-    id        => $self->id,
-    name      => $self->name,
-    is_pr     => $self->is_pr,
-    dimension => $self->dimension->description,
-  };
-}
 1;
