@@ -339,6 +339,8 @@ __PACKAGE__->many_to_many(
 use DCS::Constants qw(:boolean);
 use List::Util qw(max);
 
+use InclusionCallback;
+
 use Moose;
 use MooseX::NonMoose;
 
@@ -419,37 +421,43 @@ sub last_activity_point {
 }
 
 sub to_hash {
-  my $self   = shift;
-  my %params = @_;
+  my $self = shift;
+  my $cb   = InclusionCallback->new(@_);
 
   my $a = {
     id            => $self->id,
-    activity_type => $self->activity_type->to_hash,
-    distance      => $self->distance->to_hash,
+    activity_type => $self->activity_type->to_hash(@_),
+    distance      => $self->distance->to_hash(@_),
     temperature   => $self->temperature,
     note          => $self->note,
   };
-  $a->{start_time}     = $self->start_time->iso8601     if (defined($self->start_time));
-  $a->{result}         = $self->result->to_hash         if (defined($self->result));
-  $a->{event}          = $self->event->to_hash          if (defined($self->event) && (!exists($params{event}) || $params{event}));
-  $a->{whole_activity} = $self->whole_activity->to_hash if (defined($self->whole_activity));
-  if (!defined($params{goals}) || $params{goals}) {
-    if (
-      my @goals =
+  $a->{start_time} = $self->start_time->iso8601 if (defined($self->start_time));
+  $a->{result}     = $self->result->to_hash(@_) if (defined($self->result));
+  $a->{event} = $self->event->to_hash(@_) if ($cb->allow('event', $self->event));
+  $a->{whole_activity} = $self->whole_activity->to_hash(@_) if (defined($self->whole_activity));
+
+  if ($cb->allow_group('goal')) {
+    my @record_fulfillments =
+      grep {$cb->allow('goal', $_)}
       map  {$_->user_goal_fulfillment}
-      grep {$_->user_goal_fulfillment->user_goal->goal->is_pr} $self->user_goal_fulfillment_activities
-      )
-    {
-      $a->{records} = [map {my $g = $_->user_goal->goal->to_hash; $g->{fulfillments} = [$_->to_hash]; $g} @goals];
-    }
-    if (
-      my @goals =
+      grep {$_->user_goal_fulfillment->user_goal->goal->is_pr} $self->user_goal_fulfillment_activities;
+    $a->{records} = [
+      map {
+        $_->user_goal->to_hash(@_, fulfillment => sub {shift->id == $_->id})
+        } @record_fulfillments
+      ]
+      if (@record_fulfillments);
+
+    my @ach_fulfillments =
+      grep {$cb->allow('goal', $_)}
       map  {$_->user_goal_fulfillment}
-      grep {!$_->user_goal_fulfillment->user_goal->goal->is_pr} $self->user_goal_fulfillment_activities
-      )
-    {
-      $a->{achievements} = [map {my $g = $_->user_goal->goal->to_hash; $g->{fulfillments} = [$_->to_hash]; $g} @goals];
-    }
+      grep {!$_->user_goal_fulfillment->user_goal->goal->is_pr} $self->user_goal_fulfillment_activities;
+    $a->{achievements} = [
+      map {
+        $_->user_goal->to_hash(@_, fulfillments => sub {shift->id == $_->id})
+        } @ach_fulfillments
+      ]
+      if (@ach_fulfillments);
   }
 
   return $a;

@@ -230,11 +230,11 @@ sub to_hash {
   return {
     quantity => {
       value => $self->value,
-      units => $self->uom->to_hash
+      units => $self->uom->to_hash(@_)
     },
     normalized_quantity => {
       value => $self->normalized_value,
-      units => $self->normalized_unit->to_hash
+      units => $self->normalized_unit->to_hash(@_)
     }
   };
 }

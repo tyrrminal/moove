@@ -356,12 +356,12 @@ sub to_hash {
     results_url       => $self->results_url,
     scheduled_start   => $self->scheduled_start->iso8601,
     entrants          => $self->entrants,
-    event_type        => $self->event_type->to_hash,
-    distance          => $self->distance->to_hash,
+    event_type        => $self->event_type->to_hash(@_),
+    distance          => $self->distance->to_hash(@_),
     event_sequence_id => $self->event_group->event_sequence_id,
     %cd
   };
-  $e->{address} = $self->address->to_hash unless ($self->address->is_empty);
+  $e->{address} = $self->address->to_hash(@_) unless ($self->address->is_empty);
 
   return $e;
 }

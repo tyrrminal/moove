@@ -93,15 +93,15 @@ sub to_hash {
 
   return {
     user_id       => $self->user_id,
-    activity_type => $self->activity_type->to_hash,
+    activity_type => $self->activity_type->to_hash(@_),
     distance      => {
       quantity => {
         value => $self->distance,
-        units => $self->uom->to_hash
+        units => $self->uom->to_hash(@_)
       },
       normalized_quantity => {
         value => $self->distance,
-        units => $self->uom->to_hash
+        units => $self->uom->to_hash(@_)
       }
     }
   };

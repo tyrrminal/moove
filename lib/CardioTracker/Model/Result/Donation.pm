@@ -177,8 +177,8 @@ sub to_hash {
     id      => $self->id,
     amount  => $self->amount,
     date    => $self->date->iso8601,
-    person  => $self->person->to_hash,
-    address => $self->address->to_hash
+    person  => $self->person->to_hash(@_),
+    address => $self->address->to_hash(@_)
     };
 }
 1;
