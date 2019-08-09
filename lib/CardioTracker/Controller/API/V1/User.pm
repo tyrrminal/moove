@@ -72,9 +72,11 @@ sub get_goal($self) {
   my $goal_id = $c->validation->param('goal');
 
   if (my $u = $c->model('User')->find_user($user_id)) {
-    my $ug = $u->user_goals->search({goal_id => $goal_id})->first;
-    my $g = $ug->goal->to_hash;
-    $g->{fulfillments} = [map {$_->to_hash(activities => $TRUE)} $ug->user_goal_fulfillments];
+    my $g = $u->user_goals->search({goal_id => $goal_id})->first->to_hash(
+      fulfillments => $TRUE,
+      activities   => $TRUE,
+      event        => sub {shift->event_registrations->visible_to($c->current_user) > 0}
+    );
 
     return $c->render(
       status  => 200,
