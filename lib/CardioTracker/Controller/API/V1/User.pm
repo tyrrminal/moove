@@ -23,7 +23,7 @@ sub get_summary($self) {
       next     => $reg->future->visible_to($c->current_user)->ordered('-asc')->first
     );
     foreach (keys(%e)) {
-      if (defined($e{$_})) {$e{$_} = $e{$_}->to_hash(complete => $TRUE);}
+      if (defined($e{$_})) {$e{$_} = $e{$_}->to_hash_complete;}
       else                 {delete($e{$_});}
     }
     return $c->render(
