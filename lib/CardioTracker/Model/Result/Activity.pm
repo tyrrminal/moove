@@ -439,8 +439,8 @@ sub to_hash {
   if ($cb->allow_group('goal')) {
     my @record_fulfillments =
       grep {$cb->allow('goal', $_)}
-      map  {$_->user_goal_fulfillment}
-      grep {$_->user_goal_fulfillment->user_goal->goal->is_pr} $self->user_goal_fulfillment_activities;
+      grep {$_->most_recent_activity->id == $self->id}
+      grep {$_->user_goal->goal->is_pr} $self->user_goal_fulfillments;
     $a->{records} = [
       map {
         $_->user_goal->to_hash(@_, fulfillment => sub {shift->id == $_->id})
@@ -450,11 +450,10 @@ sub to_hash {
 
     my @ach_fulfillments =
       grep {$cb->allow('goal', $_)}
-      map  {$_->user_goal_fulfillment}
-      grep {!$_->user_goal_fulfillment->user_goal->goal->is_pr} $self->user_goal_fulfillment_activities;
+      grep {!$_->user_goal->goal->is_pr} $self->user_goal_fulfillments;
     $a->{achievements} = [
       map {
-        $_->user_goal->to_hash(@_, fulfillments => sub {shift->id == $_->id})
+        $_->user_goal->to_hash(@_, fulfillment => sub {shift->id == $_->id})
         } @ach_fulfillments
       ]
       if (@ach_fulfillments);
