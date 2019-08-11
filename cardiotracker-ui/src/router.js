@@ -33,38 +33,22 @@ let router = new Router({
       component: Home
     },
     {
-      path: "/user",
-      name: "user_own",
-      component: User,
-      meta: {
-        requiresAuth: true
-      }
-    },
-    {
       path: "/user/:user",
       name: "user",
       component: User
     },
     {
-      path: "/goals/:user",
+      path: "/user/:user/goals",
       name: "goals",
       component: Goals
     },
     {
-      path: "/goal/:user/:id",
+      path: "/user/:user/goal/:id",
       name: "goal",
       component: Goal
     },
     {
-      path: "/event/:id",
-      name: "event_own",
-      component: Event,
-      meta: {
-        requiresAuth: true
-      }
-    },
-    {
-      path: "/event/:user/:id",
+      path: "/user/:user/event/:id",
       name: "event",
       component: Event
     },
