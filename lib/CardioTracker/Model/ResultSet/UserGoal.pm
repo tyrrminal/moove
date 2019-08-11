@@ -46,7 +46,7 @@ sub for_user {
 
   return $self->search(
     {
-    user_id => $user->id
+      user_id => $user->id
     }
   );
 }
@@ -62,9 +62,19 @@ sub of_type {
         'goal.activity_type_id' => {'=', undef}
       ]
     }, {
-    join => 'goal'
+      join => 'goal'
     }
   );
+}
+
+sub update_applicable_goals {
+  my $self = shift;
+  my ($activity) = @_;
+  return unless (defined($activity->user));
+
+  foreach my $ug ($self->for_user($activity->user)->of_type($activity->activity_type)) {
+    $ug->update($activity);
+  }
 }
 
 1;
