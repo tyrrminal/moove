@@ -206,9 +206,16 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Goal'
+                type: object
+                properties:
+                  personalRecords:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Goal'
+                  achievements:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Goal'
   /goal/{user}/{goal}:
     get:
       summary: Get a single goal
@@ -586,10 +593,14 @@ components:
           type: integer
         name:
           type: string
+        activity_type:
+          $ref: '#/components/schemas/ActivityType'
         dimension:
           type: string
         is_pr:
           type: boolean
+        count:
+          type: integer
         fulfillments:
           type: array
           items:

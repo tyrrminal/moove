@@ -32,7 +32,8 @@ sub get_summary($self) {
         user              => $u->to_hash,
         recent_activities => [map {$_->to_hash} @recent],
         events            => {%e},
-        totals            => [map {$_->to_hash} @results]
+        goals             => [map {$_->to_hash(fulfillments => $TRUE)} $u->user_goals->fulfilled('-desc')->slice(0, 4)],
+        totals => [map {$_->to_hash} @results]
       }
     );
   }
@@ -49,9 +50,21 @@ sub get_goals($self) {
   my $user_id = $c->validation->param('user');
 
   if (my $u = $c->model('User')->find_user($user_id)) {
+    my $goals = $u->user_goals->search({}, {join => 'goal', order_by => 'goal.activity_type_id, goal.name'});
     return $c->render(
       status  => 200,
-      openapi => [map {$_->to_hash(fulfillments => $TRUE)} $u->user_goals->all]
+      openapi => {
+        personalRecords => [map {$_->to_hash(most_recent_fulfillment => $TRUE)} $goals->personal_records->all],
+        achievements    => [
+          map {
+            $_->to_hash(
+              fulfillments         => $TRUE,
+              most_recent_activity => $TRUE,
+              event                => sub {shift->event_registrations->visible_to($c->current_user) > 0}
+              )
+            } $goals->achievements->all
+        ]
+      }
     );
   }
 }
@@ -64,9 +77,9 @@ sub get_goal($self) {
 
   if (my $u = $c->model('User')->find_user($user_id)) {
     my $g = $u->user_goals->search({goal_id => $goal_id})->first->to_hash(
-      fulfillments => $TRUE,
-      activities   => $TRUE,
-      event        => sub {shift->event_registrations->visible_to($c->current_user) > 0}
+      fulfillments         => $TRUE,
+      most_recent_activity => $TRUE,
+      event                => sub {shift->event_registrations->visible_to($c->current_user) > 0}
     );
 
     return $c->render(
