@@ -28,7 +28,7 @@ sub get {
 
       return $c->render(
         openapi => {
-          event => $er->to_hash_complete(goals => $TRUE),
+          event => $er->to_hash_complete(goals => $TRUE, donations => ($c->current_user->id == $u->id)),
           links => \%l
         }
       );
