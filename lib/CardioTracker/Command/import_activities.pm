@@ -22,9 +22,9 @@ OPTIONS:
 USAGE
 
 my %status_wording = (
-  add => 'Importing',
+  add    => 'Importing',
   update => 'Updating',
-  skip => 'Skipping'
+  skip   => 'Skipping'
 );
 
 sub run ($self, @args) {
@@ -53,13 +53,10 @@ sub run ($self, @args) {
 
   } else {
     foreach my $activity ($importer->fetch_activities()) {
-      my ($act,$status) = $self->app->model('Activity')->add_imported_activity($activity, $user);
-      say sprintf('%s %s: %s %s', 
-        $status_wording{$status}, 
-        $act->start_time->strftime('%F'), 
-        $act->distance->description, 
-        $act->activity_type->description
-      );
+      my ($act, $status) = $self->app->model('Activity')->add_imported_activity($activity, $user);
+      say sprintf('%s %s: %s %s',
+        $status_wording{$status},    $act->start_time->strftime('%F'),
+        $act->distance->description, $act->activity_type->description);
     }
   }
 }
