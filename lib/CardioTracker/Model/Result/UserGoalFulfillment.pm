@@ -157,6 +157,12 @@ use InclusionCallback;
 
 use DCS::Constants qw(:boolean);
 
+sub most_recent_activity {
+  my $self = shift;
+
+  return $self->user_goal_fulfillment_activities->ordered('-desc')->first->activity;
+}
+
 sub get_goal_value {
   my $self = shift;
   unless (exists($self->{_goal_value})) {    # goal_value is computationally intensive, so we'll cache the result
@@ -235,6 +241,9 @@ sub to_hash {
       map {$_->activity->to_hash(@_, goals => $FALSE)}
       grep {$cb->allow('activity', $_->activity)} $self->user_goal_fulfillment_activities->ordered('-desc')
     ];
+  } else {
+    my $mr = $self->user_goal_fulfillment_activities->ordered('-desc')->first->activity;
+    $r->{activities} = [$mr->to_hash(@_)] if ($cb->allow('most_recent_activity', $mr));
   }
   return $r;
 }
