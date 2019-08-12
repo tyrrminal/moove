@@ -1,5 +1,9 @@
 <template>
   <layout-default>
+    <template #sidebar>
+      <SideBar />
+    </template>
+
     <vue-headful :title="'Moo\'ve / Goals'" />
 
     <template v-if="prs.length">
@@ -12,12 +16,11 @@
           :to="{ name: 'goal', params: { user: effectiveUser, id: g.id } }"
         >
           <span>
+            <span class="text-muted">[{{ g.activity_type.description }}]</span>
             <label class="listlabel">{{ g.name }}:</label>
-            <template
-              v-if="g.fulfillments.length"
-            >{{ g.fulfillments[g.fulfillments.length-1].description }}</template>
+            <template v-if="g.count">{{ g.fulfillments[0].description }}</template>
           </span>
-          <b-badge variant="info" pill>{{ g.fulfillments.length }}</b-badge>
+          <b-badge variant="info" pill>{{ g.count }}</b-badge>
         </b-list-group-item>
       </b-list-group>
     </template>
@@ -28,10 +31,15 @@
       <h3>Achievements</h3>
       <b-list-group class="py-0">
         <b-list-group-item v-for="g in achievements" :key="g.id">
+          <span class="text-muted">[{{ g.activity_type.description }}]</span>
           <label class="listlabel">{{ g.name }}:</label>
-          <span
-            v-if="g.fulfillments.length"
-          >{{ g.fulfillments[g.fulfillments.length-1].date | moment('M/D/YY') }}</span>
+          <span v-if="g.count">
+            {{ g.fulfillments[0].date | moment('M/D/YY') }}
+            <b-link
+              v-if="g.fulfillments[0].activities[0].event"
+              :to="{ name: 'event', params: { id: g.fulfillments[0].activities[0].event.id }}"
+            >{{ g.fulfillments[0].activities[0].event.name }}</b-link>
+          </span>
           <font-awesome-icon v-else icon="times" />
         </b-list-group-item>
       </b-list-group>
@@ -41,14 +49,17 @@
 
 <script>
 import LayoutDefault from "@/layouts/LayoutDefault.vue";
+import SideBar from "@/components/SideBar.vue";
 
 export default {
   components: {
-    LayoutDefault
+    LayoutDefault,
+    SideBar
   },
   data() {
     return {
-      goals: [],
+      prs: [],
+      achievements: [],
       error: ""
     };
   },
@@ -58,7 +69,8 @@ export default {
       this.$http
         .get("goals/" + self.effectiveUser)
         .then(response => {
-          self.goals = response.data;
+          self.prs = response.data.personalRecords;
+          self.achievements = response.data.achievements;
         })
         .catch(err => (self.error = err.response.data.message));
     }
@@ -70,12 +82,6 @@ export default {
     effectiveUser: function() {
       if (this.$route.params.user) return this.$route.params.user;
       return this.$store.getters["auth/currentUser"].username;
-    },
-    prs: function() {
-      return this.goals.filter(i => i.is_pr);
-    },
-    achievements: function() {
-      return this.goals.filter(i => !i.is_pr);
     }
   }
 };
