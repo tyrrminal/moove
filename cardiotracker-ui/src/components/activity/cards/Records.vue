@@ -1,38 +1,18 @@
 <template>
   <b-card title="Personal Records" class="records">
-    <b-list-group flush>
-      <b-list-group-item v-for="r in records" :key="r.id">
-        <label>
-          <b-link :to="{ name: 'goal', params: { id: r.id } }">{{ r.name }}</b-link>
-        </label>:
-        <span :class="displayClass(r)">{{ r.fulfillments[0].description }}</span>
-      </b-list-group-item>
-    </b-list-group>
+    <List :records="records" :flush="true" />
   </b-card>
 </template>
 
 <script>
+import List from "@/components/activity/lists/Records.vue";
+
 export default {
+  components: {
+    List
+  },
   props: {
     records: Array
-  },
-  methods: {
-    displayClass: function(r) {
-      return r.fulfillments[0].is_current ? "current" : "text-muted";
-    }
   }
 };
 </script>
-
-<style scoped>
-.records .list-group-item {
-  text-align: left;
-}
-.records label {
-  width: 60%;
-  text-align: right;
-}
-.current {
-  font-weight: bold;
-}
-</style>
