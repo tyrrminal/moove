@@ -1,3 +1,4 @@
+#<<<
 use utf8;
 package CardioTracker::Model::Result::EventReference;
 
@@ -153,10 +154,10 @@ __PACKAGE__->belongs_to(
   { id => "event_reference_type_id" },
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
+#>>>
 
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-21 19:06:08
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Spa/JUNZ5ao5yD5RnqNUXw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-02 13:17:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:sOfBDQz1Vz2rpfhxaZue0w
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

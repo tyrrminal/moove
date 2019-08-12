@@ -21,11 +21,11 @@ sub list {
       my $er ($c->model('EventRegistration')->in_series($event_series_id)->for_user($u)->visible_to($c->current_user)->ordered())
     {
       my $h = {
-        registration => $er->to_hash(donations => $FALSE),
+        registration => $er->to_hash,
         event        => $er->event->to_hash
       };
       if (my $activity = $er->event->activities->search({user_id => $u->id})->first) {
-        $h->{activity} = $activity->to_hash(event => $FALSE);
+        $h->{activity} = $activity->to_hash;
 
         if (my @results = $activity->result->event_results) {
           $h->{results} = [map {$_->to_hash} @results];

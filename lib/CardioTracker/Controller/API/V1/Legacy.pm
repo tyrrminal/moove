@@ -82,37 +82,23 @@ sub get_activities {
   my $u = $c->app->model('User')->find({username => $c->validation->param('username')});
   return $c->render_error(404, "User not found") unless ($u);
 
-  my ($page, $per_page) = ($c->validation->param('page') || 1, $c->validation->param('perPage') || 10);
+  my ($page, $per_page) = (($c->validation->param('page') || 1) + 0, ($c->validation->param('perPage') || 10) + 0);
   my $offset = max($page - 1, 0) * $per_page;
 
-  my @activities;
-  my %max = map {$_->description => undef} $c->app->model('ActivityType')->all;
-  my $i = 0;
-  foreach
-    my $activity ($c->app->model('Activity')->whole->for_user($u)->core->completed->ordered->slice(0, $offset + $per_page - 1)->all)
-  {
-    my $t         = $activity->activity_type->description;
-    my $prior_max = $max{$t};
-    if ($activity->distance->normalized_value > (defined($prior_max) ? $prior_max->distance->normalized_value : 0)) {
-      $max{$t} = $activity;
-    }
-    next unless (++$i > $offset);
-
-    my $a = $activity->to_hash;
-    $a->{prior_distance_pr} = $prior_max->to_hash if (defined($prior_max));
-    push(@activities, $a);
-  }
+  my $rs = $c->app->model('Activity')->whole->for_user($u)->core->completed->ordered;
+  my $sliced = $rs->slice($offset, $offset + $per_page - 1);
 
   return $c->render(
     openapi => {
-      activities => \@activities,
+      activities => [map {$_->to_hash} $sliced->all],
       _meta      => {
         page    => $page,
         perPage => $per_page,
-        count   => scalar @activities
+        count   => $sliced->count,
+        total   => $rs->count
       }
     }
-    );
+  );
 }
 
 1;

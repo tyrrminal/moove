@@ -1,4 +1,4 @@
-openapi: 3.0.1
+openapi: 3.0.2
 info:
   title: Moo've
   description: ""
@@ -6,7 +6,7 @@ info:
     email: ct@digicow.net
   version: 1.0.0
 servers:
-- url: https://ct.digicow.net/api/v1
+- url: https://moove.digicowsoftware.com/api/v1
 security:
 - user: []
 paths:
@@ -189,6 +189,57 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /goals/{user}:
+    get:
+      summary: Get goals and goal fulfillments for a user
+      x-mojo-to: API::V1::User#get_goals
+      parameters:
+        - name: user
+          in: path
+          description: username or user ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  personalRecords:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Goal'
+                  achievements:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Goal'
+  /goal/{user}/{goal}:
+    get:
+      summary: Get a single goal
+      x-mojo-to: API::V1::User#get_goal
+      parameters:
+        - name: user
+          in: path
+          description: username or user ID
+          required: true
+          schema:
+            type: string
+        - name: goal
+          in: path
+          description: goal ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Goal'
   /user/{user}/summary:
     get:
       summary: Get basic activity/event information for a user
@@ -313,6 +364,10 @@ components:
           $ref: '#/components/schemas/Activity'
         prior_distance_pr:
           $ref: '#/components/schemas/Activity'
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/Goal'
     ActivityResult:
       type: object
       properties:
@@ -427,7 +482,7 @@ components:
           type: integer
           nullable: true
         countdown:
-          $ref: '#/components/schemas/EventCountdown'
+          $ref: '#/components/schemas/Duration'
         event_type:
           $ref: '#/components/schemas/EventType'
         distance:
@@ -437,19 +492,6 @@ components:
         event_sequence_id:
           type: integer
           nullable: true
-    EventCountdown:
-      type: object
-      required:
-        - days
-        - months
-        - weeks
-      properties:
-        days:
-          type: number
-        weeks:
-          type: number
-        months:
-          type: number
     EventLinks:
       type: object
       properties:
@@ -541,6 +583,43 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Donation'
+    Goal:
+      type: object
+      required:
+        - dimension
+        - name
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        activity_type:
+          $ref: '#/components/schemas/ActivityType'
+        dimension:
+          type: string
+        is_pr:
+          type: boolean
+        count:
+          type: integer
+        fulfillments:
+          type: array
+          items:
+            $ref: '#/components/schemas/GoalRecord'
+    GoalRecord:
+      type: object
+      required:
+        - description
+        - is_current
+        - value
+      properties:
+        description:
+          type: string
+        is_current:
+          type: boolean
+        value:
+          anyOf:
+            - $ref: '#/components/schemas/Amount'
+            - $ref: '#/components/schemas/Duration'
     Person:
       type: object
       required:
@@ -645,6 +724,23 @@ components:
           type: number
         units:
           $ref: '#/components/schemas/UnitOfMeasure'
+    Duration:
+      type: object
+      properties:
+        years:
+          type: number
+        months:
+          type: number
+        weeks:
+          type: number
+        days:
+          type: number
+        hours:
+          type: number
+        minutes:
+          type: number
+        seconds:
+          type: number
     Error:
       type: object
       required:

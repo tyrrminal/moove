@@ -1,3 +1,4 @@
+#<<<
 use utf8;
 package CardioTracker::Model::Result::Event;
 
@@ -29,7 +30,11 @@ use base 'DBIx::Class::Core';
 
 =cut
 
-__PACKAGE__->load_components("Relationship::Predicate", "InflateColumn::DateTime", "InflateColumn::Time",);
+__PACKAGE__->load_components(
+  "Relationship::Predicate",
+  "InflateColumn::DateTime",
+  "InflateColumn::Time",
+);
 
 =head1 TABLE: C<event>
 
@@ -85,22 +90,23 @@ __PACKAGE__->table("event");
 
 __PACKAGE__->add_columns(
   "id",
-  {data_type => "integer", is_auto_increment => 1, is_nullable => 0},
+  { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "event_group_id",
-  {data_type => "integer", is_foreign_key => 1, is_nullable => 0},
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "name",
-  {data_type => "varchar", is_nullable => 1, size => 45},
-  "scheduled_start", {
-    data_type                 => "datetime",
+  { data_type => "varchar", is_nullable => 1, size => 45 },
+  "scheduled_start",
+  {
+    data_type => "datetime",
     datetime_undef_if_invalid => 1,
-    is_nullable               => 0,
+    is_nullable => 0,
   },
   "entrants",
-  {data_type => "integer", extra => {unsigned => 1}, is_nullable => 1},
+  { data_type => "integer", extra => { unsigned => 1 }, is_nullable => 1 },
   "event_type_id",
-  {data_type => "integer", is_foreign_key => 1, is_nullable => 0},
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "distance_id",
-  {data_type => "integer", is_foreign_key => 1, is_nullable => 0},
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY
@@ -126,8 +132,10 @@ Related object: L<CardioTracker::Model::Result::Activity>
 =cut
 
 __PACKAGE__->has_many(
-  "activities", "CardioTracker::Model::Result::Activity",
-  {"foreign.event_id" => "self.id"}, {cascade_copy => 0, cascade_delete => 0},
+  "activities",
+  "CardioTracker::Model::Result::Activity",
+  { "foreign.event_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 =head2 distance
@@ -141,8 +149,8 @@ Related object: L<CardioTracker::Model::Result::Distance>
 __PACKAGE__->belongs_to(
   "distance",
   "CardioTracker::Model::Result::Distance",
-  {id            => "distance_id"},
-  {is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION"},
+  { id => "distance_id" },
+  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 =head2 event_group
@@ -156,8 +164,8 @@ Related object: L<CardioTracker::Model::Result::EventGroup>
 __PACKAGE__->belongs_to(
   "event_group",
   "CardioTracker::Model::Result::EventGroup",
-  {id            => "event_group_id"},
-  {is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION"},
+  { id => "event_group_id" },
+  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 =head2 event_references
@@ -169,8 +177,10 @@ Related object: L<CardioTracker::Model::Result::EventReference>
 =cut
 
 __PACKAGE__->has_many(
-  "event_references", "CardioTracker::Model::Result::EventReference",
-  {"foreign.event_id" => "self.id"}, {cascade_copy => 0, cascade_delete => 0},
+  "event_references",
+  "CardioTracker::Model::Result::EventReference",
+  { "foreign.event_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 =head2 event_registrations
@@ -182,8 +192,10 @@ Related object: L<CardioTracker::Model::Result::EventRegistration>
 =cut
 
 __PACKAGE__->has_many(
-  "event_registrations", "CardioTracker::Model::Result::EventRegistration",
-  {"foreign.event_id" => "self.id"}, {cascade_copy => 0, cascade_delete => 0},
+  "event_registrations",
+  "CardioTracker::Model::Result::EventRegistration",
+  { "foreign.event_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 =head2 event_result_groups
@@ -195,8 +207,10 @@ Related object: L<CardioTracker::Model::Result::EventResultGroup>
 =cut
 
 __PACKAGE__->has_many(
-  "event_result_groups", "CardioTracker::Model::Result::EventResultGroup",
-  {"foreign.event_id" => "self.id"}, {cascade_copy => 0, cascade_delete => 0},
+  "event_result_groups",
+  "CardioTracker::Model::Result::EventResultGroup",
+  { "foreign.event_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 =head2 event_type
@@ -210,13 +224,13 @@ Related object: L<CardioTracker::Model::Result::EventType>
 __PACKAGE__->belongs_to(
   "event_type",
   "CardioTracker::Model::Result::EventType",
-  {id            => "event_type_id"},
-  {is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION"},
+  { id => "event_type_id" },
+  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
+#>>>
 
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-11 22:42:34
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:aOiNtJsm49ck1IfhCyc/UQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-02 13:17:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:tVskdgFWW4HQUZGwxH/OvQ
 
 use CardioTracker::Import::Event::RaceWire;
 use CardioTracker::Import::Event::IResultsLive;
@@ -300,30 +314,31 @@ sub router_link {
 
   return {
     route_name => 'event',
-    params => { id => $self->id },
-    text => $self->description
-  }
+    params     => {id => $self->id},
+    text       => $self->description
+    };
 }
 
 sub event_url {
-  my $self=shift;
+  my $self = shift;
 
   my $url = $self->event_group->url;
-  return $url if(defined($url));
+  return $url if (defined($url));
 
-  if(my $seq = $self->event_group->event_sequence) {
+  if (my $seq = $self->event_group->event_sequence) {
     return $seq->url;
   }
   return undef;
 }
 
 sub results_url {
-  my $self=shift;
+  my $self = shift;
 
   my @urls;
   foreach ($self->event_references) {
     my $ert = $_->event_reference_type;
-    my $importer = sprintf('CardioTracker::Import::Event::%s', $ert->description)->new(event_id => $_->ref_num, race_id => $_->sub_ref_num);
+    my $importer =
+      sprintf('CardioTracker::Import::Event::%s', $ert->description)->new(event_id => $_->ref_num, race_id => $_->sub_ref_num);
     push(@urls, $importer->url);
   }
 
@@ -341,12 +356,12 @@ sub to_hash {
     results_url       => $self->results_url,
     scheduled_start   => $self->scheduled_start->iso8601,
     entrants          => $self->entrants,
-    event_type        => $self->event_type->to_hash,
-    distance          => $self->distance->to_hash,
+    event_type        => $self->event_type->to_hash(@_),
+    distance          => $self->distance->to_hash(@_),
     event_sequence_id => $self->event_group->event_sequence_id,
     %cd
   };
-  $e->{address} = $self->address->to_hash unless($self->address->is_empty);
+  $e->{address} = $self->address->to_hash(@_) unless ($self->address->is_empty);
 
   return $e;
 }

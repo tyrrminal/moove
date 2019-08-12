@@ -28,7 +28,7 @@ sub get {
 
       return $c->render(
         openapi => {
-          event => $er->to_hash(complete => $TRUE),
+          event => $er->to_hash_complete(goals => $TRUE, donations => ($c->current_user->id == $u->id)),
           links => \%l
         }
       );
@@ -59,11 +59,11 @@ sub list {
     my @events;
     foreach my $er ($c->model('EventRegistration')->for_user($u)->visible_to($c->current_user)->ordered('-desc')) {
       my $h = {
-        registration => $er->to_hash(donations => $FALSE),
+        registration => $er->to_hash,
         event        => $er->event->to_hash
       };
       if (my $activity = $er->event->activities->search({user_id => $u->id})->first) {
-        $h->{activity} = $activity->to_hash(event => $FALSE);
+        $h->{activity} = $activity->to_hash;
 
         if (my @results = $activity->result->event_results) {
           $h->{results} = [map {$_->to_hash} @results];

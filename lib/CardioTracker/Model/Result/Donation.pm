@@ -1,3 +1,4 @@
+#<<<
 use utf8;
 package CardioTracker::Model::Result::Donation;
 
@@ -162,10 +163,10 @@ __PACKAGE__->belongs_to(
   { id => "person_id" },
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
+#>>>
 
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-01-26 10:01:56
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:UfCWmGtpxVTZjvTWuSmFqg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-02 13:17:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:JHII6aMtS6qw4QVmIYXiOQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
@@ -176,8 +177,8 @@ sub to_hash {
     id      => $self->id,
     amount  => $self->amount,
     date    => $self->date->iso8601,
-    person  => $self->person->to_hash,
-    address => $self->address->to_hash
+    person  => $self->person->to_hash(@_),
+    address => $self->address->to_hash(@_)
     };
 }
 1;

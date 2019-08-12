@@ -1,28 +1,30 @@
 import Vue from "vue";
 import Router from "vue-router";
-import store from './store.js'
+import store from "./store.js";
 import Home from "./views/Home.vue";
 import Login from "@/components/auth/Login.vue";
 
-import User from '@/views/User.vue';
-import Event from "./views/Event.vue";
+import User from "@/views/User.vue";
+import Goals from "@/views/Goals.vue";
+import Goal from "@/views/Goal.vue";
+import Event from "@/views/Event.vue";
 
 import LegacySummary from "./views/Legacy/Summary.vue";
 import LegacyEvents from "./views/Legacy/Events.vue";
 import LegacyActivities from "./views/Legacy/Activities.vue";
 
-import ErrorNotFound from '@/error/NotFound.vue';
+import ErrorNotFound from "@/error/NotFound.vue";
 
 Vue.use(Router);
-Vue.use(require('vue-moment'));
+Vue.use(require("vue-moment"));
 
 let router = new Router({
   mode: "history",
   base: process.env.BASE_URL,
   routes: [
     {
-      path: '/login',
-      name: 'login',
+      path: "/login",
+      name: "login",
       component: Login
     },
     {
@@ -31,30 +33,24 @@ let router = new Router({
       component: Home
     },
     {
-      path: "/user",
-      name: "user_own",
-      component: User,
-      meta: {
-        requiresAuth: true
-      }
-    },
-    {
       path: "/user/:user",
       name: "user",
       component: User
     },
     {
-      path: "/event/:id",
-      name: "event_own",
-      component: Event,
-      meta: {
-        requiresAuth: true
-      }
+      path: "/user/:user/goals",
+      name: "goals",
+      component: Goals
     },
     {
-      path: "/event/:user/:id",
+      path: "/user/:user/goal/:id",
+      name: "goal",
+      component: Goal
+    },
+    {
+      path: "/user/:user/event/:id",
       name: "event",
-      component: Event,
+      component: Event
     },
     {
       path: "/legacy/summary",
@@ -81,23 +77,22 @@ let router = new Router({
       }
     },
     {
-      path: '*',
-      name: 'error_not_found',
+      path: "*",
+      name: "error_not_found",
       component: ErrorNotFound
     }
   ]
 });
 
 router.beforeEach((to, from, next) => {
-  let exp = store.getters['auth/expiration'];
-  if(exp.diff(Vue.moment()) < 0) {
-    store.dispatch('auth/logout').then(() => next());
+  let exp = store.getters["auth/expiration"];
+  if (exp.diff(Vue.moment()) < 0) {
+    store.dispatch("auth/logout").then(() => next());
   }
 
-  if(store.getters['auth/status'] === '')
-    store.dispatch('auth/check').then(() => next());
-  else
-    next();
+  if (store.getters["auth/status"] === "")
+    store.dispatch("auth/check").then(() => next());
+  else next();
 });
 
 export default router;
