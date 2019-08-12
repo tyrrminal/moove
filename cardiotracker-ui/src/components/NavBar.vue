@@ -24,7 +24,7 @@
           <template slot="button-content">
             <em>{{ username }}</em>
           </template>
-          <b-dropdown-item :to="{ name: 'user_own' }">Profile</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'user', params: { user: username } }">Profile</b-dropdown-item>
           <b-dropdown-item @click="logout">Sign Out</b-dropdown-item>
         </b-nav-item-dropdown>
         <b-nav-item v-else :to="{ name: 'login' }">Sign In</b-nav-item>
@@ -46,7 +46,7 @@ export default {
   methods: {
     logout: function() {
       this.$store.dispatch("auth/logout").then(() => {
-        this.$router.push("/login");
+        this.$router.go();
       });
     }
   }
