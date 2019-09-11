@@ -36,8 +36,11 @@ sub run($self, @args) {
     'all'          => \my $import_all
   );
 
-  if($import_all) {
-    foreach ($self->app->model('EventReference')->search({ imported => 'N' },{'join' => 'event', 'order_by' => 'event.scheduled_start'})) {
+  if ($import_all) {
+    foreach (
+      $self->app->model('EventReference')->search({imported => 'N'}, {'join' => 'event', 'order_by' => 'event.scheduled_start'}))
+    {
+      next if ($_->event->scheduled_start > DateTime->now);
       $self->import_event($import_class . $_->event_reference_type->description, $_->ref_num, $_->sub_ref_num);
     }
   } else {
