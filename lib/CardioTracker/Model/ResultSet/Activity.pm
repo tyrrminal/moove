@@ -46,13 +46,15 @@ sub add_imported_activity {
     $status = 'update';
     $act->update(
       {
-        user_id    => $user->id,
-        start_time => $activity->{date},
-        note       => $activity->{notes}
+        user_id     => $user->id,
+        start_time  => $activity->{date},
+        note        => $activity->{notes},
+        distance    => $distance,
+        temperature => $activity->{temperature}
       }
     );
     $act->result->update({heart_rate => $activity->{heart_rate}});
-    $act->result->update({pace => $activity->{pace}}) unless (defined($act->result->pace));
+    $act->result->update({pace       => $activity->{pace}});
   } else {
     # Create the activity and result
     my $result = $schema->resultset('Result')->create(
