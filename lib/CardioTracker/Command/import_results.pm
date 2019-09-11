@@ -73,18 +73,25 @@ sub import_event($self, $import_class, $id, $race) {
     } else {
       $person = $self->app->model('Person')->create({first_name => $p->{first_name}, last_name => $p->{last_name}});
     }
-    my $result = $self->app->model('Result')->create({
+    unless ($person->user && $person->user->activities->find({event_id => $event->id})->count) {
+      my $result = $self->app->model('Result')->create(
+        {
       gross_time => $p->{gross_time},
       pace       => $p->{pace},
       net_time   => $p->{net_time}
-    });
-    my $activity = $self->app->model('Activity')->create({
+        }
+      );
+      my $activity = $self->app->model('Activity')->create(
+        {
       activity_type => $event->event_type->activity_type,
       start_time    => $event->scheduled_start,
       distance      => $event->distance,
       result        => $result,
-      event         => $event
-    });
+          event         => $event,
+          user_id       => $person->user ? $person->user->id : undef
+        }
+      );
+    }
 
     my $overall_group = $self->app->model('EventResultGroup')->find_or_create({event => $event, gender_id => $NULL, division_id => $NULL});
     $overall_group->update({count => $p->{overall_count}}) if(defined($p->{overall_count}));
