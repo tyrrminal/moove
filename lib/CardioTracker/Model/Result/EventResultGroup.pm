@@ -200,12 +200,12 @@ use Modern::Perl;
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 sub description {
-  my $self=shift;
+  my $self = shift;
 
   my $g;
-  if(defined($self->gender)) {
+  if (defined($self->gender)) {
     $g = $self->gender->description;
-  } elsif(defined($self->division)) {
+  } elsif (defined($self->division)) {
     $g = $self->division->name;
   } else {
     $g = 'Overall';
@@ -214,7 +214,7 @@ sub description {
 }
 
 sub update_count {
-  my $self=shift;
+  my $self = shift;
 
   $self->update({count => $self->event_results->count});
 }
