@@ -42,7 +42,7 @@ sub add_imported_activity {
   }
   my $act;
   my $event = $schema->resultset('Event')->for_user($user)->of_type($activity_type)->near_datetime($activity->{date}, 5, 30)->first;
-  if ($event && ($act = $event->activities->for_person($user->person->id)->first)) {
+  if ($event && ($act = $event->activities->for_person($user->person)->first)) {
     $status = 'update';
     $act->update(
       {
