@@ -210,7 +210,7 @@ sub description {
   } else {
     $g = 'Overall';
   }
-  return join('/',$self->event->name, $g);
+  return join('/', $self->event->description, $g);
 }
 
 sub update_count {
