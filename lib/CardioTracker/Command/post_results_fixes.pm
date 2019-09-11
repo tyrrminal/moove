@@ -17,9 +17,7 @@ USAGE
 
 sub run($self, @args) {
   $self->fix_addresss;
-  $self->fix_group_counts;
-  $self->fix_paces;
-  $self->fix_gender_groups;
+  $self->fix_events_results;
 
   $self->fix_bib_nos(2014,'2014 Fisher Cats Mother\'s Day 3k');
 }
@@ -45,38 +43,19 @@ sub fix_addresss {
 }
 
 # Add counts to existing result groups where count is NULL
-sub fix_group_counts {
-  my $self=shift;
-
-  my $rs = $self->app->model('EventResultGroup')->missing_count;
-  while (my $g = $rs->next) {
-    say "Updating counts for ".$g->description;
-    $g->update_count;
-  }
-}
-
+# Create missing gender groups and populate relative event results
 # Calculate pace for existing Results where pace is NULL
-sub fix_paces {
-  my $self=shift;
+sub fix_events_results {
+  my $self = shift;
 
-  say "Updating missing paces";
-  my $rs2 = $self->app->model('Result')->needs_pace;
-  while (my $r = $rs2->next) {
-    $r->update_pace;
-  }
-}
-
-  # Create missing gender groups and populate relative event results
-sub fix_gender_groups {
-  my $self=shift;
-
-  my @genders = $self->app->model('Gender')->all;
-  my $rs3 = $self->app->model('Event')->is_missing_gender_group;
-  while (my $e = $rs3->next) {
-    foreach my $g (@genders) {
-      say "creating result groups for ".$e->name."/".$g->description;
-      $e->create_gender_result_group($g) unless($e->event_result_groups->search({gender_id => $g->id, division_id => $NULL})->count);
-    }
+  say "fixing event " . $e->description . "/" . $g->description;
+  foreach my $e ($self->app->model('Event')->all) {
+    say "  gender groups";
+    $e->add_missing_gender_groups;
+    say "  group counts";
+    $e->update_missing_group_counts;
+    say "  paces";
+    $e->update_missing_result_paces;
   }
 }
 

@@ -115,8 +115,12 @@ sub import_event($self, $import_class, $id, $race) {
     });
   }
 
-  if(my ($ref) = $self->app->model('EventReference')->search({ ref_num => $id, sub_ref_num => $race })) {
-    $ref->update({ imported => 'Y' });
+  $event->add_missing_gender_groups;
+  $event->update_missing_group_counts;
+  $event->update_missing_result_paces;
+
+  if (my ($ref) = $self->app->model('EventReference')->search({ref_num => $id, sub_ref_num => $race})) {
+    $ref->update({imported => 'Y'});
   }
 }
 

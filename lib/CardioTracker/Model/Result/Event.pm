@@ -247,6 +247,35 @@ sub address {
   return $self->event_group->address;
 }
 
+sub update_missing_group_counts {
+  my $self = shift;
+
+  my $rs = $self->result_source->schema->resultset('EventResultGroup')->for_event($self)->missing_count;
+  while (my $g = $rs->next) {
+    $g->update_count;
+  }
+}
+
+sub add_missing_gender_groups {
+  my $self = shift;
+
+  if ($self->is_missing_gender_group) {
+    foreach my $g ($self->result_source->schema->resultset('Gender')->all) {
+      $self->create_gender_result_group($g)
+        unless ($e->event_result_groups->search({gender_id => $g->id, division_id => $NULL})->count);
+    }
+  }
+}
+
+sub update_missing_result_paces {
+  my $self = shift;
+
+  my $rs = $self->app->model('Result')->for_event($self)->needs_pace;
+  while (my $r = $rs->next) {
+    $r->update_pace;
+  }
+}
+
 sub create_gender_result_group {
   my $self     = shift;
   my ($gender) = @_;
@@ -316,7 +345,7 @@ sub router_link {
     route_name => 'event',
     params     => {id => $self->id},
     text       => $self->description
-    };
+  };
 }
 
 sub event_url {
