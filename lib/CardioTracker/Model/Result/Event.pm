@@ -262,7 +262,7 @@ sub add_missing_gender_groups {
   if ($self->is_missing_gender_group) {
     foreach my $g ($self->result_source->schema->resultset('Gender')->all) {
       $self->create_gender_result_group($g)
-        unless ($e->event_result_groups->search({gender_id => $g->id, division_id => $NULL})->count);
+        unless ($self->event_result_groups->search({gender_id => $g->id, division_id => $NULL})->count);
     }
   }
 }
