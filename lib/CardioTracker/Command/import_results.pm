@@ -74,8 +74,8 @@ sub import_event ($self, $import_class, $id, $race) {
       $person = $self->app->model('Person')->create({first_name => $p->{first_name}, last_name => $p->{last_name}});
     }
     my $result;
-    if ($person->user) {
-      my $act_rs = $person->user->activities->find({event_id => $event->id});
+    if ($person->users->count) {
+      my $act_rs = $person->users->first->activities->find({event_id => $event->id});
       if ($act_rs->count) {
         $result = $act_rs->first->result;
       }
