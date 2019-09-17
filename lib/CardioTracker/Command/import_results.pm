@@ -75,10 +75,10 @@ sub import_event ($self, $import_class, $id, $race) {
     }
     my ($result, $user_id);
     if ($person->users->count) {
+      $user_id = $person->users->first->id;
       my $act_rs = $person->users->first->activities->search({event_id => $event->id});
       if ($act_rs->count) {
-        $result  = $act_rs->first->result;
-        $user_id = $person->users->first->id;
+        $result = $act_rs->first->result;
       }
     }
     unless ($result) {
