@@ -268,7 +268,7 @@ sub add_missing_gender_groups {
 sub update_missing_result_paces {
   my $self = shift;
 
-  my $rs = $self->app->model('Result')->for_event($self)->needs_pace;
+  my $rs = $self->result_source->schema->resultset('Result')->for_event($self)->needs_pace;
   while (my $r = $rs->next) {
     $r->update_pace;
   }
