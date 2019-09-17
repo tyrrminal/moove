@@ -73,11 +73,12 @@ sub import_event ($self, $import_class, $id, $race) {
     } else {
       $person = $self->app->model('Person')->create({first_name => $p->{first_name}, last_name => $p->{last_name}});
     }
-    my $result;
+    my $result, $user_id;
     if ($person->users->count) {
       my $act_rs = $person->users->first->activities->find({event_id => $event->id});
       if ($act_rs->count) {
-        $result = $act_rs->first->result;
+        $result  = $act_rs->first->result;
+        $user_id = $person->users->first->id;
       }
     }
     unless ($result) {
@@ -95,7 +96,7 @@ sub import_event ($self, $import_class, $id, $race) {
           distance      => $event->distance,
           result        => $result,
           event         => $event,
-          user_id       => $person->user ? $person->user->id : undef
+          user_id       => $user_id
         }
       );
     }
