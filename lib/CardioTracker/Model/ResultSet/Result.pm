@@ -10,9 +10,9 @@ sub for_event {
 
   return $self->search(
     {
-      'activity.event_id' => $event->id
+      'activities.event_id' => $event->id
     }, {
-      join => 'activity'
+      join => 'activities'
     }
   );
 }
