@@ -73,15 +73,22 @@ sub import_event ($self, $import_class, $id, $race) {
     } else {
       $person = $self->app->model('Person')->create({first_name => $p->{first_name}, last_name => $p->{last_name}});
     }
-    unless ($person->user && $person->user->activities->find({event_id => $event->id})->count) {
-      my $result = $self->app->model('Result')->create(
+    my $result;
+    if ($person->user) {
+      my $act_rs = $person->user->activities->find({event_id => $event->id});
+      if ($act_rs->count) {
+        $result = $act_rs->first->result;
+      }
+    }
+    unless ($result) {
+      $result = $self->app->model('Result')->create(
         {
           gross_time => $p->{gross_time},
           pace       => $p->{pace},
           net_time   => $p->{net_time}
         }
       );
-      my $activity = $self->app->model('Activity')->create(
+      $self->app->model('Activity')->create(
         {
           activity_type => $event->event_type->activity_type,
           start_time    => $event->scheduled_start,
