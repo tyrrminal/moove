@@ -49,8 +49,8 @@ sub fix_addresss {
 sub fix_events_results {
   my $self = shift;
 
-  say "fixing event " . $e->description . "/" . $g->description;
   foreach my $e ($self->app->model('Event')->all) {
+    say "fixing event " . $e->description;
     say "  gender groups";
     $e->add_missing_gender_groups;
     say "  group counts";
