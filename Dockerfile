@@ -24,7 +24,6 @@ RUN apt-get update && apt-get install -qy \
   libxml2 \
   libxml2-dev \
   default-libmysqlclient-dev \
-  mysql-client \
   && rm -rf /var/lib/apt/lists/*
 
 RUN cpanm Carton
