@@ -3,6 +3,7 @@ use Mojo::Base 'Mojolicious::Command', -signatures;
 
 use Mojo::Util 'getopt';
 
+use Scalar::Util qw(looks_like_number);
 use DateTime;
 
 use CardioTracker::Import::Event::RaceWire;
@@ -62,6 +63,8 @@ sub import_event ($self, $import_class, $id, $race) {
     my $division = $p->{division} ? $self->app->model('Division')->find_or_create({name => $p->{division}}) : $NULL;
     my $address = $self->app->model('Address')->find_address(city => $p->{city}, state => $p->{state}, country => $p->{country});
     my $gender = $self->app->model('Gender')->find({description => $p->{gender}});
+
+    $p->{age} = undef unless (looks_like_number($p->{age}));
 
     #create
     my $person;
