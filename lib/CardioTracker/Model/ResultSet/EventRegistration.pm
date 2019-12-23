@@ -118,5 +118,17 @@ sub future {
   );
 }
 
+sub year {
+  my $self = shift;
+  my ($year) = @_;
+
+  return $self->search(
+    {
+      -and => [\['YEAR(event.scheduled_start)=?', $year]]
+    }, {
+      join => 'event'
+    }
+  );
+}
 
 1;
