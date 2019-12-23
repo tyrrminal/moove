@@ -1,17 +1,14 @@
 import Vue from "vue";
 import Router from "vue-router";
-import store from "./store.js";
-import Home from "./views/Home.vue";
+import store from "@/store";
+import Home from "@/views/Home.vue";
 import Login from "@/components/auth/Login.vue";
 
 import User from "@/views/User.vue";
 import Goals from "@/views/Goals.vue";
 import Goal from "@/views/Goal.vue";
 import Event from "@/views/Event.vue";
-
-import LegacySummary from "./views/Legacy/Summary.vue";
-import LegacyEvents from "./views/Legacy/Events.vue";
-import LegacyActivities from "./views/Legacy/Activities.vue";
+import Events from "@/views/Events.vue";
 
 import ErrorNotFound from "@/error/NotFound.vue";
 
@@ -52,29 +49,16 @@ let router = new Router({
       name: "event",
       component: Event
     },
+
     {
-      path: "/legacy/summary",
-      name: "legacy_summary",
-      component: LegacySummary,
-      meta: {
-        requiresAuth: true
-      }
+      path: "/user/:user/events",
+      name: 'events',
+      component: Events
     },
     {
-      path: "/legacy/events",
-      name: "legacy_events",
-      component: LegacyEvents,
-      meta: {
-        requiresAuth: true
-      }
-    },
-    {
-      path: "/legacy/activities",
-      name: "legacy_activities",
-      component: LegacyActivities,
-      meta: {
-        requiresAuth: true
-      }
+      path: "/user/:user/event/sequence/:sequence_id",
+      name: 'sequence',
+      component: Events
     },
     {
       path: "*",
