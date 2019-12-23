@@ -242,7 +242,7 @@ sub to_hash_complete {
     $h->{activity} = $activity->to_hash(@_, event => $FALSE);
 
     if (my @results = $activity->result->event_results) {
-      $h->{results} = [map {$_->to_hash(@_)} @results];
+      $h->{results} = {url => $self->event->results_url, groups => [map {$_->to_hash(@_)} @results]};
     }
   }
   return $h;

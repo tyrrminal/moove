@@ -431,9 +431,9 @@ sub to_hash {
     temperature   => $self->temperature,
     note          => $self->note,
   };
-  $a->{start_time} = $self->start_time->iso8601 if (defined($self->start_time));
-  $a->{result}     = $self->result->to_hash(@_) if (defined($self->result));
-  $a->{event} = $self->event->to_hash(@_) if ($cb->allow('event', $self->event));
+  $a->{start_time}     = $self->start_time->to_hash(@_)     if (defined($self->start_time));
+  $a->{result}         = $self->result->to_hash(@_)         if (defined($self->result));
+  $a->{event}          = $self->event->to_hash(@_)          if ($cb->allow('event', $self->event));
   $a->{whole_activity} = $self->whole_activity->to_hash(@_) if (defined($self->whole_activity));
 
   if ($cb->allow_group('goal')) {

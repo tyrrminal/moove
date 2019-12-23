@@ -176,9 +176,9 @@ sub to_hash {
   return {
     id      => $self->id,
     amount  => $self->amount,
-    date    => $self->date->iso8601,
+    date    => $self->date->to_hash(@_),
     person  => $self->person->to_hash(@_),
     address => $self->address->to_hash(@_)
-    };
+  };
 }
 1;

@@ -232,7 +232,7 @@ sub to_hash {
 
   my $r = {
     is_current  => $self->is_current eq 'Y',
-    date        => $self->date->iso8601,
+    date        => $self->date->to_hash(@_),
     description => $self->get_goal_description,
     value       => $self->get_goal_value->can('to_hash') ? $self->get_goal_value->to_hash(@_) : $self->get_goal_value
   };
