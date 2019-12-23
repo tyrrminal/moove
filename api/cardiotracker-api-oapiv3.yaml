@@ -12,18 +12,10 @@ security:
 paths:
   /auth/login:
     post:
+      security:
+        - auth: []
       summary: Initiate an authenticated login session
-      x-mojo-to: API::V1::Auth#login
-      requestBody:
-        description: user login parameters
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: "#/components/schemas/UserCredentials"
-          multipart/form-data:
-            schema:
-              $ref: "#/components/schemas/UserCredentials"
+      x-mojo-to: Auth#login
       responses:
         200:
           description: Success
@@ -31,22 +23,11 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Session"
-        401:
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        404:
-          description: User not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
   /auth/status:
     get:
+      security: []
       summary: Find out whether the user is logged in
-      x-mojo-to: API::V1::Auth#status
+      x-mojo-to: Auth#status
       responses:
         200:
           description: Success
@@ -54,16 +35,11 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Session"
-        404:
-          description: User not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
   /auth/logout:
     post:
+      security: []
       summary: End a login session
-      x-mojo-to: API::V1::Auth#logout
+      x-mojo-to: Auth#logout
       responses:
         204:
           description: Success
@@ -71,10 +47,10 @@ paths:
             text/plain:
               schema:
                 type: string
-  /event/series/{user}/{id}:
+  /events/series/{user}/{id}:
     get:
       summary: Get the events in a particular series for a user
-      x-mojo-to: API::V1::EventSeries#list
+      x-mojo-to: EventSeries#list
       parameters:
         - in: path
           name: user
@@ -108,21 +84,27 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /event/sequence/{user}/{id}:
+  /events/{user}:
     get:
-      summary: Get the events in a particular sequence for a user
-      x-mojo-to: API::V1::EventSequence#list
+      summary: Get the list of events for a user
+      x-mojo-to: Event#list
       parameters:
         - in: path
           name: user
-          description: the user registered for the events
+          description: the user registered for the event
           required: true
           schema:
             type: string
-        - in: path
-          name: id
-          description: the event sequence's ID
-          required: true
+        - in: query
+          name: year
+          description: year of event
+          required: false
+          schema:
+            type: integer
+        - in: query
+          name: sequence_id
+          description: Event Sequence Identifier
+          required: false
           schema:
             type: integer
       responses:
@@ -134,30 +116,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/RegisteredEvent"
-  /events/{user}:
-    get:
-      summary: Get the list of events for a user
-      x-mojo-to: API::V1::Event#list
-      parameters:
-        - in: path
-          name: user
-          description: the user registered for the event
-          required: true
-          schema:
-            type: string
-      responses:
-        200:
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/RegisteredEvent"
-  /event/{user}/{id}:
+  /events/{user}/{id}:
     get:
       summary: Get the details for an event
-      x-mojo-to: API::V1::Event#get
+      x-mojo-to: Event#get
       parameters:
         - in: path
           name: user
@@ -192,7 +154,7 @@ paths:
   /goals/{user}:
     get:
       summary: Get goals and goal fulfillments for a user
-      x-mojo-to: API::V1::User#get_goals
+      x-mojo-to: User#get_goals
       parameters:
         - name: user
           in: path
@@ -216,10 +178,10 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/Goal"
-  /goal/{user}/{goal}:
+  /goals/{user}/{goal}:
     get:
       summary: Get a single goal
-      x-mojo-to: API::V1::User#get_goal
+      x-mojo-to: User#get_goal
       parameters:
         - name: user
           in: path
@@ -240,10 +202,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Goal"
-  /user/{user}/summary:
+  /users/{user}/summary:
     get:
       summary: Get basic activity/event information for a user
-      x-mojo-to: API::V1::User#get_summary
+      x-mojo-to: User#get_summary
       parameters:
         - name: user
           in: path
@@ -278,64 +240,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /legacy/summary/{username}:
-    get:
-      summary: Get a time-aggregate summary of a user's activities
-      x-mojo-to: API::V1::Legacy#get_summary
-      parameters:
-        - name: username
-          in: path
-          description: name of user
-          required: true
-          schema:
-            type: string
-      responses:
-        200:
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  activities:
-                    type: object
-                  overall:
-                    type: object
-  /legacy/activities/{username}:
-    get:
-      summary: Get a list of a user's activities
-      x-mojo-to: API::V1::Legacy#get_activities
-      parameters:
-        - name: username
-          in: path
-          description: name of user
-          required: true
-          schema:
-            type: string
-        - name: page
-          in: query
-          description: result page number (default 0)
-          schema:
-            type: integer
-        - name: perPage
-          in: query
-          description: results per page (default 10)
-          schema:
-            type: integer
-      responses:
-        200:
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  _meta:
-                    $ref: "#/components/schemas/Pagination"
-                  activities:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Activity"
 components:
   schemas:
     Activity:
@@ -471,10 +375,6 @@ components:
           type: string
           format: uri
           nullable: true
-        results_url:
-          type: string
-          format: uri
-          nullable: true
         scheduled_start:
           type: string
           format: date-time
@@ -531,6 +431,19 @@ components:
         fundraising:
           $ref: "#/components/schemas/Fundraising"
     EventResult:
+      type: object
+      required:
+        - groups
+      properties:
+        url:
+          type: string
+          format: uri
+          nullable: true
+        groups:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventResultGroup"
+    EventResultGroup:
       type: object
       required:
         - place
@@ -645,9 +558,7 @@ components:
         activity:
           $ref: "#/components/schemas/Activity"
         results:
-          type: array
-          items:
-            $ref: "#/components/schemas/EventResult"
+          $ref: "#/components/schemas/EventResult"
     Location:
       type: object
       required:
@@ -768,11 +679,14 @@ components:
           type: string
 
   securitySchemes:
+    auth:
+      type: http
+      scheme: basic
     admin:
       type: apiKey
-      name: X-API-Key
-      in: header
+      name: mojolicious
+      in: cookie
     user:
       type: apiKey
-      name: X-API-Key
-      in: header
+      name: mojolicious
+      in: cookie
