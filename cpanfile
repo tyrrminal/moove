@@ -1,4 +1,5 @@
 requires 'Readonly';
+requires 'Syntax::Keyword::Try';
 
 requires 'Modern::Perl';
 requires 'Data::Printer';
