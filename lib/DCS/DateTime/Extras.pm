@@ -51,6 +51,10 @@ sub DateTime::start_of_week_in_year($self) {
   }
 }
 
+sub DateTime::to_hash ($self, @_) {
+  return $self->iso8601;
+}
+
 sub DateTime::Duration::to_hash ($self, @_) {
   my $r;
   my $act = 0;
