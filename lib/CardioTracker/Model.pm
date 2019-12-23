@@ -16,8 +16,7 @@ __PACKAGE__->load_namespaces;
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-02 13:17:32
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:RGdTPJMdcPmlPkyv/YGbbQ
 use v5.20;
-use feature qw(signatures);
-no warnings qw(experimental::signatures);
+use experimental qw(signatures);
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 sub new ($class, $dsn, $user, $pass) {
