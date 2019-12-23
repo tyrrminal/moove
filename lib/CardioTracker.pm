@@ -5,7 +5,7 @@ use Mojo::Base 'Mojolicious', -signatures;
 sub startup($self) {
   push @{$self->commands->namespaces}, 'CardioTracker::Command';
 
-  $self->plugin('Mojolicious::Plugin::DCS::Config');
+  $self->plugin('Mojolicious::Plugin::Config::Structured' => {config_file => $ENV{MOOVE_CONFIG}});
   $self->secrets($self->conf->secrets);
 
   $self->plugin('CardioTracker::Helper::DB');
