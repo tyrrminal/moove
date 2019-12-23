@@ -1,4 +1,4 @@
-package CardioTracker::Controller::API::V1::Event;
+package CardioTracker::Controller::Event;
 use Mojo::Base 'Mojolicious::Controller';
 
 use DCS::Constants qw(:boolean);
@@ -28,7 +28,12 @@ sub get {
 
       return $c->render(
         openapi => {
-          event => $er->to_hash_complete(goals => $TRUE, donations => ($c->current_user->id == $u->id)),
+          event    => $er->to_hash_complete(goals => $TRUE, donations => ($c->current_user->id == $u->id)),
+          sequence => [
+            map {$_->to_hash_complete}
+              $c->model('EventRegistration')->for_user($u)->visible_to($c->current_user)
+              ->in_sequence($er->event->event_group->event_sequence_id)->all
+          ],
           links => \%l
         }
       );
@@ -54,10 +59,17 @@ sub list {
 
   my $user_id = $c->validation->param('user');
 
+  #Optional Parameters
+  my $year        = $c->validation->param('year');
+  my $sequence_id = $c->validation->param('sequence_id');
+
   my $i = 0;
   if (my $u = $c->model('User')->find_user($user_id)) {
-    my @events;
-    foreach my $er ($c->model('EventRegistration')->for_user($u)->visible_to($c->current_user)->ordered('-desc')) {
+    my (@events, %sequences);
+    my $rs = $c->model('EventRegistration')->for_user($u)->visible_to($c->current_user)->ordered('-desc');
+    $rs = $rs->year($year) if (defined($year));
+    $rs = $rs->in_sequence($sequence_id) if (defined($sequence_id));
+    while (my $er = $rs->next) {
       my $h = {
         registration => $er->to_hash,
         event        => $er->event->to_hash
@@ -66,7 +78,7 @@ sub list {
         $h->{activity} = $activity->to_hash;
 
         if (my @results = $activity->result->event_results) {
-          $h->{results} = [map {$_->to_hash} @results];
+          $h->{results} = {url => $er->event->results_url, groups => [map {$_->to_hash} @results]};
         }
       }
 

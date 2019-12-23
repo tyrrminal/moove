@@ -1,4 +1,4 @@
-package CardioTracker::Controller::API::V1::User;
+package CardioTracker::Controller::User;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 use DCS::Constants qw(:boolean);
