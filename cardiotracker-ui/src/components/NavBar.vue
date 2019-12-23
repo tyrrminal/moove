@@ -8,13 +8,9 @@
       <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav v-if="isLoggedIn">
           <b-nav-item>Activities</b-nav-item>
-          <b-nav-item>Events</b-nav-item>
+          <b-nav-item :to="{ name: 'events', params: { user: this.username } }">Events</b-nav-item>
           <b-nav-item :to="{ name: 'goals', params: { user: this.username } }">Goals</b-nav-item>
           <b-nav-item>Fundraising</b-nav-item>
-          <b-nav-item-dropdown id="nav-legacy-dropdown" text="Legacy">
-            <b-dropdown-item :to="{ name: 'legacy_summary' }">Summary</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'legacy_events' }">Events</b-dropdown-item>
-          </b-nav-item-dropdown>
         </b-navbar-nav>
       </b-collapse>
 

@@ -38,7 +38,7 @@
         </b-col>
 
         <b-col v-if="event.results" sm="4" class="mb-2">
-          <EventResult :results="event.results" :results_url="event.event.results_url" />
+          <EventResult :results="event.results.groups" :results_url="event.results.url" />
         </b-col>
 
         <b-col v-if="event.activity && event.activity.records" sm="6" class="mb-2">
@@ -123,25 +123,13 @@ export default {
         .get("event/" + self.effectiveUser + "/" + this.$route.params.id)
         .then(response => {
           self.event = response.data.event;
+          self.sequence = response.data.sequence;
           self.links = response.data.links;
-
-          if (self.event.event.event_sequence_id) {
-            self.$http
-              .get(
-                "/event/sequence/" +
-                  self.effectiveUser +
-                  "/" +
-                  self.event.event.event_sequence_id
-              )
-              .then(response => {
-                self.sequence = response.data;
-              });
-          }
         })
         .catch(err => (self.error = err.response.data.message));
     }
   },
-  mounted() {
+  created() {
     this.init();
   },
   watch: {
