@@ -78,12 +78,6 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/RegisteredEvent"
-        404:
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
   /events/{user}:
     get:
       summary: Get the list of events for a user
@@ -145,12 +139,6 @@ paths:
                     $ref: "#/components/schemas/RegisteredEvent"
                   links:
                     $ref: "#/components/schemas/EventLinks"
-        404:
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
   /goals/{user}:
     get:
       summary: Get goals and goal fulfillments for a user
@@ -234,12 +222,6 @@ paths:
                         $ref: "#/components/schemas/RegisteredEvent"
                       previous:
                         $ref: "#/components/schemas/RegisteredEvent"
-        404:
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
 components:
   schemas:
     Activity:
@@ -652,15 +634,6 @@ components:
           type: number
         seconds:
           type: number
-    Error:
-      type: object
-      required:
-        - message
-      properties:
-        message:
-          type: string
-        code:
-          type: string
     Pagination:
       type: object
       properties:
