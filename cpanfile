@@ -1,3 +1,5 @@
+requires 'App::Sqitch';
+
 requires 'Readonly';
 requires 'Syntax::Keyword::Try';
 
