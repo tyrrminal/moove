@@ -1,0 +1,4 @@
+%syntax-version=1.0.0
+%project=moove
+
+create_initial_schema 2019-12-24T20:44:02Z root <root@a16aa12d995b> # creating initial schema
