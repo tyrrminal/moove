@@ -3,8 +3,8 @@ info:
   title: Moo've
   description: ""
   contact:
-    email: ct@digicow.net
-  version: 1.0.0
+    email: moove@digicow.net
+  version: 1.1.0
 servers:
   - url: https://moove.digicowsoftware.com/api/v1
 security:
@@ -22,7 +22,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Session"
+                $ref: "#/components/schemas/LoginSession"
   /auth/status:
     get:
       security: []
@@ -34,7 +34,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Session"
+                $ref: "#/components/schemas/LoginSession"
   /auth/logout:
     post:
       security: []
@@ -47,23 +47,13 @@ paths:
             text/plain:
               schema:
                 type: string
-  /events/series/{user}/{id}:
+  /users/{user}/events/series/{id}:
     get:
       summary: Get the events in a particular series for a user
       x-mojo-to: EventSeries#list
       parameters:
-        - in: path
-          name: user
-          description: the user registered for the events
-          required: true
-          schema:
-            type: string
-        - in: path
-          name: id
-          description: the event sequence's ID
-          required: true
-          schema:
-            type: integer
+        - $ref: "#/components/parameters/UserID"
+        - $ref: "#/components/parameters/SubjectID"
       responses:
         200:
           description: Success
@@ -78,17 +68,12 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/RegisteredEvent"
-  /events/{user}:
+  /users/{user}/events:
     get:
       summary: Get the list of events for a user
       x-mojo-to: Event#list
       parameters:
-        - in: path
-          name: user
-          description: the user registered for the event
-          required: true
-          schema:
-            type: string
+        - $ref: "#/components/parameters/UserID"
         - in: query
           name: year
           description: year of event
@@ -96,7 +81,7 @@ paths:
           schema:
             type: integer
         - in: query
-          name: sequence_id
+          name: sequenceID
           description: Event Sequence Identifier
           required: false
           schema:
@@ -110,23 +95,13 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/RegisteredEvent"
-  /events/{user}/{id}:
+  /users/{user}/events/{id}:
     get:
       summary: Get the details for an event
       x-mojo-to: Event#get
       parameters:
-        - in: path
-          name: user
-          description: the user registered for the event
-          required: true
-          schema:
-            type: string
-        - in: path
-          name: id
-          description: the event's ID
-          required: true
-          schema:
-            type: integer
+        - $ref: "#/components/parameters/UserID"
+        - $ref: "#/components/parameters/SubjectID"
       responses:
         200:
           description: Success
@@ -139,17 +114,12 @@ paths:
                     $ref: "#/components/schemas/RegisteredEvent"
                   links:
                     $ref: "#/components/schemas/EventLinks"
-  /goals/{user}:
+  /users/{user}/goals:
     get:
       summary: Get goals and goal fulfillments for a user
-      x-mojo-to: User#get_goals
+      x-mojo-to: Goal#list
       parameters:
-        - name: user
-          in: path
-          description: username or user ID
-          required: true
-          schema:
-            type: string
+        - $ref: "#/components/parameters/UserID"
       responses:
         200:
           description: Success
@@ -166,23 +136,13 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/Goal"
-  /goals/{user}/{goal}:
+  /users/{user}/goals/{id}:
     get:
       summary: Get a single goal
-      x-mojo-to: User#get_goal
+      x-mojo-to: Goal#get
       parameters:
-        - name: user
-          in: path
-          description: username or user ID
-          required: true
-          schema:
-            type: string
-        - name: goal
-          in: path
-          description: goal ID
-          required: true
-          schema:
-            type: integer
+        - $ref: "#/components/parameters/UserID"
+        - $ref: "#/components/parameters/SubjectID"
       responses:
         200:
           description: Success
@@ -195,12 +155,7 @@ paths:
       summary: Get basic activity/event information for a user
       x-mojo-to: User#get_summary
       parameters:
-        - name: user
-          in: path
-          description: username or user ID
-          required: true
-          schema:
-            type: string
+        - $ref: "#/components/parameters/UserID"
       responses:
         200:
           description: Success
@@ -210,28 +165,49 @@ paths:
                 type: object
                 properties:
                   user:
-                    $ref: "#/components/schemas/UserSummary"
-                  recent_activities:
+                    $ref: "#/components/schemas/User"
+                  recentActivities:
                     type: array
                     items:
                       $ref: "#/components/schemas/Activity"
                   events:
-                    type: object
-                    properties:
-                      next:
-                        $ref: "#/components/schemas/RegisteredEvent"
-                      previous:
-                        $ref: "#/components/schemas/RegisteredEvent"
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/RegisteredEvent"
 components:
+  parameters:
+    UserID:
+      in: path
+      name: user
+      required: true
+      description: The ID number of the user
+      schema:
+        type: integer
+        minimum: 1
+    SubjectID:
+      in: path
+      name: id
+      required: true
+      description: The ID number of the endpoint subject
+      schema:
+        type: integer
+        minimum: 1
   schemas:
+    Descriptoid:
+      type: object
+      properties:
+        id:
+          type: integer
+        description:
+          type: string
     Activity:
       type: object
       properties:
         id:
           type: integer
-        activity_type:
-          $ref: "#/components/schemas/ActivityType"
-        start_time:
+        activityType:
+          $ref: "#/components/schemas/Descriptoid"
+        startTime:
           type: string
           format: date-time
         distance:
@@ -246,9 +222,9 @@ components:
         note:
           nullable: true
           type: string
-        whole_activity:
+        wholeActivity:
           $ref: "#/components/schemas/Activity"
-        prior_distance_pr:
+        priorDistancePR:
           $ref: "#/components/schemas/Activity"
         records:
           type: array
@@ -259,11 +235,11 @@ components:
       properties:
         id:
           type: integer
-        gross_time:
+        grossTime:
           type: string
           format: time
           nullable: true
-        net_time:
+        netTime:
           type: string
           format: time
         pace:
@@ -271,19 +247,9 @@ components:
           format: time
         speed:
           $ref: "#/components/schemas/Amount"
-        heart_rate:
+        heartRate:
           nullable: true
           type: integer
-    ActivityType:
-      type: object
-      required:
-        - id
-        - description
-      properties:
-        id:
-          type: integer
-        description:
-          type: string
     Address:
       type: object
       properties:
@@ -357,7 +323,7 @@ components:
           type: string
           format: uri
           nullable: true
-        scheduled_start:
+        scheduledStart:
           type: string
           format: date-time
         entrants:
@@ -365,37 +331,38 @@ components:
           nullable: true
         countdown:
           $ref: "#/components/schemas/Duration"
-        event_type:
+        eventType:
           $ref: "#/components/schemas/EventType"
         distance:
           $ref: "#/components/schemas/Amount"
         address:
           $ref: "#/components/schemas/Address"
-        event_sequence_id:
+        eventSequenceID:
           type: integer
           nullable: true
-    EventLinks:
+    EventNavigation:
       type: object
       properties:
         next:
           $ref: "#/components/schemas/Event"
         prev:
           $ref: "#/components/schemas/Event"
-        series_next:
-          $ref: "#/components/schemas/Event"
-        series_prev:
-          $ref: "#/components/schemas/Event"
-        sequence_next:
-          $ref: "#/components/schemas/Event"
-        sequence_prev:
-          $ref: "#/components/schemas/Event"
+    EventLinks:
+      type: object
+      properties:
+        event:
+          $ref: "#/components/schemas/EventNavigation"
+        series:
+          $ref: "#/components/schemas/EventNavigation"
+        sequence:
+          $ref: "#/components/schemas/EventNavigation"
     EventRegistration:
       type: object
       required:
         - user
-        - is_public
+        - isPublic
       properties:
-        event_id:
+        eventID:
           type: integer
         user:
           $ref: "#/components/schemas/User"
@@ -405,10 +372,10 @@ components:
         registered:
           type: boolean
           nullable: true
-        bib_no:
+        bibNumber:
           type: integer
           nullable: true
-        is_public:
+        isPublic:
           type: boolean
         fundraising:
           $ref: "#/components/schemas/Fundraising"
@@ -455,13 +422,13 @@ components:
       type: object
       required:
         - id
-        - activity_type
+        - activityType
         - description
       properties:
         id:
           type: integer
-        activity_type:
-          $ref: "#/components/schemas/ActivityType"
+        activityType:
+          $ref: "#/components/schemas/Descriptoid"
         description:
           type: string
     Fundraising:
@@ -488,11 +455,11 @@ components:
           type: integer
         name:
           type: string
-        activity_type:
-          $ref: "#/components/schemas/ActivityType"
+        activityType:
+          $ref: "#/components/schemas/Descriptoid"
         dimension:
           type: string
-        is_pr:
+        isPR:
           type: boolean
         count:
           type: integer
@@ -504,12 +471,12 @@ components:
       type: object
       required:
         - description
-        - is_current
+        - isCurrent
         - value
       properties:
         description:
           type: string
-        is_current:
+        isCurrent:
           type: boolean
         value:
           anyOf:
@@ -518,14 +485,14 @@ components:
     Person:
       type: object
       required:
-        - first_name
-        - last_name
+        - firstname
+        - lastname
       properties:
         id:
           type: integer
-        first_name:
+        firstname:
           type: string
-        last_name:
+        lastname:
           type: string
     RegisteredEvent:
       required:
@@ -558,7 +525,7 @@ components:
       required:
         - unit
         - abbreviation
-        - normalization_factor
+        - normalizationFactor
       properties:
         id:
           type: integer
@@ -566,19 +533,8 @@ components:
           type: string
         abbreviation:
           type: string
-        normalization_factor:
+        normalizationFactor:
           type: number
-    Session:
-      type: object
-      required:
-        - user
-        - expiration
-      properties:
-        user:
-          $ref: "#/components/schemas/User"
-        expiration:
-          type: string
-          format: date-time
     User:
       type: object
       required:
@@ -593,11 +549,6 @@ components:
           $ref: "#/components/schemas/Person"
         location:
           $ref: "#/components/schemas/Location"
-    UserSummary:
-      type: object
-      properties:
-        user:
-          $ref: "#/components/schemas/User"
     Amount:
       type: object
       required:
@@ -605,7 +556,7 @@ components:
       properties:
         quantity:
           $ref: "#/components/schemas/DimensionedQuantity"
-        normalized_quantity:
+        normalizedQuantity:
           $ref: "#/components/schemas/DimensionedQuantity"
     DimensionedQuantity:
       type: object
@@ -643,13 +594,21 @@ components:
           type: integer
         count:
           type: integer
-    UserCredentials:
+    LoginSession:
       type: object
+      required:
+        - user
+        - expiration
       properties:
-        username:
+        user:
+          $ref: "#/components/schemas/User"
+        expiration:
           type: string
-        password:
-          type: string
+          format: date-time
+        roles:
+          type: array
+          items:
+            type: string
 
   securitySchemes:
     auth:
