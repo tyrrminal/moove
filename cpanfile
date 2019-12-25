@@ -36,6 +36,7 @@ requires 'DBIx::Class::Relationship::Predicate';
 requires 'DBIx::Class::InflateColumn::FS';
 requires 'DBIx::Class::InflateColumn::DateTime';
 requires 'DBIx::Class::InflateColumn::Time';
+requires 'DBIx::Class::Stash';
 
 requires 'Data::DPath';
 

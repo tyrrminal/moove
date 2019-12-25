@@ -798,6 +798,15 @@ DISTRIBUTIONS
       curry 1.000000
       namespace::clean 0.23
       perl 5.008001
+  DBIx-Class-Stash-0.07
+    pathname: N/NE/NEKOKAK/DBIx-Class-Stash-0.07.tar.gz
+    provides:
+      DBIx::Class::Stash 0.07
+    requirements:
+      DBIx::Class 0
+      ExtUtils::MakeMaker 6.42
+      Filter::Util::Call 0
+      Test::Declare 0
   DBIx-Class-UUIDColumns-0.02006
     pathname: A/AB/ABRAXXA/DBIx-Class-UUIDColumns-0.02006.tar.gz
     provides:
@@ -1931,6 +1940,35 @@ DISTRIBUTIONS
       Mozilla::CA 0
       Net::SSLeay 1.46
       Scalar::Util 0
+  IO-String-1.08
+    pathname: G/GA/GAAS/IO-String-1.08.tar.gz
+    provides:
+      IO::String 1.08
+    requirements:
+      ExtUtils::MakeMaker 0
+  IO-Stringy-2.112
+    pathname: C/CA/CAPOEIRAB/IO-Stringy-2.112.tar.gz
+    provides:
+      IO::AtomicFile 2.112
+      IO::InnerFile 2.112
+      IO::Lines 2.112
+      IO::Scalar 2.112
+      IO::ScalarArray 2.112
+      IO::Stringy 2.112
+      IO::Wrap 2.112
+      IO::WrapTie 2.112
+    requirements:
+      Carp 0
+      Exporter 5.57
+      ExtUtils::MakeMaker 0
+      FileHandle 0
+      IO::File 0
+      IO::Handle 0
+      Symbol 0
+      overload 0
+      perl 5.006002
+      strict 0
+      warnings 0
   IPC-Run3-0.048
     pathname: R/RJ/RJBS/IPC-Run3-0.048.tar.gz
     provides:
@@ -3059,6 +3097,118 @@ DISTRIBUTIONS
     provides:
       Number::Misc 1.2
     requirements:
+  PPI-1.270
+    pathname: M/MI/MITHALDU/PPI-1.270.tar.gz
+    provides:
+      PPI 1.270
+      PPI::Cache 1.270
+      PPI::Document 1.270
+      PPI::Document::File 1.270
+      PPI::Document::Fragment 1.270
+      PPI::Document::Normalized 1.270
+      PPI::Dumper 1.270
+      PPI::Element 1.270
+      PPI::Exception 1.270
+      PPI::Exception::ParserRejection 1.270
+      PPI::Find 1.270
+      PPI::Lexer 1.270
+      PPI::Node 1.270
+      PPI::Normal 1.270
+      PPI::Normal::Standard 1.270
+      PPI::Singletons 1.270
+      PPI::Statement 1.270
+      PPI::Statement::Break 1.270
+      PPI::Statement::Compound 1.270
+      PPI::Statement::Data 1.270
+      PPI::Statement::End 1.270
+      PPI::Statement::Expression 1.270
+      PPI::Statement::Given 1.270
+      PPI::Statement::Include 1.270
+      PPI::Statement::Include::Perl6 1.270
+      PPI::Statement::Null 1.270
+      PPI::Statement::Package 1.270
+      PPI::Statement::Scheduled 1.270
+      PPI::Statement::Sub 1.270
+      PPI::Statement::Unknown 1.270
+      PPI::Statement::UnmatchedBrace 1.270
+      PPI::Statement::Variable 1.270
+      PPI::Statement::When 1.270
+      PPI::Structure 1.270
+      PPI::Structure::Block 1.270
+      PPI::Structure::Condition 1.270
+      PPI::Structure::Constructor 1.270
+      PPI::Structure::For 1.270
+      PPI::Structure::Given 1.270
+      PPI::Structure::List 1.270
+      PPI::Structure::Subscript 1.270
+      PPI::Structure::Unknown 1.270
+      PPI::Structure::When 1.270
+      PPI::Token 1.270
+      PPI::Token::ArrayIndex 1.270
+      PPI::Token::Attribute 1.270
+      PPI::Token::BOM 1.270
+      PPI::Token::Cast 1.270
+      PPI::Token::Comment 1.270
+      PPI::Token::DashedWord 1.270
+      PPI::Token::Data 1.270
+      PPI::Token::End 1.270
+      PPI::Token::HereDoc 1.270
+      PPI::Token::Label 1.270
+      PPI::Token::Magic 1.270
+      PPI::Token::Number 1.270
+      PPI::Token::Number::Binary 1.270
+      PPI::Token::Number::Exp 1.270
+      PPI::Token::Number::Float 1.270
+      PPI::Token::Number::Hex 1.270
+      PPI::Token::Number::Octal 1.270
+      PPI::Token::Number::Version 1.270
+      PPI::Token::Operator 1.270
+      PPI::Token::Pod 1.270
+      PPI::Token::Prototype 1.270
+      PPI::Token::Quote 1.270
+      PPI::Token::Quote::Double 1.270
+      PPI::Token::Quote::Interpolate 1.270
+      PPI::Token::Quote::Literal 1.270
+      PPI::Token::Quote::Single 1.270
+      PPI::Token::QuoteLike 1.270
+      PPI::Token::QuoteLike::Backtick 1.270
+      PPI::Token::QuoteLike::Command 1.270
+      PPI::Token::QuoteLike::Readline 1.270
+      PPI::Token::QuoteLike::Regexp 1.270
+      PPI::Token::QuoteLike::Words 1.270
+      PPI::Token::Regexp 1.270
+      PPI::Token::Regexp::Match 1.270
+      PPI::Token::Regexp::Substitute 1.270
+      PPI::Token::Regexp::Transliterate 1.270
+      PPI::Token::Separator 1.270
+      PPI::Token::Structure 1.270
+      PPI::Token::Symbol 1.270
+      PPI::Token::Unknown 1.270
+      PPI::Token::Whitespace 1.270
+      PPI::Token::Word 1.270
+      PPI::Tokenizer 1.270
+      PPI::Transform 1.270
+      PPI::Transform::UpdateCopyright 1.270
+      PPI::Util 1.270
+      PPI::XSAccessor 1.270
+    requirements:
+      Carp 0
+      Clone 0.30
+      Digest::MD5 2.35
+      Exporter 0
+      ExtUtils::MakeMaker 0
+      File::Path 0
+      File::Spec 0.84
+      IO::String 1.07
+      List::Util 1.33
+      Params::Util 1.00
+      Scalar::Util 0
+      Storable 2.17
+      Task::Weaken 0
+      constant 0
+      overload 0
+      perl 5.006
+      strict 0
   Package-DeprecationManager-0.17
     pathname: D/DR/DROLSKY/Package-DeprecationManager-0.17.tar.gz
     provides:
@@ -3698,6 +3848,17 @@ DISTRIBUTIONS
       ExtUtils::CBuilder 0
       Module::Build 0.4004
       perl 5.014
+  Task-Weaken-1.06
+    pathname: E/ET/ETHER/Task-Weaken-1.06.tar.gz
+    provides:
+      Task::Weaken 1.06
+    requirements:
+      Config 0
+      ExtUtils::MakeMaker 0
+      File::Spec 0
+      Scalar::Util 1.14
+      perl 5.006
+      strict 0
   Template-Tiny-1.12
     pathname: A/AD/ADAMK/Template-Tiny-1.12.tar.gz
     provides:
@@ -3712,6 +3873,25 @@ DISTRIBUTIONS
       Term::ReadKey 2.38
     requirements:
       ExtUtils::MakeMaker 6.58
+  Test-Declare-0.06
+    pathname: N/NE/NEKOKAK/Test-Declare-0.06.tar.gz
+    provides:
+      Test::Declare 0.06
+    requirements:
+      Exporter 0
+      ExtUtils::MakeMaker 6.42
+      Filter::Util::Call 0
+      IO::Scalar 0
+      PPI 0
+      Scalar::Util 0
+      Test::Builder 0
+      Test::Deep 0
+      Test::Exception 0
+      Test::More 0
+      Test::Output 0
+      Test::Tester 0
+      Test::Warn 0
+      YAML 0
   Test-Deep-1.128
     pathname: R/RJ/RJBS/Test-Deep-1.128.tar.gz
     provides:
@@ -3809,6 +3989,16 @@ DISTRIBUTIONS
       Try::Tiny 0.07
       strict 0
       warnings 0
+  Test-Output-1.031
+    pathname: B/BD/BDFOY/Test-Output-1.031.tar.gz
+    provides:
+      Test::Output 1.031
+    requirements:
+      Capture::Tiny 0.17
+      ExtUtils::MakeMaker 6.64
+      File::Spec::Functions 0
+      File::Temp 0.17
+      perl 5.008
   Test-Toolbox-0.4
     pathname: M/MI/MIKO/Test-Toolbox-0.4.tar.gz
     provides:
@@ -4125,6 +4315,34 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       XML::Parser 2
+  YAML-1.29
+    pathname: T/TI/TINITA/YAML-1.29.tar.gz
+    provides:
+      YAML 1.29
+      YAML::Any 1.29
+      YAML::Dumper undef
+      YAML::Dumper::Base undef
+      YAML::Error undef
+      YAML::Loader undef
+      YAML::Loader::Base undef
+      YAML::Marshall undef
+      YAML::Mo undef
+      YAML::Node undef
+      YAML::Tag undef
+      YAML::Type::blessed undef
+      YAML::Type::code undef
+      YAML::Type::glob undef
+      YAML::Type::ref undef
+      YAML::Type::regexp undef
+      YAML::Type::undef undef
+      YAML::Types undef
+      YAML::Warning undef
+      yaml_mapping undef
+      yaml_scalar undef
+      yaml_sequence undef
+    requirements:
+      ExtUtils::MakeMaker 0
+      perl 5.008001
   YAML-LibYAML-0.79
     pathname: T/TI/TINITA/YAML-LibYAML-0.79.tar.gz
     provides:
