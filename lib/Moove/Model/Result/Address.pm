@@ -194,20 +194,4 @@ sub is_empty {
   return (shift->id == $null_address);
 }
 
-sub to_hash {
-  my $self = shift;
-
-  return {
-    id      => $self->id,
-    street1 => $self->street1,
-    street2 => $self->street2,
-    city    => $self->city,
-    state   => $self->state,
-    zip     => $self->zip,
-    phone   => $self->phone,
-    country => $self->country,
-    email   => $self->email
-    };
-}
-
 1;

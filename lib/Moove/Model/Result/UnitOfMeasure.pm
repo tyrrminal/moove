@@ -165,15 +165,5 @@ __PACKAGE__->has_many(
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
-sub to_hash {
-  my $self = shift;
-
-  return {
-    id                   => $self->id,
-    unit                 => $self->uom,
-    abbreviation         => $self->abbreviation,
-    normalization_factor => $self->conversion_factor
-  };
-}
 
 1;

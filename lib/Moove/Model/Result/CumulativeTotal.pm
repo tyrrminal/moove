@@ -88,23 +88,4 @@ __PACKAGE__->belongs_to(
   {is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION"},
 );
 
-sub to_hash {
-  my $self = shift;
-
-  return {
-    user_id       => $self->user_id,
-    activity_type => $self->activity_type->to_hash(@_),
-    distance      => {
-      quantity => {
-        value => $self->distance,
-        units => $self->uom->to_hash(@_)
-      },
-      normalized_quantity => {
-        value => $self->distance,
-        units => $self->uom->to_hash(@_)
-      }
-    }
-  };
-}
-
 1;

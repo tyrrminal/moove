@@ -224,19 +224,4 @@ sub normalized_value {
   return $self->value * $self->uom->conversion_factor;
 }
 
-sub to_hash {
-  my $self = shift;
-
-  return {
-    quantity => {
-      value => $self->value,
-      units => $self->uom->to_hash(@_)
-    },
-    normalized_quantity => {
-      value => $self->normalized_value,
-      units => $self->normalized_unit->to_hash(@_)
-    }
-  };
-}
-
 1;

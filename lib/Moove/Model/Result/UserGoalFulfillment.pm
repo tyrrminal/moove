@@ -153,7 +153,6 @@ __PACKAGE__->many_to_many("activities", "user_goal_fulfillment_activities", "act
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 use DCS::DateTime::Extras;
 use List::Util qw(sum reduce);
-use InclusionCallback;
 
 use DCS::Constants qw(:boolean);
 
@@ -224,28 +223,6 @@ sub get_goal_description {
 
   my $desc = $dimension_desc_map{$self->user_goal->goal->dimension->description};
   return $desc->($self->get_goal_value);
-}
-
-sub to_hash {
-  my $self = shift;
-  my $cb   = InclusionCallback->new(@_);
-
-  my $r = {
-    is_current  => $self->is_current eq 'Y',
-    date        => $self->date->to_hash(@_),
-    description => $self->get_goal_description,
-    value       => $self->get_goal_value->can('to_hash') ? $self->get_goal_value->to_hash(@_) : $self->get_goal_value
-  };
-  if ($cb->allow_group('activity')) {
-    $r->{activities} = [
-      map {$_->activity->to_hash(@_, goals => $FALSE)}
-      grep {$cb->allow('activity', $_->activity)} $self->user_goal_fulfillment_activities->ordered('-desc')
-    ];
-  } else {
-    my $mr = $self->user_goal_fulfillment_activities->ordered('-desc')->first->activity;
-    $r->{activities} = [$mr->to_hash(@_)] if ($cb->allow('most_recent_activity', $mr));
-  }
-  return $r;
 }
 
 1;

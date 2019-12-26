@@ -231,17 +231,4 @@ sub pace_formatted {
   return _format_time($self->pace);
 }
 
-sub to_hash {
-  my $self = shift;
-
-  return {
-    id         => $self->id,
-    gross_time => $self->gross_time_formatted,
-    net_time   => $self->net_time_formatted,
-    pace       => $self->pace_formatted,
-    speed      => $self->speed->to_hash,
-    heart_rate => $self->heart_rate
-  };
-}
-
 1;

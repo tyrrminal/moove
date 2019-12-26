@@ -339,8 +339,6 @@ __PACKAGE__->many_to_many(
 use DCS::Constants qw(:boolean);
 use List::Util qw(max);
 
-use InclusionCallback;
-
 use Moose;
 use MooseX::NonMoose;
 
@@ -348,24 +346,6 @@ sub description {
   my $self = shift;
 
   return sprintf('%s %s %s', $self->start_time->strftime('%F'), $self->distance->description, $self->activity_type->description);
-}
-
-sub has_event_visible_to {
-  my $self = shift;
-  my ($user) = @_;
-
-  return $FALSE unless (defined($self->event));
-  return $self->result_source->schema->resultset('EventRegistration')->search(
-    {
-      -and => [
-        'event_id' => $self->event_id,
-        -or        => [
-          is_public => 'Y',
-          user_id   => $user->id
-        ]
-      ]
-    }
-  )->count > 0;
 }
 
 around 'note' => sub {
@@ -418,48 +398,6 @@ sub last_activity_point {
       order_by => {'-desc' => 'timestamp'}
     }
   )->first;
-}
-
-sub to_hash {
-  my $self = shift;
-  my $cb   = InclusionCallback->new(@_);
-
-  my $a = {
-    id            => $self->id,
-    activity_type => $self->activity_type->to_hash(@_),
-    distance      => $self->distance->to_hash(@_),
-    temperature   => $self->temperature,
-    note          => $self->note,
-  };
-  $a->{start_time}     = $self->start_time->to_hash(@_)     if (defined($self->start_time));
-  $a->{result}         = $self->result->to_hash(@_)         if (defined($self->result));
-  $a->{event}          = $self->event->to_hash(@_)          if ($cb->allow('event', $self->event));
-  $a->{whole_activity} = $self->whole_activity->to_hash(@_) if (defined($self->whole_activity));
-
-  if ($cb->allow_group('goal')) {
-    my @record_fulfillments =
-      grep {$cb->allow('goal', $_)}
-      grep {$_->most_recent_activity->id == $self->id}
-      grep {$_->user_goal->goal->is_pr} $self->user_goal_fulfillments;
-    $a->{records} = [
-      map {
-        $_->user_goal->to_hash(@_, fulfillment => sub {shift->id == $_->id})
-        } @record_fulfillments
-      ]
-      if (@record_fulfillments);
-
-    my @ach_fulfillments =
-      grep {$cb->allow('goal', $_)}
-      grep {!$_->user_goal->goal->is_pr} $self->user_goal_fulfillments;
-    $a->{achievements} = [
-      map {
-        $_->user_goal->to_hash(@_, fulfillment => sub {shift->id == $_->id})
-        } @ach_fulfillments
-      ]
-      if (@ach_fulfillments);
-  }
-
-  return $a;
 }
 
 1;

@@ -142,14 +142,4 @@ __PACKAGE__->many_to_many("event_groups", "event_group_series", "event_group");
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 
-sub to_hash {
-  my $self = shift;
-
-  return {
-    id   => $self->id,
-    name => $self->name,
-    year => $self->year
-  };
-}
-
 1;

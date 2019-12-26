@@ -364,32 +364,11 @@ sub results_url {
   my @urls;
   foreach ($self->event_references) {
     my $ert = $_->event_reference_type;
-    my $importer =
-      sprintf('Moove::Import::Event::%s', $ert->description)->new(event_id => $_->ref_num, race_id => $_->sub_ref_num);
+    my $importer = sprintf('Moove::Import::Event::%s', $ert->description)->new(event_id => $_->ref_num, race_id => $_->sub_ref_num);
     push(@urls, $importer->url);
   }
 
   return $urls[0];
-}
-
-sub to_hash {
-  my $self = shift;
-  my %cd = ($self->scheduled_start > DateTime->now(time_zone => 'local')) ? (countdown => $self->countdown) : ();
-
-  my $e = {
-    id                => $self->id,
-    name              => $self->event_group->name,
-    url               => $self->event_url,
-    scheduled_start   => $self->scheduled_start->to_hash(@_),
-    entrants          => $self->entrants,
-    event_type        => $self->event_type->to_hash(@_),
-    distance          => $self->distance->to_hash(@_),
-    event_sequence_id => $self->event_group->event_sequence_id,
-    %cd
-  };
-  $e->{address} = $self->address->to_hash(@_) unless ($self->address->is_empty);
-
-  return $e;
 }
 
 1;

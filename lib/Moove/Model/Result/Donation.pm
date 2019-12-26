@@ -170,15 +170,5 @@ __PACKAGE__->belongs_to(
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
-sub to_hash {
-  my $self = shift;
 
-  return {
-    id      => $self->id,
-    amount  => $self->amount,
-    date    => $self->date->to_hash(@_),
-    person  => $self->person->to_hash(@_),
-    address => $self->address->to_hash(@_)
-  };
-}
 1;
