@@ -4,10 +4,9 @@ use base qw(DBIx::Class::ResultSet);
 
 use DateTime::Format::MySQL;
 
-sub before {
-  my $self = shift;
-  my ($event) = @_;
+use experimental qw(signatures);
 
+sub before ($self, $event) {
   return $self->search(
     {
       'event.scheduled_start' => {'<' => DateTime::Format::MySQL->format_datetime($event->scheduled_start)}
@@ -17,10 +16,7 @@ sub before {
   )->ordered('-desc');
 }
 
-sub after {
-  my $self = shift;
-  my ($event) = @_;
-
+sub after ($self, $event) {
   return $self->search(
     {
       'event.scheduled_start' => {'>' => DateTime::Format::MySQL->format_datetime($event->scheduled_start)}
@@ -30,10 +26,7 @@ sub after {
   )->ordered('-asc');
 }
 
-sub in_sequence {
-  my $self = shift;
-  my ($sequence_id) = @_;
-
+sub in_sequence ($self, $sequence_id) {
   return $self->search(
     {
       '-and' => [{'event_group.event_sequence_id' => $sequence_id}, {'event_group.event_sequence_id' => {'<>' => undef}}]
@@ -43,10 +36,7 @@ sub in_sequence {
   );
 }
 
-sub in_series {
-  my $self = shift;
-  my ($series_id) = @_;
-
+sub in_series ($self, $series_id) {
   return $self->search(
     {
       'event_group_series.event_series_id' => $series_id
@@ -56,10 +46,7 @@ sub in_series {
   );
 }
 
-sub for_user {
-  my $self = shift;
-  my ($user) = @_;
-
+sub for_user ($self, $user) {
   return $self->search(
     {
       user_id => $user->id
@@ -67,24 +54,18 @@ sub for_user {
   );
 }
 
-sub visible_to {
-  my $self = shift;
-  my ($user) = @_;
-
+sub visible($self) {
   return $self->search(
     {
       -or => [
         is_public => 'Y',
-        user_id   => $user->id
+        user_id   => $self->stash->{uid}
       ]
     }
   );
 }
 
-sub ordered {
-  my $self = shift;
-  my ($direction) = (@_, '-asc');
-
+sub ordered ($self, $direction = '-asc') {
   return $self->search(
     {},
     {
@@ -94,9 +75,7 @@ sub ordered {
   );
 }
 
-sub past {
-  my $self = shift;
-
+sub past($self) {
   return $self->search(
     {
       'event.scheduled_start' => {'<=' => DateTime::Format::MySQL->format_datetime(DateTime->now(time_zone => 'local'))}
@@ -106,9 +85,7 @@ sub past {
   );
 }
 
-sub future {
-  my $self = shift;
-
+sub future($self) {
   return $self->search(
     {
       'event.scheduled_start' => {'>' => DateTime::Format::MySQL->format_datetime(DateTime->now(time_zone => 'local'))}
@@ -118,10 +95,7 @@ sub future {
   );
 }
 
-sub year {
-  my $self = shift;
-  my ($year) = @_;
-
+sub year ($self, $year) {
   return $self->search(
     {
       -and => [\['YEAR(event.scheduled_start)=?', $year]]
