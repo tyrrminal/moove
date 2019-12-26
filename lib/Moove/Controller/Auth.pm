@@ -9,6 +9,7 @@ sub login($self) {
   my $username = delete($c->session->{auth_username});
   if (my $u = $c->model('User')->find({username => $username})) {
     $c->session(uid => $u->id);
+    $self->db->stash->{uid} = $u->id;
     return $c->render(openapi => {user => $u->to_hash, expiration => $c->session_expiration});
   }
 
