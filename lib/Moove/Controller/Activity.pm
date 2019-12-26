@@ -1,4 +1,4 @@
-package Moove::Controller::Exercise;
+package Moove::Controller::Activity;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 use DCS::Constants qw(:boolean);
