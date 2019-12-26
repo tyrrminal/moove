@@ -1,10 +1,9 @@
 package Moove::Controller::Exercise;
-use Mojo::Base 'Mojolicious::Controller';
+use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-sub get {
-  my $self=shift;
-  $self->app->log->info('Invoked');
+use DCS::Constants qw(:boolean);
 
+sub get($self) {
   my $c = $self->openapi->valid_input or return;
 
   return $c->render(openapi => {});
