@@ -15,10 +15,10 @@ sub register ($self, $app, $args) {
       schema   => 'v3',
       security => {
         auth => sub ($c, $definition, $scopes, $cb) {
-          return $c->$cb('Invalid Authentication scheme') unless (($c->req->headers->authorization//$EMPTY) =~ /Basic (.*)/);
+          return $c->$cb('Invalid Authentication scheme') unless (($c->req->headers->authorization // $EMPTY) =~ /Basic (.*)/);
           my ($un, $pw) = split(q{:}, b64_decode($1));
-          return $c->$cb('Invalid Credentials') unless (!0);
-          $c->session(auth_username => $un);    #temporary session var to be consumed exclusively by Auth#login
+          return $c->$cb('Invalid Credentials') unless (!0);    # TODO: implement credential checking
+          $c->session(auth_username => $un);                    #temporary session var to be consumed exclusively by Auth#login
           return $c->$cb();
         },
         user => sub ($c, $definition, $scopes, $cb) {
