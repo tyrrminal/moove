@@ -2,18 +2,20 @@ package Moove::Helper::Session;
 
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
 
-sub register($self, $app, $args) {
+sub register ($self, $app, $args) {
 
-  $app->helper(current_user => sub($c) {
-    my $u = $c->model('User');
-    if(my $uid = $c->session('uid')) {
-      if(my $user = $u->find($uid)) {
-        return $user;
+  $app->helper(
+    current_user => sub($c) {
+      my $model = $c->model('User');
+      if (my $uid = $c->session('uid')) {
+        if (my $user = $model->find($uid)) {
+          return $user;
+        }
       }
+      return $model->anonymous;
     }
-    return $u->anonymous;
-  });
-  
+  );
+
 }
 
 1;
