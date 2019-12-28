@@ -2,3 +2,4 @@
 %project=moove
 
 create_initial_schema 2019-12-24T20:44:02Z root <root@a16aa12d995b> # creating initial schema
+make_activity_user_required 2019-12-28T01:59:34Z root <root@6ca5ec09b5c2> # activities are no longer used for participants

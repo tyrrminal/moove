@@ -101,7 +101,8 @@ sub import_event ($self, $import_class, $id, $race) {
           event         => $event,
           user_id       => $user_id
         }
-      );
+        )
+        if (defined($user_id));
     }
 
     my $overall_group =
