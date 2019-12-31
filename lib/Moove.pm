@@ -10,7 +10,6 @@ sub startup($self) {
 
   $self->plugin('Moove::Helper::DB');
   $self->plugin('Moove::Helper::Session');
-  $self->plugin('Moove::Helper::String_Formatting');
   $self->plugin('Moove::Helper::API');
   $self->plugin('Moove::Helper::Vue');
 }
