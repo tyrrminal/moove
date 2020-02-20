@@ -44,3 +44,5 @@ requires 'Geo::Gpx';
 requires 'Archive::Zip';
 requires 'Spreadsheet::Reader::ExcelXML';
 requires 'YAML::XS';
+
+requires 'Net::LDAP';
