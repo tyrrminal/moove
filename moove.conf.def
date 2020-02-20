@@ -17,5 +17,23 @@
       env => 'DB_PASS',
       priority => 'env'
     }
+  },
+  ldap => {
+    host => {
+      isa => 'str',
+      default => 'localhost'
+    },
+    binddn => {
+      isa => 'str',
+      description => 'Distinguished node of LDAP user'
+    },
+    bindpass => {
+      isa => 'str',
+      description => 'LDAP user password'
+    },
+    user_basedn => {
+      isa => 'str',
+      description => 'Directory subtree in which to search for users'
+    }
   }
 }
