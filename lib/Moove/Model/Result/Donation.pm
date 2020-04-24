@@ -84,7 +84,7 @@ __PACKAGE__->table("donation");
 
   data_type: 'integer'
   is_foreign_key: 1
-  is_nullable: 0
+  is_nullable: 1
 
 =cut
 
@@ -102,7 +102,7 @@ __PACKAGE__->add_columns(
   "person_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "address_id",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -131,7 +131,12 @@ __PACKAGE__->belongs_to(
   "address",
   "Moove::Model::Result::Address",
   { id => "address_id" },
-  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
+  {
+    is_deferrable => 1,
+    join_type     => "LEFT",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
+  },
 );
 
 =head2 event_registration
