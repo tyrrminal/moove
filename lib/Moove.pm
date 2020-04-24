@@ -5,7 +5,12 @@ use Mojo::Base 'Mojolicious', -signatures;
 sub startup($self) {
   push @{$self->commands->namespaces}, 'Moove::Command';
 
-  $self->plugin('Mojolicious::Plugin::Config::Structured' => {config_file => $ENV{MOOVE_CONFIG}});
+  $self->plugin(
+    'Config::Structured' => {
+      structure_file => $self->app->home->child('cfg')->child('structure.yml')->to_string,
+      config_file    => $ENV{MOOVE_CONFIG}
+    }
+  );
   $self->secrets($self->conf->secrets);
 
   $self->plugin('Moove::Helper::DB');
