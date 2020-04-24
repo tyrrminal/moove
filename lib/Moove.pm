@@ -13,6 +13,13 @@ sub startup($self) {
   );
   $self->secrets($self->conf->secrets);
 
+  $self->conf->_add_helper(
+    db_params => sub {
+      my $db = shift->db;
+      return (sprintf('dbi:mysql:database=%s;host=%s;port=%d', $db->name, $db->host, $db->port), $db->user, $db->pass);
+    }
+  );
+
   $self->plugin('Moove::Helper::DB');
   $self->plugin('Moove::Helper::Session');
   $self->plugin('Moove::Helper::API');
