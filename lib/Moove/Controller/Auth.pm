@@ -10,7 +10,16 @@ sub login($self) {
   if (my $u = $c->model('User')->find({username => $username})) {
     $c->session(uid => $u->id);
     $self->db->stash->{uid} = $u->id;
-    return $c->render(openapi => {user => $u->to_hash, expiration => $c->session_expiration});
+    return $c->render(
+      openapi => {
+        user => {
+          id       => $u->id,
+          username => $u->username,
+          person   => {id => $u->person->id, firstname => $u->person->first_name, lastname => $u->person->last_name}
+        },
+        expiration => $c->session_expiration
+      }
+    );
   }
 
   return $c->render(
