@@ -13,8 +13,8 @@ use base 'DBIx::Class::Schema';
 __PACKAGE__->load_namespaces;
 #>>>
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-02 13:17:32
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:RGdTPJMdcPmlPkyv/YGbbQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-12-31 09:36:31
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:aVPGUqJlEaW9o3g9wptBoA
 use v5.20;
 use experimental qw(signatures);
 

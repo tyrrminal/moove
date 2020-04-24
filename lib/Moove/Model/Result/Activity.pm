@@ -26,6 +26,8 @@ use base 'DBIx::Class::Core';
 
 =item * L<DBIx::Class::InflateColumn::Time>
 
+=item * L<DBIx::Class::Stash>
+
 =back
 
 =cut
@@ -34,6 +36,7 @@ __PACKAGE__->load_components(
   "Relationship::Predicate",
   "InflateColumn::DateTime",
   "InflateColumn::Time",
+  "Stash",
 );
 
 =head1 TABLE: C<activity>
@@ -276,8 +279,8 @@ __PACKAGE__->belongs_to(
   {
     is_deferrable => 1,
     join_type     => "LEFT",
-    on_delete     => "NO ACTION",
-    on_update     => "NO ACTION",
+    on_delete     => "RESTRICT",
+    on_update     => "RESTRICT",
   },
 );
 
@@ -331,8 +334,8 @@ __PACKAGE__->many_to_many(
 );
 #>>>
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-02 13:17:32
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:v9GZXy0RurzGX0lM3hpj0w
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2020-04-24 14:07:38
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:CjDkXY9oYr7/ITvihpTKdg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

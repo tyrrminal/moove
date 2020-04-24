@@ -26,6 +26,8 @@ use base 'DBIx::Class::Core';
 
 =item * L<DBIx::Class::InflateColumn::Time>
 
+=item * L<DBIx::Class::Stash>
+
 =back
 
 =cut
@@ -34,6 +36,7 @@ __PACKAGE__->load_components(
   "Relationship::Predicate",
   "InflateColumn::DateTime",
   "InflateColumn::Time",
+  "Stash",
 );
 
 =head1 TABLE: C<dimension>
@@ -124,8 +127,8 @@ __PACKAGE__->has_many(
 );
 #>>>
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-02 13:17:32
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:0Jtg/SYehaBMqE42Tlukfw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2020-04-24 13:28:53
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:AaJYgmqsFymVpy68ZhDjLQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
