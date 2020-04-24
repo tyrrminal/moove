@@ -9,8 +9,7 @@ sub register ($self, $app, $args) {
 
   $app->helper(
     db => sub($c) {
-      my $cfg = $app->conf->db;
-      state $db = Moove::Model->new($cfg->dsn, $cfg->user, $cfg->pass);
+      state $db = Moove::Model->new($app->conf->db_params);
     }
   );
 
