@@ -19,11 +19,9 @@ RUN apt-get update && apt-get install -qy \
   build-essential \
   libwww-perl \
   libssl-dev \
-  libnet-ssleay-perl \
   libexpat1-dev \
   libxml2 \
   libxml2-dev \
-  default-libmysqlclient-dev \
   default-mysql-client \
   && rm -rf /var/lib/apt/lists/*
 
@@ -32,11 +30,13 @@ COPY cpanfile* ./
 RUN carton install --deployment
 
 COPY docker-entrypoint.sh /bin/
-COPY *.conf *.conf.def ./
+COPY *.conf ./
 ADD api api/
+ADD cfg cfg/
 ADD lib lib/
 ADD script script/
 ADD t t/
+ADD schema schema/
 
 COPY --from=vuebuild      /app/dist  public
 
