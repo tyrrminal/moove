@@ -1,48 +1,38 @@
 requires 'App::Sqitch';
-
-requires 'Readonly';
-requires 'Syntax::Keyword::Try';
-
-requires 'Modern::Perl';
-requires 'Data::Printer';
+requires 'Archive::Zip';
 requires 'Array::Utils';
-
-requires 'IO::Socket::SSL';
-requires 'Lingua::EN::Titlecase';
-requires 'Lingua::EN::Inflect';
-
-requires 'DateTime::Span';
+requires 'Data::DPath';
+requires 'Data::Printer';
 requires 'DateTime::Format::Duration';
-requires 'DateTime::Format::Strptime';
 requires 'DateTime::Format::MySQL';
-
-requires 'Moose';
-requires 'MooseX::NonMoose';
-
-requires 'Mojolicious';
+requires 'DateTime::Format::Strptime';
+requires 'DateTime::Span';
+requires 'DBD::mysql';
+requires 'DBI';
+requires 'DBIx::Class::InflateColumn::DateTime';
+requires 'DBIx::Class::InflateColumn::FS';
+requires 'DBIx::Class::InflateColumn::Time';
+requires 'DBIx::Class::Relationship::Predicate';
+requires 'DBIx::Class::Schema::Loader';
+requires 'DBIx::Class::Stash';
+requires 'Geo::Gpx';
+requires 'IO::Socket::SSL';
+requires 'Lingua::EN::Inflect';
+requires 'Lingua::EN::Titlecase';
+requires 'Modern::Perl';
+requires 'Mojo::DynamicMethods';
 requires 'Mojolicious::Commands';
+requires 'Mojolicious::Plugin::Config::Structured';
 requires 'Mojolicious::Plugin::Database';
 requires 'Mojolicious::Plugin::OpenAPI';
-requires 'Mojo::DynamicMethods';
-
-requires 'String::Util';
-requires 'Text::CSV_XS';
-
-requires 'DBI';
-requires 'DBD::mysql';
-
-requires 'DBIx::Class::Schema::Loader';
-requires 'DBIx::Class::Relationship::Predicate';
-requires 'DBIx::Class::InflateColumn::FS';
-requires 'DBIx::Class::InflateColumn::DateTime';
-requires 'DBIx::Class::InflateColumn::Time';
-requires 'DBIx::Class::Stash';
-
-requires 'Data::DPath';
-
-requires 'Geo::Gpx';
-requires 'Archive::Zip';
-requires 'Spreadsheet::Reader::ExcelXML';
-requires 'YAML::XS';
-
+requires 'Mojolicious';
+requires 'Moose';
+requires 'MooseX::NonMoose';
 requires 'Net::LDAP';
+requires 'Net::SSLeay';
+requires 'Readonly';
+requires 'Spreadsheet::Reader::ExcelXML';
+requires 'String::Util';
+requires 'Syntax::Keyword::Try';
+requires 'Text::CSV_XS';
+requires 'YAML::XS';
