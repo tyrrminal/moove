@@ -2,7 +2,7 @@ package Moove::Model::ResultSet::User;
 
 use base qw(DBIx::Class::ResultSet);
 
-sub anonymous {
+sub guest {
   my $self = shift;
   return $self->new_result({id => 0, username => 'guest', person => {id => 0, first_name => 'guest', last_name => 'user'}});
 }

@@ -204,4 +204,10 @@ __PACKAGE__->has_many(
   {"foreign.user_id" => "self.id"}, {cascade_copy => 0, cascade_delete => 0},
 );
 
+use experimental qw(signatures);
+
+sub is_guest($self) {
+  return $self->id < 1;
+}
+
 1;
