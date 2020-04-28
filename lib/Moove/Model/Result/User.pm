@@ -199,4 +199,9 @@ __PACKAGE__->has_many(
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 
+__PACKAGE__->has_many(
+  "cumulative_totals", "Moove::Model::Result::CumulativeTotal",
+  {"foreign.user_id" => "self.id"}, {cascade_copy => 0, cascade_delete => 0},
+);
+
 1;
