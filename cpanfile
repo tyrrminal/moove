@@ -33,6 +33,7 @@ requires 'Net::SSLeay';
 requires 'Readonly';
 requires 'Spreadsheet::Reader::ExcelXML';
 requires 'String::Util';
+requires 'Syntax::Keyword::Junction';
 requires 'Syntax::Keyword::Try';
 requires 'Text::CSV_XS';
 requires 'YAML::XS';
