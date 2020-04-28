@@ -1,16 +1,18 @@
 package Moove::Controller::Auth;
-use Mojo::Base 'Mojolicious::Controller', -signatures;
+use Mojo::Base 'DCS::API::Base::Controller';
+use Role::Tiny::With;
+
+with 'Moove::Controller::Role::ModelEncoding::AuthUser';
+with 'Moove::Controller::Role::ModelEncoding::Default';
 
 use DateTime;
+
+use experimental qw(signatures);
 
 sub db_to_api($self) {
   my $u = $self->current_user;
   return {
-    user => {
-      id       => $u->id,
-      username => $u->username,
-      person   => {id => $u->person->id, firstname => $u->person->first_name, lastname => $u->person->last_name}
-    },
+    user       => $self->render_model($self->current_user),
     expiration => $self->session_expiration
   };
 }
