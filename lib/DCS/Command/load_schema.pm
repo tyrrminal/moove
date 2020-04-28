@@ -11,14 +11,11 @@ $0 load_schema
 USAGE
 
 sub run ($self, @args) {
-  my @components = qw(Relationship::Predicate InflateColumn::DateTime);
-  push(@components, @{$self->app->dbix_components}) if ($self->app->can('dbix_components'));
-
   make_schema_at(
     $self->app->model_class, {
       debug                   => 1,
       dump_directory          => $self->app->home->child('lib')->to_string,
-      components              => \@components,
+      components              => $self->app->dbix_components,
       overwrite_modifications => 1,
       filter_generated_code   => sub ($type, $class, $text) {
         return "#<<<\n$text#>>>";

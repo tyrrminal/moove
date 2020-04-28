@@ -25,7 +25,6 @@ my @features = (
   {session         => \&_load_base_session},
   {openapi         => \&_load_base_openapi},
   {vue             => \&_load_base_vue},
-  {schemaload      => \&_configure_load_schema},
 );
 my @loaded = ();
 sub _is_module_loaded($module) {
@@ -69,15 +68,6 @@ sub _load_base_textbalancedfix ($app, $args) {
   # end of hacky workaround
 
   return $TRUE;
-}
-
-sub _configure_load_schema ($app, $args) {
-  $app->helper(
-    dbix_components => sub {
-      return $args->{dbix_components};
-    }
-    )
-    if (exists($args->{dbix_components}));
 }
 
 sub _load_base_commands ($app, $args) {
@@ -153,6 +143,13 @@ sub _load_base_vue ($app, $args) {
 }
 
 sub register ($self, $app, $args) {
+  $app->helper(
+    dbix_components => sub {
+      return [
+        qw(Relationship::Predicate InflateColumn::DateTime), @{$args->{dbix_components} // []}
+        ];
+    }
+  );
   foreach (@features) {
     my ($name, $loader) = each(%{$_});    # only one key-value pair
     push(@loaded, $name);
