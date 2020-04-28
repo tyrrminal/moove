@@ -1,19 +1,19 @@
-openapi: 3.0.2
+openapi: 3.0.3
 info:
   title: Moo've
-  description: ""
+  description: "Moo've Fitness Tracker"
   contact:
     email: moove@digicow.net
   version: 1.1.0
 servers:
   - url: https://moove.digicowsoftware.com/api/v1
 security:
-  - user: []
+  - Session: []
 paths:
   /auth/login:
     post:
       security:
-        - auth: []
+        - Password: []
       summary: Initiate an authenticated login session
       x-mojo-to: Auth#login
       responses:
@@ -23,6 +23,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/LoginSession"
+      tags:
+        - Auth
   /auth/status:
     get:
       security: []
@@ -35,6 +37,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/LoginSession"
+      tags:
+        - Auth
   /auth/logout:
     post:
       security: []
@@ -47,553 +51,216 @@ paths:
             text/plain:
               schema:
                 type: string
-  /users/{user}/events/series/{id}:
+      tags:
+        - Auth
+  /admin/users/{userID}:
+    parameters:
+      - $ref: "#/components/parameters/UserID"
     get:
-      summary: Get the events in a particular series for a user
-      x-mojo-to: EventSeries#list
-      parameters:
-        - $ref: "#/components/parameters/UserID"
-        - $ref: "#/components/parameters/SubjectID"
+      security:
+        - Session: ["admin"]
+      summary: Get a user
+      x-mojo-to: Admin::User#get
       responses:
         200:
-          description: Success
+          description: OK
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  series:
-                    $ref: "#/components/schemas/EventSeries"
-                  events:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/RegisteredEvent"
-  /users/{user}/events:
+                $ref: "#/components/schemas/User"
+      tags:
+        - Admin
+    patch:
+      security:
+        - Session: ["admin"]
+      summary: Update a user
+      x-mojo-to: Admin::User#update
+      requestBody:
+        description: The User parameters
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+      tags:
+        - Admin
+    delete:
+      security:
+        - Session: ["admin"]
+      summary: Delete a user
+      x-mojo-to: Admin::User#delete
+      responses:
+        204:
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+      tags:
+        - Admin
+  /users:
     get:
-      summary: Get the list of events for a user
-      x-mojo-to: Event#list
+      summary: Get an optionally-filtered list of all users
+      x-mojo-to: User#list
       parameters:
-        - $ref: "#/components/parameters/UserID"
         - in: query
-          name: year
-          description: year of event
+          name: username
           required: false
           schema:
-            type: integer
-        - in: query
-          name: sequenceID
-          description: Event Sequence Identifier
-          required: false
-          schema:
-            type: integer
+            type: string
       responses:
         200:
-          description: Success
+          description: OK
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/RegisteredEvent"
-  /users/{user}/events/{id}:
+                $ref: "#/components/schemas/PaginatedUsers"
+      tags:
+        - User
+    post:
+      summary: Create a user
+      x-mojo-to: User#create
+      requestBody:
+        description: The User parameters
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+      tags:
+        - User
+  /users/{userID}:
+    parameters:
+      - $ref: "#/components/parameters/UserID"
     get:
-      summary: Get the details for an event
-      x-mojo-to: Event#get
-      parameters:
-        - $ref: "#/components/parameters/UserID"
-        - $ref: "#/components/parameters/SubjectID"
+      summary: Get a user
+      x-mojo-to: User#get
       responses:
         200:
-          description: Success
+          description: OK
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  event:
-                    $ref: "#/components/schemas/RegisteredEvent"
-                  links:
-                    $ref: "#/components/schemas/EventLinks"
-  /users/{user}/goals:
-    get:
-      summary: Get goals and goal fulfillments for a user
-      x-mojo-to: Goal#list
-      parameters:
-        - $ref: "#/components/parameters/UserID"
+                $ref: "#/components/schemas/User"
+      tags:
+        - User
+    patch:
+      summary: Update a user
+      x-mojo-to: User#update
+      requestBody:
+        description: The User parameters
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
       responses:
         200:
-          description: Success
+          description: OK
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  personalRecords:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Goal"
-                  achievements:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Goal"
-  /users/{user}/goals/{id}:
-    get:
-      summary: Get a single goal
-      x-mojo-to: Goal#get
-      parameters:
-        - $ref: "#/components/parameters/UserID"
-        - $ref: "#/components/parameters/SubjectID"
+                $ref: "#/components/schemas/User"
+      tags:
+        - User
+    delete:
+      summary: Delete a user
+      x-mojo-to: User#delete
       responses:
-        200:
-          description: Success
+        204:
+          description: OK
           content:
-            application/json:
+            text/plain:
               schema:
-                $ref: "#/components/schemas/Goal"
-  /users/{user}/summary:
-    get:
-      summary: Get basic activity/event information for a user
-      x-mojo-to: User#get_summary
-      parameters:
-        - $ref: "#/components/parameters/UserID"
-      responses:
-        200:
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  user:
-                    $ref: "#/components/schemas/User"
-                  recentActivities:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Activity"
-                  events:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/RegisteredEvent"
+                type: string
+      tags:
+        - User
 components:
   parameters:
     UserID:
       in: path
-      name: user
-      required: true
+      name: userID
       description: The ID number of the user
+      required: true
+      schema:
+        $ref: "#/components/schemas/DatabaseID"
+    Page:
+      in: query
+      name: page
+      description: Results page number
+      required: false
       schema:
         type: integer
         minimum: 1
-    SubjectID:
-      in: path
-      name: id
-      required: true
-      description: The ID number of the endpoint subject
+    Pagelen:
+      in: query
+      name: pagelen
+      description: Results page length
+      required: false
       schema:
         type: integer
         minimum: 1
   schemas:
-    Descriptoid:
-      type: object
-      properties:
-        id:
-          type: integer
-        description:
-          type: string
-    Activity:
-      type: object
-      properties:
-        id:
-          type: integer
-        activityType:
-          $ref: "#/components/schemas/Descriptoid"
-        startTime:
-          type: string
-          format: date-time
-        distance:
-          $ref: "#/components/schemas/Amount"
-        result:
-          $ref: "#/components/schemas/ActivityResult"
-        event:
-          $ref: "#/components/schemas/Event"
-        temperature:
-          nullable: true
-          type: number
-        note:
-          nullable: true
-          type: string
-        wholeActivity:
-          $ref: "#/components/schemas/Activity"
-        priorDistancePR:
-          $ref: "#/components/schemas/Activity"
-        records:
-          type: array
-          items:
-            $ref: "#/components/schemas/Goal"
-    ActivityResult:
-      type: object
-      properties:
-        id:
-          type: integer
-        grossTime:
-          type: string
-          format: time
-          nullable: true
-        netTime:
-          type: string
-          format: time
-        pace:
-          type: string
-          format: time
-        speed:
-          $ref: "#/components/schemas/Amount"
-        heartRate:
-          nullable: true
-          type: integer
-    Address:
-      type: object
-      properties:
-        id:
-          type: integer
-        street1:
-          type: string
-          nullable: true
-        street2:
-          type: string
-          nullable: true
-        city:
-          type: string
-          nullable: true
-        state:
-          type: string
-          nullable: true
-        zip:
-          type: string
-          nullable: true
-        phone:
-          type: string
-          nullable: true
-        country:
-          type: string
-          nullable: true
-        email:
-          type: string
-          nullable: true
-    Division:
-      type: object
-      required:
-        - id
-        - name
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        finishers:
-          type: integer
-    Donation:
-      type: object
-      required:
-        - amount
-        - date
-        - person
-        - address
-      properties:
-        id:
-          type: integer
-        amount:
-          type: number
-        date:
-          type: string
-          format: date-time
-        person:
-          $ref: "#/components/schemas/Person"
-        address:
-          $ref: "#/components/schemas/Address"
-    Event:
-      type: object
-      required:
-        - name
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        url:
-          type: string
-          format: uri
-          nullable: true
-        scheduledStart:
-          type: string
-          format: date-time
-        entrants:
-          type: integer
-          nullable: true
-        countdown:
-          $ref: "#/components/schemas/Duration"
-        eventType:
-          $ref: "#/components/schemas/EventType"
-        distance:
-          $ref: "#/components/schemas/Amount"
-        address:
-          $ref: "#/components/schemas/Address"
-        eventSequenceID:
-          type: integer
-          nullable: true
-    EventNavigation:
-      type: object
-      properties:
-        next:
-          $ref: "#/components/schemas/Event"
-        prev:
-          $ref: "#/components/schemas/Event"
-    EventLinks:
-      type: object
-      properties:
-        event:
-          $ref: "#/components/schemas/EventNavigation"
-        series:
-          $ref: "#/components/schemas/EventNavigation"
-        sequence:
-          $ref: "#/components/schemas/EventNavigation"
-    EventRegistration:
-      type: object
-      required:
-        - user
-        - isPublic
-      properties:
-        eventID:
-          type: integer
-        user:
-          $ref: "#/components/schemas/User"
-        fee:
-          type: number
-          nullable: true
-        registered:
-          type: boolean
-          nullable: true
-        bibNumber:
-          type: integer
-          nullable: true
-        isPublic:
-          type: boolean
-        fundraising:
-          $ref: "#/components/schemas/Fundraising"
-    EventResult:
-      type: object
-      required:
-        - groups
-      properties:
-        url:
-          type: string
-          format: uri
-          nullable: true
-        groups:
-          type: array
-          items:
-            $ref: "#/components/schemas/EventResultGroup"
-    EventResultGroup:
-      type: object
-      required:
-        - place
-        - finishers
-        - percentile
-      properties:
-        place:
-          type: integer
-        finishers:
-          type: integer
-        percentile:
-          type: number
-        division:
-          type: string
-        gender:
-          type: string
-    EventSeries:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        year:
-          type: integer
-    EventType:
-      type: object
-      required:
-        - id
-        - activityType
-        - description
-      properties:
-        id:
-          type: integer
-        activityType:
-          $ref: "#/components/schemas/Descriptoid"
-        description:
-          type: string
-    Fundraising:
-      type: object
-      required:
-        - minimum
-        - total
-      properties:
-        minimum:
-          type: number
-        total:
-          type: number
-        donations:
-          type: array
-          items:
-            $ref: "#/components/schemas/Donation"
-    Goal:
-      type: object
-      required:
-        - dimension
-        - name
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        activityType:
-          $ref: "#/components/schemas/Descriptoid"
-        dimension:
-          type: string
-        isPR:
-          type: boolean
-        count:
-          type: integer
-        fulfillments:
-          type: array
-          items:
-            $ref: "#/components/schemas/GoalRecord"
-    GoalRecord:
-      type: object
-      required:
-        - description
-        - isCurrent
-        - value
-      properties:
-        description:
-          type: string
-        isCurrent:
-          type: boolean
-        value:
-          anyOf:
-            - $ref: "#/components/schemas/Amount"
-            - $ref: "#/components/schemas/Duration"
+    DatabaseID:
+      type: integer
+      minimum: 1
     Person:
       type: object
+      additionalProperties: false
       required:
         - firstname
         - lastname
       properties:
         id:
-          type: integer
+          $ref: "#/components/schemas/DatabaseID"
         firstname:
           type: string
         lastname:
           type: string
-    RegisteredEvent:
-      required:
-        - registration
-        - event
-      type: object
-      properties:
-        registration:
-          $ref: "#/components/schemas/EventRegistration"
-        event:
-          $ref: "#/components/schemas/Event"
-        activity:
-          $ref: "#/components/schemas/Activity"
-        results:
-          $ref: "#/components/schemas/EventResult"
-    Location:
-      type: object
-      required:
-        - latitude
-        - longitude
-      properties:
-        id:
-          type: integer
-        latitude:
-          type: number
-        longitude:
-          type: number
-    UnitOfMeasure:
-      type: object
-      required:
-        - unit
-        - abbreviation
-        - normalizationFactor
-      properties:
-        id:
-          type: integer
-        unit:
-          type: string
-        abbreviation:
-          type: string
-        normalizationFactor:
-          type: number
     User:
       type: object
+      additionalProperties: false
       required:
         - username
         - person
       properties:
         id:
-          type: integer
+          $ref: "#/components/schemas/DatabaseID"
         username:
           type: string
         person:
           $ref: "#/components/schemas/Person"
-        location:
-          $ref: "#/components/schemas/Location"
-    Amount:
+        roles:
+          type: array
+          items:
+            type: string
+    PaginatedUsers:
       type: object
+      additionalProperties: false
       required:
-        - quantity
+        - meta
+        - elements
       properties:
-        quantity:
-          $ref: "#/components/schemas/DimensionedQuantity"
-        normalizedQuantity:
-          $ref: "#/components/schemas/DimensionedQuantity"
-    DimensionedQuantity:
-      type: object
-      required:
-        - value
-        - units
-      properties:
-        value:
-          type: number
-        units:
-          $ref: "#/components/schemas/UnitOfMeasure"
-    Duration:
-      type: object
-      properties:
-        years:
-          type: number
-        months:
-          type: number
-        weeks:
-          type: number
-        days:
-          type: number
-        hours:
-          type: number
-        minutes:
-          type: number
-        seconds:
-          type: number
-    Pagination:
-      type: object
-      properties:
-        page:
-          type: integer
-        perPage:
-          type: integer
-        count:
-          type: integer
+        meta:
+          $ref: "#/components/schemas/Pagination"
+        elements:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
     LoginSession:
       type: object
       required:
@@ -605,20 +272,57 @@ components:
         expiration:
           type: string
           format: date-time
-        roles:
-          type: array
-          items:
-            type: string
-
+    Pagination:
+      type: object
+      required:
+        - count
+        - total
+        - page
+        - pagelen
+      additionalProperties: false
+      properties:
+        count:
+          type: integer
+          minimum: 0
+        total:
+          type: integer
+          minimum: 0
+        page:
+          type: integer
+          minimum: 1
+        pagelen:
+          type: integer
+          minimum: 1
+        next:
+          type: string
+          format: uri
+        previous:
+          type: string
+          format: uri
+    NullValue:
+      not:
+        anyOf:
+          - type: string
+          - type: number
+          - type: boolean
+          - type: object
+          - type: array
   securitySchemes:
-    auth:
+    Password:
       type: http
       scheme: basic
-    admin:
+    Session:
       type: apiKey
       name: mojolicious
       in: cookie
-    user:
-      type: apiKey
-      name: mojolicious
-      in: cookie
+tags:
+  - name: Admin
+    description: Administrative functions
+  - name: Auth
+    description: Login and logout functions
+  - name: Meta
+    description: Application-wide value lists
+  - name: User
+  - name: Activity
+  - name: Event
+  - name: Goal
