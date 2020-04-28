@@ -7,7 +7,7 @@ use experimental qw(signatures);
 sub startup($self) {
   $self->plugin(
     'DCS::Base',
-    dbix_components => qw(InflateColumn::Time),
+    dbix_components => [qw(InflateColumn::Time)],
     api_definition  => $self->app->home->child('api')->child('moove-api-v1.yaml')->to_string,
     conf_structure  => $self->app->home->child('cfg')->child('structure.yml')->to_string
   );
