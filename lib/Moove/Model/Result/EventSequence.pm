@@ -26,8 +26,6 @@ use base 'DBIx::Class::Core';
 
 =item * L<DBIx::Class::InflateColumn::Time>
 
-=item * L<DBIx::Class::Stash>
-
 =back
 
 =cut
@@ -36,7 +34,6 @@ __PACKAGE__->load_components(
   "Relationship::Predicate",
   "InflateColumn::DateTime",
   "InflateColumn::Time",
-  "Stash",
 );
 
 =head1 TABLE: C<event_sequence>
@@ -98,8 +95,8 @@ __PACKAGE__->has_many(
 );
 #>>>
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2020-04-24 13:28:53
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:B+iddibuX8hj+avMwN6f0Q
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2020-04-28 15:46:06
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:5cyxfMPJgqYGwecERxHzgg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

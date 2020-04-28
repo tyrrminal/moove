@@ -26,8 +26,6 @@ use base 'DBIx::Class::Core';
 
 =item * L<DBIx::Class::InflateColumn::Time>
 
-=item * L<DBIx::Class::Stash>
-
 =back
 
 =cut
@@ -36,7 +34,6 @@ __PACKAGE__->load_components(
   "Relationship::Predicate",
   "InflateColumn::DateTime",
   "InflateColumn::Time",
-  "Stash",
 );
 
 =head1 TABLE: C<event>
@@ -232,8 +229,8 @@ __PACKAGE__->belongs_to(
 );
 #>>>
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2020-04-24 13:28:53
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Aqnx/H2QKTq1Vu4+CoUr1g
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2020-04-28 15:46:06
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:BEqC8+VFpFrL/8iCMX2kdQ
 
 use Moove::Import::Event::RaceWire;
 use Moove::Import::Event::IResultsLive;
