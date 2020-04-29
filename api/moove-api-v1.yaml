@@ -105,11 +105,101 @@ paths:
                 type: string
       tags:
         - Admin
+  /meta/values:
+    get:
+      summary: Get one or more value lookup tables
+      x-mojo-to: Meta#list
+      parameters:
+        - in: query
+          name: all
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: activityTypes
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: dimensions
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: eventTypes
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: eventReferenceTypes
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: unitOfMeasure
+          required: false
+          schema:
+            type: boolean
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  activityTypes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ActivityType"
+                  eventTypes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/EventType"
+                  eventReferenceTypes:
+                    type: array
+      tags:
+        - Meta
+  /events:
+    get:
+      summary: Get an optionally-filtered list of /events
+      x-mojo-to: Event#list
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Pagelen"
+        - in: query
+          name: start
+          required: false
+          schema:
+            type: string
+            format: datetime
+        - in: query
+          name: end
+          required: false
+          schema:
+            type: string
+            format: datetime
+        - in: query
+          name: name
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedEvents"
+      tags:
+        - Event
   /users:
     get:
       summary: Get an optionally-filtered list of all users
       x-mojo-to: User#list
       parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Pagelen"
         - in: query
           name: username
           required: false
@@ -218,12 +308,88 @@ components:
     DatabaseID:
       type: integer
       minimum: 1
-    Person:
+    ActivityType:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+        description:
+          type: string
+    Address:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+        street1:
+          type: string
+        street2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
+        phone:
+          type: string
+        country:
+          type: string
+        email:
+          type: string
+    Event:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+        name:
+          type: string
+        entrants:
+          type: integer
+          nullable: true
+        scheduledStart:
+          type: string
+          format: date-time
+        url:
+          type: string
+          format: uri
+          nullable: true
+        eventTypeID:
+          $ref: "#/components/schemas/DatabaseID"
+        distance:
+          $ref: "#/components/schemas/UnitValue"
+        address:
+          $ref: "#/components/schemas/Address"
+    PaginatedEvents:
       type: object
       additionalProperties: false
       required:
-        - firstname
-        - lastname
+        - meta
+        - elements
+      properties:
+        meta:
+          $ref: "#/components/schemas/Pagination"
+        elements:
+          type: array
+          items:
+            $ref: "#/components/schemas/Event"
+    EventType:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+        activityTypeID:
+          $ref: "#/components/schemas/DatabaseID"
+        activityType:
+          $ref: "#/components/schemas/ActivityType"
+        description:
+          type: string
+    Person:
+      type: object
+      additionalProperties: false
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"
@@ -234,9 +400,6 @@ components:
     User:
       type: object
       additionalProperties: false
-      required:
-        - username
-        - person
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"
@@ -261,6 +424,30 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/User"
+    Unit:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+        label:
+          type: string
+        abbreviation:
+          type: string
+        normalizationFactor:
+          type: number
+          minimum: 0
+    UnitValue:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+        value:
+          type: number
+          minimum: 0
+        unitID:
+          $ref: "#/components/schemas/DatabaseID"
     LoginSession:
       type: object
       required:
