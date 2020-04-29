@@ -18,6 +18,7 @@ requires 'DBIx::Class::Stash';
 requires 'Geo::Gpx';
 requires 'IO::Socket::SSL';
 requires 'Lingua::EN::Inflect';
+requires 'Lingua::EN::PluralToSingular';
 requires 'Lingua::EN::Titlecase';
 requires 'Modern::Perl';
 requires 'Mojo::DynamicMethods';

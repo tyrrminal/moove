@@ -2198,6 +2198,13 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
+  Lingua-EN-PluralToSingular-0.21
+    pathname: B/BK/BKB/Lingua-EN-PluralToSingular-0.21.tar.gz
+    provides:
+      Lingua::EN::PluralToSingular 0.21
+    requirements:
+      ExtUtils::MakeMaker 0
+      perl 5.006001
   Lingua-EN-Tagger-0.31
     pathname: A/AC/ACOBURN/Lingua-EN-Tagger-0.31.tar.gz
     provides:
