@@ -2,6 +2,7 @@ package DCS::API::Base::ModelController;
 use Mojo::Base 'DCS::API::Base::Controller';
 
 use Readonly;
+use DCS::NameConversion qw(convert_hash_keys snake_to_camel);
 use DCS::Constants qw(:symbols);
 
 use experimental qw(signatures);
@@ -18,7 +19,7 @@ sub render_model ($self, $model) {
   if ($self->can($r_func)) {
     return $self->$r_func($model);
   }
-  return {$model->get_columns};
+  return {convert_hash_keys($model->get_columns, \&snake_to_camel)};
 }
 
 sub render_paginated_list ($self, $rs) {
