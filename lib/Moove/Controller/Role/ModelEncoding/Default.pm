@@ -5,19 +5,30 @@ use experimental qw(signatures);
 
 sub render_model_cumulativetotal ($self, $total) {
   return {
-    type     => $self->render_model($total->activity_type),
-    uom      => $self->render_model($total->uom),
-    distance => $total->distance,
-    year     => $total->year,
+    activityTypeID => $total->activity_type_id,
+    unitID         => $total->uom->id,
+    distance       => $total->distance,
+    year           => $total->year,
+  };
+}
+
+sub render_model_distance ($self, $distance) {
+  return {
+    id     => $distance->id,
+    value  => $distance->value,
+    unitID => $distance->uom->id,
   };
 }
 
 sub render_model_event ($self, $event) {
   return {
     id             => $event->id,
-    name           => $event->event_group->name,
+    name           => join(" - ", grep {defined} ($event->event_group->name, $event->name || undef)),
+    entrants       => $event->entrants,
     url            => $event->event_group->url,
     scheduledStart => $self->render_datetime($event->scheduled_start),
+    eventTypeID    => $event->event_type_id,
+    distance       => $self->render_model($event->distance),
   };
 }
 
@@ -32,7 +43,7 @@ sub render_model_person ($self, $person) {
 sub render_model_unitofmeasure ($self, $uom) {
   return {
     id                  => $uom->id,
-    unit                => $uom->uom,
+    label               => $uom->uom,
     abbreviation        => $uom->abbreviation,
     normalizationFactor => $uom->conversion_factor,
   };
