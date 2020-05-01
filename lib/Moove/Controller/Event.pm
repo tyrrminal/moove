@@ -2,7 +2,7 @@ package Moove::Controller::Event;
 use Mojo::Base 'DCS::API::Base::ModelController';
 use Role::Tiny::With;
 
-with 'DCS::API::Role::Rest::List';
+with 'DCS::API::Role::Rest::List', 'DCS::API::Role::Rest::Get';
 with 'Moove::Controller::Role::ModelEncoding::Event';
 with 'Moove::Controller::Role::ModelEncoding::Default';
 
