@@ -193,6 +193,21 @@ paths:
                 $ref: "#/components/schemas/PaginatedEvents"
       tags:
         - Event
+  /events/{eventID}:
+    parameters:
+      - $ref: "#/components/parameters/EventID"
+    get:
+      summary: Get an event
+      x-mojo-to: Event#get
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+      tags:
+        - Event
   /users:
     get:
       summary: Get an optionally-filtered list of all users
@@ -281,6 +296,13 @@ paths:
         - User
 components:
   parameters:
+    EventID:
+      in: path
+      name: eventID
+      description: The ID number of the event
+      required: true
+      schema:
+        $ref: "#/components/schemas/DatabaseID"
     UserID:
       in: path
       name: userID
