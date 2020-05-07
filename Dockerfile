@@ -1,6 +1,6 @@
 FROM node:10 as vuebuild
 # By convention, our <app>-ui folder contains the Vuejs app
-COPY *-ui /app
+COPY vue /app
 WORKDIR /app
 RUN npm install && npm run build
 
@@ -26,17 +26,12 @@ RUN apt-get update && apt-get install -qy \
   && rm -rf /var/lib/apt/lists/*
 
 RUN cpanm Carton
-COPY cpanfile* ./
+COPY mojo/cpanfile* ./
 RUN carton install --deployment
 
 COPY docker-entrypoint.sh /bin/
-COPY *.conf ./
-ADD api api/
-ADD cfg cfg/
-ADD lib lib/
-ADD script script/
-ADD t t/
-ADD schema schema/
+ADD schema /schema
+COPY mojo .
 
 COPY --from=vuebuild      /app/dist  public
 
