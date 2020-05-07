@@ -4531,11 +4531,11 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       perl 5.008001
-  YAML-LibYAML-0.81
-    pathname: T/TI/TINITA/YAML-LibYAML-0.81.tar.gz
+  YAML-LibYAML-0.82
+    pathname: T/TI/TINITA/YAML-LibYAML-0.82.tar.gz
     provides:
-      YAML::LibYAML 0.81
-      YAML::XS 0.81
+      YAML::LibYAML 0.82
+      YAML::XS 0.82
       YAML::XS::LibYAML undef
     requirements:
       ExtUtils::MakeMaker 0
