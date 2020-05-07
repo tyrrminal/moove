@@ -1,17 +1,10 @@
 #!/bin/bash
 set -e
 
-if [ -n "$TZ" ]; then
-    echo ${TZ} >/etc/timezone && \
-      ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime && \
-      dpkg-reconfigure -f noninteractive tzdata
-    echo "Container timezone set to: $TZ"
-fi
-
 case "$1" in
   devserver)
     echo "Starting server in development mode"
-    exec morbo -l 'http://*:8080' -w api -w lib script/moove
+    exec morbo -l 'http://*:8080' -w lib -w api -w cfg script/moove
     ;;
   prodserver)
     echo "Starting server in production mode"
