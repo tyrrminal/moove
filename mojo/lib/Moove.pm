@@ -1,4 +1,4 @@
-package Moove v1.0.0;
+package Moove v2.0.0;
 use Mojo::Base 'Mojolicious';
 
 use experimental qw(signatures);
