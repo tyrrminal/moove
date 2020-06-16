@@ -881,6 +881,16 @@ DISTRIBUTIONS
       Data::UUID 0
       ExtUtils::MakeMaker 6.42
       perl 5.008001
+  DCS-Constants-0.001
+    pathname: D/DI/DIGICOW/DCS-Constants-0.001.tar.gz
+    provides:
+      DCS::Constants 0.001
+    requirements:
+      Exporter 0
+      ExtUtils::MakeMaker 0
+      Modern::Perl 0
+      Readonly 0
+      base 0
   Data-DPath-0.58
     pathname: S/SC/SCHWIGON/Data-DPath-0.58.tar.gz
     provides:
@@ -2614,6 +2624,60 @@ DISTRIBUTIONS
       Mojo::Base 0
       Readonly 0
       perl 5.022
+  Mojolicious-Plugin-DCS-Base-0.001
+    pathname: D/DI/DIGICOW/Mojolicious-Plugin-DCS-Base-0.001.tar.gz
+    provides:
+      DCS::API::Base::Controller 0.001
+      DCS::API::Base::ModelController 0.001
+      DCS::API::Role::ModelEntity 0.001
+      DCS::API::Role::Rest::Collection 0.001
+      DCS::API::Role::Rest::Create 0.001
+      DCS::API::Role::Rest::Delete 0.001
+      DCS::API::Role::Rest::Entity 0.001
+      DCS::API::Role::Rest::Get 0.001
+      DCS::API::Role::Rest::List 0.001
+      DCS::API::Role::Rest::Update 0.001
+      DCS::Command::load_schema 0.001
+      DCS::Command::migrate_schema 0.001
+      DCS::DateTime::Extras 0.001
+      DCS::NameConversion 0.001
+      DCS::Utils 0.001
+      Mojolicious::Plugin::DCS::API 0.001
+      Mojolicious::Plugin::DCS::Authentication 0.001
+      Mojolicious::Plugin::DCS::Authorization 0.001
+      Mojolicious::Plugin::DCS::Base 0.001
+      Mojolicious::Plugin::DCS::DB 0.001
+      Mojolicious::Plugin::DCS::Session 0.001
+      Mojolicious::Plugin::DCS::Vue 0.001
+    requirements:
+      Carp 0
+      DBIx::Class::Schema::Loader 0
+      DCS::Constants 0
+      English 0
+      Exporter 0
+      ExtUtils::MakeMaker 0
+      HTTP::Status 0
+      Lingua::EN::PluralToSingular 0
+      List::MoreUtils 0
+      List::Util 0
+      Memoize 0
+      Memoize::Expire 0
+      Mojo::Base 0
+      Mojo::Util 0
+      Net::LDAP 0
+      Readonly 0
+      Role::Tiny 0
+      Role::Tiny::With 0
+      Syntax::Keyword::Junction 0
+      Syntax::Keyword::Try 0
+      Text::Balanced 0
+      Time::Seconds 0
+      boolean 0
+      experimental 0
+      overload 0
+      strict 0
+      syntax 0
+      warnings 0
   Mojolicious-Plugin-Database-1.10
     pathname: M/MA/MADCAT/Mojolicious-Plugin-Database-1.10.tar.gz
     provides:
@@ -4565,6 +4629,13 @@ DISTRIBUTIONS
       perl 5.008001
       strict 0
       warnings 0
+  boolean-0.46
+    pathname: I/IN/INGY/boolean-0.46.tar.gz
+    provides:
+      boolean 0.46
+    requirements:
+      ExtUtils::MakeMaker 0
+      perl 5.008001
   curry-1.001000
     pathname: M/MS/MSTROUT/curry-1.001000.tar.gz
     provides:

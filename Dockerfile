@@ -10,6 +10,7 @@ FROM perl:5.30
 LABEL maintainer="Mark Tyrrell <mtyrrell@digicowsoftware.com>"
 
 ENV PERL_CARTON_PATH="/carton/local" \
+  PERL_CARTON_MIRROR=http://cpan.digicow.net:5888/orepan \
   PATH="/carton/local/bin:${PATH}" \
   PERL5LIB="/usr/share/perl5:/carton/local/lib/perl5:/carton/local/lib/perl5/x86_64-linux-gnu:${PERL5LIB}"
 WORKDIR /app
