@@ -10,8 +10,12 @@ case "$1" in
     echo "Starting server in production mode"
     exec hypnotoad -f script/moove
     ;;
+  dbmigration)
+    echo "Deploying database migrations"
+    exec script/moove migrate_schema
+    ;;
   *)
-    echo "Usage: $0 [devserver|prodserver]"
+    echo "Usage: $0 [devserver|prodserver|dbmigration]"
     exit 1
 esac
 
