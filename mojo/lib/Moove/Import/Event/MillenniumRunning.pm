@@ -2,6 +2,7 @@ package Moove::Import::Event::MillenniumRunning;
 use Modern::Perl;
 use Moose;
 
+use boolean;
 use DateTime::Format::Strptime;
 use Lingua::EN::Titlecase;
 use List::MoreUtils qw(uniq);
@@ -10,12 +11,12 @@ use Data::Dumper;
 
 use Moove::Import::Helper::CityService;
 
-use DCS::Constants qw(:boolean :existence :symbols);
+use DCS::Constants qw(:existence :symbols);
 
 has 'event_id' => (
   is       => 'ro',
   isa      => 'Str',
-  required => $TRUE
+  required => true
 );
 
 has 'race_id' => (
@@ -35,7 +36,7 @@ has '_url' => (
   is       => 'ro',
   isa      => 'Mojo::URL',
   init_arg => $NULL,
-  lazy     => $TRUE,
+  lazy     => true,
   builder  => '_build_url'
 );
 
@@ -43,7 +44,7 @@ has 'results_page' => (
   is       => 'ro',
   isa      => 'Mojo::Message::Response',
   init_arg => $NULL,
-  lazy     => $TRUE,
+  lazy     => true,
   builder  => '_build_results_page'
 );
 

@@ -216,8 +216,6 @@ __PACKAGE__->many_to_many("workouts", "user_goal_fulfillment_workouts", "workout
 use DCS::DateTime::Extras;
 use List::Util qw(sum reduce);
 
-use DCS::Constants qw(:boolean);
-
 sub most_recent_activity {
   my $self = shift;
 

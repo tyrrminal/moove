@@ -6,8 +6,6 @@ use DateTime;
 
 use Moove::Import::Helper::TextBalancedFix;
 
-use DCS::Constants qw(:boolean);
-
 has 'description' => 'Recalculate goal activities for a user';
 has 'usage'       => <<"USAGE";
 $0 --user [id|name]

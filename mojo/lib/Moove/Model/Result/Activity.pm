@@ -282,7 +282,6 @@ __PACKAGE__->many_to_many(
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
-use DCS::Constants qw(:boolean);
 use List::Util qw(max);
 
 use Moose;

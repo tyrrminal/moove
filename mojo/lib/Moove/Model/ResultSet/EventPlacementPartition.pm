@@ -1,8 +1,8 @@
-package Moove::Model::ResultSet::EventResultGroup;
+package Moove::Model::ResultSet::EventPlacementPartition;
 
 use base qw(DBIx::Class::ResultSet);
 
-use DCS::Constants qw(:boolean :existence);
+use DCS::Constants qw(:existence);
 
 sub for_event {
   my $self = shift;

@@ -10,8 +10,6 @@ with 'DCS::API::Role::Rest::Create',
 with 'Moove::Controller::Role::ModelEncoding::EventRegistration', 'Moove::Controller::Role::ModelEncoding::Default';
 with 'Moove::Controller::Role::ModelDecoding::User';
 
-use DCS::Constants qw(:boolean);
-
 use experimental qw(signatures);
 
 sub resultset($self) {

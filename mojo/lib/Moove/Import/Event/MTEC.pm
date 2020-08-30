@@ -2,12 +2,13 @@ package Moove::Import::Event::MTEC;
 use Moose;
 use Modern::Perl;
 
+use boolean;
 use Readonly;
 use Scalar::Util qw(looks_like_number);
 use Moove::Import::Helper::Rectification qw(normalize_times);
 use Data::Dumper;
 
-use DCS::Constants qw(:boolean :existence :symbols);
+use DCS::Constants qw(:existence :symbols);
 
 Readonly::Scalar my $metadata_url => 'https://www.mtecresults.com/race/show/%s/';
 Readonly::Scalar my $results_url  => 'http://farm.mtecresults.com/race/show/%s';
@@ -15,7 +16,7 @@ Readonly::Scalar my $results_url  => 'http://farm.mtecresults.com/race/show/%s';
 has 'event_id' => (
   is       => 'ro',
   isa      => 'Str',
-  required => $TRUE
+  required => true
 );
 
 has 'race_id' => (

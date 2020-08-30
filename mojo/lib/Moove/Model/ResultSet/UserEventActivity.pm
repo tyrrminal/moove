@@ -1,4 +1,4 @@
-package Moove::Model::ResultSet::EventRegistration;
+package Moove::Model::ResultSet::UserEventActivity;
 
 use base qw(DBIx::Class::ResultSet);
 

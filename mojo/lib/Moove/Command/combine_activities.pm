@@ -8,7 +8,7 @@ use List::Util qw(reduce uniq sum);
 
 use Moove::Import::Helper::TextBalancedFix;
 
-use DCS::Constants qw(:boolean :existence);
+use DCS::Constants qw(:existence);
 
 has 'description' => 'Combine two or more activities into a single activiity';
 has 'usage'       => <<"USAGE";

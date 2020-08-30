@@ -2,11 +2,12 @@ package Moove::Import::Event::IResultsLive;
 use Modern::Perl;
 use Moose;
 
+use boolean;
 use DateTime::Format::Strptime;
 
 use Moove::Import::Helper::Rectification qw(normalize_times);
 
-use DCS::Constants qw(:boolean :existence);
+use DCS::Constants qw(:existence);
 
 has 'race_id' => (
   is     => 'rw',
@@ -17,7 +18,7 @@ has 'race_id' => (
 has 'event_id' => (
   is       => 'ro',
   isa      => 'Str',
-  required => $TRUE
+  required => true
 );
 
 has 'base_url' => (
@@ -31,7 +32,7 @@ has '_url' => (
   is       => 'ro',
   isa      => 'Mojo::URL',
   init_arg => $NULL,
-  lazy     => $TRUE,
+  lazy     => true,
   builder  => '_build_url'
 );
 

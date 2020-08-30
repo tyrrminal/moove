@@ -254,7 +254,7 @@ use Moove::Import::Event::MTEC;
 use Moove::Import::Event::MillenniumRunning;
 
 use DCS::DateTime::Extras;
-use DCS::Constants qw(:boolean :existence :symbols);
+use DCS::Constants qw(:existence :symbols);
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 

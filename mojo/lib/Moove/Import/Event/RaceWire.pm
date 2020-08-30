@@ -2,12 +2,13 @@ package Moove::Import::Event::RaceWire;
 use Modern::Perl;
 use Moose;
 
+use boolean;
 use Readonly;
 use DateTime::Format::Strptime;
 use Lingua::EN::Titlecase;
 use Moove::Import::Helper::Rectification qw(normalize_times);
 
-use DCS::Constants qw(:boolean :existence :symbols);
+use DCS::Constants qw(:existence :symbols);
 
 Readonly::Scalar my $metadata_url    => 'https://my.racewire.com/results/';
 Readonly::Scalar my $results_url     => 'https://my.racewire.com/results/%d/%d';
@@ -16,7 +17,7 @@ Readonly::Scalar my $results_api_url => 'https://racewireapi.global.ssl.fastly.n
 has 'event_id' => (
   is       => 'ro',
   isa      => 'Str',
-  required => $TRUE
+  required => true
 );
 
 has 'race_id' => (

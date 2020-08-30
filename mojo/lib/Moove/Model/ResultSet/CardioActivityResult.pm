@@ -1,4 +1,4 @@
-package Moove::Model::ResultSet::Result;
+package Moove::Model::ResultSet::CardioActivityResult;
 
 use base qw(DBIx::Class::ResultSet);
 

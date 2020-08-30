@@ -5,7 +5,7 @@ use Mojo::JSON qw(from_json);
 
 use Readonly;
 
-use DCS::Constants qw(:boolean :existence);
+use DCS::Constants qw(:existence);
 
 Readonly::Scalar my $GIT_API_BASE   => q{https://api.github.com/};
 Readonly::Scalar my $GIT_USER_GISTS => q{users/%s/gists};

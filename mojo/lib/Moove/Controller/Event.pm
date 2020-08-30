@@ -6,8 +6,6 @@ with 'DCS::API::Role::Rest::List', 'DCS::API::Role::Rest::Get';
 with 'Moove::Controller::Role::ModelEncoding::Event';
 with 'Moove::Controller::Role::ModelEncoding::Default';
 
-use DCS::Constants qw(:boolean);
-
 use experimental qw(signatures);
 
 sub resultset($self) {

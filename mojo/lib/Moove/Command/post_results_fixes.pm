@@ -5,7 +5,7 @@ use DateTime;
 
 use Moove::Import::Helper::TextBalancedFix;
 
-use DCS::Constants qw(:boolean :existence);
+use DCS::Constants qw(:existence);
 use Data::Dumper;
 
 has 'description' => 'Address import deficiencies';

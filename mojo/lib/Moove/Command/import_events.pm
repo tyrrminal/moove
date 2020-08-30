@@ -5,25 +5,23 @@ use Mojo::Util 'getopt';
 
 use Text::CSV_XS;
 
-use DCS::Constants qw(:boolean :existence);
+use boolean;
+use DCS::Constants qw(:existence);
 
 has 'description' => 'Import a list of events';
-has 'usage' => <<"USAGE";
+has 'usage'       => <<"USAGE";
 $0 deploy [OPTIONS]
 OPTIONS:
   ???
 USAGE
 
-sub run($self, @args) {
-  getopt(
-    \@args,
-    'file:s' => \my $filename
-  );
+sub run ($self, @args) {
+  getopt(\@args, 'file:s' => \my $filename);
 
-  my $csv = Text::CSV_XS->new ({ binary => $TRUE, auto_diag => $TRUE });
+  my $csv = Text::CSV_XS->new({binary => true, auto_diag => true});
   open(my $F, '<:encoding(utf8)', $filename) or die($!);
   my @col_map = @{$csv->getline($F)};
-  while(my $row = $csv->getline($F)) {
+  while (my $row = $csv->getline($F)) {
     my %r;
     @r{@col_map} = @$row;
     my $v = \%r;
@@ -34,32 +32,38 @@ sub run($self, @args) {
     my $distance = $self->app->model('Distance')->find_or_create({value => $v->{distance_v}, uom => $uom->id});
     my $address = $self->app->model('Address')->find_address(%r);
 
-    my $event = $self->app->model('Event')->create({
-      name => $v->{name},
-      scheduled_start => $v->{date},
-      event_type_id => $type->id,
-      distance => $distance,
-      address => $address
-    });
+    my $event = $self->app->model('Event')->create(
+      {
+        name            => $v->{name},
+        scheduled_start => $v->{date},
+        event_type_id   => $type->id,
+        distance        => $distance,
+        address         => $address
+      }
+    );
 
-    my $reg = $self->app->model('EventRegistration')->create({
-      event => $event,
-      user_id => $v->{user_id},
-      fee => $v->{fee} eq '' ? $NULL : $v->{fee},
-      fundraising_minimum => $v->{fr_min} eq '' ? $NULL : $v->{fr_min},
-      registered => $v->{registered},
-      bib_no => $v->{bib_no} || $NULL
-    });
+    my $reg = $self->app->model('EventRegistration')->create(
+      {
+        event               => $event,
+        user_id             => $v->{user_id},
+        fee                 => $v->{fee} eq '' ? $NULL : $v->{fee},
+        fundraising_minimum => $v->{fr_min} eq '' ? $NULL : $v->{fr_min},
+        registered          => $v->{registered},
+        bib_no => $v->{bib_no} || $NULL
+      }
+    );
 
-    if($v->{reference_type}) {
+    if ($v->{reference_type}) {
       my $ert = $self->app->model('EventReferenceType')->find({description => $v->{reference_type}});
-      $self->app->model('EventReference')->create({
-        event => $event,
-        event_reference_type => $ert,
-        referenced_name => $v->{event_name},
-        ref_num => $v->{reference_id},
-        sub_ref_num => $v->{reference_sub_id} || $NULL
-      });
+      $self->app->model('EventReference')->create(
+        {
+          event                => $event,
+          event_reference_type => $ert,
+          referenced_name      => $v->{event_name},
+          ref_num              => $v->{reference_id},
+          sub_ref_num          => $v->{reference_sub_id} || $NULL
+        }
+      );
     }
   }
 }

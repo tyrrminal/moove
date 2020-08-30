@@ -4,7 +4,7 @@ use base qw(DBIx::Class::ResultSet);
 
 use DateTime::Format::MySQL;
 
-use DCS::Constants qw(:boolean :existence);
+use DCS::Constants qw(:existence);
 
 sub find_event {
   my $self = shift;
@@ -27,31 +27,33 @@ sub for_user {
   my $self = shift;
   my ($user) = @_;
 
-  return $self->search({
-    'event_registrations.user_id' => $user->id
-  },{
-    join => 'event_registrations'
-  });
+  return $self->search(
+    {
+      'event_registrations.user_id' => $user->id
+    }, {
+      join => 'event_registrations'
+    }
+  );
 }
 
 sub of_type {
   my $self = shift;
   my ($type) = @_;
 
-  return $self->search({
-    'event_type.activity_type_id' => $type->id
-  },{
-    join => 'event_type'
-  });
+  return $self->search(
+    {
+      'event_type.activity_type_id' => $type->id
+    }, {
+      join => 'event_type'
+    }
+  );
 }
 
 sub on_date {
   my $self = shift;
   my ($date) = @_;
 
-  return $self->search({
-    \['DATE(scheduled_start) = ?' => DateTime::Format::MySQL->format_date($date)],
-  });
+  return $self->search({\['DATE(scheduled_start) = ?' => DateTime::Format::MySQL->format_date($date)],});
 }
 
 sub near_datetime {
@@ -60,9 +62,12 @@ sub near_datetime {
   my $before = $date->clone->subtract(minutes => $minutes_before);
   my $after = $date->clone->add(minutes => $minutes_after);
 
-  return $self->search({
-    scheduled_start => { -between => [ DateTime::Format::MySQL->format_datetime($before), DateTime::Format::MySQL->format_datetime($after) ] }
-  });
+  return $self->search(
+    {
+      scheduled_start =>
+        {-between => [DateTime::Format::MySQL->format_datetime($before), DateTime::Format::MySQL->format_datetime($after)]}
+    }
+  );
 }
 
 sub is_missing_gender_group {
