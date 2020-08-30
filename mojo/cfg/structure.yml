@@ -23,17 +23,32 @@ db:
     isa: Str
     description: the database user's password
     notes: this value is commonly provided via an ENV or a secrets file, for security purposes
+  sqitch:
+    registry:
+      isa: Str
+      description: the name of the database for sqitch migration
+    user:
+      isa: Str
+      default: sqitch
+      description: the username of the sqitch database user
+    pass:
+      isa: Str
+      description: the sqitch database user's password
 
-ldap:
-  host:
-    isa: Str
-    default: localhost
-  binddn:
-    isa: Str
-    description: Distinguished node of LDAP user
-  bindpass:
-    isa: Str
-    description: LDAP user password
-  user_basedn:
-    isa: Str
-    description: Directory subtree in which to search for users
+auth:
+  ldap:
+    host:
+      isa: Str
+      default: localhost
+    binddn:
+      isa: Str
+      description: Distinguished node of LDAP user
+    bindpw:
+      isa: Str
+      description: LDAP user password
+    user_basedn:
+      isa: Str
+      description: Directory subtree in which to search for users
+  roles:
+    isa: HashRef
+    description: map from App roles to backend auth groups
