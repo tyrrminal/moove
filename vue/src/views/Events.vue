@@ -24,7 +24,7 @@
       </template>
 
       <template v-slot:thead-top="data" v-if="filters.results">
-        <b-tr>
+        <b-tr :title="data">
           <b-th colspan="5">
             <span class="sr-only">Default Fields</span>
           </b-th>
@@ -80,14 +80,13 @@ import "@/filters/event_filters.js";
 
 export default {
   data() {
-    let self = this;
     return {
       isLoading: true,
       sequence_id: null,
       filters: {
         type: null,
         completed: null,
-        results: null
+        results: null,
       },
       events: [],
       fields: [
@@ -102,8 +101,8 @@ export default {
         { key: "place_gender", sortable: true, label: "Place", results: true },
         { key: "pct_gender", sortable: true, label: "%", results: true },
         { key: "place_div", sortable: true, label: "Place", results: true },
-        { key: "pct_div", sortable: true, label: "%", results: true }
-      ]
+        { key: "pct_div", sortable: true, label: "%", results: true },
+      ],
     };
   },
   methods: {
@@ -119,15 +118,15 @@ export default {
 
       this.$http
         .get("events/" + this.effectiveUser, { params: qs })
-        .then(response => {
+        .then((response) => {
           self.events = response.data;
-          self.events.forEach(function(item, index) {
+          self.events.forEach(function (item, index) {
             item.year = self.$options.filters.event_year(item.event);
           });
           self.isLoading = false;
         });
     },
-    sortCompare: function(a, b, key, sortDesc, formatterFn, options, locale) {
+    sortCompare: function (a, b, key, sortDesc, formatterFn, options, locale) {
       var t = "str";
       if (key == "name") {
         a = a.event.name;
@@ -166,7 +165,7 @@ export default {
       if (t == "str") return a.localeCompare(b, locale, options);
       return a < b ? -1 : a > b ? 1 : 0;
     },
-    eventVelocity: function(e) {
+    eventVelocity: function (e) {
       if (e.hasOwnProperty("activity")) {
         if (e.activity.activity_type.id == 1) {
           return e.activity.result.pace;
@@ -176,82 +175,82 @@ export default {
       }
       return "";
     },
-    eventNameClass: function(e) {
+    eventNameClass: function (e) {
       if (!e.registration.is_public) return ["text-danger"];
       return [];
     },
-    getResultsGroup: function(results, g) {
+    getResultsGroup: function (results, g) {
       let groups = results.groups;
       if (g == "overall")
         groups = groups.filter(
-          r => !r.hasOwnProperty("division") && !r.hasOwnProperty("gender")
+          (r) => !r.hasOwnProperty("division") && !r.hasOwnProperty("gender")
         );
       if (g == "gender")
         groups = groups.filter(
-          r => !r.hasOwnProperty("division") && r.hasOwnProperty("gender")
+          (r) => !r.hasOwnProperty("division") && r.hasOwnProperty("gender")
         );
       if (g == "division")
         groups = groups.filter(
-          r => r.hasOwnProperty("division") && !r.hasOwnProperty("gender")
+          (r) => r.hasOwnProperty("division") && !r.hasOwnProperty("gender")
         );
       return groups[0];
-    }
+    },
   },
   mounted() {
     this.init();
   },
   filters: {
-    extract: function(o, f) {
+    extract: function (o, f) {
       if (o != null) if (o.hasOwnProperty(f)) return o[f];
       return "";
-    }
+    },
   },
   watch: {
     "$route.params": {
       handler(newValue) {
         this.init();
       },
-      immediate: true
-    }
+      immediate: true,
+    },
   },
   computed: {
-    effectiveUser: function() {
+    effectiveUser: function () {
       if (this.$route.params.user) return this.$route.params.user;
       return this.$store.getters["auth/currentUser"].username;
     },
-    displayedFields: function() {
+    displayedFields: function () {
       let fields = this.fields;
       if (this.filters.completed !== true) {
         fields = fields.filter(
-          f => !f.hasOwnProperty("completed") || f.completed == false
+          (f) => !f.hasOwnProperty("completed") || f.completed == false
         );
       }
       if (this.filters.results !== true) {
         fields = fields.filter(
-          f => !f.hasOwnProperty("results") || f.results == false
+          (f) => !f.hasOwnProperty("results") || f.results == false
         );
       }
       return fields;
     },
-    displayedEvents: function() {
+    displayedEvents: function () {
       let events = this.events;
       if (this.filters.type !== null)
         events = events.filter(
-          e => e.event.event_type.activity_type.id === this.filters.type
+          (e) => e.event.event_type.activity_type.id === this.filters.type
         );
       if (this.filters.completed !== null)
         events = events.filter(
-          e =>
+          (e) =>
             (e.hasOwnProperty("activity") &&
               e.activity.hasOwnProperty("result")) == this.filters.completed
         );
       if (this.filters.results !== null)
         events = events.filter(
-          e => e.hasOwnProperty("results") == this.filters.results
+          (e) => e.hasOwnProperty("results") == this.filters.results
         );
       return events;
-    }
-  }
+    },
+  },
 };
 </script>
 
