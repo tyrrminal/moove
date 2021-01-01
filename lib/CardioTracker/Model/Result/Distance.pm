@@ -1,3 +1,4 @@
+#<<<
 use utf8;
 package CardioTracker::Model::Result::Distance;
 
@@ -132,6 +133,51 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 goal_distances
+
+Type: has_many
+
+Related object: L<CardioTracker::Model::Result::Goal>
+
+=cut
+
+__PACKAGE__->has_many(
+  "goal_distances",
+  "CardioTracker::Model::Result::Goal",
+  { "foreign.distance_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 goal_max_distances
+
+Type: has_many
+
+Related object: L<CardioTracker::Model::Result::Goal>
+
+=cut
+
+__PACKAGE__->has_many(
+  "goal_max_distances",
+  "CardioTracker::Model::Result::Goal",
+  { "foreign.max_distance_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 goal_min_distances
+
+Type: has_many
+
+Related object: L<CardioTracker::Model::Result::Goal>
+
+=cut
+
+__PACKAGE__->has_many(
+  "goal_min_distances",
+  "CardioTracker::Model::Result::Goal",
+  { "foreign.min_distance_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 uom
 
 Type: belongs_to
@@ -146,10 +192,10 @@ __PACKAGE__->belongs_to(
   { id => "uom" },
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
+#>>>
 
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-11 22:42:34
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:AR60Ml3GNrbIYTPyppU8Hw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-02 13:17:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:VYV+UDqB/3jFi2X0FNF7aQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
@@ -169,7 +215,7 @@ sub description_normalized {
 sub normalized_unit {
   my $self = shift;
 
-  return $self->result_source->schema->resultset('UnitOfMeasure')->normalization_unit('distance');
+  return $self->result_source->schema->resultset('UnitOfMeasure')->normalization_unit($self->uom->dimension->description);
 }
 
 sub normalized_value {
@@ -184,11 +230,11 @@ sub to_hash {
   return {
     quantity => {
       value => $self->value,
-      units => $self->uom->to_hash
+      units => $self->uom->to_hash(@_)
     },
     normalized_quantity => {
       value => $self->normalized_value,
-      units => $self->normalized_unit->to_hash
+      units => $self->normalized_unit->to_hash(@_)
     }
   };
 }

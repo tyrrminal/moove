@@ -11,7 +11,7 @@ fi
 case "$1" in
   devserver)
     echo "Starting server in development mode"
-    exec morbo -l 'http://*:8080' script/cardio_tracker
+    exec morbo -l 'http://*:8080' -w api -w lib script/cardio_tracker
     ;;
   prodserver)
     echo "Starting server in production mode"

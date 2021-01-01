@@ -1,3 +1,4 @@
+#<<<
 use utf8;
 package CardioTracker::Model::Result::EventResultGroup;
 
@@ -191,29 +192,29 @@ __PACKAGE__->belongs_to(
     on_update     => "NO ACTION",
   },
 );
+#>>>
 
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-12 04:49:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:2YD1HjYpk8ioDFm2nPTLqg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-02 13:17:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:L38xJzhoLulMVoEmr1Y9+w
 use Modern::Perl;
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 sub description {
-  my $self=shift;
+  my $self = shift;
 
   my $g;
-  if(defined($self->gender)) {
+  if (defined($self->gender)) {
     $g = $self->gender->description;
-  } elsif(defined($self->division)) {
+  } elsif (defined($self->division)) {
     $g = $self->division->name;
   } else {
     $g = 'Overall';
   }
-  return join('/',$self->event->name, $g);
+  return join('/', $self->event->description, $g);
 }
 
 sub update_count {
-  my $self=shift;
+  my $self = shift;
 
   $self->update({count => $self->event_results->count});
 }

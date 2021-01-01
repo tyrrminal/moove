@@ -1,3 +1,4 @@
+#<<<
 use utf8;
 package CardioTracker::Model::Result::UnitOfMeasure;
 
@@ -49,11 +50,11 @@ __PACKAGE__->table("unit_of_measure");
   is_auto_increment: 1
   is_nullable: 0
 
-=head2 dimension
+=head2 dimension_id
 
-  data_type: 'varchar'
+  data_type: 'integer'
+  is_foreign_key: 1
   is_nullable: 0
-  size: 45
 
 =head2 uom
 
@@ -69,22 +70,23 @@ __PACKAGE__->table("unit_of_measure");
 
 =head2 conversion_factor
 
-  data_type: 'float'
+  data_type: 'varchar'
   is_nullable: 0
+  size: 45
 
 =cut
 
 __PACKAGE__->add_columns(
   "id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-  "dimension",
-  { data_type => "varchar", is_nullable => 0, size => 45 },
+  "dimension_id",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "uom",
   { data_type => "varchar", is_nullable => 0, size => 45 },
   "abbreviation",
   { data_type => "varchar", is_nullable => 0, size => 10 },
   "conversion_factor",
-  { data_type => "float", is_nullable => 0 },
+  { data_type => "varchar", is_nullable => 0, size => 45 },
 );
 
 =head1 PRIMARY KEY
@@ -127,6 +129,21 @@ __PACKAGE__->add_unique_constraint("uom_UNIQUE", ["uom"]);
 
 =head1 RELATIONS
 
+=head2 dimension
+
+Type: belongs_to
+
+Related object: L<CardioTracker::Model::Result::Dimension>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "dimension",
+  "CardioTracker::Model::Result::Dimension",
+  { id => "dimension_id" },
+  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
+);
+
 =head2 distances
 
 Type: has_many
@@ -141,10 +158,10 @@ __PACKAGE__->has_many(
   { "foreign.uom" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
+#>>>
 
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-11 11:22:39
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:mVdkfhNWPICgWWd0nAFemA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-02 13:17:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:EWqdBdIdwopXN50hGtNQgg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

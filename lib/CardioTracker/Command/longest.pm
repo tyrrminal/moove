@@ -30,7 +30,8 @@ sub run($self, @args) {
     'type:s' => \$act_type
   );
   my $u = $self->app->model('User')->find({username => 'digicow'});
-  my @activities = $self->app->model('Activity')->for_user($u)->whole->by_type($act_type)->ordered;
+  my $activity_type = $self->app->model('ActivityType')->find({ description => $act_type });
+  my @activities = $self->app->model('Activity')->for_user($u)->whole->by_type($activity_type)->ordered;
 
   my @d_sum;
   foreach my $c (@activities) {

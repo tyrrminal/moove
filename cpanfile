@@ -6,6 +6,7 @@ requires 'Array::Utils';
 
 requires 'IO::Socket::SSL';
 requires 'Lingua::EN::Titlecase';
+requires 'Lingua::EN::Inflect';
 
 requires 'DateTime::Span';
 requires 'DateTime::Format::Duration';
