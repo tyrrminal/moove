@@ -16,9 +16,12 @@ sub run($self,@args) {
   my $db = $app->conf->db;
   make_schema_at(
     'CardioTracker::Model', {
+      components => [qw(Relationship::Predicate InflateColumn::DateTime InflateColumn::Time)],
       debug => $TRUE,
       dump_directory => File::Spec->catfile($app->home,'lib'),
-      components => [qw(Relationship::Predicate InflateColumn::DateTime InflateColumn::Time)],
+      filter_generated_code => sub($type, $class, $text) {
+        return "#<<<\n$text#>>>";
+      },
       overwrite_modifications => $TRUE
     },
     [$db->dsn, $db->user, $db->pass],

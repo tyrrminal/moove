@@ -1,3 +1,4 @@
+#<<<
 use utf8;
 package CardioTracker::Model::Result::Division;
 
@@ -121,10 +122,10 @@ __PACKAGE__->has_many(
   { "foreign.division_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
+#>>>
 
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-12 04:49:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:tdSSOjuuHz4Mlr5MrcbRvw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-02 13:17:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:KZiCdp+1lwaqm5hhtMuSng
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

@@ -1,3 +1,4 @@
+#<<<
 use utf8;
 package CardioTracker::Model::Result::EventSeries;
 
@@ -29,7 +30,11 @@ use base 'DBIx::Class::Core';
 
 =cut
 
-__PACKAGE__->load_components("Relationship::Predicate", "InflateColumn::DateTime", "InflateColumn::Time",);
+__PACKAGE__->load_components(
+  "Relationship::Predicate",
+  "InflateColumn::DateTime",
+  "InflateColumn::Time",
+);
 
 =head1 TABLE: C<event_series>
 
@@ -65,10 +70,14 @@ __PACKAGE__->table("event_series");
 =cut
 
 __PACKAGE__->add_columns(
-  "id",   {data_type => "integer", is_auto_increment => 1, is_nullable => 0},
-  "name", {data_type => "varchar", is_nullable       => 0, size        => 45},
-  "year", {data_type => "integer", is_nullable       => 0},
-  "url",  {data_type => "varchar", is_nullable       => 1, size        => 512},
+  "id",
+  { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
+  "name",
+  { data_type => "varchar", is_nullable => 0, size => 45 },
+  "year",
+  { data_type => "integer", is_nullable => 0 },
+  "url",
+  { data_type => "varchar", is_nullable => 1, size => 512 },
 );
 
 =head1 PRIMARY KEY
@@ -112,8 +121,8 @@ Related object: L<CardioTracker::Model::Result::EventGroupSeries>
 __PACKAGE__->has_many(
   "event_group_series",
   "CardioTracker::Model::Result::EventGroupSeries",
-  {"foreign.event_series_id" => "self.id"},
-  {cascade_copy              => 0, cascade_delete => 0},
+  { "foreign.event_series_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 =head2 event_groups
@@ -125,10 +134,10 @@ Composing rels: L</event_group_series> -> event_group
 =cut
 
 __PACKAGE__->many_to_many("event_groups", "event_group_series", "event_group");
+#>>>
 
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-14 20:30:54
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:F6p5si6I+ukehEyt34CfpA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-02 13:17:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:g/qmoxucHA/CRMEsB5KWLA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

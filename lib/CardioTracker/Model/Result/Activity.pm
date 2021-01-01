@@ -1,3 +1,4 @@
+#<<<
 use utf8;
 package CardioTracker::Model::Result::Activity;
 
@@ -280,6 +281,21 @@ __PACKAGE__->belongs_to(
   },
 );
 
+=head2 user_goal_fulfillment_activities
+
+Type: has_many
+
+Related object: L<CardioTracker::Model::Result::UserGoalFulfillmentActivity>
+
+=cut
+
+__PACKAGE__->has_many(
+  "user_goal_fulfillment_activities",
+  "CardioTracker::Model::Result::UserGoalFulfillmentActivity",
+  { "foreign.activity_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 whole_activity
 
 Type: belongs_to
@@ -300,17 +316,39 @@ __PACKAGE__->belongs_to(
   },
 );
 
+=head2 user_goal_fulfillments
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-07-22 21:29:09
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:w2OO8Dn6U8AI8mrsBqr5Ng
+Type: many_to_many
+
+Composing rels: L</user_goal_fulfillment_activities> -> user_goal_fulfillment
+
+=cut
+
+__PACKAGE__->many_to_many(
+  "user_goal_fulfillments",
+  "user_goal_fulfillment_activities",
+  "user_goal_fulfillment",
+);
+#>>>
+
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-02 13:17:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:v9GZXy0RurzGX0lM3hpj0w
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 use DCS::Constants qw(:boolean);
 use List::Util qw(max);
 
+use InclusionCallback;
+
 use Moose;
 use MooseX::NonMoose;
+
+sub description {
+  my $self = shift;
+
+  return sprintf('%s %s %s', $self->start_time->strftime('%F'), $self->distance->description, $self->activity_type->description);
+}
 
 sub has_event_visible_to {
   my $self = shift;
@@ -334,7 +372,7 @@ around 'note' => sub {
   my $orig = shift;
   my $self = shift;
 
-  my $v = $self->$orig(@_)//'';
+  my $v = $self->$orig(@_) // '';
   $v =~ s/\s*$//m;
   $v =~ s/^\s*//m;
   return $v;
@@ -361,36 +399,65 @@ sub end_time {
 }
 
 sub first_activity_point {
-  my $self=shift;
+  my $self = shift;
 
-  return $self->activity_points->search({},{
-    order_by => {'-asc' => 'timestamp'}
-  })->first
+  return $self->activity_points->search(
+    {},
+    {
+      order_by => {'-asc' => 'timestamp'}
+    }
+  )->first;
 }
 
 sub last_activity_point {
-  my $self=shift;
+  my $self = shift;
 
-  return $self->activity_points->search({},{
-    order_by => {'-desc' => 'timestamp'}
-  })->first
+  return $self->activity_points->search(
+    {},
+    {
+      order_by => {'-desc' => 'timestamp'}
+    }
+  )->first;
 }
 
 sub to_hash {
   my $self = shift;
-  my %params = @_;
+  my $cb   = InclusionCallback->new(@_);
 
   my $a = {
     id            => $self->id,
-    activity_type => $self->activity_type->to_hash,
-    distance      => $self->distance->to_hash,
+    activity_type => $self->activity_type->to_hash(@_),
+    distance      => $self->distance->to_hash(@_),
     temperature   => $self->temperature,
     note          => $self->note,
   };
-  $a->{start_time}     = $self->start_time->iso8601     if (defined($self->start_time));
-  $a->{result}         = $self->result->to_hash         if (defined($self->result));
-  $a->{event}          = $self->event->to_hash          if (defined($self->event) && (!exists($params{event}) || $params{event} ));
-  $a->{whole_activity} = $self->whole_activity->to_hash if (defined($self->whole_activity));
+  $a->{start_time} = $self->start_time->iso8601 if (defined($self->start_time));
+  $a->{result}     = $self->result->to_hash(@_) if (defined($self->result));
+  $a->{event} = $self->event->to_hash(@_) if ($cb->allow('event', $self->event));
+  $a->{whole_activity} = $self->whole_activity->to_hash(@_) if (defined($self->whole_activity));
+
+  if ($cb->allow_group('goal')) {
+    my @record_fulfillments =
+      grep {$cb->allow('goal', $_)}
+      grep {$_->most_recent_activity->id == $self->id}
+      grep {$_->user_goal->goal->is_pr} $self->user_goal_fulfillments;
+    $a->{records} = [
+      map {
+        $_->user_goal->to_hash(@_, fulfillment => sub {shift->id == $_->id})
+        } @record_fulfillments
+      ]
+      if (@record_fulfillments);
+
+    my @ach_fulfillments =
+      grep {$cb->allow('goal', $_)}
+      grep {!$_->user_goal->goal->is_pr} $self->user_goal_fulfillments;
+    $a->{achievements} = [
+      map {
+        $_->user_goal->to_hash(@_, fulfillment => sub {shift->id == $_->id})
+        } @ach_fulfillments
+      ]
+      if (@ach_fulfillments);
+  }
 
   return $a;
 }

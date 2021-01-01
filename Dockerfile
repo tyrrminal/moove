@@ -6,37 +6,29 @@ RUN npm install && npm run build
 
 #------------------------------------------------------------------------------------------
 
-FROM perl:5.26 as cartoninstall
+FROM perl:5.30
+LABEL maintainer="Mark Tyrrell <mtyrrell@digicowsoftware.com>"
+
+ENV PERL_CARTON_PATH="/carton/local" \
+  PATH="/carton/local/bin:${PATH}" \
+  PERL5LIB="/usr/share/perl5:/carton/local/lib/perl5:/carton/local/lib/perl5/x86_64-linux-gnu:${PERL5LIB}"
+WORKDIR /app
+
 RUN apt-get update && apt-get install -qy \
   --allow-downgrades --allow-remove-essential --allow-change-held-packages \
   build-essential \
   libwww-perl \
-  libssl-dev libnet-ssleay-perl \
-  libexpat1-dev \
-  default-libmysqlclient-dev mysql-client \
-  && rm -rf /var/lib/apt/lists/*
-RUN cpanm Carton
-ENV PERL5LIB=/usr/share/perl5
-WORKDIR /app
-COPY cpanfile* ./
-RUN carton install --deployment
-
-#------------------------------------------------------------------------------------------
-
-FROM perl:5.26
-LABEL maintainer="Mark Tyrrell <mtyrrell@digicowsoftware.com>"
-
-RUN apt-get update && apt-get install -qy \
-  --allow-downgrades --allow-remove-essential --allow-change-held-packages \
-	libssl-dev \
-	libnet-ssleay-perl \
+  libssl-dev \
+  libnet-ssleay-perl \
   libexpat1-dev \
   libxml2 \
   libxml2-dev \
   default-libmysqlclient-dev \
-  mysql-client \
   && rm -rf /var/lib/apt/lists/*
-WORKDIR /app
+
+RUN cpanm Carton
+COPY cpanfile* ./
+RUN carton install --deployment
 
 COPY docker-entrypoint.sh /bin/
 COPY *.conf *.conf.def ./
@@ -45,11 +37,7 @@ ADD lib lib/
 ADD script script/
 ADD t t/
 
-COPY --from=cartoninstall /app/local local
 COPY --from=vuebuild      /app/dist  public
-
-ENV PATH="/app/local/bin:${PATH}"
-ENV PERL5LIB="/app/local/lib/perl5:/app/local/lib/perl5/x86_64-linux-gnu:${PERL5LIB}"
 
 EXPOSE 8080
 

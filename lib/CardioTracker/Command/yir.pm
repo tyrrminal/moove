@@ -18,17 +18,18 @@ USAGE
 
 sub run($self, @args) {
   my $y;
-  my $activity_type = 'Run';
+  my $act_type = 'Run';
   getopt(
     \@args,
-    'type:s' => \$activity_type,
+    'type:s' => \$act_type,
     'year:i' => \$y
   );
   $y = DateTime->now()->year() unless(defined($y));
   my $u = $self->app->model('User')->find({username => 'digicow'});
+  my $activity_type = $self->app->model('ActivityType')->find({ description => $act_type });
   my @activities = $self->app->model('Activity')->for_user($u)->whole->by_type($activity_type)->year($y)->ordered;
 
-  my $mpd = $activity_type eq 'Run' ? 1 : 10;
+  my $mpd = $activity_type->description eq 'Run' ? 1 : 10;
 
   my $total = 0;
   my %months;
