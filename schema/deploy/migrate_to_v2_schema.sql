@@ -269,6 +269,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `Activity` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `activity_type_id` INT UNSIGNED NOT NULL,
   `workout_id` INT UNSIGNED NOT NULL,
   `start_time` DATETIME NULL,
   `note` TEXT NOT NULL DEFAULT '',
@@ -277,8 +278,14 @@ CREATE TABLE IF NOT EXISTS `Activity` (
   `external_identifier` VARCHAR(100) NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_Activity_Activity1_idx` (`whole_activity_id` ASC),
+  INDEX `fk_Activity_ActivityType1_idx` (`activity_type_id` ASC),
   INDEX `fk_Activity_Workout1_idx` (`workout_id` ASC),
   INDEX `fk_Activity_ExternalDataSource1_idx` (`external_data_source_id` ASC),
+  CONSTRAINT `fk_Activity_ActivityType1`
+    FOREIGN KEY (`activity_type_id`)
+    REFERENCES `ActivityType` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
   CONSTRAINT `fk_Activity_Activity1`
     FOREIGN KEY (`whole_activity_id`)
     REFERENCES `Activity` (`id`)
@@ -999,8 +1006,8 @@ INSERT INTO `Workout` (`id`,`user_id`,`date`,`name`)
   	ON a.`id` = pk.`activity_id`
   WHERE a.`user_id` IS NOT NULL;
 
-INSERT INTO `Activity` (`id`,`workout_id`,`whole_activity_id`,`start_time`,`note`,`external_data_source_id`,`external_identifier`) 
-  SELECT pk.`id`,pk.`id`,a.`whole_activity_id`,a.`start_time`,COALESCE(a.`note`,''),e.`id`,r.`reference_id` 
+INSERT INTO `Activity` (`id`,`workout_id`,`activity_type_id`,`whole_activity_id`,`start_time`,`note`,`external_data_source_id`,`external_identifier`) 
+  SELECT pk.`id`,pk.`id`,a.`activity_type_id`,a.`whole_activity_id`,a.`start_time`,COALESCE(a.`note`,''),e.`id`,r.`reference_id` 
   FROM `mig_activity` a
   JOIN `mig_activity_pk` pk
   	ON a.`id` = pk.`activity_id`

@@ -51,6 +51,13 @@ __PACKAGE__->table("Activity");
   is_auto_increment: 1
   is_nullable: 0
 
+=head2 activity_type_id
+
+  data_type: 'integer'
+  extra: {unsigned => 1}
+  is_foreign_key: 1
+  is_nullable: 0
+
 =head2 workout_id
 
   data_type: 'integer'
@@ -98,6 +105,13 @@ __PACKAGE__->add_columns(
     data_type => "integer",
     extra => { unsigned => 1 },
     is_auto_increment => 1,
+    is_nullable => 0,
+  },
+  "activity_type_id",
+  {
+    data_type => "integer",
+    extra => { unsigned => 1 },
+    is_foreign_key => 1,
     is_nullable => 0,
   },
   "workout_id",
@@ -175,6 +189,21 @@ __PACKAGE__->has_many(
   "Moove::Model::Result::ActivitySet",
   { "foreign.activity_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 activity_type
+
+Type: belongs_to
+
+Related object: L<Moove::Model::Result::ActivityType>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "activity_type",
+  "Moove::Model::Result::ActivityType",
+  { id => "activity_type_id" },
+  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 =head2 external_data_source
@@ -277,8 +306,8 @@ __PACKAGE__->many_to_many(
 );
 #>>>
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2020-05-07 12:23:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:dDSCd6z5mCqegMVNfAXTvQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-01-02 12:58:46
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:xGwdSTkPmk2Ylzt5FcIjCw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
