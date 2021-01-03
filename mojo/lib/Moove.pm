@@ -7,8 +7,9 @@ use experimental qw(signatures);
 sub startup($self) {
   $self->plugin(
     'DCS::Base',
-    cron => undef,
-    dbix => {components => [qw(InflateColumn::Time)]},
+    cron          => undef,
+    persistentlog => undef,
+    dbix          => {components => [qw(InflateColumn::Time)]},
   );
 }
 
