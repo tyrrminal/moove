@@ -4,7 +4,7 @@ use base qw(DBIx::Class::ResultSet);
 
 sub guest {
   my $self = shift;
-  return $self->new_result({id => 0, username => 'guest', person => {id => 0, first_name => 'guest', last_name => 'user'}});
+  return $self->new_result({id => 0, username => 'guest', person => {id => 0, firstname => 'guest', lastname => 'user'}});
 }
 
 sub find_user {

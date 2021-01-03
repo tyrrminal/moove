@@ -118,6 +118,7 @@ CREATE TABLE IF NOT EXISTS `User` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `username` VARCHAR(45) NOT NULL,
   `person_id` INT UNSIGNED NOT NULL,
+  `last_login` DATETIME NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `username_UNIQUE` (`username` ASC),
   INDEX `fk_User_Person_idx` (`person_id` ASC),

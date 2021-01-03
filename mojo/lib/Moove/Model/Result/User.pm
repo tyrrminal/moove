@@ -64,6 +64,12 @@ __PACKAGE__->table("User");
   is_foreign_key: 1
   is_nullable: 0
 
+=head2 last_login
+
+  data_type: 'datetime'
+  datetime_undef_if_invalid: 1
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -82,6 +88,12 @@ __PACKAGE__->add_columns(
     extra => { unsigned => 1 },
     is_foreign_key => 1,
     is_nullable => 0,
+  },
+  "last_login",
+  {
+    data_type => "datetime",
+    datetime_undef_if_invalid => 1,
+    is_nullable => 1,
   },
 );
 
@@ -189,8 +201,8 @@ __PACKAGE__->has_many(
 );
 #>>>
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2020-05-04 09:17:19
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:MO3i1lW5Pwxit/cjXPFdXA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-01-03 10:58:38
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:i7j6jbSKv3cWGLSQghuydw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
