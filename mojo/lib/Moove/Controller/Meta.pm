@@ -17,7 +17,7 @@ sub list($self) {
     }
   }
 
-  return $self->render(openapi => $self->render_model($r));
+  return $self->render(openapi => $self->encode_model($r));
 }
 
 1;

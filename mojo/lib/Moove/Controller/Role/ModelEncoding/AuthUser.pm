@@ -3,19 +3,19 @@ use Role::Tiny;
 
 use experimental qw(signatures);
 
-sub render_model_person ($self, $person) {
+sub encode_model_person ($self, $person) {
   return {
     ($person->id ? (id => $person->id) : ()),
-    lastname  => $person->last_name,
-    firstname => $person->first_name,
+    lastname  => $person->lastname,
+    firstname => $person->firstname,
   };
 }
 
-sub render_model_user ($self, $user) {
+sub encode_model_user ($self, $user) {
   return {
     ($user->id ? (id => $user->id) : ()),
     username => $user->username,
-    person   => $self->render_model($user->person),
+    person   => $self->encode_model($user->person),
   };
 }
 

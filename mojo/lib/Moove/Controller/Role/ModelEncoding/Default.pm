@@ -3,7 +3,7 @@ use Role::Tiny;
 
 use experimental qw(signatures);
 
-sub render_model_cumulativetotal ($self, $total) {
+sub encode_model_cumulativetotal ($self, $total) {
   return {
     activityTypeID => $total->activity_type_id,
     unitID         => $total->uom->id,
@@ -12,7 +12,7 @@ sub render_model_cumulativetotal ($self, $total) {
   };
 }
 
-sub render_model_distance ($self, $distance) {
+sub encode_model_distance ($self, $distance) {
   return {
     id     => $distance->id,
     value  => $distance->value,
@@ -20,7 +20,7 @@ sub render_model_distance ($self, $distance) {
   };
 }
 
-sub render_model_event ($self, $event) {
+sub encode_model_event ($self, $event) {
   return {
     id             => $event->id,
     name           => join(" - ", grep {defined} ($event->event_group->name, $event->name || undef)),
@@ -28,19 +28,19 @@ sub render_model_event ($self, $event) {
     url            => $event->event_group->url,
     scheduledStart => $self->render_datetime($event->scheduled_start),
     eventTypeID    => $event->event_type_id,
-    distance       => $self->render_model($event->distance),
+    distance       => $self->encode_model($event->distance),
   };
 }
 
-sub render_model_person ($self, $person) {
+sub encode_model_person ($self, $person) {
   return {
     id        => $person->id,
-    lastname  => $person->last_name,
-    firstname => $person->first_name,
+    lastname  => $person->lastname,
+    firstname => $person->firstname,
   };
 }
 
-sub render_model_unitofmeasure ($self, $uom) {
+sub encode_model_unitofmeasure ($self, $uom) {
   return {
     id                  => $uom->id,
     label               => $uom->uom,
@@ -49,11 +49,11 @@ sub render_model_unitofmeasure ($self, $uom) {
   };
 }
 
-sub render_model_user ($self, $user) {
+sub encode_model_user ($self, $user) {
   return {
     id       => $user->id,
     username => $user->username,
-    person   => $self->render_model($user->person),
+    person   => $self->encode_model($user->person),
   };
 }
 

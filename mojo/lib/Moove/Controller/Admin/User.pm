@@ -7,7 +7,7 @@ with 'DCS::API::Role::Rest::Create',
   'DCS::API::Role::Rest::Get',
   'DCS::API::Role::Rest::List',
   'DCS::API::Role::Rest::Update';
-with 'Moove::Controller::Role::ModelEncoding::EventRegistration', 'Moove::Controller::Role::ModelEncoding::Default';
+with 'Moove::Controller::Role::ModelEncoding::Default';
 with 'Moove::Controller::Role::ModelDecoding::User';
 
 use experimental qw(signatures);

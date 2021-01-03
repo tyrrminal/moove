@@ -7,7 +7,7 @@ with 'DCS::API::Role::Rest::Create',
   'DCS::API::Role::Rest::Get',
   'DCS::API::Role::Rest::List',
   'DCS::API::Role::Rest::Update';
-with 'Moove::Controller::Role::ModelEncoding::EventRegistration', 'Moove::Controller::Role::ModelEncoding::Default';
+with 'Moove::Controller::Role::ModelEncoding::Default';
 with 'Moove::Controller::Role::ModelDecoding::User';
 
 use experimental qw(signatures);
@@ -49,7 +49,7 @@ sub get_summary($self) {
   my $reg = $user->event_registrations;
 
   return $self->render(
-    openapi => $self->render_model(
+    openapi => $self->encode_model(
       {
         user              => $user,
         recent_activities => [$user->activities->whole->ordered('-desc')->slice(0, 4)],
