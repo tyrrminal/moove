@@ -12,8 +12,8 @@ with 'Moove::Controller::Role::ModelDecoding::User';
 
 use experimental qw(signatures);
 
-sub resultset($self) {
-  my $rs = $self->SUPER::resultset();
+sub resultset ($self, @args) {
+  my $rs = $self->SUPER::resultset(@args);
   if (my $username = $self->validation->param('username')) {
     $rs = $rs->search({username => {-like => "%$username%"}});
   }

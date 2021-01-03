@@ -8,8 +8,8 @@ with 'Moove::Controller::Role::ModelEncoding::Default';
 
 use experimental qw(signatures);
 
-sub resultset($self) {
-  my $rs = $self->SUPER::resultset();
+sub resultset ($self, @args) {
+  my $rs = $self->SUPER::resultset(@args);
   if (my $start = $self->validation->param('start')) {
     $rs = $rs->search({scheduled_start => {'>=' => $start}});
   }
