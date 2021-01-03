@@ -1138,7 +1138,6 @@ DISTRIBUTIONS
       Set::Infinite::_recurrence undef
     requirements:
       DateTime 0.12
-      ExtUtils::MakeMaker 0
       Params::Validate 0
       Set::Infinite 0.59
       Test::More 0
@@ -2453,8 +2452,8 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
-  Mojolicious-8.58
-    pathname: S/SR/SRI/Mojolicious-8.58.tar.gz
+  Mojolicious-8.70
+    pathname: S/SR/SRI/Mojolicious-8.70.tar.gz
     provides:
       Mojo undef
       Mojo::Asset undef
@@ -2523,11 +2522,12 @@ DISTRIBUTIONS
       Mojo::UserAgent::Transactor undef
       Mojo::Util undef
       Mojo::WebSocket undef
-      Mojolicious 8.58
+      Mojolicious 8.70
       Mojolicious::Command undef
       Mojolicious::Command::Author::cpanify undef
       Mojolicious::Command::Author::generate undef
       Mojolicious::Command::Author::generate::app undef
+      Mojolicious::Command::Author::generate::dockerfile undef
       Mojolicious::Command::Author::generate::lite_app undef
       Mojolicious::Command::Author::generate::makefile undef
       Mojolicious::Command::Author::generate::plugin undef
@@ -4880,7 +4880,6 @@ DISTRIBUTIONS
     requirements:
       Authen::SASL 2.00
       Convert::ASN1 0.2
-      Digest::HMAC_MD5 0
       Digest::MD5 0
       ExtUtils::MakeMaker 6.59
       File::Basename 0
@@ -4891,7 +4890,6 @@ DISTRIBUTIONS
       HTTP::Status 0
       IO::File 0
       IO::Socket::SSL 1.26
-      JSON 0
       LWP 0
       LWP::MediaTypes 0
       LWP::Protocol 0
