@@ -1,13 +1,13 @@
 #<<<
 use utf8;
-package Moove::Model::Result::LiftActivity;
+package Moove::Model::Result::ActivityContext;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-Moove::Model::Result::LiftActivity
+Moove::Model::Result::ActivityContext
 
 =cut
 
@@ -36,11 +36,11 @@ __PACKAGE__->load_components(
   "InflateColumn::Time",
 );
 
-=head1 TABLE: C<LiftActivity>
+=head1 TABLE: C<ActivityContext>
 
 =cut
 
-__PACKAGE__->table("LiftActivity");
+__PACKAGE__->table("ActivityContext");
 
 =head1 ACCESSORS
 
@@ -51,22 +51,17 @@ __PACKAGE__->table("LiftActivity");
   is_auto_increment: 1
   is_nullable: 0
 
-=head2 activity_id
+=head2 description
 
-  data_type: 'integer'
-  extra: {unsigned => 1}
-  is_foreign_key: 1
+  data_type: 'varchar'
   is_nullable: 0
+  size: 45
 
-=head2 weight
+=head2 has_map
 
-  data_type: 'decimal'
-  is_nullable: 0
-  size: [6,2]
-
-=head2 reps
-
-  data_type: 'smallint'
+  data_type: 'enum'
+  default_value: 'N'
+  extra: {list => ["Y","N"]}
   is_nullable: 0
 
 =cut
@@ -79,17 +74,15 @@ __PACKAGE__->add_columns(
     is_auto_increment => 1,
     is_nullable => 0,
   },
-  "activity_id",
+  "description",
+  { data_type => "varchar", is_nullable => 0, size => 45 },
+  "has_map",
   {
-    data_type => "integer",
-    extra => { unsigned => 1 },
-    is_foreign_key => 1,
+    data_type => "enum",
+    default_value => "N",
+    extra => { list => ["Y", "N"] },
     is_nullable => 0,
   },
-  "weight",
-  { data_type => "decimal", is_nullable => 0, size => [6, 2] },
-  "reps",
-  { data_type => "smallint", is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY
@@ -104,26 +97,40 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("id");
 
-=head1 RELATIONS
+=head1 UNIQUE CONSTRAINTS
 
-=head2 activity
+=head2 C<description_UNIQUE>
 
-Type: belongs_to
+=over 4
 
-Related object: L<Moove::Model::Result::Activity>
+=item * L</description>
+
+=back
 
 =cut
 
-__PACKAGE__->belongs_to(
-  "activity",
-  "Moove::Model::Result::Activity",
-  { id => "activity_id" },
-  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
+__PACKAGE__->add_unique_constraint("description_UNIQUE", ["description"]);
+
+=head1 RELATIONS
+
+=head2 activity_types
+
+Type: has_many
+
+Related object: L<Moove::Model::Result::ActivityType>
+
+=cut
+
+__PACKAGE__->has_many(
+  "activity_types",
+  "Moove::Model::Result::ActivityType",
+  { "foreign.activity_context_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 #>>>
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2020-05-01 15:48:09
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:b85G5IAJLa6bS2jGNWigyQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-01-09 17:03:00
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:rfejDS+Q1P7T3uWvVG9h3Q
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

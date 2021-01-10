@@ -58,7 +58,7 @@ __PACKAGE__->table("UserEventActivity");
   is_foreign_key: 1
   is_nullable: 0
 
-=head2 event_activity_id
+=head2 event_registration_id
 
   data_type: 'integer'
   extra: {unsigned => 1}
@@ -72,19 +72,13 @@ __PACKAGE__->table("UserEventActivity");
   is_foreign_key: 1
   is_nullable: 0
 
-=head2 registration_date
+=head2 date_registered
 
   data_type: 'date'
   datetime_undef_if_invalid: 1
   is_nullable: 1
 
-=head2 registration_number
-
-  data_type: 'varchar'
-  is_nullable: 1
-  size: 20
-
-=head2 fee
+=head2 registration_fee
 
   data_type: 'decimal'
   is_nullable: 1
@@ -95,13 +89,6 @@ __PACKAGE__->table("UserEventActivity");
   data_type: 'decimal'
   is_nullable: 1
   size: [6,2]
-
-=head2 event_participant_id
-
-  data_type: 'integer'
-  extra: {unsigned => 1}
-  is_foreign_key: 1
-  is_nullable: 1
 
 =head2 activity_id
 
@@ -127,7 +114,7 @@ __PACKAGE__->add_columns(
     is_foreign_key => 1,
     is_nullable => 0,
   },
-  "event_activity_id",
+  "event_registration_id",
   {
     data_type => "integer",
     extra => { unsigned => 1 },
@@ -141,21 +128,12 @@ __PACKAGE__->add_columns(
     is_foreign_key => 1,
     is_nullable => 0,
   },
-  "registration_date",
+  "date_registered",
   { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 1 },
-  "registration_number",
-  { data_type => "varchar", is_nullable => 1, size => 20 },
-  "fee",
+  "registration_fee",
   { data_type => "decimal", is_nullable => 1, size => [6, 2] },
   "fundraising_requirement",
   { data_type => "decimal", is_nullable => 1, size => [6, 2] },
-  "event_participant_id",
-  {
-    data_type => "integer",
-    extra => { unsigned => 1 },
-    is_foreign_key => 1,
-    is_nullable => 1,
-  },
   "activity_id",
   {
     data_type => "integer",
@@ -214,39 +192,19 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 event_activity
+=head2 event_registration
 
 Type: belongs_to
 
-Related object: L<Moove::Model::Result::EventActivity>
+Related object: L<Moove::Model::Result::EventRegistration>
 
 =cut
 
 __PACKAGE__->belongs_to(
-  "event_activity",
-  "Moove::Model::Result::EventActivity",
-  { id => "event_activity_id" },
+  "event_registration",
+  "Moove::Model::Result::EventRegistration",
+  { id => "event_registration_id" },
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
-);
-
-=head2 event_participant
-
-Type: belongs_to
-
-Related object: L<Moove::Model::Result::EventParticipant>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "event_participant",
-  "Moove::Model::Result::EventParticipant",
-  { id => "event_participant_id" },
-  {
-    is_deferrable => 1,
-    join_type     => "LEFT",
-    on_delete     => "NO ACTION",
-    on_update     => "NO ACTION",
-  },
 );
 
 =head2 user
@@ -280,8 +238,8 @@ __PACKAGE__->belongs_to(
 );
 #>>>
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2020-05-07 12:23:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:z0xmernF/1364o9sW5Lw2Q
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-01-09 17:03:00
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:2HLhKe4jwymFRqy/afNo2w
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

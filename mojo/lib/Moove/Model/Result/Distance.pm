@@ -99,32 +99,32 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
-=head2 cardio_activity_sets
+=head2 activity_results
 
 Type: has_many
 
-Related object: L<Moove::Model::Result::CardioActivitySet>
+Related object: L<Moove::Model::Result::ActivityResult>
 
 =cut
 
 __PACKAGE__->has_many(
-  "cardio_activity_sets",
-  "Moove::Model::Result::CardioActivitySet",
+  "activity_results",
+  "Moove::Model::Result::ActivityResult",
   { "foreign.distance_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 cardio_event_activities
+=head2 event_activities
 
 Type: has_many
 
-Related object: L<Moove::Model::Result::CardioEventActivity>
+Related object: L<Moove::Model::Result::EventActivity>
 
 =cut
 
 __PACKAGE__->has_many(
-  "cardio_event_activities",
-  "Moove::Model::Result::CardioEventActivity",
+  "event_activities",
+  "Moove::Model::Result::EventActivity",
   { "foreign.distance_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
@@ -145,8 +145,8 @@ __PACKAGE__->belongs_to(
 );
 #>>>
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2020-05-07 12:23:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:dBUyU4TxcJqZhJYDRxc79g
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-01-09 17:03:00
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:eFh+xQGadG0l+Z1Ian3xTQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

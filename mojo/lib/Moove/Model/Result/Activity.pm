@@ -65,11 +65,24 @@ __PACKAGE__->table("Activity");
   is_foreign_key: 1
   is_nullable: 0
 
-=head2 start_time
+=head2 group_num
 
-  data_type: 'datetime'
-  datetime_undef_if_invalid: 1
-  is_nullable: 1
+  data_type: 'tinyint'
+  extra: {unsigned => 1}
+  is_nullable: 0
+
+=head2 set_num
+
+  data_type: 'tinyint'
+  extra: {unsigned => 1}
+  is_nullable: 0
+
+=head2 activity_result_id
+
+  data_type: 'integer'
+  extra: {unsigned => 1}
+  is_foreign_key: 1
+  is_nullable: 0
 
 =head2 note
 
@@ -97,6 +110,13 @@ __PACKAGE__->table("Activity");
   is_nullable: 1
   size: 100
 
+=head2 visibility_type_id
+
+  data_type: 'integer'
+  extra: {unsigned => 1}
+  is_foreign_key: 1
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -121,11 +141,16 @@ __PACKAGE__->add_columns(
     is_foreign_key => 1,
     is_nullable => 0,
   },
-  "start_time",
+  "group_num",
+  { data_type => "tinyint", extra => { unsigned => 1 }, is_nullable => 0 },
+  "set_num",
+  { data_type => "tinyint", extra => { unsigned => 1 }, is_nullable => 0 },
+  "activity_result_id",
   {
-    data_type => "datetime",
-    datetime_undef_if_invalid => 1,
-    is_nullable => 1,
+    data_type => "integer",
+    extra => { unsigned => 1 },
+    is_foreign_key => 1,
+    is_nullable => 0,
   },
   "note",
   { data_type => "text", default_value => "''", is_nullable => 0 },
@@ -145,6 +170,13 @@ __PACKAGE__->add_columns(
   },
   "external_identifier",
   { data_type => "varchar", is_nullable => 1, size => 100 },
+  "visibility_type_id",
+  {
+    data_type => "integer",
+    extra => { unsigned => 1 },
+    is_foreign_key => 1,
+    is_nullable => 0,
+  },
 );
 
 =head1 PRIMARY KEY
@@ -176,19 +208,19 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 activity_sets
+=head2 activity_result
 
-Type: has_many
+Type: belongs_to
 
-Related object: L<Moove::Model::Result::ActivitySet>
+Related object: L<Moove::Model::Result::ActivityResult>
 
 =cut
 
-__PACKAGE__->has_many(
-  "activity_sets",
-  "Moove::Model::Result::ActivitySet",
-  { "foreign.activity_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+__PACKAGE__->belongs_to(
+  "activity_result",
+  "Moove::Model::Result::ActivityResult",
+  { id => "activity_result_id" },
+  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 =head2 activity_type
@@ -256,6 +288,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 visibility_type
+
+Type: belongs_to
+
+Related object: L<Moove::Model::Result::VisibilityType>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "visibility_type",
+  "Moove::Model::Result::VisibilityType",
+  { id => "visibility_type_id" },
+  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
+);
+
 =head2 whole_activity
 
 Type: belongs_to
@@ -306,8 +353,8 @@ __PACKAGE__->many_to_many(
 );
 #>>>
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-01-02 12:58:46
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:xGwdSTkPmk2Ylzt5FcIjCw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-01-09 17:03:00
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:5slGQNtVtIqoqGcX399sSQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

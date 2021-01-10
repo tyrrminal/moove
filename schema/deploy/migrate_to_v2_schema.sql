@@ -239,16 +239,50 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
+-- Table `BaseActivityType`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `BaseActivityType` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `description` VARCHAR(45) NOT NULL,
+  `has_repeats` ENUM('Y', 'N') NOT NULL DEFAULT 'N',
+  `has_distance` ENUM('Y', 'N') NOT NULL DEFAULT 'N',
+  `has_duration` ENUM('Y', 'N') NOT NULL DEFAULT 'N',
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `description_UNIQUE` (`description` ASC))
+ENGINE = InnoDB;
+
+-- -----------------------------------------------------
+-- Table `ActivityContext`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ActivityContext` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `description` VARCHAR(45) NOT NULL,
+  `has_map` ENUM('Y', 'N') NOT NULL DEFAULT 'N',
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `description_UNIQUE` (`description` ASC))
+ENGINE = InnoDB;
+
+-- -----------------------------------------------------
 -- Table `ActivityType`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `ActivityType` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `description` VARCHAR(45) NOT NULL,
-  `is_cardio` ENUM('Y', 'N') NOT NULL DEFAULT 'N',
-  `is_lift` ENUM('Y', 'N') NOT NULL DEFAULT 'N',
-  `is_hold` ENUM('Y', 'N') NOT NULL DEFAULT 'N',
+  `base_activity_type_id` INT UNSIGNED NOT NULL,
+  `activity_context_id` INT UNSIGNED NULL,
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `description_UNIQUE` (`description` ASC))
+  UNIQUE INDEX `base_activity_type_UNIQUE` (`base_activity_type_id`, `activity_context_id` ASC),
+  INDEX `fk_ActivityType_BaseActivityType1_idx` (`base_activity_type_id` ASC),
+  INDEX `fk_ActivityType_ActivityContext1_idx` (`activity_context_id` ASC),
+  CONSTRAINT `fk_ActivityType_BaseActivityType1`
+    FOREIGN KEY (`base_activity_type_id`)
+    REFERENCES `BaseActivityType` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_ActivityType_ActivityContext1`
+    FOREIGN KEY (`activity_context_id`)
+    REFERENCES `ActivityContext` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
@@ -264,6 +298,60 @@ CREATE TABLE IF NOT EXISTS `ExternalDataSource` (
   UNIQUE INDEX `class_name_UNIQUE` (`name` ASC))
 ENGINE = InnoDB;
 
+-- -----------------------------------------------------
+-- Table `ActivityPoint`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ActivityPoint` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `activity_result_id` INT UNSIGNED NOT NULL,
+  `timestamp` DATETIME NOT NULL,
+  `location_id` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_ActivityPoint_ActivityResult1_idx` (`activity_result_id` ASC),
+  INDEX `fk_ActivityPoint_Location1_idx` (`location_id` ASC),
+  CONSTRAINT `fk_ActivityPoint_ActivityResult1`
+    FOREIGN KEY (`activity_result_id`)
+    REFERENCES `ActivityResult` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_ActivityPoint_Location1`
+    FOREIGN KEY (`location_id`)
+    REFERENCES `Location` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `ActivityResult`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ActivityResult` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `start_time` DATETIME NULL,
+  `distance_id` INT UNSIGNED NULL,
+  `duration` TIME NULL,
+  `net_time` TIME NULL,
+  `pace` TIME NULL,
+  `speed` DECIMAL(7,3) NULL,
+  `weight` DECIMAL(6,2) NULL DEFAULT 0,
+  `repetitions` SMALLINT NULL,
+  `heart_rate` SMALLINT UNSIGNED NULL,
+  `temperature` DECIMAL(4,1) NULL,
+  `map_visibility_type_id` INT UNSIGNED NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_ActivityResult_Distance1_idx` (`distance_id` ASC),
+  CONSTRAINT `fk_ActivityResult_Distance1`
+    FOREIGN KEY (`distance_id`)
+    REFERENCES `Distance` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  INDEX `fk_ActivityResult_VisibilityType1_idx` (`map_visibility_type_id` ASC),
+  CONSTRAINT `fk_ActivityResult_VisibilityType1`
+    FOREIGN KEY (`map_visibility_type_id`)
+    REFERENCES `VisibilityType` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
 
 -- -----------------------------------------------------
 -- Table `Activity`
@@ -272,16 +360,21 @@ CREATE TABLE IF NOT EXISTS `Activity` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `activity_type_id` INT UNSIGNED NOT NULL,
   `workout_id` INT UNSIGNED NOT NULL,
-  `start_time` DATETIME NULL,
+  `group_num` TINYINT UNSIGNED NOT NULL,
+  `set_num` TINYINT UNSIGNED NOT NULL,
+  `activity_result_id` INT UNSIGNED NOT NULL,
   `note` TEXT NOT NULL DEFAULT '',
   `whole_activity_id` INT UNSIGNED NULL,
   `external_data_source_id` INT UNSIGNED NULL,
   `external_identifier` VARCHAR(100) NULL,
+  `visibility_type_id` INT UNSIGNED NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_Activity_Activity1_idx` (`whole_activity_id` ASC),
   INDEX `fk_Activity_ActivityType1_idx` (`activity_type_id` ASC),
   INDEX `fk_Activity_Workout1_idx` (`workout_id` ASC),
+  INDEX `fk_Activity_ActivityResult1_idx` (`activity_result_id` ASC),
   INDEX `fk_Activity_ExternalDataSource1_idx` (`external_data_source_id` ASC),
+  INDEX `fk_Activity_VisibilityType1_idx` (`visibility_type_id` ASC),
   CONSTRAINT `fk_Activity_ActivityType1`
     FOREIGN KEY (`activity_type_id`)
     REFERENCES `ActivityType` (`id`)
@@ -297,148 +390,19 @@ CREATE TABLE IF NOT EXISTS `Activity` (
     REFERENCES `Workout` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Activity_ActivityResult1`
+    FOREIGN KEY (`activity_result_id`)
+    REFERENCES `ActivityResult` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
   CONSTRAINT `fk_Activity_ExternalDataSource1`
     FOREIGN KEY (`external_data_source_id`)
     REFERENCES `ExternalDataSource` (`id`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `ActivitySet`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `ActivitySet` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `num` TINYINT UNSIGNED NOT NULL,
-  `activity_id` INT UNSIGNED NOT NULL,
-  PRIMARY KEY (`id`),
-  INDEX `fk_ActivitySet_Activity1_idx` (`activity_id` ASC),
-  CONSTRAINT `fk_ActivitySet_Activity1`
-    FOREIGN KEY (`activity_id`)
-    REFERENCES `Activity` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `CardioActivityResult`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `CardioActivityResult` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `gross_time` TIME NULL,
-  `net_time` TIME NOT NULL,
-  `pace` TIME NULL,
-  `speed` DECIMAL(7,3) NULL,
-  PRIMARY KEY (`id`))
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `CardioActivitySet`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `CardioActivitySet` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `activity_set_id` INT UNSIGNED NOT NULL,
-  `distance_id` INT UNSIGNED NOT NULL,
-  `heart_rate` SMALLINT UNSIGNED NULL,
-  `weight` DECIMAL(6,2) NOT NULL DEFAULT 0,
-  `cardio_activity_result_id` INT UNSIGNED NOT NULL,
-  PRIMARY KEY (`id`),
-  INDEX `fk_CardioActivity_Distance1_idx` (`distance_id` ASC),
-  INDEX `fk_CardioActivity_CardioActivityResult1_idx` (`cardio_activity_result_id` ASC),
-  INDEX `fk_CardioActivity_ActivitySet1_idx` (`activity_set_id` ASC),
-  CONSTRAINT `fk_CardioActivity_Distance1`
-    FOREIGN KEY (`distance_id`)
-    REFERENCES `Distance` (`id`)
-    ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_CardioActivity_CardioActivityResult1`
-    FOREIGN KEY (`cardio_activity_result_id`)
-    REFERENCES `CardioActivityResult` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_CardioActivity_ActivitySet1`
-    FOREIGN KEY (`activity_set_id`)
-    REFERENCES `ActivitySet` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `LiftActivitySet`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `LiftActivitySet` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `activity_set_id` INT UNSIGNED NOT NULL,
-  `weight` DECIMAL(6,2) NOT NULL,
-  `reps` SMALLINT NOT NULL,
-  PRIMARY KEY (`id`),
-  INDEX `fk_LiftActivity_ActivitySet1_idx` (`activity_set_id` ASC),
-  CONSTRAINT `fk_LiftActivity_ActivitySet1`
-    FOREIGN KEY (`activity_set_id`)
-    REFERENCES `ActivitySet` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `HoldActivitySet`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `HoldActivitySet` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `activity_set_id` INT UNSIGNED NOT NULL,
-  `weight` DECIMAL(6,2) NOT NULL DEFAULT 0,
-  `duration` TIME NOT NULL,
-  PRIMARY KEY (`id`),
-  INDEX `fk_HoldActivity_ActivitySet1_idx` (`activity_set_id` ASC),
-  CONSTRAINT `fk_HoldActivity_ActivitySet1`
-    FOREIGN KEY (`activity_set_id`)
-    REFERENCES `ActivitySet` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `OutdoorActivitySet`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `OutdoorActivitySet` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `activity_set_id` INT UNSIGNED NOT NULL,
-  `temperature` DECIMAL(4,1) NULL,
-  PRIMARY KEY (`id`),
-  INDEX `fk_OutdoorActivity_ActivitySet1_idx` (`activity_set_id` ASC),
-  CONSTRAINT `fk_OutdoorActivity_ActivitySet1`
-    FOREIGN KEY (`activity_set_id`)
-    REFERENCES `ActivitySet` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `ActivityPoint`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `ActivityPoint` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `outdoor_activity_id` INT UNSIGNED NOT NULL,
-  `timestamp` DATETIME NOT NULL,
-  `location_id` INT UNSIGNED NOT NULL,
-  PRIMARY KEY (`id`),
-  INDEX `fk_ActivityPoint_OutdoorActivity1_idx` (`outdoor_activity_id` ASC),
-  INDEX `fk_ActivityPoint_Location1_idx` (`location_id` ASC),
-  CONSTRAINT `fk_ActivityPoint_OutdoorActivity1`
-    FOREIGN KEY (`outdoor_activity_id`)
-    REFERENCES `OutdoorActivitySet` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_ActivityPoint_Location1`
-    FOREIGN KEY (`location_id`)
-    REFERENCES `Location` (`id`)
+  CONSTRAINT `fk_Activity_VisibilityType1`
+    FOREIGN KEY (`visibility_type_id`)
+    REFERENCES `VisibilityType` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -539,14 +503,21 @@ CREATE TABLE IF NOT EXISTS `EventActivity` (
   `scheduled_start` DATETIME NULL,
   `entrants` INT UNSIGNED NULL,
   `event_id` INT UNSIGNED NOT NULL,
+  `distance_id` INT UNSIGNED NULL,
   `event_type_id` INT UNSIGNED NOT NULL,
   `external_identifier` VARCHAR(45) NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_EventActivity_Event1_idx` (`event_id` ASC),
+  INDEX `fk_EventActivity_Distance1_idx` (`distance_id` ASC),
   INDEX `fk_EventActivity_EventType1_idx` (`event_type_id` ASC),
   CONSTRAINT `fk_EventActivity_Event1`
     FOREIGN KEY (`event_id`)
     REFERENCES `Event` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_EventActivity_Distance1`
+    FOREIGN KEY (`distance_id`)
+    REFERENCES `Distance` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_EventActivity_EventType1`
@@ -558,52 +529,60 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `CardioEventActivity`
+-- Table `EventRegistration`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `CardioEventActivity` (
+CREATE TABLE IF NOT EXISTS `EventRegistration` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `event_activity_id` INT UNSIGNED NOT NULL,
-  `distance_id` INT UNSIGNED NOT NULL,
+  `registration_number` VARCHAR(20) NULL,
   PRIMARY KEY (`id`),
-  INDEX `fk_CardioEventActivity_EventActivity1_idx` (`event_activity_id` ASC),
-  INDEX `fk_CardioEventActivity_Distance1_idx` (`distance_id` ASC),
-  CONSTRAINT `fk_CardioEventActivity_EventActivity1`
+  INDEX `EventRegistration_registration_number1_idx` (`registration_number` ASC),
+  INDEX `fk_Registration_EventActivity1_idx` (`event_activity_id` ASC),
+  UNIQUE INDEX `event_activity_registration_number_UNIQUE` (`event_activity_id`, `registration_number` ASC),
+  CONSTRAINT `fk_EventRegistration_EventActivity1`
     FOREIGN KEY (`event_activity_id`)
     REFERENCES `EventActivity` (`id`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_CardioEventActivity_Distance1`
-    FOREIGN KEY (`distance_id`)
-    REFERENCES `Distance` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON UPDATE NO ACTION
+)
 ENGINE = InnoDB;
-
 
 -- -----------------------------------------------------
 -- Table `EventParticipant`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `EventParticipant` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `registration_number` VARCHAR(20) NULL,
+  `event_registration_id` INT UNSIGNED NOT NULL,
+  `event_result_id` INT UNSIGNED NOT NULL,
   `age` TINYINT UNSIGNED NULL,
   `person_id` INT UNSIGNED NOT NULL,
-  `event_activity_id` INT UNSIGNED NOT NULL,
+  `address_id` INT UNSIGNED NOT NULL,
   `gender_id` INT UNSIGNED NULL,
   `division_id` INT UNSIGNED NULL,
   PRIMARY KEY (`id`),
+  INDEX `fk_EventParticipant_EventRegistration1_idx` (`event_registration_id` ASC),
+  INDEX `fk_EventParticipant_ActivityResult1_idx` (`event_result_id` ASC),
   INDEX `fk_EventParticipant_Person1_idx` (`person_id` ASC),
-  INDEX `fk_EventParticipant_EventActivity1_idx` (`event_activity_id` ASC),
   INDEX `fk_EventParticipant_Gender1_idx` (`gender_id` ASC),
   INDEX `fk_EventParticipant_Division1_idx` (`division_id` ASC),
+  CONSTRAINT `fk_EventParticipant_EventRegistration1`
+    FOREIGN KEY (`event_registration_id`)
+    REFERENCES `EventRegistration` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_EventParticipant_ActivityResult1`
+    FOREIGN KEY (`event_result_id`)
+    REFERENCES `ActivityResult` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
   CONSTRAINT `fk_EventParticipant_Person1`
     FOREIGN KEY (`person_id`)
     REFERENCES `Person` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_EventParticipant_EventActivity1`
-    FOREIGN KEY (`event_activity_id`)
-    REFERENCES `EventActivity` (`id`)
+  CONSTRAINT `fk_EventParticipant_Address1`
+    FOREIGN KEY (`address_id`)
+    REFERENCES `Address` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_EventParticipant_Gender1`
@@ -668,29 +647,6 @@ CREATE TABLE IF NOT EXISTS `EventPlacement` (
   CONSTRAINT `fk_EventPlacement_EventPlacementPartition1`
     FOREIGN KEY (`event_placement_partition_id`)
     REFERENCES `EventPlacementPartition` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `CardioEventParticipant`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `CardioEventParticipant` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `event_participant_id` INT UNSIGNED NOT NULL,
-  `cardio_activity_result_id` INT UNSIGNED NOT NULL,
-  PRIMARY KEY (`id`),
-  INDEX `fk_CardioEventParticipant_EventParticipant1_idx` (`event_participant_id` ASC),
-  INDEX `fk_CardioEventParticipant_CardioActivityResult1_idx` (`cardio_activity_result_id` ASC),
-  CONSTRAINT `fk_CardioEventParticipant_EventParticipant1`
-    FOREIGN KEY (`event_participant_id`)
-    REFERENCES `EventParticipant` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_CardioEventParticipant_CardioActivityResult1`
-    FOREIGN KEY (`cardio_activity_result_id`)
-    REFERENCES `CardioActivityResult` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -780,22 +736,22 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `UserGoalFulfillmentActivitySet`
+-- Table `UserGoalFulfillmentActivity`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `UserGoalFulfillmentActivitySet` (
+CREATE TABLE IF NOT EXISTS `UserGoalFulfillmentActivity` (
   `user_goal_fulfillment_id` INT UNSIGNED NOT NULL,
-  `activity_set_id` INT UNSIGNED NOT NULL,
-  PRIMARY KEY (`user_goal_fulfillment_id`, `activity_set_id`),
-  INDEX `fk_UserGoalFulfillmentActivitySet_ActivitySet1_idx` (`activity_set_id` ASC),
-  INDEX `fk_UserGoalFulfillmentActivitySet_UserGoalFulfillment1_idx` (`user_goal_fulfillment_id` ASC),
-  CONSTRAINT `fk_UserGoalFulfillmentActivitySet_UserGoalFulfillment1`
+  `activity_id` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`user_goal_fulfillment_id`, `activity_id`),
+  INDEX `fk_UserGoalFulfillmentActivity_Activity1_idx` (`activity_id` ASC),
+  INDEX `fk_UserGoalFulfillmentActivity_UserGoalFulfillment1_idx` (`user_goal_fulfillment_id` ASC),
+  CONSTRAINT `fk_UserGoalFulfillmentActivity_UserGoalFulfillment1`
     FOREIGN KEY (`user_goal_fulfillment_id`)
     REFERENCES `UserGoalFulfillment` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_UserGoalFulfillmentActivitySet_ActivitySet1`
-    FOREIGN KEY (`activity_set_id`)
-    REFERENCES `ActivitySet` (`id`)
+  CONSTRAINT `fk_UserGoalFulfillmentActivity_Activity1`
+    FOREIGN KEY (`activity_id`)
+    REFERENCES `Activity` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -840,38 +796,30 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `UserEventActivity` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` INT UNSIGNED NOT NULL,
-  `event_activity_id` INT UNSIGNED NOT NULL,
+  `event_registration_id` INT UNSIGNED NOT NULL,
   `visibility_type_id` INT UNSIGNED NOT NULL,
-  `registration_date` DATE NULL,
-  `registration_number` VARCHAR(20) NULL,
-  `fee` DECIMAL(6,2) NULL,
+  `date_registered` DATE NULL,
+  `registration_fee` DECIMAL(6,2) NULL,
   `fundraising_requirement` DECIMAL(6,2) NULL,
-  `event_participant_id` INT UNSIGNED NULL,
   `activity_id` INT UNSIGNED NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_UserEventActivity_User1_idx` (`user_id` ASC),
-  INDEX `fk_UserEventActivity_EventActivity1_idx` (`event_activity_id` ASC),
+  INDEX `fk_UserEventActivity_EventRegistration1_idx` (`event_registration_id` ASC),
   INDEX `fk_UserEventActivity_VisibilityType1_idx` (`visibility_type_id` ASC),
-  INDEX `fk_UserEventActivity_EventParticipant1_idx` (`event_participant_id` ASC),
   INDEX `fk_UserEventActivity_Activity1_idx` (`activity_id` ASC),
   CONSTRAINT `fk_UserEventActivity_User1`
     FOREIGN KEY (`user_id`)
     REFERENCES `User` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_UserEventActivity_EventActivity1`
-    FOREIGN KEY (`event_activity_id`)
-    REFERENCES `EventActivity` (`id`)
+  CONSTRAINT `fk_UserEventActivity_EventRegistration1`
+    FOREIGN KEY (`event_registration_id`)
+    REFERENCES `EventRegistration` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_UserEventActivity_VisibilityType1`
     FOREIGN KEY (`visibility_type_id`)
     REFERENCES `VisibilityType` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_UserEventActivity_EventParticipant1`
-    FOREIGN KEY (`event_participant_id`)
-    REFERENCES `EventParticipant` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_UserEventActivity_Activity1`
@@ -931,14 +879,48 @@ INSERT INTO `UnitOfMeasure` (`id`, `name`, `abbreviation`, `normalization_factor
 (5, 'yard', 'yd', 0.000568182, 1);
 
 -- -----------------------------------------------------
+-- Data for table `BaseActivityType`
+-- -----------------------------------------------------
+INSERT INTO `BaseActivityType` (`id`, `description`, `has_distance`, `has_duration`, `has_repeats`) VALUES 
+(1, 'Run', 'Y', 'Y', 'N'),
+(2, 'Ride', 'Y', 'Y', 'N'),
+(3, 'Kayak', 'Y', 'Y', 'N'),
+(4, 'Swim', 'Y', 'Y', 'N'),
+(5, 'Walk', 'Y', 'Y', 'N'),
+(6, 'Push-up', 'N', 'N', 'Y'),
+(7, 'Plank', 'N', 'Y', 'N'),
+(8, 'Bench Press', 'N', 'N', 'Y');
+
+-- -----------------------------------------------------
+-- Data for table `ActivityContext`
+-- -----------------------------------------------------
+INSERT INTO `ActivityContext` (`id`, `description`, `has_map`) VALUES
+(1, 'Road/Trail', 'Y'),
+(2, 'Treadmill', 'N'),
+(3, 'Stationary Bike', 'N'),
+(4, 'Barbell', 'N'),
+(5, 'Dumbell', 'N'),
+(6, 'Indoor Pool', 'N'),
+(7, 'Ocean/Lake', 'Y'),
+(8, 'Track', 'Y');
+
+-- -----------------------------------------------------
 -- Data for table `ActivityType`
 -- -----------------------------------------------------
-INSERT INTO `ActivityType` (`id`, `description`, `is_cardio`, `is_lift`, `is_hold`) VALUES 
-(1, 'Run', 'Y', 'N', 'N'),
-(2, 'Ride', 'Y', 'N', 'N'),
-(3, 'Kayak', 'Y', 'N', 'N'),
-(4, 'Walk', 'Y', 'N', 'N'),
-(5, 'Treadmill', 'Y', 'N', 'N');
+INSERT INTO `ActivityType` (`id`,`base_activity_type_id`, `activity_context_id`) VALUES
+(1, 1, 1),
+(2, 2, 1),
+(3, 3, 7),
+(4, 4, 7),
+(5, 5, 1),
+(6, 1, 2),
+(7, 5, 2),
+(8, 2, 3),
+(9, 1, 8),
+(10, 5, 8),
+(11, 6, NULL),
+(12, 7, NULL),
+(13, 8, 4);
 
 -- -----------------------------------------------------
 -- Data for table `EventType`
@@ -951,7 +933,8 @@ INSERT INTO `EventType` (`id`, `activity_type_id`, `description`) VALUES
 (5, 1, 'Cross Country Race'),
 (6, 1, 'Obstacle Course Race'),
 (7, 1, 'Virtual Run'),
-(8, 1, 'Fun Run');
+(8, 1, 'Fun Run'),
+(9, 2, 'Virtual Ride');
 
 -- -----------------------------------------------------
 -- Data for table `ExternalDataSource`
@@ -968,7 +951,8 @@ INSERT INTO `ExternalDataSource` (`id`, `name`, `import_class`, `base_url`) VALU
 -- -----------------------------------------------------
 INSERT INTO `VisibilityType` (`id`, `description`) VALUES 
 (1, 'Only Me'),
-(2, 'Everyone');
+(2, 'Friends'),
+(3, 'Everyone');
 
 -- -----------------------------------------------------
 -- Migrate data from old tables to new
@@ -1007,9 +991,17 @@ INSERT INTO `Workout` (`id`,`user_id`,`date`,`name`)
   	ON a.`id` = pk.`activity_id`
   WHERE a.`user_id` IS NOT NULL;
 
-INSERT INTO `Activity` (`id`,`workout_id`,`activity_type_id`,`whole_activity_id`,`start_time`,`note`,`external_data_source_id`,`external_identifier`) 
-  SELECT pk.`id`,pk.`id`,a.`activity_type_id`,a.`whole_activity_id`,a.`start_time`,COALESCE(a.`note`,''),e.`id`,r.`reference_id` 
+INSERT INTO `ActivityResult` (`id`,`start_time`,`distance_id`,`duration`,`net_time`,`pace`,`speed`,`weight`,`repetitions`,`heart_rate`,`temperature`,`map_visibility_type_id`)
+  SELECT r.`id`,a.`start_time`,a.`distance_id`,r.`gross_time`,r.`net_time`,r.`pace`,r.`speed`,NULL,NULL,r.`heart_rate`,a.`temperature`,1
+  FROM `mig_result` r
+  LEFT JOIN `mig_activity` a
+    ON a.`result_id` = r.`id`;
+
+INSERT INTO `Activity` (`id`,`activity_type_id`,`workout_id`,`group_num`,`set_num`,`activity_result_id`,`note`,`whole_activity_id`,`external_data_source_id`,`external_identifier`,`visibility_type_id`) 
+  SELECT pk.`id`,a.`activity_type_id`,pk.`id`,1,1,res.`id`,COALESCE(a.`note`,''),a.`whole_activity_id`,e.`id`,r.`reference_id`,1
   FROM `mig_activity` a
+  LEFT JOIN `mig_result` res
+    ON a.`result_id` = res.`id`
   JOIN `mig_activity_pk` pk
   	ON a.`id` = pk.`activity_id`
   LEFT JOIN `mig_activity_reference` r
@@ -1018,36 +1010,11 @@ INSERT INTO `Activity` (`id`,`workout_id`,`activity_type_id`,`whole_activity_id`
     ON r.`import_class` = e.`import_class`
   WHERE a.`user_id` IS NOT NULL;
 
-INSERT INTO `ActivitySet` (`id`,`num`,`activity_id`) 
-  SELECT pk.`id`,1,pk.`id` 
-  FROM `mig_activity` a
-  JOIN `mig_activity_pk` pk
-  	ON a.`id` = pk.`activity_id`
-  WHERE a.`user_id` IS NOT NULL;
-
-INSERT INTO `CardioActivitySet` (`id`,`activity_set_id`,`distance_id`,`heart_rate`,`weight`,`cardio_activity_result_id`) 
-  SELECT pk.`id`,pk.`id`,a.`distance_id`,r.`heart_rate`,0,r.`id` 
-  FROM `mig_activity` a
-  JOIN `mig_activity_pk` pk
-  	ON a.`id` = pk.`activity_id`
-  JOIN `mig_result` r
-    ON a.`result_id` = r.`id`
-  WHERE a.`user_id` IS NOT NULL;
-
-INSERT INTO `CardioActivityResult` (`id`,`gross_time`,`net_time`,`pace`,`speed`) 
-  SELECT `id`,`gross_time`,`net_time`,`pace`,`speed`
-  FROM `mig_result`;
-
-INSERT INTO `OutdoorActivitySet` (`id`,`activity_set_id`,`temperature`) 
-  SELECT pk.`id`,pk.`id`,a.`temperature` 
-  FROM `mig_activity` a
-  JOIN `mig_activity_pk` pk
-  	ON a.`id` = pk.`activity_id`
-  WHERE a.`user_id` IS NOT NULL;
-
-INSERT INTO `ActivityPoint` (`outdoor_activity_id`,`timestamp`,`location_id`) 
-  SELECT `activity_id`,`timestamp`,`location_id` 
-  FROM `mig_activity_point`;
+INSERT INTO `ActivityPoint` (`activity_result_id`,`timestamp`,`location_id`) 
+  SELECT a.`result_id`,ap.`timestamp`,ap.`location_id` 
+  FROM `mig_activity_point` ap
+  JOIN `mig_activity` a
+    ON ap.`activity_id` = a.`id`;
  
  INSERT INTO `EventGroup` (`id`,`name`,`year`,`url`)
   SELECT 19+`id`,`name`,`year`,`url` FROM `mig_event_series`
@@ -1073,20 +1040,24 @@ INSERT INTO `EventActivity` (`id`,`name`,`scheduled_start`,`entrants`,`event_id`
   FROM `mig_event` e
   LEFT JOIN `mig_event_reference` mer
     ON e.`id` = mer.`event_id`;
-  
-INSERT INTO `CardioEventActivity` (`id`,`event_activity_id`,`distance_id`) 
-  SELECT `id`,`id`,`distance_id`
-  FROM `mig_event`;
- 
-INSERT INTO `EventParticipant` (`id`,`registration_number`,`age`,`person_id`,`event_activity_id`,`gender_id`,`division_id`) 
-  SELECT p.`id`,p.`bib_no`,p.`age`,p.`person_id`,a.`event_id`,p.`gender_id`,p.`division_id`
+
+INSERT INTO `EventRegistration` (`event_activity_id`, `registration_number`)
+  SELECT a.`event_id`,p.`bib_no`
   FROM `mig_participant` p
   JOIN `mig_activity` a
-    ON p.`result_id` = a.`result_id`;
-
-INSERT INTO `CardioEventParticipant` (`event_participant_id`, `cardio_activity_result_id`) 
-  SELECT `id`,`result_id`
-  FROM `mig_participant`;
+    ON p.`result_id` = a.`result_id`
+  UNION
+  SELECT er.`event_id`,er.`bib_no`
+  FROM `mig_event_registration` er;
+ 
+INSERT INTO `EventParticipant` (`id`,`event_registration_id`,`event_result_id`,`age`,`person_id`,`address_id`,`gender_id`,`division_id`) 
+  SELECT p.`id`,er.`id`,p.`result_id`,p.`age`,p.`person_id`,p.`address_id`,p.`gender_id`,p.`division_id`
+  FROM `mig_participant` p
+  JOIN `mig_activity` a
+    ON p.`result_id` = a.`result_id`
+  JOIN `EventRegistration` er
+    ON er.`event_activity_id` = a.`event_id`
+    AND er.`registration_number` = p.`bib_no`;
 
 INSERT INTO `EventPlacement` (`id`,`place`,`event_participant_id`,`event_placement_partition_id`) 
   SELECT r.`id`,r.`place`,p.`id`,r.`event_result_group_id`
@@ -1098,38 +1069,40 @@ INSERT INTO `EventPlacementPartition` (`id`,`event_activity_id`,`gender_id`,`div
   SELECT `id`,`event_id`,`gender_id`,`division_id`
   FROM `mig_event_result_group`;
 
-INSERT INTO `UserEventActivity` (`user_id`,`event_activity_id`,`visibility_type_id`,`event_participant_id`, `registration_date`,`registration_number`,`fee`,`fundraising_requirement`,`activity_id`) 
-  WITH t AS (
-    SELECT p.*, a.`event_id`
-    FROM `mig_participant` p
-    JOIN `mig_activity` a
-  	  ON p.`result_id` = a.`result_id`
-  )
+INSERT INTO `UserEventActivity` (`user_id`,`event_registration_id`,`visibility_type_id`,`date_registered`,`registration_fee`,`fundraising_requirement`,`activity_id`) 
   SELECT 
-    mer.`user_id`,mer.`event_id`, 
-	CASE mer.`is_public` WHEN 'Y' THEN 2 ELSE 1 END AS `visibility_type_id`,t.`id`,
-	CASE mer.`registered` WHEN 'Y' THEN CAST(e.`scheduled_start` AS DATE) ELSE NULL END AS `registration_date`,
-	mer.`bib_no`,mer.`fee`,mer.`fundraising_minimum`,pk.`id`
+    mer.`user_id`,er.`id`, 
+	  CASE mer.`is_public` WHEN 'Y' THEN 3 ELSE 1 END AS `visibility_type_id`,
+	  CASE mer.`registered` WHEN 'Y' THEN CAST(e.`scheduled_start` AS DATE) ELSE NULL END AS `registration_date`,
+	  mer.`fee`,mer.`fundraising_minimum`,pk.`id`
   FROM `mig_event_registration` mer
   JOIN `mig_user` u
     ON mer.`user_id` = u.`id`
   JOIN `mig_event` e
   	ON mer.`event_id` = e.`id`
+  JOIN `EventRegistration` er
+    ON er.`event_activity_id` = mer.`event_id`
+    AND (
+      er.`registration_number` = mer.`bib_no`
+      OR (
+        er.`registration_number` IS NULL
+        AND mer.`bib_no` IS NULL
+      )
+    )
   LEFT JOIN `mig_activity` a
   	ON mer.`user_id` = a.`user_id`
   	AND mer.`event_id` = a.`event_id`
   LEFT JOIN `mig_activity_pk` pk
-  	ON a.`id` = pk.`activity_id`
-  LEFT JOIN t
-  	ON t.`person_id` = u.`person_id`
-  	AND t.`event_id` = mer.`event_id`;
+  	ON a.`id` = pk.`activity_id`;
   
 INSERT INTO `Donation` (`id`,`date`,`amount`,`user_event_activity_id`,`person_id`,`address_id`) 
   SELECT  d.`id`,d.`date`,d.`amount`,uea.`id`,d.`person_id`,d.`address_id`
   FROM `mig_donation` d
   JOIN `UserEventActivity` uea
     ON d.`user_id` = uea.`user_id`
-    AND d.`event_id` = uea.`event_activity_id`;
+  JOIN `EventRegistration` er
+    ON uea.`event_registration_id` = er.`id`
+    AND d.`event_id` = er.`event_activity_id`;
 
    
 -- -----------------------------------------------------

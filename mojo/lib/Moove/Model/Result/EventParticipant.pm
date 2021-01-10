@@ -51,11 +51,19 @@ __PACKAGE__->table("EventParticipant");
   is_auto_increment: 1
   is_nullable: 0
 
-=head2 registration_number
+=head2 event_registration_id
 
-  data_type: 'varchar'
-  is_nullable: 1
-  size: 20
+  data_type: 'integer'
+  extra: {unsigned => 1}
+  is_foreign_key: 1
+  is_nullable: 0
+
+=head2 event_result_id
+
+  data_type: 'integer'
+  extra: {unsigned => 1}
+  is_foreign_key: 1
+  is_nullable: 0
 
 =head2 age
 
@@ -70,7 +78,7 @@ __PACKAGE__->table("EventParticipant");
   is_foreign_key: 1
   is_nullable: 0
 
-=head2 event_activity_id
+=head2 address_id
 
   data_type: 'integer'
   extra: {unsigned => 1}
@@ -101,8 +109,20 @@ __PACKAGE__->add_columns(
     is_auto_increment => 1,
     is_nullable => 0,
   },
-  "registration_number",
-  { data_type => "varchar", is_nullable => 1, size => 20 },
+  "event_registration_id",
+  {
+    data_type => "integer",
+    extra => { unsigned => 1 },
+    is_foreign_key => 1,
+    is_nullable => 0,
+  },
+  "event_result_id",
+  {
+    data_type => "integer",
+    extra => { unsigned => 1 },
+    is_foreign_key => 1,
+    is_nullable => 0,
+  },
   "age",
   { data_type => "tinyint", extra => { unsigned => 1 }, is_nullable => 1 },
   "person_id",
@@ -112,7 +132,7 @@ __PACKAGE__->add_columns(
     is_foreign_key => 1,
     is_nullable => 0,
   },
-  "event_activity_id",
+  "address_id",
   {
     data_type => "integer",
     extra => { unsigned => 1 },
@@ -149,19 +169,19 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
-=head2 cardio_event_participants
+=head2 address
 
-Type: has_many
+Type: belongs_to
 
-Related object: L<Moove::Model::Result::CardioEventParticipant>
+Related object: L<Moove::Model::Result::Address>
 
 =cut
 
-__PACKAGE__->has_many(
-  "cardio_event_participants",
-  "Moove::Model::Result::CardioEventParticipant",
-  { "foreign.event_participant_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+__PACKAGE__->belongs_to(
+  "address",
+  "Moove::Model::Result::Address",
+  { id => "address_id" },
+  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 =head2 division
@@ -184,21 +204,6 @@ __PACKAGE__->belongs_to(
   },
 );
 
-=head2 event_activity
-
-Type: belongs_to
-
-Related object: L<Moove::Model::Result::EventActivity>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "event_activity",
-  "Moove::Model::Result::EventActivity",
-  { id => "event_activity_id" },
-  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
-);
-
 =head2 event_placements
 
 Type: has_many
@@ -212,6 +217,36 @@ __PACKAGE__->has_many(
   "Moove::Model::Result::EventPlacement",
   { "foreign.event_participant_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 event_registration
+
+Type: belongs_to
+
+Related object: L<Moove::Model::Result::EventRegistration>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "event_registration",
+  "Moove::Model::Result::EventRegistration",
+  { id => "event_registration_id" },
+  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
+);
+
+=head2 event_result
+
+Type: belongs_to
+
+Related object: L<Moove::Model::Result::ActivityResult>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "event_result",
+  "Moove::Model::Result::ActivityResult",
+  { id => "event_result_id" },
+  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 =head2 gender
@@ -248,25 +283,10 @@ __PACKAGE__->belongs_to(
   { id => "person_id" },
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
-
-=head2 user_event_activities
-
-Type: has_many
-
-Related object: L<Moove::Model::Result::UserEventActivity>
-
-=cut
-
-__PACKAGE__->has_many(
-  "user_event_activities",
-  "Moove::Model::Result::UserEventActivity",
-  { "foreign.event_participant_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
 #>>>
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2020-05-07 12:23:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:6DJPj9LoPABbdDpdbwjMBA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-01-09 17:03:00
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:tcGxOoV+AYfvIzl8r/W1dQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

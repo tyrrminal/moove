@@ -51,32 +51,19 @@ __PACKAGE__->table("ActivityType");
   is_auto_increment: 1
   is_nullable: 0
 
-=head2 description
+=head2 base_activity_type_id
 
-  data_type: 'varchar'
-  is_nullable: 0
-  size: 45
-
-=head2 is_cardio
-
-  data_type: 'enum'
-  default_value: 'N'
-  extra: {list => ["Y","N"]}
+  data_type: 'integer'
+  extra: {unsigned => 1}
+  is_foreign_key: 1
   is_nullable: 0
 
-=head2 is_lift
+=head2 activity_context_id
 
-  data_type: 'enum'
-  default_value: 'N'
-  extra: {list => ["Y","N"]}
-  is_nullable: 0
-
-=head2 is_hold
-
-  data_type: 'enum'
-  default_value: 'N'
-  extra: {list => ["Y","N"]}
-  is_nullable: 0
+  data_type: 'integer'
+  extra: {unsigned => 1}
+  is_foreign_key: 1
+  is_nullable: 1
 
 =cut
 
@@ -88,28 +75,19 @@ __PACKAGE__->add_columns(
     is_auto_increment => 1,
     is_nullable => 0,
   },
-  "description",
-  { data_type => "varchar", is_nullable => 0, size => 45 },
-  "is_cardio",
+  "base_activity_type_id",
   {
-    data_type => "enum",
-    default_value => "N",
-    extra => { list => ["Y", "N"] },
+    data_type => "integer",
+    extra => { unsigned => 1 },
+    is_foreign_key => 1,
     is_nullable => 0,
   },
-  "is_lift",
+  "activity_context_id",
   {
-    data_type => "enum",
-    default_value => "N",
-    extra => { list => ["Y", "N"] },
-    is_nullable => 0,
-  },
-  "is_hold",
-  {
-    data_type => "enum",
-    default_value => "N",
-    extra => { list => ["Y", "N"] },
-    is_nullable => 0,
+    data_type => "integer",
+    extra => { unsigned => 1 },
+    is_foreign_key => 1,
+    is_nullable => 1,
   },
 );
 
@@ -127,17 +105,22 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 UNIQUE CONSTRAINTS
 
-=head2 C<description_UNIQUE>
+=head2 C<base_activity_type_UNIQUE>
 
 =over 4
 
-=item * L</description>
+=item * L</base_activity_type_id>
+
+=item * L</activity_context_id>
 
 =back
 
 =cut
 
-__PACKAGE__->add_unique_constraint("description_UNIQUE", ["description"]);
+__PACKAGE__->add_unique_constraint(
+  "base_activity_type_UNIQUE",
+  ["base_activity_type_id", "activity_context_id"],
+);
 
 =head1 RELATIONS
 
@@ -156,6 +139,41 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 activity_context
+
+Type: belongs_to
+
+Related object: L<Moove::Model::Result::ActivityContext>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "activity_context",
+  "Moove::Model::Result::ActivityContext",
+  { id => "activity_context_id" },
+  {
+    is_deferrable => 1,
+    join_type     => "LEFT",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
+  },
+);
+
+=head2 base_activity_type
+
+Type: belongs_to
+
+Related object: L<Moove::Model::Result::BaseActivityType>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "base_activity_type",
+  "Moove::Model::Result::BaseActivityType",
+  { id => "base_activity_type_id" },
+  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
+);
+
 =head2 event_types
 
 Type: has_many
@@ -172,8 +190,8 @@ __PACKAGE__->has_many(
 );
 #>>>
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-01-02 12:58:46
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:pezuwxIi6nHWWUmLQdmj2A
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-01-09 17:03:00
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:o/3jr7nYWLjjFH9w/6kkqg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

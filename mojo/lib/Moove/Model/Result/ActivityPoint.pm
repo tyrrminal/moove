@@ -51,7 +51,7 @@ __PACKAGE__->table("ActivityPoint");
   is_auto_increment: 1
   is_nullable: 0
 
-=head2 outdoor_activity_id
+=head2 activity_result_id
 
   data_type: 'integer'
   extra: {unsigned => 1}
@@ -81,7 +81,7 @@ __PACKAGE__->add_columns(
     is_auto_increment => 1,
     is_nullable => 0,
   },
-  "outdoor_activity_id",
+  "activity_result_id",
   {
     data_type => "integer",
     extra => { unsigned => 1 },
@@ -117,6 +117,21 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
+=head2 activity_result
+
+Type: belongs_to
+
+Related object: L<Moove::Model::Result::ActivityResult>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "activity_result",
+  "Moove::Model::Result::ActivityResult",
+  { id => "activity_result_id" },
+  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
+);
+
 =head2 location
 
 Type: belongs_to
@@ -131,25 +146,10 @@ __PACKAGE__->belongs_to(
   { id => "location_id" },
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
-
-=head2 outdoor_activity
-
-Type: belongs_to
-
-Related object: L<Moove::Model::Result::OutdoorActivitySet>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "outdoor_activity",
-  "Moove::Model::Result::OutdoorActivitySet",
-  { id => "outdoor_activity_id" },
-  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
-);
 #>>>
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2020-05-07 12:23:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:HPaYK22RZxwyPVqSsXpUaw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-01-09 17:03:00
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:esKSfbWajIUoQueJyBVa7A
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

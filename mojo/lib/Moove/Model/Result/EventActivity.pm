@@ -76,6 +76,13 @@ __PACKAGE__->table("EventActivity");
   is_foreign_key: 1
   is_nullable: 0
 
+=head2 distance_id
+
+  data_type: 'integer'
+  extra: {unsigned => 1}
+  is_foreign_key: 1
+  is_nullable: 1
+
 =head2 event_type_id
 
   data_type: 'integer'
@@ -116,6 +123,13 @@ __PACKAGE__->add_columns(
     is_foreign_key => 1,
     is_nullable => 0,
   },
+  "distance_id",
+  {
+    data_type => "integer",
+    extra => { unsigned => 1 },
+    is_foreign_key => 1,
+    is_nullable => 1,
+  },
   "event_type_id",
   {
     data_type => "integer",
@@ -141,19 +155,24 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
-=head2 cardio_event_activities
+=head2 distance
 
-Type: has_many
+Type: belongs_to
 
-Related object: L<Moove::Model::Result::CardioEventActivity>
+Related object: L<Moove::Model::Result::Distance>
 
 =cut
 
-__PACKAGE__->has_many(
-  "cardio_event_activities",
-  "Moove::Model::Result::CardioEventActivity",
-  { "foreign.event_activity_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+__PACKAGE__->belongs_to(
+  "distance",
+  "Moove::Model::Result::Distance",
+  { id => "distance_id" },
+  {
+    is_deferrable => 1,
+    join_type     => "LEFT",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
+  },
 );
 
 =head2 event
@@ -171,21 +190,6 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 event_participants
-
-Type: has_many
-
-Related object: L<Moove::Model::Result::EventParticipant>
-
-=cut
-
-__PACKAGE__->has_many(
-  "event_participants",
-  "Moove::Model::Result::EventParticipant",
-  { "foreign.event_activity_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 event_placement_partitions
 
 Type: has_many
@@ -197,6 +201,21 @@ Related object: L<Moove::Model::Result::EventPlacementPartition>
 __PACKAGE__->has_many(
   "event_placement_partitions",
   "Moove::Model::Result::EventPlacementPartition",
+  { "foreign.event_activity_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 event_registrations
+
+Type: has_many
+
+Related object: L<Moove::Model::Result::EventRegistration>
+
+=cut
+
+__PACKAGE__->has_many(
+  "event_registrations",
+  "Moove::Model::Result::EventRegistration",
   { "foreign.event_activity_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
@@ -215,25 +234,10 @@ __PACKAGE__->belongs_to(
   { id => "event_type_id" },
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
-
-=head2 user_event_activities
-
-Type: has_many
-
-Related object: L<Moove::Model::Result::UserEventActivity>
-
-=cut
-
-__PACKAGE__->has_many(
-  "user_event_activities",
-  "Moove::Model::Result::UserEventActivity",
-  { "foreign.event_activity_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
 #>>>
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2020-05-07 12:23:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:5h1DFh//empDVtrYfhN0sQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-01-09 17:03:00
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:e5XFWfKIiwwL1yxoTOWcTw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

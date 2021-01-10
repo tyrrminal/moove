@@ -1,13 +1,13 @@
 #<<<
 use utf8;
-package Moove::Model::Result::CardioEventActivity;
+package Moove::Model::Result::EventRegistration;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-Moove::Model::Result::CardioEventActivity
+Moove::Model::Result::EventRegistration
 
 =cut
 
@@ -36,11 +36,11 @@ __PACKAGE__->load_components(
   "InflateColumn::Time",
 );
 
-=head1 TABLE: C<CardioEventActivity>
+=head1 TABLE: C<EventRegistration>
 
 =cut
 
-__PACKAGE__->table("CardioEventActivity");
+__PACKAGE__->table("EventRegistration");
 
 =head1 ACCESSORS
 
@@ -58,12 +58,11 @@ __PACKAGE__->table("CardioEventActivity");
   is_foreign_key: 1
   is_nullable: 0
 
-=head2 distance_id
+=head2 registration_number
 
-  data_type: 'integer'
-  extra: {unsigned => 1}
-  is_foreign_key: 1
-  is_nullable: 0
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 20
 
 =cut
 
@@ -82,13 +81,8 @@ __PACKAGE__->add_columns(
     is_foreign_key => 1,
     is_nullable => 0,
   },
-  "distance_id",
-  {
-    data_type => "integer",
-    extra => { unsigned => 1 },
-    is_foreign_key => 1,
-    is_nullable => 0,
-  },
+  "registration_number",
+  { data_type => "varchar", is_nullable => 1, size => 20 },
 );
 
 =head1 PRIMARY KEY
@@ -103,22 +97,26 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("id");
 
-=head1 RELATIONS
+=head1 UNIQUE CONSTRAINTS
 
-=head2 distance
+=head2 C<event_activity_registration_number_UNIQUE>
 
-Type: belongs_to
+=over 4
 
-Related object: L<Moove::Model::Result::Distance>
+=item * L</event_activity_id>
+
+=item * L</registration_number>
+
+=back
 
 =cut
 
-__PACKAGE__->belongs_to(
-  "distance",
-  "Moove::Model::Result::Distance",
-  { id => "distance_id" },
-  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
+__PACKAGE__->add_unique_constraint(
+  "event_activity_registration_number_UNIQUE",
+  ["event_activity_id", "registration_number"],
 );
+
+=head1 RELATIONS
 
 =head2 event_activity
 
@@ -134,10 +132,40 @@ __PACKAGE__->belongs_to(
   { id => "event_activity_id" },
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
+
+=head2 event_participants
+
+Type: has_many
+
+Related object: L<Moove::Model::Result::EventParticipant>
+
+=cut
+
+__PACKAGE__->has_many(
+  "event_participants",
+  "Moove::Model::Result::EventParticipant",
+  { "foreign.event_registration_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 user_event_activities
+
+Type: has_many
+
+Related object: L<Moove::Model::Result::UserEventActivity>
+
+=cut
+
+__PACKAGE__->has_many(
+  "user_event_activities",
+  "Moove::Model::Result::UserEventActivity",
+  { "foreign.event_registration_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
 #>>>
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2020-05-01 15:48:09
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:bmoeh9Ac2cMozEExXf0K/Q
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-01-09 17:03:00
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:zUXt5F1Ppmv88DVKVINJRQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

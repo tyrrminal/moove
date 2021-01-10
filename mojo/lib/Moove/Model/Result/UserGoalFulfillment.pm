@@ -143,21 +143,6 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 user_goal_fulfillment_activity_sets
-
-Type: has_many
-
-Related object: L<Moove::Model::Result::UserGoalFulfillmentActivitySet>
-
-=cut
-
-__PACKAGE__->has_many(
-  "user_goal_fulfillment_activity_sets",
-  "Moove::Model::Result::UserGoalFulfillmentActivitySet",
-  { "foreign.user_goal_fulfillment_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 user_goal_fulfillment_workouts
 
 Type: has_many
@@ -183,20 +168,6 @@ Composing rels: L</user_goal_fulfillment_activities> -> activity
 
 __PACKAGE__->many_to_many("activities", "user_goal_fulfillment_activities", "activity");
 
-=head2 activity_sets
-
-Type: many_to_many
-
-Composing rels: L</user_goal_fulfillment_activity_sets> -> activity_set
-
-=cut
-
-__PACKAGE__->many_to_many(
-  "activity_sets",
-  "user_goal_fulfillment_activity_sets",
-  "activity_set",
-);
-
 =head2 workouts
 
 Type: many_to_many
@@ -208,8 +179,8 @@ Composing rels: L</user_goal_fulfillment_workouts> -> workout
 __PACKAGE__->many_to_many("workouts", "user_goal_fulfillment_workouts", "workout");
 #>>>
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2020-05-01 15:48:09
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:2sckggWfOZT7jqPkxXWgOQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-01-09 17:03:00
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:s2PxMPj2l9QbHkRjog0zvw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
