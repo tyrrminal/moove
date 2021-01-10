@@ -4,3 +4,4 @@
 create_initial_schema 2019-12-24T20:44:02Z root <root@a16aa12d995b> # creating initial schema
 make_donation_address_optional 2020-02-20T18:28:22Z root <root@04e0dcf322a9> # not all FR sites provide donor addresses
 migrate_to_v2_schema 2020-05-04T13:52:38Z root <root@6f7a7c812557> # recreate schema for v2
+add_friendships 2021-01-10T16:01:13Z root <root@8227d671b6dd> # add table for user friendship

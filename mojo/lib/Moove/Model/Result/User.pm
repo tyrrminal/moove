@@ -125,6 +125,36 @@ __PACKAGE__->add_unique_constraint("username_UNIQUE", ["username"]);
 
 =head1 RELATIONS
 
+=head2 friendship_initiators
+
+Type: has_many
+
+Related object: L<Moove::Model::Result::Friendship>
+
+=cut
+
+__PACKAGE__->has_many(
+  "friendship_initiators",
+  "Moove::Model::Result::Friendship",
+  { "foreign.initiator_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 friendship_receivers
+
+Type: has_many
+
+Related object: L<Moove::Model::Result::Friendship>
+
+=cut
+
+__PACKAGE__->has_many(
+  "friendship_receivers",
+  "Moove::Model::Result::Friendship",
+  { "foreign.receiver_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 goals
 
 Type: has_many
@@ -201,8 +231,8 @@ __PACKAGE__->has_many(
 );
 #>>>
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-01-03 10:58:38
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:i7j6jbSKv3cWGLSQghuydw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-01-10 11:29:03
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:IL8Hs48L9m03y01CBTYB4A
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
