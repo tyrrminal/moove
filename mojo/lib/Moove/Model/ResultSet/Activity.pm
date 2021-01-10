@@ -1,14 +1,11 @@
 package Moove::Model::ResultSet::Activity;
 use base qw(DBIx::Class::ResultSet);
 
-use Modern::Perl;
-
 use DCS::Constants qw(:existence);
 
-sub prior_import {
-  my $self = shift;
-  my ($id, $importer) = @_;
+use experimental qw(signatures postderef);
 
+sub prior_import ($self, $id, $importer) {
   return $self->search(
     {
       'activity_references.reference_id'  => $id,
@@ -19,9 +16,7 @@ sub prior_import {
   );
 }
 
-sub add_imported_activity {
-  my $self = shift;
-  my ($activity, $user) = @_;
+sub add_imported_activity ($self, $activity, $user) {
   my $status = 'add';
   my $schema = $self->result_source->schema;
 
@@ -107,21 +102,22 @@ sub add_imported_activity {
   return wantarray ? ($act, $status) : $act;
 }
 
-sub for_user {
-  my $self = shift;
-  my ($user) = @_;
-
+sub for_user ($self, $user) {
   return $self->search(
     {
-      'user_id' => $user->id
+      'workout.user_id' => $user->id
+    }, {
+      join => 'workout'
     }
   );
 }
 
-sub for_person {
-  my $self = shift;
-  my ($person) = @_;
+sub visible_to ($self, $user) {
+  # TODO: implement visibility check
+  return $self;
+}
 
+sub for_person ($self, $person) {
   return $self->search(
     {
       'participants.person_id' => $person->id
@@ -131,9 +127,7 @@ sub for_person {
   );
 }
 
-sub whole {
-  my $self = shift;
-
+sub whole($self) {
   return $self->search(
     {
       'whole_activity_id' => $NULL
@@ -141,9 +135,7 @@ sub whole {
   );
 }
 
-sub whole_or_event {
-  my $self = shift;
-
+sub whole_or_event($self) {
   return $self->search(
     {
       '-or' => [{'event_id' => {'!=', $NULL}}, {'whole_activity_id' => $NULL}]
@@ -151,9 +143,7 @@ sub whole_or_event {
   );
 }
 
-sub core {
-  my $self = shift;
-
+sub core($self) {
   return $self->search(
     {
       '-or' => [
@@ -166,12 +156,7 @@ sub core {
   );
 }
 
-sub by_type {
-  my $self = shift;
-  my ($type) = @_;
-
-  return $self unless (defined($type));
-
+sub activity_type ($self, $type) {
   return $self->search(
     {
       activity_type_id => $type->id,
@@ -179,9 +164,7 @@ sub by_type {
   );
 }
 
-sub outdoor {
-  my $self = shift;
-
+sub outdoor($self) {
   return $self->search(
     {
       'activity_type.description' => {'!=' => 'Treadmill'}
@@ -191,52 +174,37 @@ sub outdoor {
   );
 }
 
-sub year {
-  my $self = shift;
-  my ($year) = @_;
-
+sub year ($self, $year) {
   return $self->search(\['YEAR(start_time)=?', $year]);
 }
 
-sub completed {
-  my $self = shift;
-
+sub completed($self) {
   return $self->search({}, {join => 'result'});
 }
 
-sub ordered {
-  my $self = shift;
-  my ($direction) = (@_, '-asc');
-
+sub ordered ($self, $direction = '-asc') {
   return $self->search({}, {order_by => {$direction => 'me.start_time'}});
 }
 
-sub after_date {
-  my $self = shift;
-  my ($date) = @_;
-
+sub after_date ($self, $date) {
+  my $d = ref($date) ? DateTime::Format::MySQL->format_datetime($date) : $date;
   return $self->search(
     {
-      start_time => {'>=' => DateTime::Format::MySQL->format_datetime($date)}
+      start_time => {'>=' => $d}
     }
   );
 }
 
-sub before_date {
-  my $self = shift;
-  my ($date) = @_;
-
+sub before_date ($self, $date) {
+  my $d = ref($date) ? DateTime::Format::MySQL->format_datetime($date) : $date;
   return $self->search(
     {
-      start_time => {'<=' => DateTime::Format::MySQL->format_datetime($date)}
+      start_time => {'<=' => $d}
     }
   );
 }
 
-sub near_distance {
-  my $self = shift;
-  my ($d) = @_;
-
+sub near_distance ($self, $d) {
   my $v      = $d->normalized_value;
   my $margin = $d->normalized_value * 0.05;
 
@@ -252,10 +220,7 @@ sub near_distance {
   );
 }
 
-sub min_distance {
-  my $self = shift;
-  my ($d) = @_;
-
+sub min_distance ($self, $d) {
   return $self->search(
     {
       -and => [\['distance.value * uom.conversion_factor >= ?' => $d->normalized_value],]
@@ -265,10 +230,7 @@ sub min_distance {
   );
 }
 
-sub max_distance {
-  my $self = shift;
-  my ($d) = @_;
-
+sub max_distance ($self, $d) {
   return $self->search(
     {\['distance.value * uom.conversion_factor <= ?' => $d->normalized_value]},
     {

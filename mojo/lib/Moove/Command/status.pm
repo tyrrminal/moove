@@ -44,7 +44,7 @@ sub run ($self, @args) {
   my $dow = $now->local_day_of_week;
 
   my $activity_type = $self->app->model('ActivityType')->find({description => $act_type});
-  my $activities    = $self->app->model('Activity')->for_user($user)->by_type($activity_type);
+  my $activities    = $self->app->model('Activity')->for_user($user)->activity_type($activity_type);
   my $n             = $activity_type->description eq 'Ride' ? 10 : 1;
 
   my $year_activities  = $activities->search({start_time => {'>' => $now->clone->truncate(to => 'year')->strftime('%F')}});

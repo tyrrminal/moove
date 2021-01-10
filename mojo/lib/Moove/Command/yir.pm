@@ -27,7 +27,7 @@ sub run ($self, @args) {
   $y = DateTime->now()->year() unless (defined($y));
   my $u = $self->app->model('User')->find({username => 'digicow'});
   my $activity_type = $self->app->model('ActivityType')->find({description => $act_type});
-  my @activities = $self->app->model('Activity')->for_user($u)->whole->by_type($activity_type)->year($y)->ordered;
+  my @activities = $self->app->model('Activity')->for_user($u)->whole->activity_type($activity_type)->year($y)->ordered;
 
   my $mpd = $activity_type->description eq 'Run' ? 1 : 10;
 

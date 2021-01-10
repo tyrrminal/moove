@@ -207,7 +207,7 @@ sub recalculate {
     $ugf->delete;
   }
 
-  foreach ($self->user->activities->by_type($self->goal->activity_type)->whole_or_event->ordered) {
+  foreach ($self->user->activities->activity_type($self->goal->activity_type)->whole_or_event->ordered) {
     $self->update($_);
   }
 }
@@ -282,7 +282,7 @@ sub _calculate_achievement {
 
 sub _get_rs {
   my $self   = shift;
-  my $act_rs = $self->user->activities->whole_or_event->by_type($self->goal->activity_type)->search(
+  my $act_rs = $self->user->activities->whole_or_event->activity_type($self->goal->activity_type)->search(
     {},
     {
       join => ['result', {distance => 'uom'},]
