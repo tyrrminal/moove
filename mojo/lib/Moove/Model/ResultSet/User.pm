@@ -1,17 +1,21 @@
 package Moove::Model::ResultSet::User;
-
 use base qw(DBIx::Class::ResultSet);
 
-sub guest {
-  my $self = shift;
+use DCS::Constants qw(:symbols);
+
+use experimental qw(signatures postderef);
+
+sub guest($self) {
   return $self->new_result({id => 0, username => 'guest', person => {id => 0, firstname => 'guest', lastname => 'user'}});
 }
 
-sub find_user {
-  my $self         = shift;
-  my ($user_id)    = @_;
-  my $search_field = ($user_id =~ /\D/) ? 'username' : 'id';
+sub is_friends_with ($self, $user) {
+  # TODO: implement friends capabilities
+  return $FALSE;
+}
 
+sub find_user ($self, $user_id) {
+  my $search_field = ($user_id =~ /\D/) ? 'username' : 'id';
   return $self->search({$search_field => $user_id})->first;
 }
 
