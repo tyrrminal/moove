@@ -363,46 +363,46 @@ use List::Util qw(max);
 use Moose;
 use MooseX::NonMoose;
 
-sub description {
-  my $self = shift;
+use experimental qw(signatures postderef);
 
+sub result($self) {
+  return $self->activity_result;
+}
+
+sub start_time($self) {
+  return $self->activity_result->start_time;
+}
+
+sub description($self) {
   return sprintf('%s %s %s', $self->start_time->strftime('%F'), $self->distance->description, $self->activity_type->description);
 }
 
-around 'note' => sub {
-  my $orig = shift;
-  my $self = shift;
-
+around 'note' => sub ($orig, $self) {
   my $v = $self->$orig(@_) // '';
   $v =~ s/\s*$//m;
   $v =~ s/^\s*//m;
   return $v;
 };
 
-sub is_outdoor_activity {
-  return shift->activity_type->description ne 'Treadmill';
+sub is_outdoor_activity($self) {
+  return $self->activity_type->description ne 'Treadmill';
 }
 
-sub is_running_activity {
-  my $self = shift;
+sub is_running_activity($self) {
   return $self->activity_type->description eq 'Run' || $self->activity_type->description eq 'Treadmill';
 }
 
-sub is_cycling_activity {
-  return shift->activity_type->description eq 'Ride';
+sub is_cycling_activity($self) {
+  return $self->activity_type->description eq 'Ride';
 }
 
-sub end_time {
-  my $self = shift;
-
+sub end_time($self) {
   return $self->start_time unless (defined($self->result));
   return $self->start_time + ($self->result->gross_time // $self->result->net_time);
 }
 
-sub first_activity_point {
-  my $self = shift;
-
-  return $self->activity_points->search(
+sub first_activity_point($self) {
+  return $self->activity_result->activity_points->search(
     {},
     {
       order_by => {'-asc' => 'timestamp'}
@@ -410,10 +410,8 @@ sub first_activity_point {
   )->first;
 }
 
-sub last_activity_point {
-  my $self = shift;
-
-  return $self->activity_points->search(
+sub last_activity_point($self) {
+  return $self->activity_result->activity_points->search(
     {},
     {
       order_by => {'-desc' => 'timestamp'}
