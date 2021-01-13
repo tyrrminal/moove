@@ -196,4 +196,12 @@ __PACKAGE__->has_many(
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 
+use DCS::Constants qw(:symbols);
+
+use experimental qw(signatures postderef);
+
+sub description($self) {
+  return join($SPACE, $self->activity_context->description, $self->base_activity_type->description);
+}
+
 1;
