@@ -8,7 +8,8 @@ info:
 servers:
   - url: https://moove.digicowsoftware.com/api/v1
 security:
-  - Session: []
+  - Session:
+      - admin
 paths:
   /auth/login:
     post:
@@ -53,58 +54,6 @@ paths:
                 type: string
       tags:
         - Auth
-  /admin/users/{userID}:
-    parameters:
-      - $ref: "#/components/parameters/UserID"
-    get:
-      security:
-        - Session: ["admin"]
-      summary: Get a user
-      x-mojo-to: Admin::User#get
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-      tags:
-        - Admin
-    patch:
-      security:
-        - Session: ["admin"]
-      summary: Update a user
-      x-mojo-to: Admin::User#update
-      requestBody:
-        description: The User parameters
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/User"
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-      tags:
-        - Admin
-    delete:
-      security:
-        - Session: ["admin"]
-      summary: Delete a user
-      x-mojo-to: Admin::User#delete
-      responses:
-        204:
-          description: OK
-          content:
-            text/plain:
-              schema:
-                type: string
-      tags:
-        - Admin
   /meta/values:
     get:
       summary: Get one or more value lookup tables
@@ -117,11 +66,6 @@ paths:
             type: boolean
         - in: query
           name: activityTypes
-          required: false
-          schema:
-            type: boolean
-        - in: query
-          name: dimensions
           required: false
           schema:
             type: boolean
@@ -160,30 +104,203 @@ paths:
                     type: array
       tags:
         - Meta
+  /activities:
+    get:
+      summary: Get an optionally-filtered list of all activities
+      x-mojo-to: Activity#list
+      parameters:
+        # Pagination Params
+        - $ref: "#/components/parameters/PageNumber"
+        - $ref: "#/components/parameters/PageLength"
+        - $ref: "#/components/parameters/SortField"
+        - $ref: "#/components/parameters/SortDirection"
+        # Query Params
+        - $ref: "#/components/parameters/SearchWorkoutID"
+        - $ref: "#/components/parameters/SearchUserID"
+        - $ref: "#/components/parameters/SearchActivityType"
+        - $ref: "#/components/parameters/SearchStartdate"
+        - $ref: "#/components/parameters/SearchEnddate"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedActivities"
+      tags:
+        - Activity
+    post:
+      summary: Create a activity
+      x-mojo-to: Activity#create
+      requestBody:
+        description: The Activity parameters
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Activity"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Activity"
+      tags:
+        - Activity
+  /activities/import:
+    post:
+      summary: Import activities from a file
+      x-mojo-to: Activity#import
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                externalDataSource:
+                  type: string
+                file:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedActivities"
+      tags:
+        - Activity
+  /activities/{activityID}:
+    parameters:
+      - $ref: "#/components/parameters/ActivityID"
+    get:
+      summary: Get a activity
+      x-mojo-to: Activity#get
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Activity"
+      tags:
+        - Activity
+    patch:
+      summary: Update a activity
+      x-mojo-to: Activity#update
+      requestBody:
+        description: The Activity parameters
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Activity"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Activity"
+      tags:
+        - Activity
+    delete:
+      summary: Delete a activity
+      x-mojo-to: Activity#delete
+      responses:
+        204:
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+      tags:
+        - Activity
+  /activities/summary:
+    get:
+      summary: Get activities list summary
+      x-mojo-to: Activity#summary
+      parameters:
+        # Query Params
+        - $ref: "#/components/parameters/SearchUserID"
+        - in: query
+          name: activityTypeID
+          required: true
+          schema:
+            $ref: "#/components/schemas/DatabaseID"
+          description: Activity Type to filter on
+        - $ref: "#/components/parameters/SearchStartdate"
+        - $ref: "#/components/parameters/SearchEnddate"
+        # Output Params
+        - in: query
+          name: period
+          required: true
+          schema:
+            enum:
+              - all
+              - year
+              - quarter
+              - month
+              - week
+          description: Periods to slice data into
+        - in: query
+          name: includeEmpty
+          required: false
+          schema:
+            type: boolean
+          description: Include summaries for periods with no activities
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivitySummary"
+      tags:
+        - Activity
+  /activities/merge:
+    parameters:
+      - $ref: "#/components/parameters/ActivityID"
+    post:
+      summary: Merge activities together
+      x-mojo-to: Activity#merge
+      requestBody:
+        description: The list of activities to merge together
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/Activity"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Activity"
+      tags:
+        - Activity
   /events:
     get:
-      summary: Get an optionally-filtered list of /events
+      summary: Get an optionally-filtered list of all events
       x-mojo-to: Event#list
       parameters:
-        - $ref: "#/components/parameters/Page"
-        - $ref: "#/components/parameters/Pagelen"
-        - in: query
-          name: start
-          required: false
-          schema:
-            type: string
-            format: datetime
-        - in: query
-          name: end
-          required: false
-          schema:
-            type: string
-            format: datetime
-        - in: query
-          name: name
-          required: false
-          schema:
-            type: string
+        # Pagination Params
+        - $ref: "#/components/parameters/PageNumber"
+        - $ref: "#/components/parameters/PageLength"
+        - $ref: "#/components/parameters/SortField"
+        - $ref: "#/components/parameters/SortDirection"
+        # Query Params
+        - $ref: "#/components/parameters/SearchEventname"
+        - $ref: "#/components/parameters/SearchStartdate"
+        - $ref: "#/components/parameters/SearchEnddate"
       responses:
         200:
           description: OK
@@ -193,11 +310,30 @@ paths:
                 $ref: "#/components/schemas/PaginatedEvents"
       tags:
         - Event
+    post:
+      summary: Create a event
+      x-mojo-to: Event#create
+      requestBody:
+        description: The Event parameters
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Event"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+      tags:
+        - Event
   /events/{eventID}:
     parameters:
       - $ref: "#/components/parameters/EventID"
     get:
-      summary: Get an event
+      summary: Get a event
       x-mojo-to: Event#get
       responses:
         200:
@@ -208,18 +344,173 @@ paths:
                 $ref: "#/components/schemas/Event"
       tags:
         - Event
+    patch:
+      summary: Update a event
+      x-mojo-to: Event#update
+      requestBody:
+        description: The Event parameters
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Event"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+      tags:
+        - Event
+    delete:
+      summary: Delete a event
+      x-mojo-to: Event#delete
+      responses:
+        204:
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+      tags:
+        - Event
+  /events/{eventID}/results:
+    parameters:
+      - $ref: "#/components/parameters/EventID"
+    post:
+      summary: Import event results from a file or the web
+      x-mojo-to: Event#import_results
+      requestBody:
+        description: The import data; imports from a web resource if not supplied
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+      tags:
+        - Event
+    delete:
+      summary: Delete event results
+      x-mojo-to: Event#delete_results
+      responses:
+        204:
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+      tags:
+        - Event
+  /goals:
+    get:
+      summary: Get an optionally-filtered list of all goals
+      x-mojo-to: Goal#list
+      parameters:
+        # Pagination Params
+        - $ref: "#/components/parameters/PageNumber"
+        - $ref: "#/components/parameters/PageLength"
+        - $ref: "#/components/parameters/SortField"
+        - $ref: "#/components/parameters/SortDirection"
+        # Query Params
+        - $ref: "#/components/parameters/SearchGoalname"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedGoals"
+      tags:
+        - Goal
+    post:
+      summary: Create a goal
+      x-mojo-to: Goal#create
+      requestBody:
+        description: The Goal parameters
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Goal"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Goal"
+      tags:
+        - Goal
+  /goals/{goalID}:
+    parameters:
+      - $ref: "#/components/parameters/GoalID"
+    get:
+      summary: Get a goal
+      x-mojo-to: Goal#get
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Goal"
+      tags:
+        - Goal
+    patch:
+      summary: Update a goal
+      x-mojo-to: Goal#update
+      requestBody:
+        description: The Goal parameters
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Goal"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Goal"
+      tags:
+        - Goal
+    delete:
+      summary: Delete a goal
+      x-mojo-to: Goal#delete
+      responses:
+        204:
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+      tags:
+        - Goal
   /users:
     get:
       summary: Get an optionally-filtered list of all users
       x-mojo-to: User#list
       parameters:
-        - $ref: "#/components/parameters/Page"
-        - $ref: "#/components/parameters/Pagelen"
-        - in: query
-          name: username
-          required: false
-          schema:
-            type: string
+        # Pagination Params
+        - $ref: "#/components/parameters/PageNumber"
+        - $ref: "#/components/parameters/PageLength"
+        - $ref: "#/components/parameters/SortField"
+        - $ref: "#/components/parameters/SortDirection"
+        # Query Params
+        - $ref: "#/components/parameters/SearchUsername"
       responses:
         200:
           description: OK
@@ -294,12 +585,114 @@ paths:
                 type: string
       tags:
         - User
+  /workouts:
+    get:
+      summary: Get an optionally-filtered list of all workouts
+      x-mojo-to: Workout#list
+      parameters:
+        # Pagination Params
+        - $ref: "#/components/parameters/PageNumber"
+        - $ref: "#/components/parameters/PageLength"
+        - $ref: "#/components/parameters/SortField"
+        - $ref: "#/components/parameters/SortDirection"
+        # Query Params
+        - $ref: "#/components/parameters/SearchStartdate"
+        - $ref: "#/components/parameters/SearchEnddate"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedWorkouts"
+      tags:
+        - Workout
+    post:
+      summary: Create a workout
+      x-mojo-to: Workout#create
+      requestBody:
+        description: The Workout parameters
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Workout"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workout"
+      tags:
+        - Workout
+  /workouts/{workoutID}:
+    parameters:
+      - $ref: "#/components/parameters/WorkoutID"
+    get:
+      summary: Get a workout
+      x-mojo-to: Workout#get
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workout"
+      tags:
+        - Workout
+    patch:
+      summary: Update a workout
+      x-mojo-to: Workout#update
+      requestBody:
+        description: The Workout parameters
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Workout"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workout"
+      tags:
+        - Workout
+    delete:
+      summary: Delete a workout
+      x-mojo-to: Workout#delete
+      responses:
+        204:
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+      tags:
+        - Workout
 components:
   parameters:
+    # Path Params
+    ActivityID:
+      in: path
+      name: activityID
+      description: The ID number of the activity
+      required: true
+      schema:
+        $ref: "#/components/schemas/DatabaseID"
     EventID:
       in: path
       name: eventID
       description: The ID number of the event
+      required: true
+      schema:
+        $ref: "#/components/schemas/DatabaseID"
+    GoalID:
+      in: path
+      name: goalID
+      description: The ID number of the goal
       required: true
       schema:
         $ref: "#/components/schemas/DatabaseID"
@@ -310,22 +703,112 @@ components:
       required: true
       schema:
         $ref: "#/components/schemas/DatabaseID"
-    Page:
+    WorkoutID:
+      in: path
+      name: workoutID
+      description: The ID number of the workout
+      required: true
+      schema:
+        $ref: "#/components/schemas/DatabaseID"
+    # Query Params
+    SearchActivityType:
       in: query
-      name: page
+      name: activityTypeID
+      required: false
+      schema:
+        $ref: "#/components/schemas/DatabaseID"
+      description: Activity Type to filter on
+    SearchEventname:
+      in: query
+      name: name
+      required: false
+      schema:
+        type: string
+      description: Event name to search for (substring match)
+    SearchStartdate:
+      in: query
+      name: start
+      required: false
+      schema:
+        type: string
+        format: date
+      description: Start Date
+    SearchEnddate:
+      in: query
+      name: end
+      required: false
+      schema:
+        type: string
+        format: date
+      description: End Date
+    SearchGoalname:
+      in: query
+      name: name
+      required: false
+      schema:
+        type: string
+      description: Goal to search for (substring match)
+    SearchUserID:
+      in: query
+      name: userID
+      required: false
+      schema:
+        $ref: "#/components/schemas/DatabaseID"
+      description: Search by User ID
+    SearchUsername:
+      in: query
+      name: username
+      required: false
+      schema:
+        type: string
+      description: Username to search for (substring match)
+    SearchWorkoutID:
+      in: query
+      name: workoutID
+      required: false
+      schema:
+        $ref: "#/components/schemas/DatabaseID"
+      description: Search by Workout ID
+    # Pagination Params
+    PageNumber:
+      in: query
+      name: page.number
+      required: false
+      schema:
+        type: integer
+        minimum: 1
       description: Results page number
-      required: false
-      schema:
-        type: integer
-        minimum: 1
-    Pagelen:
+    PageLength:
       in: query
-      name: pagelen
-      description: Results page length
+      name: page.length
       required: false
       schema:
         type: integer
-        minimum: 1
+        minimum: 0
+      description: Results page length
+    SortField:
+      in: query
+      name: "order.by"
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+      description: Field to sort list by
+    SortDirection:
+      in: query
+      name: "order.dir"
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+          enum: ["asc", "desc"]
+      description: "Direction to sort list (default: ASC)"
   schemas:
     DatabaseID:
       type: integer
@@ -338,6 +821,120 @@ components:
           $ref: "#/components/schemas/DatabaseID"
         description:
           type: string
+        is_cardio:
+          type: boolean
+        is_lift:
+          type: boolean
+        is_hold:
+          type: boolean
+    Activity:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+    ActivitySummary:
+      type: object
+      additionalProperties: false
+      required:
+        - period
+        - count
+      properties:
+        period:
+          $ref: "#/components/schemas/SummaryPeriod"
+        count:
+          type: integer
+          minimum: 0
+        distance:
+          $ref: "#/components/schemas/SummaryNumericValue"
+        time:
+          $ref: "#/components/schemas/SummaryTimeValue"
+        pace:
+          $ref: "#/components/schemas/SummaryTimeValue"
+        speed:
+          $ref: "#/components/schemas/SummaryNumericValue"
+    SummaryPeriod:
+      type: object
+      additionalProperties: false
+      required:
+        - daysInPeriod
+      properties:
+        year:
+          nullable: true
+          type: integer
+          minimum: 1900
+        quarter:
+          nullable: true
+          type: integer
+          minimum: 1
+          maximum: 4
+        month:
+          nullable: true
+          type: integer
+          minimum: 1
+          maximum: 12
+        weekOfMonth:
+          nullable: true
+          type: integer
+          minimum: 0
+          maximum: 5
+        weekOfYear:
+          nullable: true
+          type: integer
+          minimum: 0
+          maximum: 53
+        daysInPeriod:
+          type: integer
+          minimum: 1
+    SummaryNumericValue:
+      type: object
+      required:
+        - sum
+      additionalProperties: false
+      properties:
+        sum:
+          type: number
+          minimum: 0
+        min:
+          type: number
+          minimum: 0
+        max:
+          type: number
+          minimum: 0
+        avg:
+          type: number
+          minimum: 0
+    SummaryTimeValue:
+      type: object
+      required:
+        - sum
+      additionalProperties: false
+      properties:
+        sum:
+          type: string
+          format: time
+        min:
+          type: string
+          format: time
+        max:
+          type: string
+          format: time
+        avg:
+          type: string
+          format: time
+    PaginatedActivities:
+      type: object
+      required:
+        - pagination
+        - elements
+      additionalProperties: false
+      properties:
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        elements:
+          type: array
+          items:
+            $ref: "#/components/schemas/Activity"
     Address:
       type: object
       additionalProperties: false
@@ -362,36 +959,18 @@ components:
           type: string
     Event:
       type: object
-      additionalProperties: false
+      additionalProperties: true
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"
-        name:
-          type: string
-        entrants:
-          type: integer
-          nullable: true
-        scheduledStart:
-          type: string
-          format: date-time
-        url:
-          type: string
-          format: uri
-          nullable: true
-        eventTypeID:
-          $ref: "#/components/schemas/DatabaseID"
-        distance:
-          $ref: "#/components/schemas/UnitValue"
-        address:
-          $ref: "#/components/schemas/Address"
     PaginatedEvents:
       type: object
       additionalProperties: false
       required:
-        - meta
+        - pagination
         - elements
       properties:
-        meta:
+        pagination:
           $ref: "#/components/schemas/Pagination"
         elements:
           type: array
@@ -403,12 +982,29 @@ components:
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"
-        activityTypeID:
-          $ref: "#/components/schemas/DatabaseID"
         activityType:
           $ref: "#/components/schemas/ActivityType"
         description:
           type: string
+    Goal:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+    PaginatedGoals:
+      type: object
+      additionalProperties: false
+      required:
+        - pagination
+        - elements
+      properties:
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        elements:
+          type: array
+          items:
+            $ref: "#/components/schemas/Goal"
     Person:
       type: object
       additionalProperties: false
@@ -437,22 +1033,40 @@ components:
       type: object
       additionalProperties: false
       required:
-        - meta
+        - pagination
         - elements
       properties:
-        meta:
+        pagination:
           $ref: "#/components/schemas/Pagination"
         elements:
           type: array
           items:
             $ref: "#/components/schemas/User"
+    Workout:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+    PaginatedWorkouts:
+      type: object
+      additionalProperties: false
+      required:
+        - pagination
+        - elements
+      properties:
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        elements:
+          type: array
+          items:
+            $ref: "#/components/schemas/Workout"
     Unit:
       type: object
       additionalProperties: false
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"
-        label:
+        name:
           type: string
         abbreviation:
           type: string
@@ -468,8 +1082,8 @@ components:
         value:
           type: number
           minimum: 0
-        unitID:
-          $ref: "#/components/schemas/DatabaseID"
+        unit:
+          $ref: "#/components/schemas/Unit"
     LoginSession:
       type: object
       required:
@@ -484,30 +1098,69 @@ components:
     Pagination:
       type: object
       required:
-        - count
-        - total
+        - counts
         - page
-        - pagelen
+        - links
       additionalProperties: false
       properties:
-        count:
+        counts:
+          $ref: "#/components/schemas/PaginationCounts"
+        page:
+          $ref: "#/components/schemas/PaginationPage"
+        links:
+          $ref: "#/components/schemas/PaginationLinks"
+        order:
+          $ref: "#/components/schemas/PaginationOrder"
+    PaginationCounts:
+      type: object
+      required:
+        - page
+        - filter
+        - total
+      additionalProperties: false
+      properties:
+        page:
+          type: integer
+          minimum: 0
+        filter:
           type: integer
           minimum: 0
         total:
           type: integer
           minimum: 0
-        page:
+    PaginationPage:
+      type: object
+      required:
+        - number
+        - length
+      additionalProperties: false
+      properties:
+        number:
           type: integer
           minimum: 1
-        pagelen:
+        length:
           type: integer
           minimum: 1
+    PaginationLinks:
+      type: object
+      additionalProperties: false
+      properties:
         next:
           type: string
           format: uri
         previous:
           type: string
           format: uri
+    PaginationOrder:
+      type: array
+      items:
+        type: object
+        properties:
+          by:
+            type: string
+          dir:
+            type: string
+            enum: ["asc", "desc"]
     NullValue:
       not:
         anyOf:
@@ -535,3 +1188,4 @@ tags:
   - name: Activity
   - name: Event
   - name: Goal
+  - name: Workout
