@@ -151,28 +151,23 @@ __PACKAGE__->belongs_to(
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 
-sub description {
-  my $self = shift;
+use experimental qw(signatures postderef);
 
-  return sprintf("%.2f %s", $self->value, $self->uom->abbreviation);
+sub description($self) {
+  return sprintf("%.2f %s", $self->value, $self->unit_of_measure->abbreviation);
 }
 
-sub description_normalized {
-  my $self = shift;
-
+sub description_normalized($self) {
   return sprintf("%.2f %s", $self->normalized_value, $self->normalized_unit->abbreviation);
 }
 
-sub normalized_unit {
-  my $self = shift;
-
-  return $self->result_source->schema->resultset('UnitOfMeasure')->normalization_unit($self->uom->dimension->description);
+sub normalized_unit($self) {
+  return $self->result_source->schema->resultset('UnitOfMeasure')
+    ->normalization_unit($self->unit_of_measure->dimension->description);
 }
 
-sub normalized_value {
-  my $self = shift;
-
-  return $self->value * $self->uom->conversion_factor;
+sub normalized_value($self) {
+  return $self->value * $self->unit_of_measure->normalization_factor;
 }
 
 1;
