@@ -112,9 +112,28 @@ sub for_user ($self, $user) {
   );
 }
 
+sub in_workout ($self, $workout) {
+  return $rs->search(
+    {
+      workout_id => $workout->id
+    }
+  );
+}
+
 sub visible_to ($self, $user) {
-  # TODO: implement visibility check
-  return $self;
+  return $self->search(
+    {
+      -or => [
+        {visibility_type_id => 3},
+        {'workout.user_id'  => $user->id},
+        {
+          -and => [{visibility_type_id => 2}, {'friendship_initiators.receiver_id' => $user->id}]
+        }
+      ]
+    }, {
+      join => {workout => {user => 'friendship_initiators'}}
+    }
+  );
 }
 
 sub for_person ($self, $person) {
@@ -175,7 +194,7 @@ sub outdoor($self) {
 }
 
 sub year ($self, $year) {
-  return $self->search(\['YEAR(start_time)=?', $year]);
+  return $self->after_date("$year->01-01")->before_date("$year-12-31");
 }
 
 sub completed($self) {
@@ -183,14 +202,24 @@ sub completed($self) {
 }
 
 sub ordered ($self, $direction = '-asc') {
-  return $self->search({}, {order_by => {$direction => 'me.start_time'}});
+  return $self->search(
+    {},
+    {
+      join     => ['workout', 'activity_result'],
+      order_by => {
+        $direction => ['workout.date', 'activity_result.start_time']
+      }
+    }
+  );
 }
 
 sub after_date ($self, $date) {
   my $d = ref($date) ? DateTime::Format::MySQL->format_datetime($date) : $date;
   return $self->search(
     {
-      start_time => {'>=' => $d}
+      'workout.date' => {'>=' => $d}
+    }, {
+      join => 'workout'
     }
   );
 }
@@ -199,7 +228,9 @@ sub before_date ($self, $date) {
   my $d = ref($date) ? DateTime::Format::MySQL->format_datetime($date) : $date;
   return $self->search(
     {
-      start_time => {'<=' => $d}
+      'workout.date' => {'<=' => $d}
+    }, {
+      join => 'workout'
     }
   );
 }
