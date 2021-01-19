@@ -813,11 +813,13 @@ components:
           $ref: "#/components/schemas/DatabaseID"
         description:
           type: string
-        is_cardio:
+        has_repeats:
           type: boolean
-        is_lift:
+        has_distance:
           type: boolean
-        is_hold:
+        has_duration:
+          type: boolean
+        has_map:
           type: boolean
     Activity:
       type: object
