@@ -110,4 +110,10 @@ router.beforeEach((to, from, next) => {
   else next();
 });
 
+router.beforeEach((to, from, next) => {
+  if (!store.getters["meta/isLoaded"])
+    store.dispatch("meta/initialize");
+  next();
+});
+
 export default router;
