@@ -1,7 +1,7 @@
 <template>
   <div>
     <NavBar />
-    <template v-if="isAuthorized()">
+    <template v-if="isAuthorized">
       <router-view />
     </template>
     <template v-else>
@@ -11,24 +11,23 @@
 </template>
 
 <script>
-import NavBar from '@/components/NavBar.vue';
-import Unauthorized from '@/components/auth/Unauthorized.vue';
+import NavBar from "@/components/NavBar.vue";
+import Unauthorized from "@/components/auth/Unauthorized.vue";
 export default {
   components: {
     NavBar,
-    Unauthorized
+    Unauthorized,
   },
-  methods: {
-    isAuthorized: function() {
-      if(this.$route.meta.requiresAuth) {
-        return this.$store.getters['auth/isLoggedIn'];
+  computed: {
+    isAuthorized: function () {
+      if (this.$route.meta.requiresAuth) {
+        return this.$store.getters["auth/isLoggedIn"];
       }
       return true;
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style lang="scss">
-
 </style>
