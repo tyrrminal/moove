@@ -119,6 +119,8 @@ sub periods_in_range ($period, $start, $end) {
     }
     when ('month') {
       my $o = $start->clone->truncate(to => 'month');
+      $o->subtract(months => 1)
+        unless ($o->day_of_week == 7);    # back up a month unless the week starts on Sunday
       push(
         @p, {
           t => {
