@@ -69,18 +69,23 @@ sub summary($self) {
   my $end = $self->parse_api_date($self->validation->param('end')) // DateTime->today;
 
   my @summaries;
+  my $i   = 0;
+  my @all = $activities->all;
   foreach my $p (periods_in_range($period, $start, $end)) {
-    my $period_activities = $activities->after_date($p->{start})->before_date($p->{end});
-    next unless ($period_activities->count || $showEmpty);
+    my @period_activities;
+    while (defined($all[$i]) && $all[$i]->start_time < $p->{end}) {
+      push(@period_activities, $all[$i++]);
+    }
+    next unless (@period_activities || $showEmpty);
     my $summary = {
       period => {daysInPeriod => $p->{end}->delta_days($p->{start})->delta_days, $p->{t}->%*},
-      count  => $period_activities->count
+      count  => scalar @period_activities
     };
     push(@summaries, $summary);
     if ($activity_type->base_activity_type->has_distance) {
       my @distances =
         map  {$_->activity_result->distance->normalized_value}
-        grep {$_->activity_type->base_activity_type->has_distance} $period_activities->all;
+        grep {$_->activity_type->base_activity_type->has_distance} @period_activities;
       $summary->{distance} = {map {$_ => &$_(@distances) // 0} qw(sum max min)};
     }
   }
