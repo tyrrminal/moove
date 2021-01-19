@@ -7,10 +7,9 @@
 
       <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav v-if="isLoggedIn">
-          <b-nav-item>Activities</b-nav-item>
-          <b-nav-item :to="{ name: 'events', params: { user: this.username } }">Events</b-nav-item>
-          <b-nav-item :to="{ name: 'goals', params: { user: this.username } }">Goals</b-nav-item>
-          <b-nav-item>Fundraising</b-nav-item>
+          <b-nav-item v-for="i in mainMenu" :key="i.name" :to="i.to">{{
+            i.name
+          }}</b-nav-item>
         </b-navbar-nav>
       </b-collapse>
 
@@ -20,7 +19,9 @@
           <template slot="button-content">
             <em>{{ username }}</em>
           </template>
-          <b-dropdown-item :to="{ name: 'user', params: { user: username } }">Profile</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'user', params: { user: username } }"
+            >Profile</b-dropdown-item
+          >
           <b-dropdown-item @click="logout">Sign Out</b-dropdown-item>
         </b-nav-item-dropdown>
         <b-nav-item v-else :to="{ name: 'login' }">Sign In</b-nav-item>
@@ -31,21 +32,39 @@
 
 <script>
 export default {
+  data: function () {
+    return {
+      mainMenu: [
+        {
+          name: "Workouts",
+          to: { name: "workouts", params: { user: this.username } },
+        },
+        {
+          name: "Events",
+          to: { name: "events", params: { user: this.username } },
+        },
+        {
+          name: "Goals",
+          to: { name: "goals", params: { user: this.username } },
+        },
+      ],
+    };
+  },
   computed: {
-    isLoggedIn: function() {
+    isLoggedIn: function () {
       return this.$store.getters["auth/isLoggedIn"];
     },
-    username: function() {
+    username: function () {
       return this.$store.getters["auth/currentUser"].username;
-    }
+    },
   },
   methods: {
-    logout: function() {
+    logout: function () {
       this.$store.dispatch("auth/logout").then(() => {
         this.$router.go();
       });
-    }
-  }
+    },
+  },
 };
 </script>
 
