@@ -201,7 +201,8 @@ use DCS::Constants qw(:symbols);
 use experimental qw(signatures postderef);
 
 sub description($self) {
-  return join($SPACE, $self->activity_context->description, $self->base_activity_type->description);
+  return join($SPACE, $self->activity_context->description, $self->base_activity_type->description) if ($self->activity_context);
+  return $self->base_activity_type->description;
 }
 
 1;
