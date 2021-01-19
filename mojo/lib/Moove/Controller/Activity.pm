@@ -139,11 +139,11 @@ sub periods_in_range ($period, $start, $end) {
       push(
         @p, {
           t => {
-            year        => $o->week_year,
+            year        => $o->year,
             quarter     => $o->quarter,
             month       => $o->month,
             weekOfMonth => $o->week_of_month,
-            weekOfYear  => $o->week_number,
+            weekOfYear  => ($o->year < $o->week_year) ? $o->clone->subtract(weeks => 1)->week_number + 1 : $o->week_number,
           },
           start => max($start, $o->clone),
           end => min($end, $o->add(weeks => 1)->clone)
