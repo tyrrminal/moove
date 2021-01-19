@@ -5,10 +5,15 @@ import Home from "@/views/Home.vue";
 import Login from "@/components/auth/Login.vue";
 
 import User from "@/views/User.vue";
+import Workouts from "@/views/Workouts.vue";
+import Workout from "@/views/Workout.vue";
+import Activities from "@/views/Activities.vue";
+import Activity from "@/views/Activity.vue";
+import ActivitySummary from "@/views/activities/Summary.vue";
+import Events from "@/views/Events.vue";
+import Event from "@/views/Event.vue";
 import Goals from "@/views/Goals.vue";
 import Goal from "@/views/Goal.vue";
-import Event from "@/views/Event.vue";
-import Events from "@/views/Events.vue";
 
 import ErrorNotFound from "@/error/NotFound.vue";
 
@@ -35,21 +40,32 @@ let router = new Router({
       component: User
     },
     {
-      path: "/user/:user/goals",
-      name: "goals",
-      component: Goals
+      path: "/workouts",
+      name: "workouts",
+      component: Workouts
     },
     {
-      path: "/user/:user/goal/:id",
-      name: "goal",
-      component: Goal
+      path: "/workouts/:id",
+      name: "workout",
+      component: Workout,
+      props: true
     },
     {
-      path: "/user/:user/event/:id",
-      name: "event",
-      component: Event
+      path: "/activities",
+      name: "activities",
+      component: Activities
     },
-
+    {
+      path: "/activities/summary",
+      name: "activitiesSummary",
+      component: ActivitySummary
+    },
+    {
+      path: "/activities/:id",
+      name: "activity",
+      component: Activity,
+      props: true
+    },
     {
       path: "/user/:user/events",
       name: 'events',
@@ -59,6 +75,21 @@ let router = new Router({
       path: "/user/:user/event/sequence/:sequence_id",
       name: 'sequence',
       component: Events
+    },
+    {
+      path: "/user/:user/event/:id",
+      name: "event",
+      component: Event
+    },
+    {
+      path: "/user/:user/goals",
+      name: "goals",
+      component: Goals
+    },
+    {
+      path: "/user/:user/goal/:id",
+      name: "goal",
+      component: Goal
     },
     {
       path: "*",
