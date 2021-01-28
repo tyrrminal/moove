@@ -81,6 +81,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    sortable: {
+      type: Boolean,
+      default: false,
+    },
     initialState: {
       type: Function,
       default: (item, depth) => false,
@@ -163,7 +167,7 @@ export default {
         };
     },
     sortRows: function (orig) {
-      if (this.sort.field == null) return orig;
+      if (this.sort.field == null || !this.sortable) return orig;
       let arr = orig.slice().sort(this.rowCompare);
       arr.forEach((el) => {
         if (Array.isArray(el.children))
@@ -192,6 +196,7 @@ export default {
       return {
         columns: this.columns,
         sort: this.sort,
+        sortable: this.sortable,
         initialState: this.initialState,
         classes: {
           table: this.getClasses(this.tableClass),

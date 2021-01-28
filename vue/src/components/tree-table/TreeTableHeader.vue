@@ -9,6 +9,7 @@
           ><slot name="head" v-bind:column="c" v-bind:sort="options.sort"
             >{{ c.title }}
             <b-button
+              v-if="options.sortable"
               size="sm"
               variant="outline"
               @click="$emit('update:sort', c)"
