@@ -221,6 +221,7 @@ export default {
       }
     },
     labelForPeriod: function (name, period) {
+      let month = DateTime.local().set({ month: period.month }).toFormat("MMM");
       switch (name) {
         case "all":
           return "All";
@@ -230,9 +231,6 @@ export default {
           if (this.enabledLevels.includes("year")) return `Q${period.quarter}`;
           else return `${period.year} Q${period.quarter}`;
         case "month":
-          let month = DateTime.local()
-            .set({ month: period.month })
-            .toFormat("MMM");
           if (
             this.enabledLevels.includes("year") ||
             this.enabledLevels.includes("quarter")
@@ -244,7 +242,7 @@ export default {
             return `W${period.weekOfMonth}`;
           else if (this.enabledLevels.includes("year"))
             return `W${period.weekOfYear}`;
-          else return `${period.year} W${period.weekOfYear}`;
+          else return `${period.year} ${month} W${period.weekOfMonth}`;
         default:
           return "-";
       }
