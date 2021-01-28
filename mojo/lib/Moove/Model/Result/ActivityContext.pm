@@ -134,4 +134,17 @@ __PACKAGE__->has_many(
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+use Class::Method::Modifiers;
+
+use experimental qw(signatures postderef);
+
+around [qw(has_map)] => sub ($orig, $self, $value = undef) {
+  if (defined($value)) {
+    $value = $self->$orig($value ? 'Y' : 'N');
+  } else {
+    $value = $self->$orig();
+  }
+  return $value eq 'Y';
+};
+
 1;
