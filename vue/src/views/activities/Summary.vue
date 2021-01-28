@@ -39,6 +39,7 @@
       head-class="px-2 text-uppercase border-top border-bottom border-secondary"
       striped-rows
       striped-columns
+      sortable
     >
       <template #cell(label)="data"
         ><span class="font-weight-bold">{{ data.value }}</span></template
