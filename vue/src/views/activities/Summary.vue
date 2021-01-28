@@ -58,6 +58,10 @@
         :variant="
           selectedActivityTypes.includes(at.id) ? 'primary' : 'secondary'
         "
+        :disabled="
+          !selectedActivityTypes.includes(at.id) &&
+          selectedActivityTypes.length >= 3
+        "
         block
         v-for="at in selectableActivityTypes"
         :key="at.id"
