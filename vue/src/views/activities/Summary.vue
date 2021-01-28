@@ -1,58 +1,92 @@
 <template>
   <b-container>
-    <b-button-group class="mt-3 mb-3">
-      <b-button
-        v-for="l in orderedLevels"
-        :key="l"
-        variant="primary"
-        :pressed.sync="levels[l]"
-        >{{ l | capitalize }}</b-button
-      >
-    </b-button-group>
+    <b-row class="mt-3 mb-3">
+      <b-col cols="10">
+        <b-button-group>
+          <b-button
+            v-for="l in orderedLevels"
+            :key="l"
+            variant="primary"
+            :pressed.sync="levels[l]"
+            >{{ l | capitalize }}</b-button
+          >
+        </b-button-group>
+      </b-col>
+      <b-col cols="2">
+        <b-button v-b-modal.activitySelector>Activity Types</b-button>
+      </b-col>
+    </b-row>
 
-    <tree-table
-      :columns="tableColumns"
-      :table-data="summaryData"
-      class="mt-2 mb-3"
+    <b-row v-if="unloadedDataElements">
+      <b-col cols="12">
+        <b-progress
+          class="mb-3"
+          :animated="true"
+          striped
+          :max="selectedDataElements"
+          :value="selectedDataElements - unloadedDataElements"
+        >
+        </b-progress>
+      </b-col>
+    </b-row>
+
+    <TreeTable
+      :columns="columns"
+      :rows="rows"
+      :initialState="(item, depth) => depth < 1"
+      class="mb-3"
+      table-class="summary"
+      head-class="px-2 text-uppercase border-top border-bottom border-secondary"
+      striped-rows
+      striped-columns
     >
-      <template #nodeTemplate="nodeProps">
-        <TreeNode
-          :row-data="nodeProps.rowData"
-          :default-order="nodeProps.defaultOrder"
-          :depth="nodeProps.depth"
-          :on-open="nodeProps.onOpen"
-          :on-toggle="nodeProps.onToggle"
-          :on-close="nodeProps.onClose"
-        />
-      </template>
-      <template #leafTemplate="leafProps">
-        <TreeLeaf
-          :row-data="leafProps.rowData"
-          :default-order="leafProps.defaultOrder"
-          :depth="leafProps.depth"
-        />
-      </template>
-    </tree-table>
+      <template #cell(label)="data"
+        ><span class="font-weight-bold">{{ data.value }}</span></template
+      >
+      <template #cell="data">
+        <template v-if="data.value == null">-</template>
+        <template v-else-if="data.column.units == 'mi'">
+          {{ data.value | number("0,0.0") }} {{ data.column.units }}
+        </template>
+        <template v-else>{{ data.value }}</template></template
+      >
+    </TreeTable>
+
+    <b-modal id="activitySelector">
+      <b-button
+        class="mb-2"
+        :variant="
+          selectedActivityTypes.includes(at.id) ? 'primary' : 'secondary'
+        "
+        block
+        v-for="at in selectableActivityTypes"
+        :key="at.id"
+        :pressed="selectedActivityTypes.includes(at.id)"
+        @click="toggleActivityType(at.id)"
+      >
+        {{ at.description }}
+      </b-button>
+    </b-modal>
   </b-container>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
 const { DateTime } = require("luxon");
-import TreeTable from "vue-tree-table-component";
-import TreeLeaf from "@/components/activity/summary/SummaryLeaf.vue";
-import TreeNode from "@/components/activity/summary/SummaryNode.vue";
+import TreeTable from "@/components/tree-table/TreeTable";
 
 export default {
   name: "ActivitySummary",
   components: {
     TreeTable,
-    TreeLeaf,
-    TreeNode,
   },
   data: function () {
     return {
-      selectedActivityTypes: [1, 2, 5],
+      selectedActivityTypes: [1, 2],
+      range: {
+        start: null,
+        end: null,
+      },
       allSummaries: {},
       summaries: [],
       orderedLevels: ["all", "year", "quarter", "month", "week"],
@@ -105,7 +139,7 @@ export default {
             params: {
               activityTypeID: a.id,
               period: l,
-              includeEmpty: true,
+              ...this.queryParams,
             },
           })
           .then((resp) => {
@@ -116,14 +150,15 @@ export default {
       }
     },
     processData: function (l, a) {
+      let self = this;
       this.allSummaries[l][a.id].forEach((d) => {
-        let s = this.realignedSummaryData(a, l, d);
-        let arr = !this.enabledLevels.indexOf(l)
-          ? this.summaries
-          : this.findParent(l, d.period).children;
-        let i = this.findChildIdx(arr, s.label);
+        let s = self.realignedSummaryData(a, l, d);
+        let arr = !self.enabledLevels.indexOf(l)
+          ? self.summaries
+          : self.findParent(l, d.period).children;
+        let i = self.findChildIdx(arr, s.label);
         if (i == null) arr.push(s);
-        else this.$set(arr, i, { ...s, ...arr[i] });
+        else self.$set(arr, i, { ...s, ...arr[i] });
       });
     },
     findParent: function (level, period) {
@@ -156,6 +191,7 @@ export default {
       let o = {};
       if (this.enabledLevels.length > this.enabledLevels.indexOf(level) + 1)
         o["children"] = [];
+      o["id"] = this.idForPeriod(level, data.period);
       o["label"] = this.labelForPeriod(level, data.period);
       o.level = level;
       o.period = data.period;
@@ -165,6 +201,20 @@ export default {
         o["avg-" + activityType.id] = data.distance.sum / data.count;
       }
       return o;
+    },
+    idForPeriod: function (name, period) {
+      switch (name) {
+        case "all":
+          return "all";
+        case "year":
+          return `Y${period.year}`;
+        case "quarter":
+          return `${this.idForPeriod("year", period)}Q${period.quarter}`;
+        case "month":
+          return `${this.idForPeriod("year", period)}M${period.month}`;
+        case "week":
+          return `${this.idForPeriod("year", period)}W${period.weekOfYear}`;
+      }
     },
     labelForPeriod: function (name, period) {
       switch (name) {
@@ -203,12 +253,21 @@ export default {
       }
       return true;
     },
+    toggleActivityType: function (id) {
+      let idx = this.selectedActivityTypes.indexOf(id);
+      if (idx >= 0) this.selectedActivityTypes.splice(idx, 1);
+      else this.selectedActivityTypes.push(id);
+      this.selectedActivityTypes.sort();
+    },
   },
   computed: {
     ...mapGetters("meta", {
       getActivityTypes: "getActivityTypes",
       isLoaded: "isLoaded",
     }),
+    rows: function () {
+      return this.summaries;
+    },
     activityTypes: function () {
       let self = this;
       if (!this.isLoaded) return [];
@@ -216,22 +275,60 @@ export default {
         self.getActivityTypes.find((at) => at.id == x)
       );
     },
-    enabledLevels: {
-      get: function () {
-        return this.orderedLevels.filter((x) => this.levels[x]);
-      },
+    selectableActivityTypes: function () {
+      return this.getActivityTypes.filter(
+        (at) => at.has_distance || this.selectedActivityTypes.includes(at.id)
+      );
     },
-    tableColumns: function () {
-      let r = [{ label: "Period", id: "label" }];
+    selectedDataElements: function () {
+      return this.enabledLevels.length * this.selectedActivityTypes.length;
+    },
+    unloadedDataElements: function () {
+      let c = 0;
+      this.enabledLevels.forEach((l) => {
+        if (this.allSummaries[l] == null)
+          c += this.selectedActivityTypes.length;
+        else
+          this.activityTypes.forEach((at) => {
+            if (this.allSummaries[l][at.id] == null) c += 1;
+          });
+      });
+      return c;
+    },
+    enabledLevels: function () {
+      return this.orderedLevels.filter((x) => this.levels[x]);
+    },
+    columns: function () {
+      let r = [{ title: "Period", key: "label" }];
       this.activityTypes.forEach((at) => {
-        r.push({ label: at.description + "s", id: "count-" + at.id });
-        r.push({ label: at.description + " Distance", id: "total-" + at.id });
-        r.push({ label: at.description + " Avg", id: "avg-" + at.id });
+        r.push({
+          title: at.description + "s",
+          key: "count-" + at.id,
+          tdClass: "text-center numeric-data",
+        });
+        r.push({
+          title: at.description + " Distance",
+          key: "total-" + at.id,
+          tdClass: "text-right numeric-data",
+          units: "mi",
+        });
+        r.push({
+          title: at.description + " Avg",
+          key: "avg-" + at.id,
+          tdClass: "text-right numeric-data",
+          units: "mi",
+        });
       });
       return r;
     },
     summaryData: function () {
       return this.summaries;
+    },
+    queryParams: function () {
+      let p = { includeEmpty: true };
+      if (this.range.start) p.start = this.range.start;
+      if (this.range.end) p.end = this.range.end;
+      return p;
     },
   },
   watch: {
@@ -255,9 +352,23 @@ export default {
         this.processAllData();
       },
     },
+    range: {
+      deep: true,
+      handler: function () {
+        this.processAllData();
+      },
+    },
   },
 };
 </script>
 
 <style>
+td.numeric-data {
+  font-family: Monaco, monospace;
+  font-size: 10pt;
+}
+
+table.summary td {
+  border-right: 1px solid silver !important;
+}
 </style>
