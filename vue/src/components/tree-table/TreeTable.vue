@@ -1,6 +1,10 @@
 <template>
   <table :class="tableClasses">
-    <TreeTableHeader v-if="showHeader" :options="tableOptions">
+    <TreeTableHeader
+      v-if="showHeader"
+      :options="tableOptions"
+      @update:sort="toggleSort"
+    >
       <slot v-for="(_, name) in $slots" :name="name" :slot="name" />
       <template
         v-for="(_, name) in $scopedSlots"
@@ -54,6 +58,10 @@ export default {
   data: function () {
     return {
       internal: { rows: [] },
+      sort: {
+        field: null,
+        direction: "asc",
+      },
     };
   },
   props: {
@@ -120,7 +128,7 @@ export default {
     updateRows: function () {
       let oldMap = this.internal.rows;
       this.internal.rows = [];
-      this.rows.forEach((r) => {
+      this.sortedRows.forEach((r) => {
         this.internal.rows.push(...this.rowsForItem(r, oldMap));
       });
     },
@@ -145,12 +153,45 @@ export default {
       }
       return rows;
     },
+    toggleSort: function (c) {
+      if (c.key == this.sort.field)
+        this.sort.direction = this.sort.direction == "asc" ? "desc" : "asc";
+      else
+        this.sort = {
+          field: c.key,
+          direction: "asc",
+        };
+    },
+    sortRows: function (orig) {
+      if (this.sort.field == null) return orig;
+      let arr = orig.slice().sort(this.rowCompare);
+      arr.forEach((el) => {
+        if (Array.isArray(el.children))
+          el.children = this.sortRows(el.children);
+      });
+      return arr;
+    },
+    rowCompare: function (a, b) {
+      let va = a[this.sort.field];
+      let vb = b[this.sort.field];
+      let v;
+      if (va == null && vb == null) v = 0;
+      else if (vb == null) v = 1;
+      else if (va == null) v = -1;
+      else if (typeof va == "number" && typeof vb == "number") v = va - vb;
+      else v = va.localeCompare(vb);
+      if (this.sort.direction == "desc") v *= -1;
+      return v;
+    },
   },
   computed: {
+    sortedRows: function () {
+      return this.sortRows(this.rows);
+    },
     tableOptions: function () {
       return {
         columns: this.columns,
-        rows: this.rows,
+        sort: this.sort,
         initialState: this.initialState,
         classes: {
           table: this.getClasses(this.tableClass),
@@ -182,6 +223,18 @@ export default {
       immediate: true,
       deep: true,
       handler: function (newValue, oldValue) {
+        this.updateRows();
+      },
+    },
+    columns: {
+      immediate: true,
+      handler: function (newValue, oldValue) {
+        this.sort.field = newValue[0].key;
+      },
+    },
+    sort: {
+      deep: true,
+      handler: function () {
         this.updateRows();
       },
     },

@@ -2,9 +2,39 @@
   <thead>
     <tr>
       <th v-for="c in options.columns" :key="c.key" :class="options.classes.th">
-        <slot :name="'head(' + c.key + ')'" v-bind:column="c"
-          ><slot name="head" v-bind:column="c">{{ c.title }}</slot></slot
-        >
+        <slot
+          :name="'head(' + c.key + ')'"
+          v-bind:column="c"
+          v-bind:sort="options.sort"
+          ><slot name="head" v-bind:column="c" v-bind:sort="options.sort"
+            >{{ c.title }}
+            <b-button
+              size="sm"
+              variant="outline"
+              @click="$emit('update:sort', c)"
+            >
+              <b-icon
+                v-if="options.sort.field == c.key"
+                :icon="
+                  options.sort.direction == 'desc'
+                    ? 'caret-down-fill'
+                    : 'caret-up-fill'
+                " />
+              <b-iconstack v-else>
+                <b-icon
+                  variant="secondary"
+                  icon="caret-up-fill"
+                  scale="0.5"
+                  shift-v="4"
+                />
+                <b-icon
+                  variant="secondary"
+                  icon="caret-down-fill"
+                  scale="0.5"
+                  shift-v="-4"
+                /> </b-iconstack
+            ></b-button> </slot
+        ></slot>
       </th>
     </tr>
   </thead>
