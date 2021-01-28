@@ -140,7 +140,7 @@ sub periods_in_range ($period, $start, $end) {
         while ($o < $end);
     }
     when ('week') {
-      my $o = $start->clone->truncate(to => 'week');
+      my $o = $start->clone->truncate(to => 'local_week');
       push(
         @p, {
           t => {
