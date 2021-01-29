@@ -1,12 +1,9 @@
-package Moove::Import::Helper::Rectification;
-use base qw(Exporter);
-use Modern::Perl;
+package Moove::Role::Import::Normalization;
+use Role::Tiny;
 
-our @EXPORT_OK = qw(normalize_times);
+use experimental qw(signatures postderef);
 
-sub normalize_times {
-  my $p = shift;
-
+sub normalize_times ($self, $p) {
   foreach (qw(net_time gross_time pace)) {
     if (defined($p->{$_})) {
       unless ($p->{$_} =~ /:\d{2}:/) {    # force times to be h:mm:ss if they're just mm:ss
