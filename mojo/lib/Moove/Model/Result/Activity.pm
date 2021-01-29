@@ -402,7 +402,7 @@ sub description($self) {
 }
 
 around 'note' => sub ($orig, $self) {
-  my $v = $self->$orig(@_) // '';
+  my $v = $self->$orig(@_[2 .. $#_]) // '';
   $v =~ s/\s*$//m;
   $v =~ s/^\s*//m;
   return $v;
