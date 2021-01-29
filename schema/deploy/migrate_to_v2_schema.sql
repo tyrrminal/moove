@@ -367,7 +367,7 @@ CREATE TABLE IF NOT EXISTS `Activity` (
   `whole_activity_id` INT UNSIGNED NULL,
   `external_data_source_id` INT UNSIGNED NULL,
   `external_identifier` VARCHAR(100) NULL,
-  `visibility_type_id` INT UNSIGNED NOT NULL,
+  `visibility_type_id` INT UNSIGNED NOT NULL DEFAULT 1,
   `created_at` DATETIME NOT NULL DEFAULT NOW(),
   `updated_at` DATETIME NULL,
   PRIMARY KEY (`id`),

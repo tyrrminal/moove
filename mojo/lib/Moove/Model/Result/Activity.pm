@@ -113,6 +113,7 @@ __PACKAGE__->table("Activity");
 =head2 visibility_type_id
 
   data_type: 'integer'
+  default_value: 1
   extra: {unsigned => 1}
   is_foreign_key: 1
   is_nullable: 0
@@ -185,6 +186,7 @@ __PACKAGE__->add_columns(
   "visibility_type_id",
   {
     data_type => "integer",
+    default_value => 1,
     extra => { unsigned => 1 },
     is_foreign_key => 1,
     is_nullable => 0,
@@ -377,8 +379,8 @@ __PACKAGE__->many_to_many(
 );
 #>>>
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-01-29 14:24:55
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:D+BTbNB0Iln6GOjGVW1dcA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-01-29 16:39:35
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:zKts9ckZHL+BemP988hc4w
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
