@@ -389,6 +389,10 @@ use MooseX::NonMoose;
 
 use experimental qw(signatures postderef);
 
+sub last_updated_at($self) {
+  return $self->updated_at // $self->created_at;
+}
+
 sub result($self) {
   return $self->activity_result;
 }
