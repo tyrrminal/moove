@@ -6,6 +6,7 @@ import Login from "@/components/auth/Login.vue";
 
 import User from "@/views/User.vue";
 import Workouts from "@/views/Workouts.vue";
+import WorkoutEdit from "@/views/workouts/Edit.vue";
 import Workout from "@/views/Workout.vue";
 import Activities from "@/views/Activities.vue";
 import Activity from "@/views/Activity.vue";
@@ -42,13 +43,20 @@ let router = new Router({
     {
       path: "/workouts",
       name: "workouts",
-      component: Workouts
-    },
-    {
-      path: "/workouts/:id",
-      name: "workout",
-      component: Workout,
-      props: true
+      component: Workouts,
+      children: [
+        {
+          path: "/workouts/create",
+          name: "createWorkout",
+          component: WorkoutEdit,
+        },
+        {
+          path: "/workouts/:id",
+          name: "workout",
+          component: Workout,
+          props: true
+        },
+      ]
     },
     {
       path: "/activities",
