@@ -1,6 +1,7 @@
 <template>
   <div>
     <Sidebar :items="menu" />
+    <router-view></router-view>
   </div>
 </template>
 
@@ -13,7 +14,10 @@ export default {
   },
   data: function () {
     return {
-      menu: [{ text: "Summary", to: { name: "activitiesSummary" } }],
+      menu: [
+        { text: "Create", to: { name: "createWorkout" } },
+        { text: "Summary", to: { name: "activitiesSummary" } },
+      ],
     };
   },
 };
