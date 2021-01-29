@@ -940,11 +940,11 @@ INSERT INTO `EventType` (`id`, `activity_type_id`, `description`) VALUES
 -- Data for table `ExternalDataSource`
 -- -----------------------------------------------------
 INSERT INTO `ExternalDataSource` (`id`, `name`, `import_class`, `base_url`) VALUES 
-(1, 'RaceWire', 'RaceWire',''),
-(2, 'iResultsLive', 'iResultsLive','http://www.iresultslive.com/'),
-(3, 'MilenniumRunning', 'MilenniumRunning','http://www.millenniumrunning.com/'),
-(4, 'MTEC', 'MTEC','https://www.mtecresults.com/'),
-(5, 'RunKeeper', 'RunKeeper','https://www.runkeeper.com/');
+(1, 'RaceWire', 'Moove::Import::Event::RaceWire',''),
+(2, 'iResultsLive', 'Moove::Import::Event::iResultsLive','http://www.iresultslive.com/'),
+(3, 'MilenniumRunning', 'Moove::Import::Event::MilenniumRunning','http://www.millenniumrunning.com/'),
+(4, 'MTEC', 'Moove::Import::Event::MTEC','https://www.mtecresults.com/'),
+(5, 'RunKeeper', 'Moove::Import::Activity::RunKeeper','https://www.runkeeper.com/');
 
 -- -----------------------------------------------------
 -- Data for table `VisibilityType`
