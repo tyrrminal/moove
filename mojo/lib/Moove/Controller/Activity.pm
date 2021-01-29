@@ -4,8 +4,10 @@ use Mojo::Base 'DCS::API::Base::ModelController';
 use Role::Tiny::With;
 with 'DCS::API::Role::Rest::Collection';
 with 'Moove::Controller::Role::ModelEncoding::Activity';
+with 'Moove::Role::Import::Activity';
 
 use boolean;
+use Module::Util qw(module_path);
 use List::Util qw(sum min max);
 
 use Data::Printer {
@@ -158,6 +160,25 @@ sub periods_in_range ($period, $start, $end) {
     }
   }
   return @p;
+}
+
+sub import($self) {
+  return unless ($self->openapi->valid_input);
+  my @activities = ();
+
+  my $asset = $self->param('file')->asset;
+  my $ds = $self->model_find(ExternalDataSource => $self->param('externalDataSourceID'))
+    or $self->render_not_found('ExternalDataSource');
+
+  my $import_class = $ds->import_class;
+  require(module_path($import_class));
+  my $importer = $import_class->new();
+
+  foreach my $activity ($importer->get_activities($asset)) {
+    push(@activities, $self->import_activity($activity, $self->current_user));
+  }
+
+  return $self->render(openapi => $self->encode_model([@activities]));
 }
 
 1;
