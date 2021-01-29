@@ -78,6 +78,16 @@ paths:
           required: false
           schema:
             type: boolean
+        - in: query
+          name: externalDataSource
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: visibilityTypes
+          required: false
+          schema:
+            type: boolean
       responses:
         200:
           description: OK
@@ -94,6 +104,18 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/EventType"
+                  unitOfMeasure:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Unit"
+                  externalDataSource:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ExternalDataSource"
+                  visibilityTypes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/VisibilityType"
       tags:
         - Meta
   /activities:
@@ -980,6 +1002,20 @@ components:
           $ref: "#/components/schemas/ActivityType"
         description:
           type: string
+    ExternalDataSource:
+      type: object
+      required:
+        - name
+      additionalProperties: false
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+        name:
+          type: string
+        type:
+          type: string
+        baseUrl:
+          type: string
     Goal:
       type: object
       additionalProperties: true
@@ -1078,6 +1114,17 @@ components:
           minimum: 0
         unit:
           $ref: "#/components/schemas/Unit"
+    VisibilityType:
+      type: object
+      required:
+        - id
+        - description
+      additionalProperties: false
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+        description:
+          type: string
     LoginSession:
       type: object
       required:

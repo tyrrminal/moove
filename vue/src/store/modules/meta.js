@@ -1,20 +1,28 @@
 import axios from "@/services/axios";
 
-const allLoaded = 3;
-
 const state = {
-  loaded: 0,
   activityTypes: [],
   eventTypes: [],
-  unitsOfMeasure: []
+  unitsOfMeasure: [],
+  externalDataSources: [],
+  visibilityTypes: [],
 };
 
 const getters = {
-  isLoaded: (state) => { return state.loaded >= allLoaded },
+  isLoaded: (state) => {
+    return
+    state.activityTypes.length &&
+      state.eventTypes.length &&
+      state.unitsOfMeasure.length &&
+      state.externalDataSources.length &&
+      state.visibilityTypes.length
+  },
 
   getActivityTypes: (state) => { return state.activityTypes },
   getEventTypes: (state) => { return state.eventTypes },
   getUnitsOfMeasure: (state) => { return state.unitsOfMeasure },
+  getExternalDataSources: (state) => { return state.externalDataSources },
+  getVisibilityTypes: (state) => { return state.visibilityTypes },
 };
 
 const actions = {
@@ -25,6 +33,8 @@ const actions = {
           commit('loadActivityTypes', resp.data.activityTypes)
           commit('loadEventTypes', resp.data.eventTypes)
           commit('loadUnitsOfMeasure', resp.data.unitOfMeasure)
+          commit('loadExternalDataSources', resp.data.externalDataSource)
+          commit('loadVisibilityTypes', resp.data.visibilityTypes)
         })
         .catch(err => {
           reject(err)
@@ -36,15 +46,18 @@ const actions = {
 const mutations = {
   loadActivityTypes(state, d) {
     state.activityTypes = d;
-    state.loaded++;
   },
   loadEventTypes(state, d) {
     state.eventTypes = d;
-    state.loaded++;
   },
   loadUnitsOfMeasure(state, d) {
     state.unitsOfMeasure = d;
-    state.loaded++;
+  },
+  loadExternalDataSources(state, d) {
+    state.externalDataSources = d;
+  },
+  loadVisibilityTypes(state, d) {
+    state.visibilityTypes = d;
   }
 };
 
