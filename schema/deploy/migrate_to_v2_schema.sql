@@ -368,6 +368,8 @@ CREATE TABLE IF NOT EXISTS `Activity` (
   `external_data_source_id` INT UNSIGNED NULL,
   `external_identifier` VARCHAR(100) NULL,
   `visibility_type_id` INT UNSIGNED NOT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT NOW(),
+  `updated_at` DATETIME NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_Activity_Activity1_idx` (`whole_activity_id` ASC),
   INDEX `fk_Activity_ActivityType1_idx` (`activity_type_id` ASC),
