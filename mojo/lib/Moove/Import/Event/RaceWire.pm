@@ -2,11 +2,13 @@ package Moove::Import::Event::RaceWire;
 use Modern::Perl;
 use Moose;
 
+use Role::Tiny::With;
+with 'Moove::Role::Import::Normalization';
+
 use boolean;
 use Readonly;
 use DateTime::Format::Strptime;
 use Lingua::EN::Titlecase;
-use Moove::Import::Helper::Rectification qw(normalize_times);
 
 use DCS::Constants qw(:existence :symbols);
 

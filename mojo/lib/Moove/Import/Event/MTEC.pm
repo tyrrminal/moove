@@ -2,10 +2,12 @@ package Moove::Import::Event::MTEC;
 use Moose;
 use Modern::Perl;
 
+use Role::Tiny::With;
+with 'Moove::Role::Import::Normalization';
+
 use boolean;
 use Readonly;
 use Scalar::Util qw(looks_like_number);
-use Moove::Import::Helper::Rectification qw(normalize_times);
 use Data::Dumper;
 
 use DCS::Constants qw(:existence :symbols);

@@ -2,12 +2,13 @@ package Moove::Import::Event::MillenniumRunning;
 use Modern::Perl;
 use Moose;
 
+use Role::Tiny::With;
+with 'Moove::Role::Import::Normalization';
+
 use boolean;
 use DateTime::Format::Strptime;
 use Lingua::EN::Titlecase;
 use List::MoreUtils qw(uniq);
-use Moove::Import::Helper::Rectification qw(normalize_times);
-use Data::Dumper;
 
 use Moove::Import::Helper::CityService;
 

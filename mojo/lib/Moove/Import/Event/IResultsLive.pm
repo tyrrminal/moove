@@ -5,7 +5,8 @@ use Moose;
 use boolean;
 use DateTime::Format::Strptime;
 
-use Moove::Import::Helper::Rectification qw(normalize_times);
+use Role::Tiny::With;
+with 'Moove::Role::Import::Normalization';
 
 use DCS::Constants qw(:existence);
 
