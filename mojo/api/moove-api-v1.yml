@@ -172,19 +172,24 @@ paths:
           multipart/form-data:
             schema:
               type: object
+              required:
+                - externalDataSourceID
+                - file
+              additionalProperties: false
               properties:
-                externalDataSource:
-                  type: string
+                externalDataSourceID:
+                  $ref: "#/components/schemas/DatabaseID"
                 file:
                   type: string
-                  format: binary
       responses:
         200:
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PaginatedActivities"
+                type: array
+                items:
+                  $ref: "#/components/schemas/Activity"
       tags:
         - Activity
   /activities/{activityID}:
