@@ -2452,6 +2452,14 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
+  Module-Util-1.09
+    pathname: M/MA/MATTLAW/Module-Util-1.09.tar.gz
+    provides:
+      Module::Util 1.09
+    requirements:
+      Module::Build 0.40
+      Test::More 0
+      perl v5.5.3
   Mojolicious-8.70
     pathname: S/SR/SRI/Mojolicious-8.70.tar.gz
     provides:

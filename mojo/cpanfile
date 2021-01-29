@@ -21,6 +21,7 @@ requires 'Lingua::EN::Inflect';
 requires 'Lingua::EN::PluralToSingular';
 requires 'Lingua::EN::Titlecase';
 requires 'Modern::Perl';
+requires 'Module::Util';
 requires 'Mojo::DynamicMethods';
 requires 'Mojolicious::Commands';
 requires 'Mojolicious::Plugin::Config::Structured';
