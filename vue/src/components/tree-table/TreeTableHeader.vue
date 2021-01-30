@@ -15,7 +15,10 @@
               @click="$emit('update:sort', c)"
             >
               <b-icon
-                v-if="options.sort.field == c.key"
+                v-if="
+                  options.sort.field == c.key ||
+                  options.sort.field == c['sort-key']
+                "
                 :icon="
                   options.sort.direction == 'desc'
                     ? 'caret-down-fill'

@@ -158,11 +158,12 @@ export default {
       return rows;
     },
     toggleSort: function (c) {
-      if (c.key == this.sort.field)
+      let k = c["sort-key"] || c.key;
+      if (k == this.sort.field)
         this.sort.direction = this.sort.direction == "asc" ? "desc" : "asc";
       else
         this.sort = {
-          field: c.key,
+          field: k,
           direction: "asc",
         };
     },
@@ -234,7 +235,7 @@ export default {
     columns: {
       immediate: true,
       handler: function (newValue, oldValue) {
-        this.sort.field = newValue[0].key;
+        this.sort.field = newValue[0]["sort-key"] || newValue[0].key;
       },
     },
     sort: {

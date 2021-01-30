@@ -216,9 +216,15 @@ export default {
         case "quarter":
           return `${this.idForPeriod("year", period)}Q${period.quarter}`;
         case "month":
-          return `${this.idForPeriod("year", period)}M${period.month}`;
+          return (
+            `${this.idForPeriod("year", period)}M` +
+            period.month.toString().padStart(2, "0")
+          );
         case "week":
-          return `${this.idForPeriod("year", period)}W${period.weekOfYear}`;
+          return (
+            `${this.idForPeriod("year", period)}W` +
+            period.weekOfYear.toString().padStart(2, "0")
+          );
       }
     },
     labelForPeriod: function (name, period) {
@@ -302,7 +308,7 @@ export default {
       return this.orderedLevels.filter((x) => this.levels[x]);
     },
     columns: function () {
-      let r = [{ title: "Period", key: "label" }];
+      let r = [{ title: "Period", key: "label", "sort-key": "id" }];
       this.activityTypes.forEach((at) => {
         r.push({
           title: at.description + "s",
