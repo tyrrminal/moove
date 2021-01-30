@@ -33,7 +33,7 @@ const actions = {
           commit('loadActivityTypes', resp.data.activityTypes)
           commit('loadEventTypes', resp.data.eventTypes)
           commit('loadUnitsOfMeasure', resp.data.unitOfMeasure)
-          commit('loadExternalDataSources', resp.data.externalDataSource)
+          commit('loadExternalDataSources', resp.data.externalDataSources)
           commit('loadVisibilityTypes', resp.data.visibilityTypes)
         })
         .catch(err => {

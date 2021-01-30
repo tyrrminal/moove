@@ -15,7 +15,7 @@ sub list($self) {
   return unless $self->openapi->valid_input;
 
   my $r = {};
-  foreach (qw(activityTypes eventTypes unitOfMeasure externalDataSource visibilityType)) {
+  foreach (qw(activityTypes eventTypes unitOfMeasure externalDataSources visibilityTypes)) {
     if ($self->validation->param($_) || $self->validation->param('all')) {
       my $model_name = camel_lower_to_upper(camel_plural_to_singular($_));
       $r->{$_} = [$self->model($model_name)->all];
