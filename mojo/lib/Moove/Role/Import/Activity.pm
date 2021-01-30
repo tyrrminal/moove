@@ -9,86 +9,104 @@ use DCS::Constants qw(:existence);
 
 use experimental qw(signatures postderef);
 
-sub import_activity ($self, $activity, $user) {
-  my $has_map       = defined($activity->{activity_points});
+sub import_activity ($self, $activity, $user, $workout = undef) {
+  my $has_map = defined($activity->{activity_points});
   my $activity_type = $self->model('ActivityType')->lookup($activity->{type}, $has_map);
-  my $distance      = $self->model('Distance')
-    ->find_or_create_in_units($activity->{distance}, $self->model('UnitOfMeasure')->find({abbreviation => 'mi'}));
 
+  my $data_source;
   if ($activity->{importer}) {
-    my $importer = $self->app->model('ExternalDataSource')->find({name => $activity->{importer}});
-    if (my $existing = $self->app->model('Activity')->prior_import($activity->{activity_id}, $importer)->first) {
+    $data_source = $self->app->model('ExternalDataSource')->find({name => $activity->{importer}});
+    if (my $existing = $self->app->model('Activity')->prior_import($activity->{activity_id}, $data_source)->first) {
       return $existing;
     }
   }
-  return;
-  my $act;
-  my $event = $self->app->model('Event')->for_user($user)->of_type($activity_type)->near_datetime($activity->{date}, 5, 30)->first;
-  if ($event && ($act = $event->activities->for_person($user->person)->first)) {
-    $act->update(
-      {
-        user_id     => $user->id,
-        start_time  => $activity->{date},
-        note        => $activity->{notes},
-        distance    => $distance,
-        temperature => $activity->{temperature},
-        updated_at  => DateTime::Format::MySQL->format_datetime(DateTime->now),
-      }
-    );
-    $act->result->update({heart_rate => $activity->{heart_rate}});
-    $act->result->update({pace       => $activity->{pace}});
-  } else {
-    # Create the activity and result
-    my $result = $self->app->model('Result')->create(
-      {
-        gross_time => $activity->{gross_time},
-        net_time   => $activity->{net_time},
-        pace       => $activity->{pace},
-        heart_rate => $activity->{heart_rate} || $NULL
-      }
-    );
-    $act = $self->app->model("Activity")->create(
-      {
-        user_id       => $user->id,
-        activity_type => $activity_type,
-        start_time    => $activity->{date},
-        distance      => $distance,
-        result        => $result,
-        temperature   => $activity->{temperature},
-        note          => $activity->{notes},
-        event_id      => defined($event) ? $event->id : $NULL,
-        created_at    => DateTime::Format::MySQL->format_datetime(DateTime->now),
-      }
-    );
-    $self->app->model('ActivityReference')->create(
-      {
-        activity     => $act,
-        reference_id => $activity->{activity_id},
-        import_class => $activity->{importer}
-      }
-      )
-      if ($activity->{importer});
+
+  $workout = $self->app->model('Workout')->create(
+    {
+      user => $user,
+      date => DateTime::Format::MySQL->format_date($activity->{date}),
+      name => 'Imported ' . $activity_type->description
+    }
+    )
+    unless (defined($workout));
+
+  my $result_params = {
+    start_time  => $activity->{date},
+    weight      => $activity->{weight} || $NULL,
+    heart_rate  => $activity->{heart_rate} || $NULL,
+    temperature => $activity->{temperature},
+  };
+  if ($activity_type->base_activity_type->has_distance) {
+    my $distance = $self->model('Distance')
+      ->find_or_create_in_units($activity->{distance}, $self->model('UnitOfMeasure')->find({abbreviation => 'mi'}));
+    $result_params->{distance} = $distance;
   }
-  if (!$act->activity_points->all && $activity->{activity_points}) {
-    my @points = @{$activity->{activity_points}};
-    foreach my $ap (@points) {
+  if ($activity_type->base_activity_type->has_duration) {
+    $result_params->{duration} = $activity->{gross_time},;
+  }
+  if ($activity_type->base_activity_type->has_distance && $activity_type->base_activity_type->has_duration) {
+    $result_params->{net_time} = $activity->{net_time};
+    $result_params->{pace}     = $activity->{pace};
+  }
+  if ($activity_type->base_activity_type->has_repeats) {
+    $result_params->{repetitions} = $activity->{repetitions};
+  }
+  my $result;
+  if ($result = $self->find_matching_event_result($activity, $activity_type, $user)) {
+    $result->update($result_params);
+  } else {
+    $result = $self->app->model('ActivityResult')->create($result_params);
+  }
+
+  my $act = $self->app->model('Activity')->create(
+    {
+      activity_type           => $activity_type,
+      workout                 => $workout,
+      group_num               => 1,
+      set_num                 => 1,
+      activity_result         => $result,
+      note                    => $activity->{notes},
+      external_data_source_id => (defined($data_source) ? $data_source->id : $NULL),
+      external_identifier     => $activity->{activity_id},
+    }
+  );
+
+  if ($activity_type->activity_context->has_map) {
+    foreach my $ap ($activity->{activity_points}->@*) {
       my $loc = $self->app->model('Location')->create(
         {
           latitude  => $ap->{lat},
           longitude => $ap->{lon}
         }
       );
-      $act->add_to_activity_points(
+      $self->app->model('ActivityPoint')->create(
         {
-          location  => $loc,
-          timestamp => $ap->{time}
+          activity_result => $result,
+          location        => $loc,
+          timestamp       => $ap->{time}
         }
       );
     }
   }
-  $self->app->model('UserGoal')->for_user($act->user)->of_type($act->activity_type)->update_applicable_goals($act);
+
   return $act;
 }
 
+sub find_matching_event_result ($self, $activity, $activity_type, $user) {
+  my $between = [map {DateTime::Format::MySQL->format_datetime($activity->{date}->clone->add(minutes => $_))} (-30, 5)];
+
+  my $uea = $self->app->model('UserEventActivity')->search(
+    {
+      'me.user_id'                     => $user->id,
+      'event_type.activity_type_id'    => $activity_type->id,
+      'event_activity.scheduled_start' => {-between => $between},
+    }, {
+      join => {event_registration => {event_activity => 'event_type'}}
+    }
+  )->first;
+  return $NULL unless (defined($uea));
+
+  return $uea->event_registration->event_participants->first->activity_result;
+}
 
 1;
