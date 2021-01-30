@@ -10,8 +10,7 @@ const state = {
 
 const getters = {
   isLoaded: (state) => {
-    return
-    state.activityTypes.length &&
+    return state.activityTypes.length &&
       state.eventTypes.length &&
       state.unitsOfMeasure.length &&
       state.externalDataSources.length &&
