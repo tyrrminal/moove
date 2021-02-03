@@ -158,9 +158,14 @@ export default {
       let self = this;
       this.allSummaries[l][a.id].forEach((d) => {
         let s = self.realignedSummaryData(a, l, d);
-        let arr = !self.enabledLevels.indexOf(l)
-          ? self.summaries
-          : self.findParent(l, d.period).children;
+        let arr;
+        if (self.enabledLevels.indexOf(l)) {
+          let p;
+          if ((p = self.findParent(l, d.period))) arr = p.children;
+          else return;
+        } else {
+          arr = self.summaries;
+        }
         let i = self.findChildIdx(arr, s.label);
         if (i == null) arr.push(s);
         else self.$set(arr, i, { ...s, ...arr[i] });
