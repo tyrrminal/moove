@@ -5,12 +5,16 @@ import Home from "@/views/Home.vue";
 import Login from "@/components/auth/Login.vue";
 
 import User from "@/views/User.vue";
+
 import Workouts from "@/views/Workouts.vue";
+import WorkoutList from "@/views/workouts/List.vue";
 import WorkoutEdit from "@/views/workouts/Edit.vue";
 import Workout from "@/views/Workout.vue";
 import Activities from "@/views/Activities.vue";
 import Activity from "@/views/Activity.vue";
+import ActivityList from "@/views/activities/List.vue";
 import ActivitySummary from "@/views/activities/Summary.vue";
+
 import Events from "@/views/Events.vue";
 import Event from "@/views/Event.vue";
 import Goals from "@/views/Goals.vue";
@@ -42,16 +46,20 @@ let router = new Router({
     },
     {
       path: "/workouts",
-      name: "workouts",
       component: Workouts,
       children: [
         {
-          path: "/workouts/create",
+          path: "",
+          name: "workouts",
+          component: WorkoutList,
+        },
+        {
+          path: "create",
           name: "createWorkout",
           component: WorkoutEdit,
         },
         {
-          path: "/workouts/:id",
+          path: ":id",
           name: "workout",
           component: Workout,
           props: true
@@ -60,24 +68,32 @@ let router = new Router({
     },
     {
       path: "/activities",
-      name: "activities",
-      component: Activities
-    },
-    {
-      path: "/activities/summary",
-      name: "activitiesSummary",
-      component: ActivitySummary
-    },
-    {
-      path: "/activities/:id",
-      name: "activity",
-      component: Activity,
-      props: true
+      component: Activities,
+      children: [
+        {
+          path: "",
+          name: "activities",
+          component: ActivityList,
+          props: true,
+        },
+        {
+          path: "summary",
+          name: "activitiesSummary",
+          component: ActivitySummary
+        },
+        {
+          path: ":id",
+          name: "activity",
+          component: Activity,
+          props: true
+        },
+      ]
     },
     {
       path: "/user/:user/events",
       name: 'events',
-      component: Events
+      component: Events,
+      props: true
     },
     {
       path: "/user/:user/event/sequence/:sequence_id",
@@ -92,7 +108,8 @@ let router = new Router({
     {
       path: "/user/:user/goals",
       name: "goals",
-      component: Goals
+      component: Goals,
+      props: true
     },
     {
       path: "/user/:user/goal/:id",
