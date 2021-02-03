@@ -880,6 +880,12 @@ components:
       required:
         - daysInPeriod
       properties:
+        start:
+          type: string
+          format: date
+        end:
+          type: string
+          format: date
         year:
           nullable: true
           type: integer

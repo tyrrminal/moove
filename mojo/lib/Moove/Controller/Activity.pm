@@ -80,8 +80,8 @@ sub summary($self) {
     }
     next unless (@period_activities || $showEmpty);
     my $summary = {
-      period => {daysInPeriod => $p->{end}->delta_days($p->{start})->delta_days, $p->{t}->%*},
-      count  => scalar @period_activities
+        start        => $p->{start}->strftime('%F'),
+        end          => $p->{end}->strftime('%F'),
     };
     push(@summaries, $summary);
     if ($activity_type->base_activity_type->has_distance) {
