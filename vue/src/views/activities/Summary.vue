@@ -46,8 +46,23 @@
       >
       <template #cell="data">
         <template v-if="data.value == null">-</template>
-        <template v-else-if="data.column.units == 'mi'">
-          {{ data.value | number("0,0.0") }} {{ data.column.units }}
+        <template
+          v-else-if="data.column.meta != null && data.column.meta.units != null"
+        >
+          {{ data.value | number("0,0.0") }} {{ data.column.meta.units }}
+        </template>
+        <template v-else-if="data.column.key.startsWith('count-')"
+          ><b-link
+            :to="{
+              name: 'activities',
+              query: {
+                activityTypeID: data.column.meta.activityTypeID,
+                start: data.item.period.start,
+                end: data.item.period.end,
+              },
+            }"
+            >{{ data.value }}</b-link
+          >
         </template>
         <template v-else>{{ data.value }}</template></template
       >
