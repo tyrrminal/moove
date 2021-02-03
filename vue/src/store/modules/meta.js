@@ -18,10 +18,15 @@ const getters = {
   },
 
   getActivityTypes: (state) => { return state.activityTypes },
+  getActivityType: (state) => id => { return state.activityTypes.filter(x => x.id == id).shift() },
   getEventTypes: (state) => { return state.eventTypes },
+  getEventType: (state) => id => { return state.eventTypes.filter(x => x.id == id).shift() },
   getUnitsOfMeasure: (state) => { return state.unitsOfMeasure },
+  getUnitOfMeasure: (state) => id => { return state.unitsOfMeasure.filter(x => x.id == id).shift() },
   getExternalDataSources: (state) => { return state.externalDataSources },
+  getExternalDataSource: (state) => id => { return state.externalDataSources.filter(x => x.id == id).shift() },
   getVisibilityTypes: (state) => { return state.visibilityTypes },
+  getVisibilityType: (state) => id => { return state.visibilityTypes.filter(x => x.id == id).shift() },
 };
 
 const actions = {
