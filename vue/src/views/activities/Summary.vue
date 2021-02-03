@@ -1,7 +1,8 @@
 <template>
   <b-container>
+    <h2 class="mt-3">Activity Summary</h2>
     <b-row class="mt-3 mb-3">
-      <b-col cols="10">
+      <b-col cols="11">
         <b-button-group>
           <b-button
             v-for="l in orderedLevels"
@@ -12,8 +13,8 @@
           >
         </b-button-group>
       </b-col>
-      <b-col cols="2">
-        <b-button v-b-modal.activitySelector>Activity Types</b-button>
+      <b-col cols="1">
+        <b-button v-b-modal.filters>Filters</b-button>
       </b-col>
     </b-row>
 
@@ -68,24 +69,39 @@
       >
     </TreeTable>
 
-    <b-modal id="activitySelector">
-      <b-button
-        class="mb-2"
-        :variant="
-          selectedActivityTypes.includes(at.id) ? 'primary' : 'secondary'
-        "
-        :disabled="
-          !selectedActivityTypes.includes(at.id) &&
-          selectedActivityTypes.length >= 3
-        "
-        block
-        v-for="at in selectableActivityTypes"
-        :key="at.id"
-        :pressed="selectedActivityTypes.includes(at.id)"
-        @click="toggleActivityType(at.id)"
-      >
-        {{ at.description }}
-      </b-button>
+    <b-modal id="filters">
+      <b-row>
+        <b-col cols="6">
+          <b-form-group label="Start">
+            <b-datepicker v-model="range.start" />
+          </b-form-group>
+        </b-col>
+        <b-col cols="6">
+          <b-form-group label="End">
+            <b-datepicker v-model="range.end" />
+          </b-form-group>
+        </b-col>
+      </b-row>
+      <hr />
+      <b-form-group label="Activity Types (select up to 3)">
+        <b-button
+          class="mb-2"
+          :variant="
+            selectedActivityTypes.includes(at.id) ? 'primary' : 'secondary'
+          "
+          :disabled="
+            !selectedActivityTypes.includes(at.id) &&
+            selectedActivityTypes.length >= 3
+          "
+          block
+          v-for="at in selectableActivityTypes"
+          :key="at.id"
+          :pressed="selectedActivityTypes.includes(at.id)"
+          @click="toggleActivityType(at.id)"
+        >
+          {{ at.description }}
+        </b-button>
+      </b-form-group>
     </b-modal>
   </b-container>
 </template>
@@ -343,7 +359,7 @@ export default {
           key: "total-" + at.id,
           tdClass: "text-right numeric-data",
           meta: {
-          units: "mi",
+            units: "mi",
             activityTypeID: at.id,
           },
         });
@@ -352,7 +368,7 @@ export default {
           key: "avg-" + at.id,
           tdClass: "text-right numeric-data",
           meta: {
-          units: "mi",
+            units: "mi",
             activityTypeID: at.id,
           },
         });
@@ -393,6 +409,8 @@ export default {
     range: {
       deep: true,
       handler: function () {
+        this.allSummaries = {};
+        this.getAllData();
         this.processAllData();
       },
     },
