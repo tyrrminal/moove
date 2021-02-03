@@ -63,6 +63,11 @@ export default {
       error: ""
     };
   },
+  props: {
+    user: {
+      type: String
+    }
+  },
   methods: {
     init() {
       let self = this;

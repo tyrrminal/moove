@@ -105,6 +105,11 @@ export default {
       ],
     };
   },
+  props: {
+    user: {
+      type: String
+    }
+  },
   methods: {
     init() {
       let self = this;
