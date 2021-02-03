@@ -11,13 +11,13 @@ sub find_or_create_in_units ($self, $d, $unit) {
     ->search({-or => [{id => $normal_unit->id}, {normal_unit_id => $normal_unit->id}]}))
   {
     my ($v, $u) = @$_;
-    my $d = $self->search(
+    my $distance = $self->search(
       {
         value              => int($v * 100) / 100,
         unit_of_measure_id => $u->id,
       }
     )->first;
-    return $d if (defined($d));
+    return $distance if (defined($distance));
 
     return $self->create({value => $d, unit_of_measure => $unit});
   }
