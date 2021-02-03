@@ -319,18 +319,27 @@ export default {
           title: at.description + "s",
           key: "count-" + at.id,
           tdClass: "text-center numeric-data",
+          meta: {
+            activityTypeID: at.id,
+          },
         });
         r.push({
           title: at.description + " Distance",
           key: "total-" + at.id,
           tdClass: "text-right numeric-data",
+          meta: {
           units: "mi",
+            activityTypeID: at.id,
+          },
         });
         r.push({
           title: at.description + " Avg",
           key: "avg-" + at.id,
           tdClass: "text-right numeric-data",
+          meta: {
           units: "mi",
+            activityTypeID: at.id,
+          },
         });
       });
       return r;
