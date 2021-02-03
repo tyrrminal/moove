@@ -73,7 +73,7 @@ sub summary($self) {
   my $activities = $self->resultset->whole->ordered;
   my $start      = $self->parse_api_date($self->validation->param('start'))
     // $self->model('Activity')->for_user($user)->ordered->first->start_time->clone->truncate(to => 'day');
-  my $end = $self->parse_api_date($self->validation->param('end')) // DateTime->today;
+  my $end = $self->parse_api_date($self->validation->param('end')) // DateTime->today->add(days => 1)->subtract(seconds => 1);
 
   my @summaries;
   my $i   = 0;
@@ -85,8 +85,13 @@ sub summary($self) {
     }
     next unless (@period_activities || $showEmpty);
     my $summary = {
+      period => {
+        daysInPeriod => max(1, $p->{end}->delta_days($p->{start})->delta_days),
         start        => $p->{start}->strftime('%F'),
         end          => $p->{end}->strftime('%F'),
+        $p->{t}->%*
+      },
+      count => scalar @period_activities
     };
     push(@summaries, $summary);
     if ($activity_type->base_activity_type->has_distance) {
