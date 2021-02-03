@@ -32,9 +32,9 @@
 
 <script>
 export default {
-  data: function () {
-    return {
-      mainMenu: [
+  computed: {
+    mainMenu: function () {
+      return [
         {
           name: "Workouts",
           to: { name: "workouts", params: { user: this.username } },
@@ -47,10 +47,8 @@ export default {
           name: "Goals",
           to: { name: "goals", params: { user: this.username } },
         },
-      ],
-    };
-  },
-  computed: {
+      ];
+    },
     isLoggedIn: function () {
       return this.$store.getters["auth/isLoggedIn"];
     },
