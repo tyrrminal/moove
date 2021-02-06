@@ -2,13 +2,14 @@
   <b-container>
     <h2 class="mt-3">Activity Summary</h2>
     <b-row class="mt-3 mb-3">
-      <b-col cols="11">
+      <b-col cols="3">
         <b-button-group>
           <b-button
             v-for="l in orderedLevels"
             :key="l"
             variant="primary"
             :pressed.sync="levels[l]"
+            :disabled="lastLevelLeft(l)"
             >{{ l | capitalize }}</b-button
           >
         </b-button-group>
@@ -152,6 +153,11 @@ export default {
   methods: {
     changeLevelSelection: function (event) {
       this.processAllData();
+    },
+    lastLevelLeft: function (l) {
+      return (
+        this.levels[l] && Object.values(this.levels).filter((x) => x).length < 2
+      );
     },
     getAllData: function () {
       let self = this;
