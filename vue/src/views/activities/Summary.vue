@@ -322,7 +322,7 @@ export default {
     },
     selectableActivityTypes: function () {
       return this.getActivityTypes.filter(
-        (at) => at.has_distance || this.selectedActivityTypes.includes(at.id)
+        (at) => at.hasDistance || this.selectedActivityTypes.includes(at.id)
       );
     },
     selectedDataElements: function () {
