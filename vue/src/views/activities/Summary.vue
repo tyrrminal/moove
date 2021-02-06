@@ -13,7 +13,20 @@
           >
         </b-button-group>
       </b-col>
-      <b-col cols="1">
+      <b-col cols="3">
+        <b-input-group class="ml-2">
+          <template #prepend>
+            <b-button variant="primary" :disabled="true"
+              ><b-icon icon="search"></b-icon
+            ></b-button>
+          </template>
+          <b-input
+            v-model="search"
+            placeholder="Search Period Label..."
+          ></b-input>
+        </b-input-group>
+      </b-col>
+      <b-col cols="1" offset="5">
         <b-button v-b-modal.filters>Filters</b-button>
       </b-col>
     </b-row>
@@ -123,6 +136,7 @@ export default {
         start: null,
         end: null,
       },
+      search: "",
       allSummaries: {},
       summaries: [],
       orderedLevels: ["all", "year", "quarter", "month", "week"],
@@ -311,7 +325,9 @@ export default {
       isLoaded: "isLoaded",
     }),
     rows: function () {
-      return this.summaries;
+      return this.summaries.filter(
+        (s) => !this.search || s.label.match(this.search)
+      );
     },
     activityTypes: function () {
       let self = this;
