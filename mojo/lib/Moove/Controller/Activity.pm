@@ -61,6 +61,8 @@ sub resultset ($self, @args) {
 }
 
 sub custom_sort_for_column ($self, $col_name) {
+  return 'activity_result.pace'       if ($col_name eq 'pace');
+  return 'activity_result.speed'      if ($col_name eq 'speed');
   return 'activity_result.start_time' if ($col_name eq 'start_time');
   return undef;
 }
