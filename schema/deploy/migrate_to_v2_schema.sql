@@ -1000,12 +1000,14 @@ INSERT INTO `ActivityResult` (`id`,`start_time`,`distance_id`,`duration`,`net_ti
     ON a.`result_id` = r.`id`;
 
 INSERT INTO `Activity` (`id`,`activity_type_id`,`workout_id`,`group_num`,`set_num`,`activity_result_id`,`note`,`whole_activity_id`,`external_data_source_id`,`external_identifier`,`visibility_type_id`) 
-  SELECT pk.`id`,a.`activity_type_id`,pk.`id`,1,1,res.`id`,COALESCE(a.`note`,''),a.`whole_activity_id`,e.`id`,r.`reference_id`,1
+  SELECT pk.`id`,a.`activity_type_id`,pk.`id`,1,1,res.`id`,COALESCE(a.`note`,''),pk2.`id`,e.`id`,r.`reference_id`,1
   FROM `mig_activity` a
   LEFT JOIN `mig_result` res
     ON a.`result_id` = res.`id`
   JOIN `mig_activity_pk` pk
   	ON a.`id` = pk.`activity_id`
+  LEFT JOIN `mig_activity_pk` pk2
+  	ON a.`whole_activity_id` = pk2.`activity_id`
   LEFT JOIN `mig_activity_reference` r
     ON a.`id` = r.`activity_id`
   LEFT JOIN `ExternalDataSource` e
