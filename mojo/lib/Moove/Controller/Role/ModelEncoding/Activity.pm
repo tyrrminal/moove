@@ -6,7 +6,7 @@ use experimental qw(signatures postderef);
 sub encode_model_activity ($self, $entity) {
   return {
     id                 => $entity->id,
-    activityType       => $entity->activity_type_id,
+    activityTypeID     => $entity->activity_type_id,
     note               => $entity->note,
     group              => $entity->group_num,
     set                => $entity->set_num,
