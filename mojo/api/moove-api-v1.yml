@@ -847,13 +847,17 @@ components:
           $ref: "#/components/schemas/DatabaseID"
         description:
           type: string
-        has_repeats:
+        hasRepeats:
           type: boolean
-        has_distance:
+        hasDistance:
           type: boolean
-        has_duration:
+        hasDuration:
           type: boolean
-        has_map:
+        hasMap:
+          type: boolean
+        hasSpeed:
+          type: boolean
+        hasPace:
           type: boolean
     Activity:
       type: object
