@@ -122,6 +122,7 @@ __PACKAGE__->table("Activity");
 
   data_type: 'datetime'
   datetime_undef_if_invalid: 1
+  default_value: 'current_timestamp()'
   is_nullable: 0
 
 =head2 updated_at
@@ -195,6 +196,7 @@ __PACKAGE__->add_columns(
   {
     data_type => "datetime",
     datetime_undef_if_invalid => 1,
+    default_value => "current_timestamp()",
     is_nullable => 0,
   },
   "updated_at",
@@ -379,8 +381,8 @@ __PACKAGE__->many_to_many(
 );
 #>>>
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-01-29 16:39:35
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:zKts9ckZHL+BemP988hc4w
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-02-04 10:40:22
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:U1oz9b8eRuxhCTxv/6jgvw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
