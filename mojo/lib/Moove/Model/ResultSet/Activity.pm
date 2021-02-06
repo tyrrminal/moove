@@ -66,6 +66,17 @@ sub whole($self) {
   );
 }
 
+sub uncombined($self) {
+  return $self->search(
+    {
+      'me.id' => {
+        -not_in => $self->result_source->schema->resultset('Activity')->search({whole_activity_id => {'<>' => $NULL}})
+          ->get_column('whole_activity_id')->as_query
+      }
+    }
+  );
+}
+
 sub whole_or_event($self) {
   return $self->search(
     {
