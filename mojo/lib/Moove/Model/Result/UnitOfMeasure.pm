@@ -70,6 +70,13 @@ __PACKAGE__->table("UnitOfMeasure");
   is_nullable: 0
   size: [20,10]
 
+=head2 inverted
+
+  data_type: 'enum'
+  default_value: 'N'
+  extra: {list => ["Y","N"]}
+  is_nullable: 0
+
 =head2 normal_unit_id
 
   data_type: 'integer'
@@ -97,6 +104,13 @@ __PACKAGE__->add_columns(
     extra => { unsigned => 1 },
     is_nullable => 0,
     size => [20, 10],
+  },
+  "inverted",
+  {
+    data_type => "enum",
+    default_value => "N",
+    extra => { list => ["Y", "N"] },
+    is_nullable => 0,
   },
   "normal_unit_id",
   {
@@ -198,10 +212,30 @@ __PACKAGE__->has_many(
 );
 #>>>
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2020-05-01 15:48:09
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:B/j71OmqueqIulYl3DM0Ag
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-02-04 16:01:53
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:MueHjb+y63Ucx3g5FdIbPQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+use v5.32;
+use strict;
+use warnings;
+
+use Class::Method::Modifiers;
+
+use experimental qw(signatures postderef);
+
+sub is_normal_unit($self) {
+  return !defined($self->normal_unit_id);
+}
+
+around [qw(inverted)] => sub ($orig, $self, $value = undef) {
+  if (defined($value)) {
+    $value = $self->$orig($value ? 'Y' : 'N');
+  } else {
+    $value = $self->$orig();
+  }
+  return $value eq 'Y';
+};
 
 1;

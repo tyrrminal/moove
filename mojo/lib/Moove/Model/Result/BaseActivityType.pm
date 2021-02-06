@@ -78,6 +78,20 @@ __PACKAGE__->table("BaseActivityType");
   extra: {list => ["Y","N"]}
   is_nullable: 0
 
+=head2 has_pace
+
+  data_type: 'enum'
+  default_value: 'N'
+  extra: {list => ["Y","N"]}
+  is_nullable: 0
+
+=head2 has_speed
+
+  data_type: 'enum'
+  default_value: 'N'
+  extra: {list => ["Y","N"]}
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -105,6 +119,20 @@ __PACKAGE__->add_columns(
     is_nullable => 0,
   },
   "has_duration",
+  {
+    data_type => "enum",
+    default_value => "N",
+    extra => { list => ["Y", "N"] },
+    is_nullable => 0,
+  },
+  "has_pace",
+  {
+    data_type => "enum",
+    default_value => "N",
+    extra => { list => ["Y", "N"] },
+    is_nullable => 0,
+  },
+  "has_speed",
   {
     data_type => "enum",
     default_value => "N",
@@ -157,8 +185,8 @@ __PACKAGE__->has_many(
 );
 #>>>
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-01-09 17:03:00
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:16zoKq2fvjfGqOLo9toMdg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-02-04 10:40:22
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:AkI9LqQUMqjOlyDXx7wDYw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
@@ -166,7 +194,7 @@ use Class::Method::Modifiers;
 
 use experimental qw(signatures postderef);
 
-around [qw(has_distance has_duration has_repeats)] => sub ($orig, $self, $value = undef) {
+around [qw(has_distance has_duration has_repeats has_pace has_speed)] => sub ($orig, $self, $value = undef) {
   if (defined($value)) {
     $value = $self->$orig($value ? 'Y' : 'N');
   } else {
