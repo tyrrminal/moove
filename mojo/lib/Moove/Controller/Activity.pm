@@ -166,7 +166,7 @@ sub periods_in_range ($period, $start, $end) {
             quarter     => $o->quarter,
             month       => $o->month,
             weekOfMonth => $o->week_of_month,
-            weekOfYear  => ($o->year < $o->week_year) ? $o->clone->subtract(weeks => 1)->week_number + 1 : $o->week_number,
+            weekOfYear  => $o->clone->add(days => 1)->week_number,
           },
           start => max($start, $o->clone),
           end => min($end, $o->add(weeks => 1)->clone)
