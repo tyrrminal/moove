@@ -1,9 +1,12 @@
 package Moove::Role::Import::Activity;
 use Role::Tiny;
 
+with 'Moove::Role::Unit::Conversion';
+
 use boolean;
 use DateTime;
 use DateTime::Format::MySQL;
+use DBIx::Class::InflateColumn::Time;
 
 use DCS::Constants qw(:existence);
 
@@ -44,9 +47,17 @@ sub import_activity ($self, $activity, $user, $workout = undef) {
   if ($activity_type->base_activity_type->has_duration) {
     $result_params->{duration} = $activity->{gross_time},;
   }
-  if ($activity_type->base_activity_type->has_distance && $activity_type->base_activity_type->has_duration) {
+  if ($activity_type->base_activity_type->has_pace || $activity_type->base_activity_type->has_speed) {
+    my $pace_units = $self->model('UnitOfMeasure')->find({abbreviation => '/mi'});
     $result_params->{net_time} = $activity->{net_time};
-    $result_params->{pace}     = $activity->{pace};
+    $result_params->{pace} =
+        $activity_type->base_activity_type->has_pace
+      ? $activity->{pace}
+      : $self->unit_conversion(value => $activity->{speed}, to => $pace_units);
+    $result_params->{speed} = $activity_type->base_activity_type->has_speed ? $activity->{speed} : $self->unit_conversion(
+      value => $self->time_to_minutes(DBIx::Class::InflateColumn::Time::_inflate($activity->{pace})),
+      from  => $pace_units
+    );
   }
   if ($activity_type->base_activity_type->has_repeats) {
     $result_params->{repetitions} = $activity->{repetitions};
