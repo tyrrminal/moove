@@ -32,6 +32,12 @@ sub resultset ($self, @args) {
     }
   );
 
+  if ($self->validation->param('combine') // true) {
+    $rs = $rs->whole;
+  } else {
+    $rs = $rs->uncombined;
+  }
+
   my $user = $self->model('User')->find($self->validation->param('userID') || $self->current_user->id);
   return $self->render_not_found('User') unless ($user);
   $rs = $rs->for_user($user)->visible_to($self->current_user);

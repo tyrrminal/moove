@@ -134,6 +134,7 @@ paths:
         - $ref: "#/components/parameters/SearchActivityType"
         - $ref: "#/components/parameters/SearchStartdate"
         - $ref: "#/components/parameters/SearchEnddate"
+        - $ref: "#/components/parameters/WholeActivity"
       responses:
         200:
           description: OK
@@ -788,6 +789,12 @@ components:
       schema:
         $ref: "#/components/schemas/DatabaseID"
       description: Search by Workout ID
+    WholeActivity:
+      in: query
+      name: combine
+      required: false
+      schema:
+        type: boolean
     # Pagination Params
     PageNumber:
       in: query
