@@ -3,7 +3,7 @@ use Modern::Perl;
 use Moose;
 
 use Role::Tiny::With;
-with 'Moove::Role::Import::Normalization';
+with 'Moove::Role::Unit::Normalization';
 
 use boolean;
 use Readonly;

@@ -1,4 +1,4 @@
-package Moove::Role::Import::Normalization;
+package Moove::Role::Unit::Normalization;
 use Role::Tiny;
 
 use experimental qw(signatures postderef);

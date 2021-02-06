@@ -6,7 +6,7 @@ use boolean;
 use DateTime::Format::Strptime;
 
 use Role::Tiny::With;
-with 'Moove::Role::Import::Normalization';
+with 'Moove::Role::Unit::Normalization';
 
 use DCS::Constants qw(:existence);
 
