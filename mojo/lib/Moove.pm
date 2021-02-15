@@ -9,7 +9,7 @@ sub startup($self) {
     'DCS::Base',
     cron          => undef,
     persistentlog => undef,
-    dbix          => {components => [qw(InflateColumn::Time)]},
+    datastore => {components => [qw(InflateColumn::Time)]},
   );
 }
 
