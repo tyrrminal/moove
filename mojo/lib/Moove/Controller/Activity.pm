@@ -25,7 +25,7 @@ sub resultset ($self, @args) {
   $rs = $rs->search(
     undef, {
       prefetch => [
-        {activity_result => [{distance => 'unit_of_measure'}]},
+        {activity_result => [{distance => 'unit_of_measure'},'normalized_distance']},
         'workout',
         {activity_type => ['base_activity_type', 'activity_context']}
       ]
@@ -61,6 +61,8 @@ sub resultset ($self, @args) {
 }
 
 sub custom_sort_for_column ($self, $col_name) {
+  return 'normalized_distance.value'  if ($col_name eq 'distance');
+  return 'activity_result.net_time'   if ($col_name eq 'time');
   return 'activity_result.pace'       if ($col_name eq 'pace');
   return 'activity_result.speed'      if ($col_name eq 'speed');
   return 'activity_result.start_time' if ($col_name eq 'start_time');
