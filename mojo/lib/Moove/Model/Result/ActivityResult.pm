@@ -274,4 +274,17 @@ __PACKAGE__->belongs_to(
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+__PACKAGE__->belongs_to(
+  "normalized_distance",
+  "Moove::Model::Result::DistanceNormalized",
+  { id => "distance_id" },
+  {
+    is_deferrable => 1,
+    join_type     => "LEFT",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
+  },
+);
+
+
 1;
