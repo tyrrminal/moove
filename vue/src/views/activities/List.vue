@@ -1,11 +1,21 @@
 <template>
   <b-container class="mt-2">
-    <b-form inline>
-      <b-datepicker v-model="internal.range.start" reset-button />
-      <b-icon icon="arrow-right" class="mx-2" />
-      <b-datepicker v-model="internal.range.end" reset-button />
-      <b-button variant="secondary" v-b-modal.filters>Filters</b-button>
-    </b-form>
+    <b-row>
+      <b-col cols="3">
+        <b-datepicker v-model="internal.range.start" reset-button />
+      </b-col>
+      <b-col cols="1" class="text-center">
+        <b-icon icon="arrow-right" class="mx-2" />
+      </b-col>
+      <b-col cols="3">
+        <b-datepicker v-model="internal.range.end" reset-button />
+      </b-col>
+      <b-col cols="1" offset="4">
+        <b-button variant="secondary" v-b-modal.filters class="float-right"
+          >Filters</b-button
+        >
+      </b-col>
+    </b-row>
     <b-table
       id="activitiesListTable"
       class="mt-2"
@@ -14,20 +24,28 @@
       :fields="columns"
       :per-page.sync="page.length"
       :current-page.sync="page.current"
+      tbody-tr-class="activityRow"
     >
       <template #table-busy>
         <div class="text-center">
           <b-spinner variant="secondary" type="grow" />
         </div>
       </template>
+      <template #cell(activityTypeID)="data"
+        ><b-link
+          :to="{ name: 'activity', params: { id: data.item.id } }"
+          class="activityLink"
+          >{{ dayPart(data.item.start_time) }}
+          {{ getActivityType(data.value).labels.base }}</b-link
+        ></template
+      >
       <template #cell(start_time)="data">
-        {{ data.value | luxon }}
+        <span v-b-tooltip.hover :title="formatDate(data.value)">
+          {{ data.value | luxon }}
+        </span>
       </template>
       <template #cell(time)="data">
         {{ data.item.net_time }}
-      </template>
-      <template #cell(activityType)="data">
-        {{ getActivityType(data.item.activityTypeID).description }}
       </template>
       <template #cell(distance)="data">
         <template v-if="data.value">
@@ -63,6 +81,7 @@
 </template>
 
 <script>
+const { DateTime } = require("luxon");
 import { mapGetters } from "vuex";
 
 export default {
@@ -134,6 +153,16 @@ export default {
           self.total = resp.data.pagination.counts.filter;
         });
     },
+    dayPart: function (d) {
+      let dt = DateTime.fromISO(d);
+      if (dt.hour > 22 || dt.hour < 5) return "Night";
+      else if (dt.hour >= 5 && dt.hour < 12) return "Morning";
+      else if (dt.hour >= 12 && dt.hour < 18) return "Afternoon";
+      else return "Evening";
+    },
+    formatDate: function (d) {
+      return DateTime.fromISO(d).toLocaleString(DateTime.DATETIME_FULL);
+    },
   },
   computed: {
     ...mapGetters("meta", {
@@ -149,7 +178,12 @@ export default {
         {
           key: "start_time",
           sortable: true,
-          label: "Start",
+          label: "Date",
+        },
+        {
+          key: "activityTypeID",
+          sortable: true,
+          label: "Activity",
         },
       ];
       let a = this.getActivityType(this.internal.activityTypeID);
@@ -216,4 +250,34 @@ export default {
 </script>
 
 <style>
+table#activitiesListTable {
+  border-collapse: separate;
+  border-spacing: 0 0.5em;
+}
+table#activitiesListTable tr.activityRow > td {
+  background-color: #f8f9fa;
+  border-top: 1px #b2c3cf solid;
+  border-bottom: 1px #b2c3cf solid;
+  font-weight: 600;
+}
+table#activitiesListTable tr.activityRow > td:first-child {
+  border-left: 1px #b2c3cf solid;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+table#activitiesListTable tr.activityRow > td:last-child {
+  border-right: 1px #b2c3cf solid;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+table#activitiesListTable .activityLink {
+  color: inherit;
+}
+table#activitiesListTable .activityRow:hover td {
+  background-color: #ececec;
+}
+table#activitiesListTable .activityRow:hover .activityLink {
+  color: inherit;
+  text-decoration: underline;
+}
 </style>
