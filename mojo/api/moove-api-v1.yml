@@ -859,6 +859,8 @@ components:
           type: boolean
         hasPace:
           type: boolean
+        labels:
+          type: object
     Activity:
       type: object
       additionalProperties: true
