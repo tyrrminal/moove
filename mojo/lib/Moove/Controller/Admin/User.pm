@@ -1,5 +1,5 @@
 package Moove::Controller::Admin::User;
-use Mojo::Base 'DCS::API::Base::ModelController';
+use Mojo::Base 'DCS::Base::API::Model::Controller';
 use Role::Tiny::With;
 
 with 'DCS::API::Role::Rest::Create',

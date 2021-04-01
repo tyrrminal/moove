@@ -1,5 +1,5 @@
 package Moove::Controller::Meta;
-use Mojo::Base 'DCS::API::Base::ModelController';
+use Mojo::Base 'DCS::Base::API::Model::Controller';
 use Role::Tiny::With;
 
 with 'Moove::Controller::Role::ModelEncoding::ActivityType',

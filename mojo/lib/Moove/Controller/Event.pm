@@ -1,5 +1,5 @@
 package Moove::Controller::Event;
-use Mojo::Base 'DCS::API::Base::ModelController';
+use Mojo::Base 'DCS::Base::API::Model::Controller';
 use Role::Tiny::With;
 
 with 'DCS::API::Role::Rest::List', 'DCS::API::Role::Rest::Get';
