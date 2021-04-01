@@ -10,8 +10,9 @@ import Workouts from "@/views/Workouts.vue";
 import WorkoutList from "@/views/workouts/List.vue";
 import WorkoutEdit from "@/views/workouts/Edit.vue";
 import Workout from "@/views/Workout.vue";
+
 import Activities from "@/views/Activities.vue";
-import Activity from "@/views/Activity.vue";
+import Activity from "@/views/activities/Detail.vue";
 import ActivityList from "@/views/activities/List.vue";
 import ActivitySummary from "@/views/activities/Summary.vue";
 
