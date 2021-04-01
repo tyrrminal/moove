@@ -1,5 +1,5 @@
 package Moove::Controller::Auth;
-use Mojo::Base 'DCS::API::Base::Auth';
+use Mojo::Base 'DCS::Base::API::Auth::Controller';
 
 use Role::Tiny::With;
 with 'Moove::Controller::Role::ModelEncoding::AuthUser';
