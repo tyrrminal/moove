@@ -2,7 +2,7 @@ package Moove::Controller::Activity;
 use Mojo::Base 'DCS::Base::API::Model::Controller';
 
 use Role::Tiny::With;
-with 'DCS::API::Role::Rest::Collection';
+with 'DCS::API::Role::Rest::Collection', 'DCS::API::Role::Rest::Entity';
 with 'Moove::Controller::Role::ModelEncoding::Activity';
 with 'Moove::Role::Import::Activity';
 
