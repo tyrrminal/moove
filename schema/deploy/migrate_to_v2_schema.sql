@@ -431,12 +431,12 @@ CREATE TABLE IF NOT EXISTS `Event` (
   `year` SMALLINT NOT NULL,
   `url` TEXT NULL,
   `address_id` INT UNSIGNED NOT NULL,
-  `event_sequence_id` INT UNSIGNED NULL,
+  `event_group_id` INT UNSIGNED NULL,
   `external_data_source_id` INT UNSIGNED NULL,
   `external_identifier` VARCHAR(45) NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_Event_Address1_idx` (`address_id` ASC),
-  INDEX `fk_Event_EventGroup1_idx` (`event_sequence_id` ASC),
+  INDEX `fk_Event_EventGroup1_idx` (`event_group_id` ASC),
   INDEX `fk_Event_ExternalDataSource1_idx` (`external_data_source_id` ASC),
   CONSTRAINT `fk_Event_Address1`
     FOREIGN KEY (`address_id`)
@@ -444,7 +444,7 @@ CREATE TABLE IF NOT EXISTS `Event` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Event_EventGroup1`
-    FOREIGN KEY (`event_sequence_id`)
+    FOREIGN KEY (`event_group_id`)
     REFERENCES `EventGroup` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
@@ -1028,7 +1028,7 @@ INSERT INTO `ActivityPoint` (`activity_result_id`,`timestamp`,`location_id`)
     ON mg.`event_sequence_id` =mes.`id`
   WHERE mg.`name` <> 'Memory Ride';
 
-INSERT INTO `Event` (`id`,`name`,`year`,`url`,`address_id`,`event_sequence_id`,`external_data_source_id`,`external_identifier`)
+INSERT INTO `Event` (`id`,`name`,`year`,`url`,`address_id`,`event_group_id`,`external_data_source_id`,`external_identifier`)
   WITH t AS (SELECT mer.`event_reference_type_id`,mer.`ref_num`,me.`event_group_id` FROM `mig_event` me JOIN `mig_event_reference` mer ON me.`id` =mer.`event_id`)
   SELECT eg.`id`,eg.`name`,eg.`year`,eg.`url`,eg.`address_id`,eg.`event_sequence_id`,
   (SELECT t.`event_reference_type_id` FROM t WHERE t.`event_group_id` = eg.`id`),

@@ -74,7 +74,7 @@ __PACKAGE__->table("Event");
   is_foreign_key: 1
   is_nullable: 0
 
-=head2 event_sequence_id
+=head2 event_group_id
 
   data_type: 'integer'
   extra: {unsigned => 1}
@@ -117,7 +117,7 @@ __PACKAGE__->add_columns(
     is_foreign_key => 1,
     is_nullable => 0,
   },
-  "event_sequence_id",
+  "event_group_id",
   {
     data_type => "integer",
     extra => { unsigned => 1 },
@@ -179,7 +179,7 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 event_sequence
+=head2 event_group
 
 Type: belongs_to
 
@@ -188,9 +188,9 @@ Related object: L<Moove::Model::Result::EventGroup>
 =cut
 
 __PACKAGE__->belongs_to(
-  "event_sequence",
+  "event_group",
   "Moove::Model::Result::EventGroup",
-  { id => "event_sequence_id" },
+  { id => "event_group_id" },
   {
     is_deferrable => 1,
     join_type     => "LEFT",
@@ -245,8 +245,8 @@ Composing rels: L</event_series_events> -> event_group
 __PACKAGE__->many_to_many("event_groups", "event_series_events", "event_group");
 #>>>
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2020-05-07 12:23:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:8t7FKuEMs9lR/ZPt6eEP6A
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-04-01 16:09:20
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:6nubvdylUTt49cthQhYnew
 
 use Moove::Import::Event::RaceWire;
 use Moove::Import::Event::IResultsLive;
