@@ -49,11 +49,12 @@ sub import_activity ($self, $activity, $user, $workout = undef) {
   }
   if ($activity_type->base_activity_type->has_pace || $activity_type->base_activity_type->has_speed) {
     my $pace_units = $self->model('UnitOfMeasure')->find({abbreviation => '/mi'});
+    my $speed_units = $self->model('UnitOfMeasure')->find({abbreviation => 'mph'});
     $result_params->{net_time} = $activity->{net_time};
     $result_params->{pace} =
         $activity_type->base_activity_type->has_pace
       ? $activity->{pace}
-      : $self->unit_conversion(value => $activity->{speed}, to => $pace_units);
+      : $self->unit_conversion(value => $activity->{speed}, from => $speed_units, to => $pace_units);
     $result_params->{speed} = $activity_type->base_activity_type->has_speed ? $activity->{speed} : $self->unit_conversion(
       value => $self->time_to_minutes(DBIx::Class::InflateColumn::Time::_inflate($activity->{pace})),
       from  => $pace_units
