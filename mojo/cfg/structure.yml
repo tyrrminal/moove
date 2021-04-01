@@ -46,9 +46,6 @@ auth:
     bindpw:
       isa: Str
       description: LDAP user password
-    user_basedn:
-      isa: Str
-      description: Directory subtree in which to search for users
   roles:
     isa: HashRef
     description: map from App roles to backend auth groups
