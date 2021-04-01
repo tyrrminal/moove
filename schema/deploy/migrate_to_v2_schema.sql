@@ -1011,7 +1011,7 @@ INSERT INTO `Activity` (`id`,`activity_type_id`,`workout_id`,`group_num`,`set_nu
   LEFT JOIN `mig_activity_reference` r
     ON a.`id` = r.`activity_id`
   LEFT JOIN `ExternalDataSource` e
-    ON r.`import_class` = e.`import_class`
+    ON r.`import_class` = e.`name`
   WHERE a.`user_id` IS NOT NULL;
 
 INSERT INTO `ActivityPoint` (`activity_result_id`,`timestamp`,`location_id`) 
