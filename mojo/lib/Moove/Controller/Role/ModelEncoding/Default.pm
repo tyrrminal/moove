@@ -3,6 +3,11 @@ use Role::Tiny;
 
 use experimental qw(signatures);
 
+sub encode_model_address($self, $address) {
+  my %r = $self->encode_simple_model($address)->%*;
+  return {map { $_ => $r{$_} } grep { defined($r{$_}) } keys(%r)};
+}
+
 sub encode_model_cumulativetotal ($self, $total) {
   return {
     activityTypeID => $total->activity_type_id,
@@ -14,21 +19,9 @@ sub encode_model_cumulativetotal ($self, $total) {
 
 sub encode_model_distance ($self, $distance) {
   return {
-    id     => $distance->id,
     value  => $distance->value,
-    unitID => $distance->uom->id,
-  };
-}
-
-sub encode_model_event ($self, $event) {
-  return {
-    id             => $event->id,
-    name           => join(" - ", grep {defined} ($event->event_group->name, $event->name || undef)),
-    entrants       => $event->entrants,
-    url            => $event->event_group->url,
-    scheduledStart => $self->render_datetime($event->scheduled_start),
-    eventTypeID    => $event->event_type_id,
-    distance       => $self->encode_model($event->distance),
+    unitID => $distance->unit_of_measure->id,
+    label  =>  $distance->unit_of_measure->abbreviation
   };
 }
 
