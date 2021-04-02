@@ -256,43 +256,34 @@ use Moove::Import::Event::MillenniumRunning;
 use DCS::DateTime::Extras;
 use DCS::Constants qw(:existence :symbols);
 
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
+use experimental qw(signatures postderef);
 
-sub address {
-  my $self = shift;
+sub address($self) {
   return $self->event_group->address;
 }
 
-sub update_missing_group_counts {
-  my $self = shift;
-
+sub update_missing_group_counts($self) {
   my $rs = $self->result_source->schema->resultset('EventResultGroup')->for_event($self)->missing_count;
   while (my $g = $rs->next) {
     $g->update_count;
   }
 }
 
-sub add_missing_gender_groups {
-  my $self = shift;
-
+sub add_missing_gender_groups($self) {
   foreach my $g ($self->result_source->schema->resultset('Gender')->all) {
     $self->create_gender_result_group($g)
       unless ($self->event_result_groups->search({gender_id => $g->id, division_id => $NULL})->count);
   }
 }
 
-sub update_missing_result_paces {
-  my $self = shift;
-
+sub update_missing_result_paces($self) {
   my $rs = $self->result_source->schema->resultset('Result')->for_event($self)->needs_pace;
   while (my $r = $rs->next) {
     $r->update_pace;
   }
 }
 
-sub create_gender_result_group {
-  my $self     = shift;
-  my ($gender) = @_;
+sub create_gender_result_group($self, $gender) {
   my $schema   = $self->result_source->schema;
 
   my $rs_r = $schema->resultset('Result')->search(
@@ -326,8 +317,7 @@ sub create_gender_result_group {
   }
 }
 
-sub description {
-  my $self = shift;
+sub description($self) {
   my $year = $self->scheduled_start->year;
   my $name = $self->event_group->name;
   if (my $sub_name = $self->name) {
@@ -339,8 +329,7 @@ sub description {
   return $name;
 }
 
-sub countdown {
-  my $self  = shift;
+sub countdown($self) {
   my $now   = DateTime->now(time_zone => 'local');
   my $start = $self->scheduled_start;
 
@@ -350,28 +339,6 @@ sub countdown {
     weeks  => sprintf("%.01f", $days / 7),
     months => sprintf("%.01f", $start->yearfrac($now) * 12)
   };
-}
-
-sub router_link {
-  my $self = shift;
-
-  return {
-    route_name => 'event',
-    params     => {id => $self->id},
-    text       => $self->description
-  };
-}
-
-sub event_url {
-  my $self = shift;
-
-  my $url = $self->event_group->url;
-  return $url if (defined($url));
-
-  if (my $seq = $self->event_group->event_sequence) {
-    return $seq->url;
-  }
-  return undef;
 }
 
 sub results_url {
