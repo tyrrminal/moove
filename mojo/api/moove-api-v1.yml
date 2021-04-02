@@ -118,9 +118,7 @@ paths:
                       $ref: "#/components/schemas/VisibilityType"
       tags:
         - Meta
-  /users/{userID}/activities:
-    parameters:
-      - $ref: "#/components/parameters/UserID"
+  /activities:
     get:
       summary: Get an optionally-filtered list of all activities
       x-mojo-to: Activity#list
@@ -132,7 +130,7 @@ paths:
         - $ref: "#/components/parameters/SortDirection"
         # Query Params
         - $ref: "#/components/parameters/SearchWorkoutID"
-        - $ref: "#/components/parameters/SearchUserID"
+        - $ref: "#/components/parameters/SearchUsername"
         - $ref: "#/components/parameters/SearchActivityType"
         - $ref: "#/components/parameters/SearchStartdate"
         - $ref: "#/components/parameters/SearchEnddate"
@@ -241,9 +239,7 @@ paths:
                 type: string
       tags:
         - Activity
-  /users/{userID}/activities/summary:
-    parameters:
-      - $ref: "#/components/parameters/UserID"
+  /activities/summary:
     get:
       summary: Get activities list summary
       x-mojo-to: Activity#summary
@@ -494,12 +490,10 @@ paths:
                 type: string
       tags:
         - Event
-  /user/{userID}/events:
-    parameters:
-      - $ref: "#/components/parameters/UserID"
+  /user/events:
     get:
       summary: Get an optionally-filtered list of events to which a user is registered
-      x-mojo-to: User#event_list
+      x-mojo-to: UserEventActivity#list
       parameters:
         # Pagination Params
         - $ref: "#/components/parameters/PageNumber"
@@ -511,6 +505,7 @@ paths:
         - $ref: "#/components/parameters/SearchStartdate"
         - $ref: "#/components/parameters/SearchEnddate"
         - $ref: "#/components/parameters/SearchActivityType"
+        - $ref: "#/components/parameters/SearchUsername"
       responses:
         200:
           description: OK
@@ -522,7 +517,7 @@ paths:
         - Event
     post:
       summary: Register to an event
-      x-mojo-to: User#register_event
+      x-mojo-to: UserEventActivity#create
       requestBody:
         required: true
         content:
@@ -540,7 +535,7 @@ paths:
         - Event
     delete:
       summary: Unregister from an event
-      x-mojo-to: User#unregister_event
+      x-mojo-to: UserEventActivity#delete
       requestBody:
         required: true
         content:
@@ -568,6 +563,7 @@ paths:
         - $ref: "#/components/parameters/SortDirection"
         # Query Params
         - $ref: "#/components/parameters/SearchGoalname"
+        - $ref: "#/components/parameters/SearchUsername"
       responses:
         200:
           description: OK
@@ -732,9 +728,7 @@ paths:
                 type: string
       tags:
         - User
-  /users/{userID}/workouts:
-    parameters:
-      - $ref: "#/components/parameters/UserID"
+  /workouts:
     get:
       summary: Get an optionally-filtered list of all workouts
       x-mojo-to: Workout#list
@@ -747,6 +741,7 @@ paths:
         # Query Params
         - $ref: "#/components/parameters/SearchStartdate"
         - $ref: "#/components/parameters/SearchEnddate"
+        - $ref: "#/components/parameters/SearchUsername"
       responses:
         200:
           description: OK
