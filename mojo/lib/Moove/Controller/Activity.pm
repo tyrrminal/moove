@@ -38,8 +38,10 @@ sub resultset ($self, @args) {
     $rs = $rs->uncombined;
   }
 
-  my $user = $self->model('User')->find($self->validation->param('userID') || $self->current_user->id);
-  return $self->render_not_found('User') unless ($user);
+  my $user = $self->current_user;
+  if(my $username = $self->validation->param('username')) {
+    $user = $self->model('User')->find({username => $username});
+  }
   $rs = $rs->for_user($user)->visible_to($self->current_user);
 
   if (my $workout_id = $self->validation->param('workoutID')) {
