@@ -4,6 +4,8 @@ use warnings;
 
 use base qw(DBIx::Class::ResultSet);
 
+use DCS::Constants qw(:existence);
+
 use experimental qw(signatures postderef);
 
 sub find_address($self, %v) {

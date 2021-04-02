@@ -4,6 +4,7 @@ use warnings;
 
 use base qw(DBIx::Class::ResultSet);
 
+use boolean;
 use DCS::Constants qw(:symbols);
 
 use experimental qw(signatures postderef);
@@ -14,7 +15,7 @@ sub guest($self) {
 
 sub is_friends_with ($self, $user) {
   # TODO: implement friends capabilities
-  return $FALSE;
+  return false;
 }
 
 sub find_user ($self, $user_id) {

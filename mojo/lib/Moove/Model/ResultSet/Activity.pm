@@ -28,7 +28,7 @@ sub for_user ($self, $user) {
 }
 
 sub in_workout ($self, $workout) {
-  return $rs->search(
+  return $self->search(
     {
       workout_id => $workout->id
     }
