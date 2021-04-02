@@ -6,20 +6,23 @@ import Login from "@/components/auth/Login.vue";
 
 import User from "@/views/User.vue";
 
-import Workouts from "@/views/Workouts.vue";
+import Workouts from "@/views/workouts/Base.vue";
 import WorkoutList from "@/views/workouts/List.vue";
 import WorkoutEdit from "@/views/workouts/Edit.vue";
-import Workout from "@/views/Workout.vue";
+import Workout from "@/views/workouts/Detail.vue";
 
-import Activities from "@/views/Activities.vue";
+import Activities from "@/views/activities/Base.vue";
 import Activity from "@/views/activities/Detail.vue";
 import ActivityList from "@/views/activities/List.vue";
 import ActivitySummary from "@/views/activities/Summary.vue";
 
-import Events from "@/views/events/List.vue";
+import Events from "@/views/events/Base.vue";
+import EventList from "@/views/events/List.vue";
 import Event from "@/views/events/Detail.vue";
-import Goals from "@/views/Goals.vue";
-import Goal from "@/views/Goal.vue";
+
+import Goals from "@/views/goals/Base.vue";
+import GoalList from "@/views/goals/List.vue";
+import Goal from "@/views/goals/Detail.vue";
 
 import ErrorNotFound from "@/error/NotFound.vue";
 
@@ -91,31 +94,39 @@ let router = new Router({
       ]
     },
     {
-      path: "/user/:user/events",
-      name: 'events',
+      path: "/events",
       component: Events,
-      props: true
+      children: [
+        {
+          path: "",
+          name: 'events',
+          component: EventList,
+          props: true
+        },
+        {
+          path: ":id",
+          name: "event",
+          component: Event,
+          props: true
+        },
+      ]
     },
     {
-      path: "/user/:user/event/sequence/:sequence_id",
-      name: 'sequence',
-      component: Events
-    },
-    {
-      path: "/user/:user/event/:id",
-      name: "event",
-      component: Event
-    },
-    {
-      path: "/user/:user/goals",
-      name: "goals",
+      path: "/goals",
       component: Goals,
-      props: true
-    },
-    {
-      path: "/user/:user/goal/:id",
-      name: "goal",
-      component: Goal
+      children: [
+        {
+          path: "",
+          name: "goals",
+          component: GoalList,
+          props: true
+        },
+        {
+          path: ":id",
+          name: "goal",
+          component: Goal
+        },
+      ]
     },
     {
       path: "*",
