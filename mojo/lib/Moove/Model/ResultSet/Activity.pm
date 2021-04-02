@@ -1,4 +1,7 @@
 package Moove::Model::ResultSet::Activity;
+use strict;
+use warnings;
+
 use base qw(DBIx::Class::ResultSet);
 
 use DCS::Constants qw(:existence);

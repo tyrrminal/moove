@@ -1,4 +1,7 @@
 package Moove::Model::ResultSet::Distance;
+use strict;
+use warnings;
+
 use base qw(DBIx::Class::ResultSet);
 
 use experimental qw(signatures postderef);

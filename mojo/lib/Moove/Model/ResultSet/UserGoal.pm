@@ -1,11 +1,12 @@
 package Moove::Model::ResultSet::UserGoal;
+use strict;
+use warnings;
 
 use base qw(DBIx::Class::ResultSet);
 
-sub fulfilled {
-  my $self = shift;
-  my ($direction) = (@_, '-asc');
+use experimental qw(signatures postderef);
 
+sub fulfilled($self, $direction = '-asc') {
   return $self->search(
     {},
     {
@@ -16,9 +17,7 @@ sub fulfilled {
   );
 }
 
-sub personal_records {
-  my $self = shift;
-
+sub personal_records($self) {
   return $self->search(
     {
       'goal_comparator.superlative' => 'Y'
@@ -28,9 +27,7 @@ sub personal_records {
   );
 }
 
-sub achievements {
-  my $self = shift;
-
+sub achievements($self) {
   return $self->search(
     {
       'goal_comparator.superlative' => 'N'
@@ -40,10 +37,7 @@ sub achievements {
   );
 }
 
-sub for_user {
-  my $self = shift;
-  my ($user) = @_;
-
+sub for_user($self, $user) {
   return $self->search(
     {
       user_id => $user->id
@@ -51,10 +45,7 @@ sub for_user {
   );
 }
 
-sub of_type {
-  my $self = shift;
-  my ($type) = @_;
-
+sub of_type($self, $type) {
   return $self->search(
     {
       -or => [
@@ -67,9 +58,7 @@ sub of_type {
   );
 }
 
-sub update_applicable_goals {
-  my $self = shift;
-  my ($activity) = @_;
+sub update_applicable_goals($self, $activity) {
   return unless (defined($activity->user));
 
   foreach my $ug ($self->for_user($activity->user)->of_type($activity->activity_type)) {

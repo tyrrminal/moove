@@ -1,32 +1,46 @@
 package Moove::Model::ResultSet::Event;
+use strict;
+use warnings;
 
 use base qw(DBIx::Class::ResultSet);
 
+use DateTime;
 use DateTime::Format::MySQL;
 
 use DCS::Constants qw(:existence);
 
-sub find_event {
-  my $self = shift;
-  my ($year, $name) = @_;
+use experimental qw(signatures postderef);
 
-  my ($event) = grep {$_->scheduled_start->year == $year} $self->search(
-    {
-      '-or' => [
-        'event_references.referenced_name' => $name,
-        'me.name'                          => $name
-      ]
-    }, {
-      join => 'event_references'
-    }
-  )->all;
-  return $event;
+sub find_event($self, $year, $name) {
+  return $self->by_name($name)->in_year($year)->first;
 }
 
-sub for_user {
-  my $self = shift;
-  my ($user) = @_;
+sub in_year($self, $year) {
+  my $d = DateTime->new(year => $year, month => 1, day => 1);
+  return $self->search({
+    'event_activities.scheduled_start' => {-between => [
+      DateTime::Format::MySQL->format_date($d), 
+      DateTime::Format::MySQL->format_date($d->clone->add(years => 1))
+    ]}
+  },{
+    join => 'event_activities',
+    collapse => 1
+  });
+}
 
+sub by_name($self, $name) {
+  my $str = "%${name}%";
+  return $self->search({
+    -or => [
+      {'me.name' => {-like => $str}},
+      {'event_group.name' => {-like => $str}}
+    ]
+  },{
+    join => 'event_group'
+  });
+}
+
+sub for_user($self, $user) {
   return $self->search(
     {
       'event_registrations.user_id' => $user->id
@@ -36,10 +50,7 @@ sub for_user {
   );
 }
 
-sub of_type {
-  my $self = shift;
-  my ($type) = @_;
-
+sub of_type($self, $type) {
   return $self->search(
     {
       'event_type.activity_type_id' => $type->id
@@ -49,16 +60,34 @@ sub of_type {
   );
 }
 
-sub on_date {
-  my $self = shift;
-  my ($date) = @_;
-
-  return $self->search({\['DATE(scheduled_start) = ?' => DateTime::Format::MySQL->format_date($date)],});
+sub on_or_before($self, $date) {
+  return $self->search({
+    'event_activities.scheduled_start' =>  {'<' => DateTime::Format::MySQL->format_date($date->clone->add(days => 1))}
+  },{
+    join => 'event_activities',
+    collapse => 1
+  })
 }
 
-sub near_datetime {
-  my $self = shift;
-  my ($date, $minutes_before, $minutes_after) = @_;
+sub on_or_after($self, $date) {
+  return $self->search({
+    'event_activities.scheduled_start' => {'>=' => DateTime::Format::MySQL->format_date($date)}
+  },{
+    join => 'event_activities',
+    collapse => 1
+  })
+}
+
+sub on_date($self, $date) {
+  return $self->search({
+    'event_activities.scheduled_start' => {-between => [DateTime::Format::MySQL->format_date($date), DateTime::Format::MySQL->format_date($date->clone->add(days => 1))]}
+  },{
+    join => 'event_activities',
+    collapse => 1
+  });
+}
+
+sub near_datetime($self, $date, $minutes_before, $minutes_after) {
   my $before = $date->clone->subtract(minutes => $minutes_before);
   my $after = $date->clone->add(minutes => $minutes_after);
 
@@ -70,9 +99,7 @@ sub near_datetime {
   );
 }
 
-sub is_missing_gender_group {
-  my $self = shift;
-
+sub is_missing_gender_group($self) {
   $self->search(
     \["
     me.id IN (

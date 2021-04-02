@@ -1,11 +1,12 @@
 package Moove::Model::ResultSet::Address;
+use strict;
+use warnings;
 
 use base qw(DBIx::Class::ResultSet);
 
-sub find_address {
-  my $self = shift;
-  my %v    = @_;
+use experimental qw(signatures postderef);
 
+sub find_address($self, %v) {
   return $self->find_or_create(
     {
       street1 => $NULL,

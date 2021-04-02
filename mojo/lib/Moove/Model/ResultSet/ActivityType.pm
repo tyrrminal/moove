@@ -1,9 +1,12 @@
 package Moove::Model::ResultSet::ActivityType;
+use strict;
+use warnings;
+
 use base qw(DBIx::Class::ResultSet);
 
 use DCS::Constants qw(:existence);
 
-use experimental qw(signatures);
+use experimental qw(signatures postderef);
 
 sub lookup ($self, $type, $has_map) {
   return $type if (ref($type) eq 'Moove::Model::Result::ActivityType');

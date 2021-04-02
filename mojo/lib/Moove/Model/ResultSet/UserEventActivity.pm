@@ -1,10 +1,12 @@
 package Moove::Model::ResultSet::UserEventActivity;
+use strict;
+use warnings;
 
 use base qw(DBIx::Class::ResultSet);
 
 use DateTime::Format::MySQL;
 
-use experimental qw(signatures);
+use experimental qw(signatures postderef);
 
 sub before ($self, $event) {
   return $self->search(

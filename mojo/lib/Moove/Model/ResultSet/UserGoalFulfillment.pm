@@ -1,11 +1,12 @@
 package Moove::Model::ResultSet::UserGoalFulfillment;
+use strict;
+use warnings;
 
 use base qw(DBIx::Class::ResultSet);
 
-sub ordered {
-  my $self = shift;
-  my ($direction) = (@_, '-asc');
+use experimental qw(signatures postderef);
 
+sub ordered($self, $direction = '-asc') {
   $self->search(
     {},
     {
@@ -14,9 +15,7 @@ sub ordered {
   );
 }
 
-sub most_recent {
-  my $self = shift;
-
+sub most_recent($self) {
   $self->search(
     {},
     {

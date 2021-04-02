@@ -1,13 +1,14 @@
 package Moove::Model::ResultSet::EventPlacementPartition;
+use strict;
+use warnings;
 
 use base qw(DBIx::Class::ResultSet);
 
 use DCS::Constants qw(:existence);
 
-sub for_event {
-  my $self = shift;
-  my ($event) = @_;
+use experimental qw(signatures postderef);
 
+sub for_event($self, $event) {
   return $self->search(
     {
       event_id => $event->id
@@ -15,8 +16,7 @@ sub for_event {
   );
 }
 
-sub missing_count {
-  my $self = shift;
+sub missing_count($self) {
   return $self->search({count => {'=', $NULL}});
 }
 

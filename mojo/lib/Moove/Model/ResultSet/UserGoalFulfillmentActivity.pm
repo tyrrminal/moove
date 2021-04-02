@@ -1,11 +1,12 @@
 package Moove::Model::ResultSet::UserGoalFulfillmentActivity;
+use strict;
+use warnings;
 
 use base qw(DBIx::Class::ResultSet);
 
-sub ordered {
-  my $self = shift;
-  my ($direction) = (@_, '-asc');
+use experimental qw(signatures postderef);
 
+sub ordered($self, $direction = '-asc') {
   return $self->search({}, {
     join => 'activity',
     order_by => {$direction => 'activity.start_time'}
