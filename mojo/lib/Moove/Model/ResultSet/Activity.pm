@@ -18,9 +18,10 @@ sub prior_import ($self, $id, $importer) {
 }
 
 sub for_user ($self, $user) {
+  my $userID = defined($user) ? $user->id : -1;
   return $self->search(
     {
-      'workout.user_id' => $user->id
+      'workout.user_id' => $userID
     }, {
       join => 'workout'
     }
