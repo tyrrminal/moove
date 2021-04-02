@@ -16,8 +16,8 @@ import Activity from "@/views/activities/Detail.vue";
 import ActivityList from "@/views/activities/List.vue";
 import ActivitySummary from "@/views/activities/Summary.vue";
 
-import Events from "@/views/Events.vue";
-import Event from "@/views/Event.vue";
+import Events from "@/views/events/List.vue";
+import Event from "@/views/events/Detail.vue";
 import Goals from "@/views/Goals.vue";
 import Goal from "@/views/Goal.vue";
 
