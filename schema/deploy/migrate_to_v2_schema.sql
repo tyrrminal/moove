@@ -1039,8 +1039,8 @@ INSERT INTO `EventSeriesEvent` (`event_id`,`event_group_id`)
   SELECT `event_group_id`, 19+`event_series_id`
   FROM `mig_event_group_series`;
  
-INSERT INTO `EventActivity` (`id`,`name`,`scheduled_start`,`entrants`,`event_id`,`event_type_id`,`external_identifier`) 
-  SELECT e.`id`,e.`name`,e.`scheduled_start`,e.`entrants`,e.`event_group_id`,e.`event_type_id`,mer.`sub_ref_num`
+INSERT INTO `EventActivity` (`id`,`name`,`scheduled_start`,`entrants`,`event_id`,`distance_id`,`event_type_id`,`external_identifier`) 
+  SELECT e.`id`,e.`name`,e.`scheduled_start`,e.`entrants`,e.`event_group_id`,e.`distance_id`,e.`event_type_id`,mer.`sub_ref_num`
   FROM `mig_event` e
   LEFT JOIN `mig_event_reference` mer
     ON e.`id` = mer.`event_id`;
