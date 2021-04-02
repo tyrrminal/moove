@@ -380,18 +380,16 @@ __PACKAGE__->many_to_many(
   "user_goal_fulfillment",
 );
 #>>>
+use experimental qw(signatures postderef);
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-02-04 10:40:22
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:U1oz9b8eRuxhCTxv/6jgvw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-04-02 11:05:00
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:XepyF36wGpkaKYaOa3/Gqg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 use List::Util qw(max);
 
-use Moose;
-use MooseX::NonMoose;
-
-use experimental qw(signatures postderef);
+use Class::Method::Modifiers;
 
 sub last_updated_at($self) {
   return $self->updated_at // $self->created_at;

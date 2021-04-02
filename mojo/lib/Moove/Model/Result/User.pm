@@ -230,9 +230,10 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 #>>>
+use experimental qw(signatures postderef);
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-01-10 11:29:03
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:IL8Hs48L9m03y01CBTYB4A
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-04-02 11:05:01
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ijX446nOgBEa9S/b1c4qYA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
@@ -241,8 +242,6 @@ __PACKAGE__->has_many(
   "cumulative_totals", "Moove::Model::Result::CumulativeTotal",
   {"foreign.user_id" => "self.id"}, {cascade_copy => 0, cascade_delete => 0},
 );
-
-use experimental qw(signatures);
 
 sub is_guest($self) {
   return $self->id < 1;

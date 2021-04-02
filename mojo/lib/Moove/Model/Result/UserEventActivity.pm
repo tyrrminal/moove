@@ -237,9 +237,10 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 #>>>
+use experimental qw(signatures postderef);
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-01-09 17:03:00
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:2HLhKe4jwymFRqy/afNo2w
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-04-02 11:05:01
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:FzzdfZWDOFC+snDTD95TiA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

@@ -244,9 +244,10 @@ Composing rels: L</event_series_events> -> event_group
 
 __PACKAGE__->many_to_many("event_groups", "event_series_events", "event_group");
 #>>>
+use experimental qw(signatures postderef);
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-04-01 16:09:20
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:6nubvdylUTt49cthQhYnew
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-04-02 11:05:01
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:2yxu82xSamlqm5ds//4MVQ
 
 use Moove::Import::Event::RaceWire;
 use Moove::Import::Event::IResultsLive;
@@ -255,8 +256,6 @@ use Moove::Import::Event::MillenniumRunning;
 
 use DCS::DateTime::Extras;
 use DCS::Constants qw(:existence :symbols);
-
-use experimental qw(signatures postderef);
 
 sub address($self) {
   return $self->event_group->address;

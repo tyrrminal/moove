@@ -81,9 +81,10 @@ __PACKAGE__->add_columns(
   { data_type => "integer", extra => { unsigned => 1 }, is_nullable => 1 },
 );
 #>>>
+use experimental qw(signatures postderef);
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-02-15 22:38:43
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:JfJI39jGkdfgFpy/Ag4aIg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-04-02 11:05:01
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ygJ+EJLL9qUXTE7E5O/G+w
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

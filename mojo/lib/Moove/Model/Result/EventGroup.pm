@@ -139,9 +139,10 @@ Composing rels: L</event_series_events> -> event
 
 __PACKAGE__->many_to_many("events", "event_series_events", "event");
 #>>>
+use experimental qw(signatures postderef);
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-04-01 16:09:20
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:BsQ2pcIqe1aAjyAW5hsUjQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-04-02 11:05:01
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:lw4ItWiuKpU8Mz7/slfRFg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
