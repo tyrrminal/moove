@@ -1,6 +1,8 @@
 package Moove v2.0.0;
 use Mojo::Base 'Mojolicious';
 
+use Mojolicious::Plugin::DCS::Base::Constants qw(:dbix);
+
 use experimental qw(signatures);
 
 # This method will run once at server start
@@ -9,7 +11,7 @@ sub startup($self) {
     'DCS::Base',
     cron          => undef,
     persistentlog => undef,
-    datastore => {components => [qw(InflateColumn::Time)]},
+    datastore => {load_schema_options => {components => [@DEFAULT_DBIX_COMPONENTS, qw(InflateColumn::Time)]}},
   );
 }
 
