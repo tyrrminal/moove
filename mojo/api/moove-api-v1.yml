@@ -118,7 +118,9 @@ paths:
                       $ref: "#/components/schemas/VisibilityType"
       tags:
         - Meta
-  /activities:
+  /users/{userID}/activities:
+    parameters:
+      - $ref: "#/components/parameters/UserID"
     get:
       summary: Get an optionally-filtered list of all activities
       x-mojo-to: Activity#list
@@ -239,7 +241,9 @@ paths:
                 type: string
       tags:
         - Activity
-  /activities/summary:
+  /users/{userID}/activities/summary:
+    parameters:
+      - $ref: "#/components/parameters/UserID"
     get:
       summary: Get activities list summary
       x-mojo-to: Activity#summary
@@ -395,6 +399,63 @@ paths:
                 type: string
       tags:
         - Event
+  /events/{eventID}/activities:
+    parameters:
+      - $ref: "#/components/parameters/EventID"
+    post:
+      summary: Add an Event Activity to an existing Event
+      x-mojo-to: EventActivity#create
+      requestBody:
+        description: The EventActivity data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EventActivity"
+      responses:
+        201:
+          description: Added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+      tags:
+        - Event
+  /events/{eventID}/activities/{eventActivityID}:
+    parameters:
+      - $ref: "#/components/parameters/EventID"
+      - $ref: "#/components/parameters/EventActivityID"
+    patch:
+      summary: Update an Event Activity
+      x-mojo-to: EventActivity#update
+      requestBody:
+        description: The EventActivity data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EventActivity"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+      tags:
+        - Event
+    delete:
+      summary: Delete an Event Activity
+      x-mojo-to: EventActivity#delete
+      responses:
+        204:
+          description: Deleted
+          content:
+            text/plain:
+              schema:
+                type: string
+      tags:
+        - Event
   /events/{eventID}/results:
     parameters:
       - $ref: "#/components/parameters/EventID"
@@ -427,6 +488,68 @@ paths:
       responses:
         204:
           description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+      tags:
+        - Event
+  /user/{userID}/events:
+    parameters:
+      - $ref: "#/components/parameters/UserID"
+    get:
+      summary: Get an optionally-filtered list of events to which a user is registered
+      x-mojo-to: User#event_list
+      parameters:
+        # Pagination Params
+        - $ref: "#/components/parameters/PageNumber"
+        - $ref: "#/components/parameters/PageLength"
+        - $ref: "#/components/parameters/SortField"
+        - $ref: "#/components/parameters/SortDirection"
+        # Query Params
+        - $ref: "#/components/parameters/SearchEventname"
+        - $ref: "#/components/parameters/SearchStartdate"
+        - $ref: "#/components/parameters/SearchEnddate"
+        - $ref: "#/components/parameters/SearchActivityType"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventRegistration"
+      tags:
+        - Event
+    post:
+      summary: Register to an event
+      x-mojo-to: User#register_event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Event"
+      responses:
+        201:
+          description: Registered
+          content:
+            text/plain:
+              schema:
+                type: string
+      tags:
+        - Event
+    delete:
+      summary: Unregister from an event
+      x-mojo-to: User#unregister_event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Event"
+      responses:
+        204:
+          description: Unregistered
           content:
             text/plain:
               schema:
@@ -519,7 +642,7 @@ paths:
                 type: string
       tags:
         - Goal
-  /users:
+  /admin/users:
     get:
       summary: Get an optionally-filtered list of all users
       x-mojo-to: User#list
@@ -540,6 +663,10 @@ paths:
                 $ref: "#/components/schemas/PaginatedUsers"
       tags:
         - User
+      security:
+        - session:
+            - admin
+  /users:
     post:
       summary: Create a user
       x-mojo-to: User#create
@@ -605,7 +732,9 @@ paths:
                 type: string
       tags:
         - User
-  /workouts:
+  /users/{userID}/workouts:
+    parameters:
+      - $ref: "#/components/parameters/UserID"
     get:
       summary: Get an optionally-filtered list of all workouts
       x-mojo-to: Workout#list
@@ -705,6 +834,13 @@ components:
     EventID:
       in: path
       name: eventID
+      description: The ID number of the event
+      required: true
+      schema:
+        $ref: "#/components/schemas/DatabaseID"
+    EventActivityID:
+      in: path
+      name: eventActivityID
       description: The ID number of the event
       required: true
       schema:
@@ -998,6 +1134,18 @@ components:
         email:
           type: string
     Event:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+    EventActivity:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+    EventRegistration:
       type: object
       additionalProperties: true
       properties:
