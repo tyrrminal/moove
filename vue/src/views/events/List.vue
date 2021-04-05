@@ -140,19 +140,25 @@ export default {
     init() {
       let self = this;
       self.isLoading = true;
-      let qs = { username: this.username, "page.length": 0 };
-      this.sequence_id = this.$route.params.sequence_id;
+      let qs = {
+        username: this.username,
+        "order.by": "scheduledStart",
+        "order.dir": "desc",
+      };
 
-      if (this.sequence_id) {
-        qs["sequence_id"] = this.sequence_id;
-      }
-
-      this.$http
-        .get(["user", "events"].join("/"), { params: qs })
-        .then((response) => {
-          self.events = response.data.elements;
-          self.isLoading = false;
-        });
+      let loadData = function (pageNumber) {
+        self.$http
+          .get(["user", "events"].join("/"), {
+            params: { ...qs, "page.number": pageNumber },
+          })
+          .then((response) => {
+            self.events.push(...response.data.elements);
+            self.isLoading = false;
+            if (self.events.length < response.data.pagination.counts.filter)
+              self.$nextTick(() => loadData(pageNumber + 1));
+          });
+      };
+      loadData(1);
     },
     sortCompare: function (a, b, key, sortDesc, formatterFn, options, locale) {
       var t = "str";
@@ -225,9 +231,6 @@ export default {
         },
       };
     },
-  },
-  mounted() {
-    this.init();
   },
   filters: {
     extract: function (o, f) {
