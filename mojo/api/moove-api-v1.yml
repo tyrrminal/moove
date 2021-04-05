@@ -239,10 +239,10 @@ paths:
                 type: string
       tags:
         - Activity
-  /activities/summary:
+  /activities/slice:
     get:
-      summary: Get activities list summary
-      x-mojo-to: Activity#summary
+      summary: Get activities sliced by time period
+      x-mojo-to: Activity#slice
       parameters:
         # Query Params
         - $ref: "#/components/parameters/SearchUserID"
@@ -271,7 +271,7 @@ paths:
           required: false
           schema:
             type: boolean
-          description: Include summaries for periods with no activities
+          description: Include slices for periods with no activities
       responses:
         200:
           description: OK
@@ -280,7 +280,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/ActivitySummary"
+                  $ref: "#/components/schemas/ActivitySlice"
       tags:
         - Activity
   /activities/merge:
@@ -998,7 +998,7 @@ components:
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"
-    ActivitySummary:
+    ActivitySlice:
       type: object
       additionalProperties: false
       required:
@@ -1006,7 +1006,7 @@ components:
         - count
       properties:
         period:
-          $ref: "#/components/schemas/SummaryPeriod"
+          $ref: "#/components/schemas/SlicePeriod"
         count:
           type: integer
           minimum: 0
@@ -1018,7 +1018,7 @@ components:
           $ref: "#/components/schemas/SummaryTimeValue"
         speed:
           $ref: "#/components/schemas/SummaryNumericValue"
-    SummaryPeriod:
+    SlicePeriod:
       type: object
       additionalProperties: false
       required:

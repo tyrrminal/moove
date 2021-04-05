@@ -1,6 +1,6 @@
 <template>
   <b-container>
-    <h2 class="mt-3">Activity Summary</h2>
+    <h2 class="mt-3">Activity Slice</h2>
     <b-row class="mt-3 mb-3">
       <b-col cols="3">
         <b-button-group>
@@ -126,7 +126,7 @@ const { DateTime } = require("luxon");
 import TreeTable from "@/components/tree-table/TreeTable";
 
 export default {
-  name: "ActivitySummary",
+  name: "ActivitySlice",
   components: {
     TreeTable,
   },
@@ -191,7 +191,7 @@ export default {
       ) {
         let self = this;
         this.$http
-          .get("activities/summary", {
+          .get("activities/slice", {
             params: {
               activityTypeID: a.id,
               period: l,

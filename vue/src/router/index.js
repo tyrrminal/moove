@@ -14,7 +14,7 @@ import Workout from "@/views/workouts/Detail.vue";
 import Activities from "@/views/activities/Base.vue";
 import Activity from "@/views/activities/Detail.vue";
 import ActivityList from "@/views/activities/List.vue";
-import ActivitySummary from "@/views/activities/Summary.vue";
+import ActivitySlice from "@/views/activities/Slice.vue";
 
 import Events from "@/views/events/Base.vue";
 import EventList from "@/views/events/List.vue";
@@ -81,9 +81,9 @@ let router = new Router({
           props: true,
         },
         {
-          path: "/user/:username/activities/summary",
-          name: "activitiesSummary",
-          component: ActivitySummary
+          path: "/user/:username/activities/slice",
+          name: "activitiesSlice",
+          component: ActivitySlice
         },
         {
           path: ":id",

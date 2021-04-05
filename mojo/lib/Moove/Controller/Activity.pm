@@ -25,7 +25,7 @@ sub resultset ($self, @args) {
   $rs = $rs->search(
     undef, {
       prefetch => [
-        {activity_result => [{distance => 'unit_of_measure'},'normalized_distance']},
+        {activity_result => [{distance => 'unit_of_measure'}, 'normalized_distance']},
         'workout',
         {activity_type => ['base_activity_type', 'activity_context']}
       ]
@@ -39,7 +39,7 @@ sub resultset ($self, @args) {
   }
 
   my $user = $self->current_user;
-  if(my $username = $self->validation->param('username')) {
+  if (my $username = $self->validation->param('username')) {
     $user = $self->model('User')->find({username => $username});
   }
   $rs = $rs->for_user($user)->visible_to($self->current_user);
@@ -71,7 +71,7 @@ sub custom_sort_for_column ($self, $col_name) {
   return undef;
 }
 
-sub summary($self) {
+sub slice ($self) {
   return unless ($self->openapi->valid_input);
 
   my $user = $self->current_user;
@@ -96,7 +96,7 @@ sub summary($self) {
       push(@period_activities, $all[$i++]);
     }
     next unless (@period_activities || $showEmpty);
-    my $summary = {
+    my $slice = {
       period => {
         daysInPeriod => max(1, $p->{end}->delta_days($p->{start})->delta_days),
         start        => $p->{start}->strftime('%F'),
@@ -105,12 +105,12 @@ sub summary($self) {
       },
       count => scalar @period_activities
     };
-    push(@summaries, $summary);
+    push(@summaries, $slice);
     if ($activity_type->base_activity_type->has_distance) {
       my @distances =
-        map  {$_->activity_result->distance->normalized_value}
+        map {$_->activity_result->distance->normalized_value}
         grep {$_->activity_type->base_activity_type->has_distance} @period_activities;
-      $summary->{distance} = {map {$_ => &$_(@distances) // 0} qw(sum max min)};
+      $slice->{distance} = {map {$_ => &$_(@distances) // 0} qw(sum max min)};
     }
   }
 
@@ -125,9 +125,9 @@ sub periods_in_range ($period, $start, $end) {
       my $o = $start->clone->truncate(to => 'year');
       push(
         @p, {
-          t => {year => $o->year},
+          t     => {year => $o->year},
           start => max($start, $o->clone),
-          end => min($end, $o->add(years => 1)->clone)
+          end   => min($end, $o->add(years => 1)->clone)
         }
         )
         while ($o < $end);
@@ -141,7 +141,7 @@ sub periods_in_range ($period, $start, $end) {
             quarter => $o->quarter,
           },
           start => max($start, $o->clone),
-          end => min($end, $o->add(months => 3)->clone)
+          end   => min($end, $o->add(months => 3)->clone)
         }
         )
         while ($o < $end);
@@ -158,7 +158,7 @@ sub periods_in_range ($period, $start, $end) {
             month   => $o->month,
           },
           start => max($start, $o->clone),
-          end => min($end, $o->add(months => 1)->clone)
+          end   => min($end, $o->add(months => 1)->clone)
         }
         )
         while ($o < $end);
@@ -175,7 +175,7 @@ sub periods_in_range ($period, $start, $end) {
             weekOfYear  => $o->clone->add(days => 1)->week_number,
           },
           start => max($start, $o->clone),
-          end => min($end, $o->add(weeks => 1)->clone)
+          end   => min($end, $o->add(weeks => 1)->clone)
         }
         )
         while ($o < $end);
@@ -184,12 +184,12 @@ sub periods_in_range ($period, $start, $end) {
   return @p;
 }
 
-sub import($self) {
+sub import ($self) {
   return unless ($self->openapi->valid_input);
   my @activities = ();
 
   my $asset = $self->param('file')->asset;
-  my $ds = $self->model_find(ExternalDataSource => $self->param('externalDataSourceID'))
+  my $ds    = $self->model_find(ExternalDataSource => $self->param('externalDataSourceID'))
     or $self->render_not_found('ExternalDataSource');
 
   my $import_class = $ds->import_class;
