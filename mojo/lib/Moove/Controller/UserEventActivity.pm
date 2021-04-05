@@ -9,10 +9,14 @@ with 'Moove::Controller::Role::ModelEncoding::UserEventActivity',
   'Moove::Controller::Role::ModelEncoding::Registration::Event',
   'Moove::Controller::Role::ModelEncoding::Registration::EventActivity';
 
-use experimental qw(signatures postderef);
+use experimental qw(signatures postderef switch);
 
 sub resultset ($self) {
-  my $rs = $self->unfiltered_resultset();
+  my $rs = $self->unfiltered_resultset()->search(
+    undef, {
+      join => {event_registration => 'event_activity'}
+    }
+  );
 
   if (my $start = $self->validation->param('start')) {
     $rs = $rs->on_or_after($self->parse_api_date($start));
@@ -22,6 +26,13 @@ sub resultset ($self) {
   }
 
   return $rs;
+}
+
+sub custom_sort_for_column ($self, $col) {
+  given ($col) {
+    when ('scheduledStart') {return 'event_activity.scheduled_start'}
+    default                 {return undef}
+  }
 }
 
 sub unfiltered_resultset ($self) {
