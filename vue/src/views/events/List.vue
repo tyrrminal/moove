@@ -4,8 +4,12 @@
 
     <h2>Events</h2>
 
-    <b-form-checkbox id="completed-filter" v-model="filters.completed" size="small">Completed</b-form-checkbox>
-    <b-form-checkbox id="results-filter" v-model="filters.results" size="small">Results</b-form-checkbox>
+    <b-form-checkbox v-model="filters.completed" size="small"
+      >Completed</b-form-checkbox
+    >
+    <b-form-checkbox id="results-filter" v-model="filters.results" size="small"
+      >Results</b-form-checkbox
+    >
 
     <b-table
       striped
@@ -38,44 +42,65 @@
       </template>
 
       <template v-slot:cell(index)="data">{{ data.index + 1 }}</template>
-      <template
-        v-slot:cell(date)="data"
-      >{{ data.item.event.scheduled_start | moment("M/D/YY h:mma") }}</template>
-      <template v-slot:cell(type)="data">{{ data.item.event.event_type.description }}</template>
+      <template v-slot:cell(date)="data">{{
+        data.item.eventActivity.scheduledStart | moment("M/D/YY h:mma")
+      }}</template>
+      <template v-slot:cell(type)="data">{{
+        data.item.eventActivity.eventType.description
+      }}</template>
       <template v-slot:cell(name)="data">
         <router-link
           v-bind:class="eventNameClass(data.item)"
-          :to="{ name: 'event', params: { id: data.item.event.id, user: effectiveUser }}"
-        >{{ data.item.event.name }}</router-link>
+          :to="{
+            name: 'event',
+            params: { id: data.item.id },
+          }"
+          >{{ data.item.eventActivity.event.name }}</router-link
+        >
       </template>
-      <template v-slot:cell(speed)="data">{{ eventVelocity(data.item) }}</template>
-      <template
-        v-slot:cell(distance)="data"
-      >{{ filters.completed ? data.item.activity.distance : data.item.event.distance | format_distance }}</template>
+      <template v-slot:cell(speed)="data"
+        ><span v-if="data.item.activity">{{
+          fillUnits(eventVelocity(data.item)) | format_distance
+        }}</span></template
+      >
+      <template v-slot:cell(distance)="data">{{
+        fillUnits(
+          filters.completed
+            ? data.item.activity.distance
+            : data.item.eventActivity.distance
+        ) | format_distance
+      }}</template>
 
-      <template
-        v-slot:cell(place)="data"
-      >{{ getResultsGroup(data.item.results, 'overall') | extract('place') }}</template>
-      <template
-        v-slot:cell(pct)="data"
-      >{{ getResultsGroup(data.item.results, 'overall') | extract('percentile') | format_pct }}</template>
-      <template
-        v-slot:cell(place_gender)="data"
-      >{{ getResultsGroup(data.item.results, 'gender') | extract('place') }}</template>
-      <template
-        v-slot:cell(pct_gender)="data"
-      >{{ getResultsGroup(data.item.results, 'gender') | extract('percentile') | format_pct }}</template>
-      <template
-        v-slot:cell(place_div)="data"
-      >{{ getResultsGroup(data.item.results, 'division') | extract('place') }}</template>
-      <template
-        v-slot:cell(pct_div)="data"
-      >{{ getResultsGroup(data.item.results, 'division') | extract('percentile') | format_pct }}</template>
+      <template v-slot:cell(place)="data">{{
+        getResultsGroup(data.item.placements, "overall") | extract("place")
+      }}</template>
+      <template v-slot:cell(pct)="data">{{
+        getResultsGroup(data.item.placements, "overall")
+          | extract("percentile")
+          | format_pct
+      }}</template>
+      <template v-slot:cell(place_gender)="data">{{
+        getResultsGroup(data.item.placements, "gender") | extract("place")
+      }}</template>
+      <template v-slot:cell(pct_gender)="data">{{
+        getResultsGroup(data.item.placements, "gender")
+          | extract("percentile")
+          | format_pct
+      }}</template>
+      <template v-slot:cell(place_div)="data">{{
+        getResultsGroup(data.item.placements, "division") | extract("place")
+      }}</template>
+      <template v-slot:cell(pct_div)="data">{{
+        getResultsGroup(data.item.placements, "division")
+          | extract("percentile")
+          | format_pct
+      }}</template>
     </b-table>
   </b-container>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import "@/filters/event_filters.js";
 
 export default {
@@ -85,8 +110,8 @@ export default {
       sequence_id: null,
       filters: {
         type: null,
-        completed: null,
-        results: null,
+        completed: false,
+        results: false,
       },
       events: [],
       fields: [
@@ -106,15 +131,16 @@ export default {
     };
   },
   props: {
-    user: {
-      type: String
-    }
+    username: {
+      type: String,
+      required: true,
+    },
   },
   methods: {
     init() {
       let self = this;
       self.isLoading = true;
-      let qs = {};
+      let qs = { username: this.username, "page.length": 0 };
       this.sequence_id = this.$route.params.sequence_id;
 
       if (this.sequence_id) {
@@ -122,83 +148,82 @@ export default {
       }
 
       this.$http
-        .get("events/" + this.effectiveUser, { params: qs })
+        .get(["user", "events"].join("/"), { params: qs })
         .then((response) => {
-          self.events = response.data;
-          self.events.forEach(function (item, index) {
-            item.year = self.$options.filters.event_year(item.event);
-          });
+          self.events = response.data.elements;
           self.isLoading = false;
         });
     },
     sortCompare: function (a, b, key, sortDesc, formatterFn, options, locale) {
       var t = "str";
       if (key == "name") {
-        a = a.event.name;
-        b = b.event.name;
+        a = a.eventActivity.event.name;
+        b = b.eventActivity.event.name;
       }
       if (key == "type") {
-        a = a.event.event_type.description;
-        b = b.event.event_type.description;
+        a = a.eventActivity.eventType.description;
+        b = b.eventActivity.eventType.description;
       }
       if (key == "date") {
-        a = a.event.scheduled_start;
-        b = b.event.scheduled_start;
+        a = a.eventActivity.scheduledStart;
+        b = b.eventActivity.scheduledStart;
       }
       if (key == "distance") {
         t = "num";
         a = this.filters.completed
-          ? a.activity.distance.normalized_quantity.value
-          : a.event.distance.normalized_quantity.value;
+          ? fillUnits(a.activity.distance).normalizedQuantity.value
+          : fillUnits(a.eventActivity.distance).normalizedQuantity.value;
         b = this.filters.completed
-          ? b.activity.distance.normalized_quantity.value
-          : b.event.distance.normalized_quantity.value;
+          ? fillUnits(b.activity.distance).normalizedQuantity.value
+          : fillUnits(b.eventActivity.distance).normalizedQuantity.value;
       }
       if (key == "speed") {
         t = "num";
-        a = a.activity ? a.activity.result.speed.quantity.value : 0;
-        b = b.activity ? b.activity.result.speed.quantity.value : 0;
+        a = a.activity ? a.activity.speed.value : 0;
+        b = b.activity ? b.activity.speed.value : 0;
       }
       var m;
       if ((m = key.match(/(place|pct)_?(division|gender)?/))) {
         t = "num";
         let f = m[1] == "pct" ? "percentile" : m[1];
         let g = m[2] === null ? "overall" : m[2];
-        a = this.getResultsGroup(a.results, g)[f] || 0;
-        b = this.getResultsGroup(b.results, g)[f] || 0;
+        a = this.getResultsGroup(a.placements, g)[f] || 0;
+        b = this.getResultsGroup(b.placements, g)[f] || 0;
       }
       if (t == "str") return a.localeCompare(b, locale, options);
       return a < b ? -1 : a > b ? 1 : 0;
     },
     eventVelocity: function (e) {
       if (e.hasOwnProperty("activity")) {
-        if (e.activity.activity_type.id == 1) {
-          return e.activity.result.pace;
-        } else {
-          return this.$options.filters.format_distance(e.activity.result.speed);
-        }
+        return e.activity.pace || e.activity.speed;
       }
       return "";
     },
     eventNameClass: function (e) {
-      if (!e.registration.is_public) return ["text-danger"];
+      if (e.visibilityTypeID == 1) return ["text-danger"];
       return [];
     },
-    getResultsGroup: function (results, g) {
-      let groups = results.groups;
-      if (g == "overall")
-        groups = groups.filter(
-          (r) => !r.hasOwnProperty("division") && !r.hasOwnProperty("gender")
-        );
-      if (g == "gender")
-        groups = groups.filter(
-          (r) => !r.hasOwnProperty("division") && r.hasOwnProperty("gender")
-        );
-      if (g == "division")
-        groups = groups.filter(
-          (r) => r.hasOwnProperty("division") && !r.hasOwnProperty("gender")
-        );
-      return groups[0];
+    getResultsGroup: function (results, partitionType) {
+      let groups = results;
+      if (partitionType == "overall")
+        groups = groups.filter((r) => !r.hasOwnProperty("partition_type"));
+      else groups = groups.filter((r) => r.partition_type == partitionType);
+      let g = groups[0];
+      if (g == null) return null;
+      g.percentile = (100 * g.place) / g.of;
+      return g;
+    },
+    fillUnits: function (d) {
+      let bu = this.getUnitOfMeasure(d.unitOfMeasureID);
+      if (bu == null) return null;
+      let nu = this.getUnitOfMeasure(bu.normalUnitID) || bu;
+      return {
+        quantity: { value: d.value, units: bu },
+        normalizedQuantity: {
+          value: d.value * bu.normalizationFactor,
+          units: nu,
+        },
+      };
     },
   },
   mounted() {
@@ -219,10 +244,7 @@ export default {
     },
   },
   computed: {
-    effectiveUser: function () {
-      if (this.$route.params.user) return this.$route.params.user;
-      return this.$store.getters["auth/currentUser"].username;
-    },
+    ...mapGetters("meta", ["getUnitOfMeasure"]),
     displayedFields: function () {
       let fields = this.fields;
       if (this.filters.completed !== true) {
@@ -241,18 +263,13 @@ export default {
       let events = this.events;
       if (this.filters.type !== null)
         events = events.filter(
-          (e) => e.event.event_type.activity_type.id === this.filters.type
-        );
-      if (this.filters.completed !== null)
-        events = events.filter(
           (e) =>
-            (e.hasOwnProperty("activity") &&
-              e.activity.hasOwnProperty("result")) == this.filters.completed
+            e.eventActivity.event.eventType.activityTypeID === this.filters.type
         );
-      if (this.filters.results !== null)
-        events = events.filter(
-          (e) => e.hasOwnProperty("results") == this.filters.results
-        );
+      if (this.filters.completed)
+        events = events.filter((e) => e.hasOwnProperty("activity"));
+      if (this.filters.results)
+        events = events.filter((e) => e.hasOwnProperty("placements"));
       return events;
     },
   },
