@@ -196,25 +196,30 @@ use experimental qw(signatures postderef);
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
-
-sub description {
-  my $self = shift;
-
-  my $g;
-  if (defined($self->gender)) {
-    $g = $self->gender->description;
-  } elsif (defined($self->division)) {
-    $g = $self->division->name;
-  } else {
-    $g = 'Overall';
-  }
-  return join('/', $self->event->description, $g);
+sub description ($self) {
+  return $self->gender->description   if (defined($self->gender));
+  return $self->division->description if (defined($self->division));
+  return 'Overall';
 }
 
-sub update_count {
-  my $self = shift;
+sub partition_type ($self) {
+  return 'gender'   if (defined($self->gender));
+  return 'division' if (defined($self->division));
+  return undef;
+}
 
+sub update_count ($self) {
   $self->update({count => $self->event_results->count});
+}
+
+sub participants ($self) {
+  my $rs = $self->result_source->schema->resultset('EventParticipant')->for_event_activity($self->event_activity);
+  if (defined($self->gender)) {
+    $rs = $rs->of_gender($self->gender);
+  } elsif (defined($self->division)) {
+    $rs = $rs->in_division($self->division);
+  }
+  return $rs;
 }
 
 1;
