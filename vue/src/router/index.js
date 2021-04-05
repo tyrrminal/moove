@@ -44,7 +44,7 @@ let router = new Router({
       component: Home
     },
     {
-      path: "/user/:user",
+      path: "/user/:username",
       name: "user",
       component: User
     },
@@ -53,7 +53,7 @@ let router = new Router({
       component: Workouts,
       children: [
         {
-          path: "",
+          path: "/user/:username/workouts",
           name: "workouts",
           component: WorkoutList,
         },
@@ -75,13 +75,13 @@ let router = new Router({
       component: Activities,
       children: [
         {
-          path: "",
+          path: "/user/:username/activities",
           name: "activities",
           component: ActivityList,
           props: true,
         },
         {
-          path: "summary",
+          path: "/user/:username/activities/summary",
           name: "activitiesSummary",
           component: ActivitySummary
         },
@@ -98,7 +98,7 @@ let router = new Router({
       component: Events,
       children: [
         {
-          path: "",
+          path: "/user/:username/events",
           name: 'events',
           component: EventList,
           props: true
@@ -116,7 +116,7 @@ let router = new Router({
       component: Goals,
       children: [
         {
-          path: "",
+          path: "/user/:username/goals",
           name: "goals",
           component: GoalList,
           props: true

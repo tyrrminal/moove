@@ -19,7 +19,8 @@
           <template slot="button-content">
             <em>{{ username }}</em>
           </template>
-          <b-dropdown-item :to="{ name: 'user', params: { user: username } }"
+          <b-dropdown-item
+            :to="{ name: 'user', params: { username: username } }"
             >Profile</b-dropdown-item
           >
           <b-dropdown-item @click="logout">Sign Out</b-dropdown-item>
@@ -37,15 +38,15 @@ export default {
       return [
         {
           name: "Workouts",
-          to: { name: "workouts", params: { user: this.username } },
+          to: { name: "workouts", params: { username: this.username } },
         },
         {
           name: "Events",
-          to: { name: "events", params: { user: this.username } },
+          to: { name: "events", params: { username: this.username } },
         },
         {
           name: "Goals",
-          to: { name: "goals", params: { user: this.username } },
+          to: { name: "goals", params: { username: this.username } },
         },
       ];
     },
