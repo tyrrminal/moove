@@ -242,4 +242,10 @@ use experimental qw(signatures postderef);
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+use DCS::Constants qw(:symbols);
+
+sub description ($self) {
+  return join($SPACE, grep {defined} ($self->event->name, $self->name || undef));
+}
+
 1;

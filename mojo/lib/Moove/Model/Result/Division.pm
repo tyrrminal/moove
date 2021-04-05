@@ -136,4 +136,9 @@ use experimental qw(signatures postderef);
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+
+sub description ($self) {
+  return $self->name;
+}
+
 1;
