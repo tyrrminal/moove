@@ -1270,6 +1270,10 @@ components:
         normalizationFactor:
           type: number
           minimum: 0
+        normalUnitID:
+          type: number
+          minimum: 1
+          nullable: true
     UnitValue:
       type: object
       additionalProperties: false

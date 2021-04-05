@@ -9,7 +9,8 @@ sub encode_model_unitofmeasure ($self, $entity) {
     name                => $entity->name,
     abbreviation        => $entity->abbreviation,
     normalizationFactor => $entity->normalization_factor,
-    };
+    normalUnitID        => $entity->normal_unit_id,
+  };
 }
 
 1;
