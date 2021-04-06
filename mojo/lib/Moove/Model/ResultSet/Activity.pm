@@ -70,7 +70,7 @@ sub whole($self) {
   );
 }
 
-sub uncombined($self) {
+sub uncombined ($self) {
   return $self->search(
     {
       'me.id' => {
@@ -81,7 +81,7 @@ sub uncombined($self) {
   );
 }
 
-sub whole_or_event($self) {
+sub whole_or_event ($self) {
   return $self->search(
     {
       '-or' => [{'event_id' => {'!=', $NULL}}, {'whole_activity_id' => $NULL}]
@@ -110,7 +110,7 @@ sub activity_type ($self, $type) {
   );
 }
 
-sub outdoor($self) {
+sub outdoor ($self) {
   return $self->search(
     {
       'activity_type.description' => {'!=' => 'Treadmill'}
@@ -124,7 +124,7 @@ sub year ($self, $year) {
   return $self->after_date("$year->01-01")->before_date("$year-12-31");
 }
 
-sub completed($self) {
+sub completed ($self) {
   return $self->search({}, {join => 'result'});
 }
 
