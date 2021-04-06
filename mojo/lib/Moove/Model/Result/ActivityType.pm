@@ -188,11 +188,26 @@ __PACKAGE__->has_many(
   { "foreign.activity_type_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
+
+=head2 user_nominal_activities
+
+Type: has_many
+
+Related object: L<Moove::Model::Result::UserNominalActivity>
+
+=cut
+
+__PACKAGE__->has_many(
+  "user_nominal_activities",
+  "Moove::Model::Result::UserNominalActivity",
+  { "foreign.activity_type_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
 #>>>
 use experimental qw(signatures postderef);
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-04-02 11:05:00
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:zJ4SyiU5ONnTc7PFg2R85Q
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-04-06 16:09:56
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:YWd3Vxa8TqWFixDRn0JSbg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
