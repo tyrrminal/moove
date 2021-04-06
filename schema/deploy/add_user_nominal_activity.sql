@@ -26,8 +26,8 @@ CREATE TABLE IF NOT EXISTS `UserNominalActivity` (
 CREATE TABLE IF NOT EXISTS `UserNominalActivityRange` (
 	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	`user_nominal_activity_id` INT UNSIGNED NOT NULL,
-	`rangeStart` DATE NOT NULL,
-	`rangeEnd` DATE NOT NULL,
+	`range_start` DATE NOT NULL,
+	`range_end` DATE NOT NULL,
 	PRIMARY KEY (`id`),
 	INDEX `fk_UserNominalActivityRange_UserNominalActivity1_idx` (`user_nominal_activity_id` ASC),
 	CONSTRAINT `fk_UserNominalActivityRange_UserNominalActivity1`

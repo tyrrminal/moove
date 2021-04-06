@@ -58,13 +58,13 @@ __PACKAGE__->table("UserNominalActivityRange");
   is_foreign_key: 1
   is_nullable: 0
 
-=head2 rangestart
+=head2 range_start
 
   data_type: 'date'
   datetime_undef_if_invalid: 1
   is_nullable: 0
 
-=head2 rangeend
+=head2 range_end
 
   data_type: 'date'
   datetime_undef_if_invalid: 1
@@ -87,9 +87,9 @@ __PACKAGE__->add_columns(
     is_foreign_key => 1,
     is_nullable => 0,
   },
-  "rangestart",
+  "range_start",
   { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 0 },
-  "rangeend",
+  "range_end",
   { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 0 },
 );
 
@@ -124,8 +124,8 @@ __PACKAGE__->belongs_to(
 #>>>
 use experimental qw(signatures postderef);
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-04-06 16:09:56
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:PIJkHfYI/m3CJCuqueC/Tg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-04-06 16:18:27
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ZRjev5NyLvQ22JUptJtOIw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
