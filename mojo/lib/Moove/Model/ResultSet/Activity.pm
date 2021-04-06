@@ -40,10 +40,10 @@ sub visible_to ($self, $user) {
   return $self->search(
     {
       -or => [
-        {visibility_type_id => 3},
-        {'workout.user_id'  => $user->id},
+        {'me.visibility_type_id' => 3},
+        {'workout.user_id'       => $user->id},
         {
-          -and => [{visibility_type_id => 2}, {'friendship_initiators.receiver_id' => $user->id}]
+          -and => [{'me.visibility_type_id' => 2}, {'friendship_initiators.receiver_id' => $user->id}]
         }
       ]
     }, {
