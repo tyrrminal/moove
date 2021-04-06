@@ -62,7 +62,7 @@ sub for_person ($self, $person) {
   );
 }
 
-sub whole($self) {
+sub whole ($self) {
   return $self->search(
     {
       'whole_activity_id' => $NULL
@@ -89,7 +89,17 @@ sub whole_or_event ($self) {
   );
 }
 
-sub core($self) {
+sub has_event ($self) {
+  return $self->search(
+    {
+      'user_event_activities.id' => {'<>' => undef}
+    }, {
+      join => 'user_event_activities'
+    }
+  );
+}
+
+sub core ($self) {
   return $self->search(
     {
       '-or' => [
