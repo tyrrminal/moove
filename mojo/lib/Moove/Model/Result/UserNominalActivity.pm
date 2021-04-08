@@ -169,7 +169,59 @@ use experimental qw(signatures postderef);
 
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-04-06 16:09:56
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:cxuDVTxmg5hL7zKBAXOATw
+use experimental qw(switch);
 
+use Mojo::JSON qw(decode_json);
 
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
+use Data::Printer {
+  filters => {
+    'DateTime' => sub {$_[0]->ymd},
+  }
+};
+
+sub days_in_range_between_dates ($self, $start, $end = undef) {
+  my $year = $self->year;
+  die('Start date is required') unless (defined($start) && ref($start) eq 'DateTime');
+  die('End date must be a DateTime') if (defined($end) && ref($end) ne 'DateTime');
+  $end   = DateTime->new(year => $self->year + 1) unless (defined($end));
+  $start = $start->clone;
+  $end   = $end->clone->subtract(days => 1);
+  die('Start date must come before end date') if ($start > $end);
+  die('Start date out of range') unless ($year == $start->year);
+  die('End date out of range')   unless ($year == $end->year);
+  $end->add(days => 1) if ($end < DateTime->today);
+
+  my $days;
+  if (my @ranges = $self->user_nominal_activity_ranges->all) {
+    $days += $_->intersection($start, $end) foreach (@ranges);
+  } else {
+    $days = $start->delta_days($end)->delta_days;
+  }
+  return $days;
+}
+
+sub per_day ($self) {
+  my %v  = decode_json($self->value)->%*;
+  my $rs = $self->result_source->schema->resultset('UnitOfMeasure');
+  return {
+    map {
+      $_ => $self->_per_day($v{$_}->{period}, $v{$_}->{value}) * $rs->find({abbreviation => $v{$_}->{units}})->normalization_factor
+      }
+      keys(%v)
+  };
+}
+
+sub year_length ($self) {
+  return DateTime->new(year => $self->year)->year_length;
+}
+
+sub _per_day ($self, $period, $v) {
+  given ($period) {
+    when ('week')  {return $v / 7}
+    when ('month') {return $v / ($self->year_length / 12)}
+    when ('year')  {return $v / $self->year_length}
+    default        {return $v}
+  }
+}
+
 1;

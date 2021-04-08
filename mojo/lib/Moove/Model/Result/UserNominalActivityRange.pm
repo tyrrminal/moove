@@ -126,7 +126,12 @@ use experimental qw(signatures postderef);
 
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-04-06 16:18:27
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ZRjev5NyLvQ22JUptJtOIw
+use List::Util qw(min max);
 
+sub intersection ($self, $start, $end) {
+  my ($rs, $re) = (max($start, $self->range_start), min($end, $self->range_end));
+  return 0 if ($rs >= $re);
+  return $rs->delta_days($re)->delta_days;
+}
 
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;

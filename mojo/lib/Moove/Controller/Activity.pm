@@ -9,19 +9,25 @@ with 'Moove::Role::Import::Activity';
 use boolean;
 use Module::Util qw(module_path);
 use List::Util qw(sum min max);
+use DCS::DateTime::Extras;
+use Syntax::Keyword::Try;
 
-use Data::Printer {
-  filters => {
-    'DateTime' => sub {$_[0]->ymd},
-  }
-};
+use HTTP::Status qw(:constants);
 
 use experimental qw(signatures postderef switch);
 
 no strict 'refs';
 
-sub resultset ($self, @args) {
-  my $rs = $self->SUPER::resultset(@args);
+sub effective_user ($self) {
+  my $user = $self->current_user;
+  if (my $username = $self->validation->param('username')) {
+    $user = $self->model('User')->find({username => $username});
+  }
+  return $user;
+}
+
+sub resultset ($self, %args) {
+  my $rs = $self->SUPER::resultset();
   $rs = $rs->search(
     undef, {
       prefetch => [
@@ -32,17 +38,13 @@ sub resultset ($self, @args) {
     }
   );
 
-  if ($self->validation->param('combine') // true) {
+  if ($self->validation->param('combine') // $args{combine} // true) {
     $rs = $rs->whole;
   } else {
     $rs = $rs->uncombined;
   }
 
-  my $user = $self->current_user;
-  if (my $username = $self->validation->param('username')) {
-    $user = $self->model('User')->find({username => $username});
-  }
-  $rs = $rs->for_user($user)->visible_to($self->current_user);
+  $rs = $rs->for_user($self->effective_user)->visible_to($self->current_user);
 
   if (my $workout_id = $self->validation->param('workoutID')) {
     my $workout = $self->model_find(Workout => $workout_id) or return $self->render_not_found('Workout');
@@ -71,6 +73,65 @@ sub custom_sort_for_column ($self, $col_name) {
   return undef;
 }
 
+sub summary ($self) {
+  return unless ($self->openapi->valid_input);
+
+  try {
+    my $ars = $self->resultset()->completed->ordered;
+    my $ers = $self->resultset(combine => false)->has_event;
+
+    my $start = $self->parse_api_date($self->validation->param('start')) // ($ars->all)[0]->activity_result->start_time;
+    my $end   = DateTime->now(time_zone => 'local');
+
+    my @activity_types;
+    my $period = $self->validation->param('period');
+    if (defined($period)) {
+      $end = min($start->clone->truncate(to => $period)->add("${period}s" => 1), DateTime->today);
+      $ars = $ars->before_date($end);
+      $ers = $ers->before_date($end);
+
+      my $una = $self->effective_user->user_nominal_activities->search({year => defined($period) ? $start->year : undef});
+      foreach ($self->app->model('ActivityType')->all) {
+        my $sl      = $ars->activity_type($_);
+        my $nominal = $una->search({activity_type_id => $_->id})->first;
+        my %nom;
+        if (defined($nominal)) {
+          my $pd = $nominal->per_day;
+          %nom = (nominal => {(map {$_ => $pd->{$_} * $nominal->days_in_range_between_dates($start, $end)} keys($pd->%*))});
+        }
+        push(
+          @activity_types, {
+            activity_type_id => $_->id,
+            distance         => $sl->total_distance,
+            %nom
+          }
+          )
+          if ($sl->count || defined($nominal));
+      }
+    }
+
+    return $self->render(
+      openapi => {
+        period => {
+          daysElapsed => $end->delta_days($start)->delta_days,
+          defined($period) ? (daysTotal => _days_in_period($period, $start)) : (),
+          years => $end->yearfrac($start),
+        },
+        activities => [
+          {
+            activity_type_id => undef,
+            distance         => $ars->total_distance,
+            eventDistance    => $ers->total_distance,
+          },
+          @activity_types
+        ]
+      }
+    );
+  } catch ($e) {
+    $self->render_error(HTTP_BAD_REQUEST, $e->can('message') ? $e->message : $e)
+  }
+}
+
 sub slice ($self) {
   return unless ($self->openapi->valid_input);
 
@@ -85,7 +146,7 @@ sub slice ($self) {
   my $activities = $self->resultset->whole->ordered;
   my $start      = $self->parse_api_date($self->validation->param('start'))
     // $self->model('Activity')->for_user($user)->ordered->first->start_time->clone->truncate(to => 'day');
-  my $end = $self->parse_api_date($self->validation->param('end')) // DateTime->today->add(days => 1)->subtract(seconds => 1);
+  my $end = DateTime->today->add(days => 1)->subtract(seconds => 1);
 
   my @summaries;
   my $i   = 0;
@@ -201,6 +262,15 @@ sub import ($self) {
   }
 
   return $self->render(openapi => $self->encode_model([@activities]));
+}
+
+sub _days_in_period ($period, $period_start) {
+  given ($period) {
+    when ('year')  {return $period_start->year_length}
+    when ('month') {return $period_start->month_length}
+    when ('week')  {return 7;}
+    default        {return 1;}
+  }
 }
 
 1;

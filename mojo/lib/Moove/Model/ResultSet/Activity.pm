@@ -3,6 +3,7 @@ use strict;
 use warnings;
 
 use base qw(DBIx::Class::ResultSet);
+use List::Util qw(sum);
 
 use DCS::Constants qw(:existence);
 
@@ -135,7 +136,13 @@ sub year ($self, $year) {
 }
 
 sub completed ($self) {
-  return $self->search({}, {join => 'result'});
+  return $self->search(
+    {
+      activity_result_id => {'<>' => undef}
+    }, {
+      join => 'activity_result'
+    }
+  );
 }
 
 sub ordered ($self, $direction = '-asc') {
@@ -205,6 +212,10 @@ sub max_distance ($self, $d) {
       join => {distance => 'uom'}
     }
   );
+}
+
+sub total_distance ($self) {
+  return sum(map {$_->activity_result->distance->normalized_value} $self->all) // 0;
 }
 
 1;
