@@ -239,6 +239,23 @@ paths:
                 type: string
       tags:
         - Activity
+  /activities/summary:
+    get:
+      summary: Get a summary of activity in selected time frame
+      x-mojo-to: Activity#summary
+      parameters:
+        - $ref: "#/components/parameters/SearchUserID"
+        - $ref: "#/components/parameters/OutputPeriod"
+        - $ref: "#/components/parameters/SearchStartdate"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActivitySummary"
+      tags:
+        - Activity
   /activities/slice:
     get:
       summary: Get activities sliced by time period
@@ -246,26 +263,11 @@ paths:
       parameters:
         # Query Params
         - $ref: "#/components/parameters/SearchUserID"
-        - in: query
-          name: activityTypeID
-          required: true
-          schema:
-            $ref: "#/components/schemas/DatabaseID"
-          description: Activity Type to filter on
+        - $ref: "#/components/parameters/SearchActivityType"
         - $ref: "#/components/parameters/SearchStartdate"
         - $ref: "#/components/parameters/SearchEnddate"
         # Output Params
-        - in: query
-          name: period
-          required: true
-          schema:
-            enum:
-              - all
-              - year
-              - quarter
-              - month
-              - week
-          description: Periods to slice data into
+        - $ref: "#/components/parameters/OutputPeriod"
         - in: query
           name: includeEmpty
           required: false
@@ -862,6 +864,17 @@ components:
       schema:
         $ref: "#/components/schemas/DatabaseID"
     # Query Params
+    OutputPeriod:
+      in: query
+      name: period
+      schema:
+        enum:
+          - all
+          - year
+          - quarter
+          - month
+          - week
+      description: Periods to slice data into
     SearchActivityType:
       in: query
       name: activityTypeID
@@ -998,6 +1011,9 @@ components:
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"
+    ActivitySummary:
+      type: object
+      additionalProperties: true
     ActivitySlice:
       type: object
       additionalProperties: false
