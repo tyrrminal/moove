@@ -47,13 +47,13 @@
         data.item.eventActivity.eventType.description
       }}</template>
       <template v-slot:cell(name)="data">
-        <router-link
-          v-bind:class="eventNameClass(data.item)"
+        <b-link
+          :class="eventNameClass(data.item)"
           :to="{
             name: 'event',
             params: { id: data.item.id },
           }"
-          >{{ data.item.eventActivity.event.name }}</router-link
+          >{{ data.item.eventActivity.event.name }}</b-link
         >
       </template>
       <template v-slot:cell(speed)="data"
