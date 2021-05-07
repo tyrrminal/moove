@@ -15,6 +15,7 @@ import Activities from "@/views/activities/Base.vue";
 import Activity from "@/views/activities/Detail.vue";
 import ActivityList from "@/views/activities/List.vue";
 import ActivitySlice from "@/views/activities/Slice.vue";
+import ActivitySummary from "@/views/activities/Summary.vue";
 
 import Events from "@/views/events/Base.vue";
 import EventList from "@/views/events/List.vue";
@@ -79,6 +80,11 @@ let router = new Router({
           name: "activities",
           component: ActivityList,
           props: true,
+        },
+        {
+          path: "/user/:username/activities/summary",
+          name: "activitiesSummary",
+          component: ActivitySummary
         },
         {
           path: "/user/:username/activities/slice",
