@@ -6,12 +6,12 @@ use Mojolicious::Plugin::DCS::Base::Constants qw(:dbix);
 use experimental qw(signatures);
 
 # This method will run once at server start
-sub startup($self) {
+sub startup ($self) {
   $self->plugin(
     'DCS::Base',
     cron          => undef,
     persistentlog => undef,
-    datastore => {load_schema_options => {components => [@DEFAULT_DBIX_COMPONENTS, qw(InflateColumn::Time)]}},
+    datastore     => {load_schema_options => {components => [@DEFAULT_DBIX_COMPONENTS, qw(InflateColumn::Time)]}},
   );
 }
 

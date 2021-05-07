@@ -77,7 +77,7 @@ sub combine_activities ($self, @acts) {
   my $in_seconds    = DateTime::Format::Duration->new(pattern => '%s', normalize => 1);
 
   my $activity_type = $acts[0]->activity_type;
-  my $note = join("\n\n", map {$_->note} @acts);
+  my $note          = join("\n\n", map {$_->note} @acts);
 
   my %times = (
     start_time => $acts[0]->start_time,
@@ -99,15 +99,15 @@ sub combine_activities ($self, @acts) {
     }
   }
   my $temperature = $temp_total ? $temp_total / ($in_seconds->format_duration($times{temp_time}) / 60) : undef;
-  my $heart_rate  = $hr_total   ? $hr_total /   ($in_seconds->format_duration($times{hr_time}) / 60)   : undef;
+  my $heart_rate  = $hr_total   ? $hr_total / ($in_seconds->format_duration($times{hr_time}) / 60)     : undef;
 
   my ($total_distance, $uom);
   my @units = uniq(map {$_->distance->uom->id} @acts);
   if (@units > 1) {
-    $uom = $acts[0]->distance->normalized_unit;
+    $uom            = $acts[0]->distance->normalized_unit;
     $total_distance = sum(map {$_->distance->normalized_value} @acts);
   } else {
-    $uom = $acts[0]->distance->uom;
+    $uom            = $acts[0]->distance->uom;
     $total_distance = sum(map {$_->distance->value} @acts);
   }
 

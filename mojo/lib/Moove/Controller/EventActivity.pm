@@ -6,7 +6,7 @@ with 'DCS::API::Role::Rest::Create', 'DCS::API::Role::Rest::Update', 'DCS::API::
 
 use experimental qw(signatures postderef);
 
-sub resultset($self) {
+sub resultset ($self) {
   my $rs = $self->SUPER::resultset();
   return $rs;
 }
