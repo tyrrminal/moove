@@ -79,7 +79,7 @@ paths:
           schema:
             type: boolean
         - in: query
-          name: externalDataSource
+          name: externalDataSources
           required: false
           schema:
             type: boolean
@@ -454,12 +454,13 @@ paths:
                 type: string
       tags:
         - Event
-  /events/{eventID}/results:
+  /events/{eventID}/activities/{eventActivityID}/results:
     parameters:
       - $ref: "#/components/parameters/EventID"
+      - $ref: "#/components/parameters/EventActivityID"
     post:
       summary: Import event results from a file or the web
-      x-mojo-to: Event#import_results
+      x-mojo-to: EventActivity#import_results
       requestBody:
         description: The import data; imports from a web resource if not supplied
         required: false
@@ -482,7 +483,7 @@ paths:
         - Event
     delete:
       summary: Delete event results
-      x-mojo-to: Event#delete_results
+      x-mojo-to: EventActivity#delete_results
       responses:
         204:
           description: OK
@@ -514,7 +515,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/EventRegistration"
+                $ref: "#/components/schemas/PaginatedEventRegistrations"
       tags:
         - Event
     post:
@@ -525,7 +526,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Event"
+              $ref: "#/components/schemas/EventRegistration"
       responses:
         201:
           description: Registered
@@ -535,15 +536,42 @@ paths:
                 type: string
       tags:
         - Event
-    delete:
-      summary: Unregister from an event
-      x-mojo-to: UserEventActivity#delete
+  /user/events/{userEventActivityID}:
+    parameters:
+      - $ref: "#/components/parameters/UserEventActivityID"
+    get:
+      summary: Get a registered event for a user
+      x-mojo-to: UserEventActivity#get
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventRegistration"
+      tags:
+        - Event
+    patch:
+      summary: Update a user's event registration
+      x-mojo-to: UserEventActivity#update
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Event"
+              $ref: "#/components/schemas/EventRegistration"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventRegistration"
+      tags:
+        - Event
+    delete:
+      summary: Unregister from an event
+      x-mojo-to: UserEventActivity#delete
       responses:
         204:
           description: Unregistered
@@ -846,6 +874,13 @@ components:
       in: path
       name: goalID
       description: The ID number of the goal
+      required: true
+      schema:
+        $ref: "#/components/schemas/DatabaseID"
+    UserEventActivityID:
+      in: path
+      name: userEventActivityID
+      description: the ID number of the user event activity
       required: true
       schema:
         $ref: "#/components/schemas/DatabaseID"
@@ -1162,6 +1197,19 @@ components:
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"
+    PaginatedEventRegistrations:
+      type: object
+      additionalProperties: false
+      required:
+        - pagination
+        - elements
+      properties:
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        elements:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventRegistration"
     PaginatedEvents:
       type: object
       additionalProperties: false
