@@ -8,9 +8,8 @@ import VueAxios from "vue-axios";
 import axios from './services/axios';
 Vue.use(VueAxios, axios);
 
-// Headful (page titles & meta)
-import vueHeadful from 'vue-headful';
-Vue.component('vue-headful', vueHeadful);
+import Meta from "vue-meta";
+Vue.use(Meta);
 
 // Luxon (Date formatting)
 import VueLuxon from "vue-luxon"
@@ -39,6 +38,13 @@ Vue.use(IconsPlugin);
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap-vue/dist/bootstrap-vue.css";
 import "bootstrap/dist/js/bootstrap.min.js";
+
+import OhVueIcon from "oh-vue-icons";
+import {
+  GiRun, GiWalk, GiWeightLiftingUp, GiBodyBalance, CoSwimming, CoRowing, CoBike
+} from "oh-vue-icons/icons";
+OhVueIcon.add(GiRun, GiWalk, GiWeightLiftingUp, GiBodyBalance, CoBike, CoSwimming, CoRowing);
+Vue.component("v-icon", OhVueIcon);
 
 // Vue
 Vue.config.productionTip = false;
