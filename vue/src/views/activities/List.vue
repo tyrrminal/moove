@@ -139,7 +139,7 @@ export default {
     getData: function (ctx, callback) {
       let self = this;
       this.$http
-        .get(["users", self.currentUser.id, "activities"].join("/"), {
+        .get(["activities"].join("/"), {
           params: {
             ...this.queryParams,
             "order.by": ctx.sortBy || "start_time",
