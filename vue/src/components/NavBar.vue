@@ -1,7 +1,9 @@
 <template>
   <div>
     <b-navbar toggleable="lg" type="dark" variant="secondary">
-      <b-navbar-brand :to="{ name: 'home' }">Moo've</b-navbar-brand>
+      <b-navbar-brand :to="{ name: 'home' }">{{
+        applicationName
+      }}</b-navbar-brand>
 
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
@@ -32,7 +34,10 @@
 </template>
 
 <script>
+import Branding from "@/mixins/Branding.js";
+
 export default {
+  mixins: [Branding],
   computed: {
     mainMenu: function () {
       return [

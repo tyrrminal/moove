@@ -1,7 +1,5 @@
 <template>
   <b-container>
-    <vue-headful title="Moo've / Events" />
-
     <h2>Events</h2>
 
     <b-form-checkbox v-model="filters.completed" size="small"
@@ -100,11 +98,18 @@
 </template>
 
 <script>
+import Branding from "@/mixins/Branding.js";
 import { mapGetters } from "vuex";
 import "@/filters/event_filters.js";
 
 export default {
-  data() {
+  mixins: [Branding],
+  metaInfo: function () {
+    return {
+      title: this.title,
+    };
+  },
+  data: function () {
     return {
       isLoading: true,
       sequence_id: null,
@@ -248,6 +253,9 @@ export default {
   },
   computed: {
     ...mapGetters("meta", ["getUnitOfMeasure"]),
+    title: function () {
+      return `${this.applicationName} / Events`;
+    },
     displayedFields: function () {
       let fields = this.fields;
       if (this.filters.completed !== true) {

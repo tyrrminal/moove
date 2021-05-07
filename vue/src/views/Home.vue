@@ -1,16 +1,17 @@
 <template>
   <b-container>
     <b-jumbotron border-variant="info" class="mt-5">
-      <vue-headful title="Moo've" />
-      <template #header>Moo've</template>
+      <template #header>{{ applicationName }}</template>
 
       <template #lead>{{ byLine }}</template>
 
       <hr />
 
       <p>{{ featureBlurb }}</p>
-      <DisclosureCard v-for="f in features" :key="f.name" 
-        :title="f.title" 
+      <DisclosureCard
+        v-for="f in features"
+        :key="f.name"
+        :title="f.title"
         :items="f.items"
         :name="f.name"
       />
@@ -19,66 +20,87 @@
 </template>
 
 <script>
-import DisclosureCard from '@/components/home/DisclosureCard.vue';
+import Branding from "@/mixins/Branding.js";
+import DisclosureCard from "@/components/home/DisclosureCard.vue";
 
 export default {
   components: {
-    DisclosureCard
+    DisclosureCard,
   },
-  data() {
+  mixins: [Branding],
+  metaInfo: function () {
     return {
-      byLine: "A cardio activity tracker from Digital Cow Software",
-      featureBlurb: "Moo've provides standard activity tracking capabilities, but then takes it further by adding:",
+      title: this.title,
+    };
+  },
+  data: function () {
+    return {
       features: [
         {
-          title: 'Event Scheduling',
+          title: "Event Scheduling",
           items: [
-            'See countdowns for upcoming activities',
-            'Get reminders for registration',
-            'Report on annual registration expenses'
+            "See countdowns for upcoming activities",
+            "Get reminders for registration",
+            "Report on annual registration expenses",
           ],
-          name: 'event-tracking'
-        }, {
-          title: 'Performance Metrics', 
+          name: "event-tracking",
+        },
+        {
+          title: "Performance Metrics",
           items: [
-            'Configurable PR tracking (distances, pace, milage over days/weeks/months)',
-            'Time since last PR',
-            'Official vs unofficial PRs'
-          ], 
-          name: "performance-metrics"
-        },{
-          title: 'Event Placement Metrics',
-          items: [
-            'Compare Race results to previous races (absolute and relative placements)',
-            'Translate results into other hypothetical divisions'
+            "Configurable PR tracking (distances, pace, milage over days/weeks/months)",
+            "Time since last PR",
+            "Official vs unofficial PRs",
           ],
-          name: 'event-metrics'
-        }, {
-          title: 'Training Plans',
+          name: "performance-metrics",
+        },
+        {
+          title: "Event Placement Metrics",
           items: [
-            'Build and subscribe to training plans',
-            'Monitor conformance'
+            "Compare Race results to previous races (absolute and relative placements)",
+            "Translate results into other hypothetical divisions",
           ],
-          name: 'training-plans'
-        }, {
-          title: 'Calendar',
+          name: "event-metrics",
+        },
+        {
+          title: "Training Plans",
           items: [
-            'See completed activities',
-            'See past and future registered events',
-            'See training plan schedules in a grid or list calendar'
+            "Build and subscribe to training plans",
+            "Monitor conformance",
           ],
-          name: 'scheduling-calendar'
-        }, {
-          title: 'Fundraising & Donor/Donation Tracking',
+          name: "training-plans",
+        },
+        {
+          title: "Calendar",
           items: [
-            'View fundraising progress for active campaigns',
-            'See lifetime charity contribution',
-            'Analyze historical donor activity'
+            "See completed activities",
+            "See past and future registered events",
+            "See training plan schedules in a grid or list calendar",
           ],
-          name: 'fundraising-donations'
-        }
-      ]
-    }
-  }
+          name: "scheduling-calendar",
+        },
+        {
+          title: "Fundraising & Donor/Donation Tracking",
+          items: [
+            "View fundraising progress for active campaigns",
+            "See lifetime charity contribution",
+            "Analyze historical donor activity",
+          ],
+          name: "fundraising-donations",
+        },
+      ],
+    };
+  },
+  computed: {
+    title: function () {
+      return this.applicationName;
+    },
+    byLine: function () {
+      return `${this.applicationDescription} from ${this.companyFullname}`;
+    },
+    featureBlurb: function () {
+      return `${this.applicationName} provides standard activity tracking capabilities, but then takes it further by adding:`;
+    },
+  },
 };
 </script>

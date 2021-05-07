@@ -5,14 +5,19 @@
     </template>
 
     <b-container v-if="event">
-      <vue-headful :title="'Moo\'ve / Events: ' + event.event.name" />
       <b-row>
         <b-col sm="1">
           <Links :links="links" :user="effectiveUser" direction="prev" />
         </b-col>
         <b-col sm="10" md="7" lg="5" class="mx-auto">
-          <RegistrationStatus :registration="event.registration" :isInFuture="eventIsInFuture" />
-          <EventDetails :event="event.event" :isPublic="event.registration.is_public" />
+          <RegistrationStatus
+            :registration="event.registration"
+            :isInFuture="eventIsInFuture"
+          />
+          <EventDetails
+            :event="event.event"
+            :isPublic="event.registration.is_public"
+          />
         </b-col>
         <b-col sm="1">
           <Links :links="links" :user="effectiveUser" direction="next" />
@@ -38,14 +43,25 @@
         </b-col>
 
         <b-col v-if="event.results" sm="4" class="mb-2">
-          <EventResult :results="event.results.groups" :results_url="event.results.url" />
+          <EventResult
+            :results="event.results.groups"
+            :results_url="event.results.url"
+          />
         </b-col>
 
-        <b-col v-if="event.activity && event.activity.records" sm="6" class="mb-2">
+        <b-col
+          v-if="event.activity && event.activity.records"
+          sm="6"
+          class="mb-2"
+        >
           <ActivityRecords :records="event.activity.records" />
         </b-col>
 
-        <b-col v-if="event.activity && event.activity.achievements" sm="3" class="mb-2">
+        <b-col
+          v-if="event.activity && event.activity.achievements"
+          sm="3"
+          class="mb-2"
+        >
           <ActivityAchievements :records="event.activity.achievements" />
         </b-col>
 
@@ -65,6 +81,7 @@
 </template>
 
 <script>
+import Branding from "@/mixins/Branding.js";
 import LayoutDefault from "@/layouts/LayoutDefault.vue";
 import SideBar from "@/components/SideBar.vue";
 
@@ -83,6 +100,13 @@ import EventSequence from "@/components/event/fragments/Sequence.vue";
 const moment = require("moment");
 
 export default {
+  name: "EventDetail",
+  metaInfo: function () {
+    return {
+      title: this.title,
+    };
+  },
+  mixins: [Branding],
   components: {
     LayoutDefault,
     SideBar,
@@ -97,9 +121,9 @@ export default {
     Fundraising,
     Notes,
     Links,
-    EventSequence
+    EventSequence,
   },
-  data() {
+  data: function () {
     return {
       event: null,
       links: null,
@@ -110,9 +134,9 @@ export default {
         {
           text: "Remove from My Events",
           to: { name: "delete_event" },
-          variant: "danger"
-        }
-      ]
+          variant: "danger",
+        },
+      ],
     };
   },
   methods: {
@@ -137,18 +161,21 @@ export default {
       handler(newValue) {
         this.init();
       },
-      immediate: true
-    }
+      immediate: true,
+    },
   },
   computed: {
-    effectiveUser: function() {
+    title: function () {
+      return `${this.applicationName} / Events: ${this.event.eventActivity.event.name}`;
+    },
+    effectiveUser: function () {
       if (this.$route.params.user) return this.$route.params.user;
       return this.$store.getters["auth/currentUser"].username;
     },
-    eventIsInFuture: function() {
+    eventIsInFuture: function () {
       return moment(this.event.event.scheduled_start).diff(moment()) > 0;
     },
-    sidebarOps: function() {
+    sidebarOps: function () {
       if (
         this.event &&
         this.event.registration.user.id ===
@@ -156,8 +183,8 @@ export default {
       )
         return this.eventSidebarOps;
       return [];
-    }
-  }
+    },
+  },
 };
 </script>
 

@@ -1,13 +1,8 @@
 <template>
   <b-container>
-    <vue-headful title="Moo've Login" />
     <b-row>
       <b-col sm="9" md="7" lg="5" class="mx-auto">
-        <b-card
-          title="Moo've Login"
-          class="card-signin my-5"
-          bg-variant="light"
-        >
+        <b-card :title="title" class="card-signin my-5" bg-variant="light">
           <b-form class="form-signin" @submit.prevent="login">
             <b-form-group
               id="username-fieldset"
@@ -59,8 +54,16 @@
 </template>
 
 <script>
+import Branding from "@/mixins/Branding.js";
+
 export default {
-  data() {
+  mixins: [Branding],
+  metaInfo: function () {
+    return {
+      title: this.title,
+    };
+  },
+  data: function () {
     return {
       username: "",
       password: "",
@@ -85,6 +88,11 @@ export default {
           )
         )
         .catch((err) => (self.error = err.response.data.message));
+    },
+  },
+  computed: {
+    title: function () {
+      return `${this.applicationName} Login`;
     },
   },
 };

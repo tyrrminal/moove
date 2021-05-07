@@ -4,8 +4,6 @@
       <SideBar />
     </template>
 
-    <vue-headful :title="title" />
-
     <template v-if="goal">
       <h5>
         <b-link :to="{ name: 'goals' }">&#171; All Goals</b-link>
@@ -13,15 +11,23 @@
 
       <h3>{{ goal.name }}</h3>
       <b-list-group>
-        <b-list-group-item v-for="g in goal.fulfillments" :key="g.date" class="py-1">
+        <b-list-group-item
+          v-for="g in goal.fulfillments"
+          :key="g.date"
+          class="py-1"
+        >
           <div class="d-flex">
-            <label class="col-sm-2">{{ g.date | moment('M/D/YY') }}</label>
+            <label class="col-sm-2">{{ g.date | moment("M/D/YY") }}</label>
             <span class="col-sm-2">{{ g.description }}</span>
             <span class="flex-fill">
               <b-link
                 v-if="g.activities[0].event"
-                :to="{ name: 'event', params: { id: g.activities[0].event.id, user: effectiveUser } }"
-              >{{ g.activities[0].event.name }}</b-link>
+                :to="{
+                  name: 'event',
+                  params: { id: g.activities[0].event.id, user: effectiveUser },
+                }"
+                >{{ g.activities[0].event.name }}</b-link
+              >
             </span>
           </div>
         </b-list-group-item>
@@ -31,17 +37,24 @@
 </template>
 
 <script>
+import Branding from "@/mixins/Branding.js";
 import LayoutDefault from "@/layouts/LayoutDefault.vue";
 import SideBar from "@/components/SideBar.vue";
 
 export default {
+  metaInfo: function () {
+    return {
+      title: this.title,
+    };
+  },
+  mixins: [Branding],
   components: {
     LayoutDefault,
-    SideBar
+    SideBar,
   },
-  data() {
+  data: function () {
     return {
-      goal: null
+      goal: null,
     };
   },
   methods: {
@@ -49,29 +62,29 @@ export default {
       let self = this;
       this.$http
         .get("goal/" + self.effectiveUser + "/" + self.goalId)
-        .then(response => {
+        .then((response) => {
           self.goal = response.data;
         })
-        .catch(err => (self.error = err.response.data.message));
-    }
+        .catch((err) => (self.error = err.response.data.message));
+    },
   },
-  mounted() {
+  mounted: function () {
     this.init();
   },
   computed: {
-    effectiveUser: function() {
+    effectiveUser: function () {
       if (this.$route.params.user) return this.$route.params.user;
       return this.$store.getters["auth/currentUser"].username;
     },
-    goalId: function() {
+    goalId: function () {
       return this.$route.params.id;
     },
-    title() {
-      var t = "Moo've / Goal";
+    title: function () {
+      var t = `${this.applicationName} / Goal`;
       if (this.goal !== null) t = t + " / " + this.goal.name;
       return t;
-    }
-  }
+    },
+  },
 };
 </script>
 

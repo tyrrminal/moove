@@ -4,8 +4,6 @@
       <SideBar />
     </template>
 
-    <vue-headful :title="'Moo\'ve / Goals'" />
-
     <template v-if="prs.length">
       <h3>Personal Records</h3>
       <b-list-group>
@@ -18,7 +16,9 @@
           <span>
             <span class="text-muted">[{{ g.activity_type.description }}]</span>
             <label class="listlabel">{{ g.name }}:</label>
-            <template v-if="g.count">{{ g.fulfillments[0].description }}</template>
+            <template v-if="g.count">{{
+              g.fulfillments[0].description
+            }}</template>
           </span>
           <b-badge variant="info" pill>{{ g.count }}</b-badge>
         </b-list-group-item>
@@ -34,11 +34,15 @@
           <span class="text-muted">[{{ g.activity_type.description }}]</span>
           <label class="listlabel">{{ g.name }}:</label>
           <span v-if="g.count">
-            {{ g.fulfillments[0].date | moment('M/D/YY') }}
+            {{ g.fulfillments[0].date | moment("M/D/YY") }}
             <b-link
               v-if="g.fulfillments[0].activities[0].event"
-              :to="{ name: 'event', params: { id: g.fulfillments[0].activities[0].event.id }}"
-            >{{ g.fulfillments[0].activities[0].event.name }}</b-link>
+              :to="{
+                name: 'event',
+                params: { id: g.fulfillments[0].activities[0].event.id },
+              }"
+              >{{ g.fulfillments[0].activities[0].event.name }}</b-link
+            >
           </span>
           <font-awesome-icon v-else icon="times" />
         </b-list-group-item>
@@ -48,47 +52,57 @@
 </template>
 
 <script>
+import Branding from "@/mixins/Branding.js";
 import LayoutDefault from "@/layouts/LayoutDefault.vue";
 import SideBar from "@/components/SideBar.vue";
 
 export default {
+  mixins: [Branding],
   components: {
     LayoutDefault,
-    SideBar
+    SideBar,
   },
-  data() {
+  metaInfo: function () {
+    return {
+      title: this.title,
+    };
+  },
+  data: function () {
     return {
       prs: [],
       achievements: [],
-      error: ""
+      error: "",
     };
   },
   props: {
     user: {
-      type: String
-    }
+      type: String,
+    },
   },
   methods: {
     init() {
       let self = this;
       this.$http
         .get("goals/" + self.effectiveUser)
-        .then(response => {
+        .then((response) => {
           self.prs = response.data.personalRecords;
           self.achievements = response.data.achievements;
         })
-        .catch(err => (self.error = err.response.data.message));
-    }
+        .catch((err) => (self.error = err.response.data.message));
+    },
   },
-  mounted() {
+  mounted: function () {
     this.init();
   },
   computed: {
-    effectiveUser: function() {
+    title: function () {
+      return `${this.applicationName} / Goals`;
+    },
+    effectiveUser: function () {
       if (this.$route.params.user) return this.$route.params.user;
       return this.$store.getters["auth/currentUser"].username;
-    }
-  }
+    },
+  },
 };
 </script>
 
