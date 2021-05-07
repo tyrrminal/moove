@@ -16,6 +16,7 @@ export default {
     return {
       menu: [
         { text: "Create", to: { name: "createWorkout" } },
+        { text: "Summary", to: { name: "activitiesSummary" } },
         { text: "Slice", to: { name: "activitiesSlice" } },
       ],
     };
