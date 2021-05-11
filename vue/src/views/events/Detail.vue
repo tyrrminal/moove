@@ -51,7 +51,15 @@
             </b-jumbotron>
           </b-col>
           <b-col>
-            <b-jumbotron class="py-2 event-details" border-variant="info">
+            <b-jumbotron
+              class="py-2 event-details"
+              border-variant="info"
+              v-if="
+                userEventActivity.date_registered ||
+                Number.parseFloat(userEventActivity.fee) ||
+                userEventActivity.registration_number
+              "
+            >
               <b-form-group
                 label="Registered On"
                 v-if="userEventActivity.date_registered"
