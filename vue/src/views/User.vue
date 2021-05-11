@@ -29,7 +29,7 @@
             :key="totals[t - 1].activity_type.id"
           >
             {{ totals[t - 1].activity_type.description }}
-            {{ totals[t - 1].distance | format_distance }}
+            {{ totals[t - 1].distance | formatDistance }}
             <span v-if="t < totals.length" class="text-muted">/</span>
           </span>
         </b-col>
@@ -44,7 +44,7 @@
           <b-list-group>
             <b-list-group-item v-for="a in activities" :key="a.id">
               <timeago :datetime="a.start_time"></timeago>
-              &mdash; {{ a.distance | format_distance }}
+              &mdash; {{ a.distance | formatDistance }}
               {{ a.activity_type.description }}
             </b-list-group-item>
           </b-list-group>
@@ -78,7 +78,7 @@
 
 <script>
 import Branding from "@/mixins/Branding.js";
-import "@/filters/event_filters.js";
+import EventFilters from "@/mixins/EventFilters.js";
 
 import LayoutDefault from "@/layouts/LayoutDefault.vue";
 import SideBar from "@/components/SideBar.vue";
@@ -86,7 +86,7 @@ import EventDetails from "@/components/event/cards/EventDetails.vue";
 import ActivityRecords from "@/components/activity/lists/Records.vue";
 
 export default {
-  mixins: [Branding],
+  mixins: [Branding, EventFilters],
   components: {
     LayoutDefault,
     SideBar,

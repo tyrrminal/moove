@@ -58,7 +58,7 @@
       </template>
       <template v-slot:cell(speed)="data"
         ><span v-if="data.item.activity">{{
-          fillUnits(eventVelocity(data.item)) | format_distance
+          fillUnits(eventVelocity(data.item)) | formatDistance
         }}</span></template
       >
       <template v-slot:cell(distance)="data">{{
@@ -66,7 +66,7 @@
           filters.completed
             ? data.item.activity.distance
             : data.item.eventActivity.distance
-        ) | format_distance
+        ) | formatDistance
       }}</template>
 
       <template v-slot:cell(place)="data">{{
@@ -75,7 +75,8 @@
       <template v-slot:cell(pct)="data">{{
         getResultsGroup(data.item.placements, "overall")
           | extract("percentile")
-          | format_pct
+          | invDecimate
+          | percent(1)
       }}</template>
       <template v-slot:cell(place_gender)="data">{{
         getResultsGroup(data.item.placements, "gender") | extract("place")
@@ -83,7 +84,8 @@
       <template v-slot:cell(pct_gender)="data">{{
         getResultsGroup(data.item.placements, "gender")
           | extract("percentile")
-          | format_pct
+          | invDecimate
+          | percent(1)
       }}</template>
       <template v-slot:cell(place_div)="data">{{
         getResultsGroup(data.item.placements, "division") | extract("place")
@@ -91,7 +93,8 @@
       <template v-slot:cell(pct_div)="data">{{
         getResultsGroup(data.item.placements, "division")
           | extract("percentile")
-          | format_pct
+          | invDecimate
+          | percent(1)
       }}</template>
     </b-table>
   </b-container>
@@ -99,11 +102,12 @@
 
 <script>
 import Branding from "@/mixins/Branding.js";
+import UnitConversion from "@/mixins/UnitConversion.js";
 import { mapGetters } from "vuex";
-import "@/filters/event_filters.js";
+import EventFilters from "@/mixins/EventFilters.js";
 
 export default {
-  mixins: [Branding],
+  mixins: [Branding, UnitConversion, EventFilters],
   metaInfo: function () {
     return {
       title: this.title,

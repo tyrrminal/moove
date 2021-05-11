@@ -7,9 +7,10 @@
 </template>
 
 <script>
-import '@/filters/event_filters.js';
+import EventFilters from "@/mixins/EventFilters.js";
 
 export default {
+  mixins: [EventFilters],
   computed: {
     border:     function() { return this.isPublic ? "dark"  : "default"; },
     background: function() { return this.isPublic ? "light" : "dark";    },
