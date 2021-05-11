@@ -32,7 +32,10 @@
                     | luxon({ input: { zone: "local" }, output: "short" })
                 }}
               </b-form-group>
-              <b-form-group label="Where">
+              <b-form-group
+                label="Where"
+                v-if="$options.filters.formatAddress(event.address)"
+              >
                 <b-icon icon="compass" class="mr-1" />{{
                   event.address | formatAddress
                 }}
