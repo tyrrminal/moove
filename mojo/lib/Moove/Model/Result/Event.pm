@@ -257,33 +257,33 @@ use Moove::Import::Event::MillenniumRunning;
 use DCS::DateTime::Extras;
 use DCS::Constants qw(:existence :symbols);
 
-sub address($self) {
+sub address ($self) {
   return $self->event_group->address;
 }
 
-sub update_missing_group_counts($self) {
+sub update_missing_group_counts ($self) {
   my $rs = $self->result_source->schema->resultset('EventResultGroup')->for_event($self)->missing_count;
   while (my $g = $rs->next) {
     $g->update_count;
   }
 }
 
-sub add_missing_gender_groups($self) {
+sub add_missing_gender_groups ($self) {
   foreach my $g ($self->result_source->schema->resultset('Gender')->all) {
     $self->create_gender_result_group($g)
       unless ($self->event_result_groups->search({gender_id => $g->id, division_id => $NULL})->count);
   }
 }
 
-sub update_missing_result_paces($self) {
+sub update_missing_result_paces ($self) {
   my $rs = $self->result_source->schema->resultset('Result')->for_event($self)->needs_pace;
   while (my $r = $rs->next) {
     $r->update_pace;
   }
 }
 
-sub create_gender_result_group($self, $gender) {
-  my $schema   = $self->result_source->schema;
+sub create_gender_result_group ($self, $gender) {
+  my $schema = $self->result_source->schema;
 
   my $rs_r = $schema->resultset('Result')->search(
     {
@@ -291,7 +291,7 @@ sub create_gender_result_group($self, $gender) {
       'event.id'               => $self->id
     }, {
       join     => ['participants', {activities => 'event'}],
-      order_by => {-asc            => 'net_time'}
+      order_by => {-asc => 'net_time'}
     }
   );
 
@@ -316,7 +316,7 @@ sub create_gender_result_group($self, $gender) {
   }
 }
 
-sub description($self) {
+sub description ($self) {
   my $year = $self->scheduled_start->year;
   my $name = $self->event_group->name;
   if (my $sub_name = $self->name) {
@@ -328,7 +328,7 @@ sub description($self) {
   return $name;
 }
 
-sub countdown($self) {
+sub countdown ($self) {
   my $now   = DateTime->now(time_zone => 'local');
   my $start = $self->scheduled_start;
 
@@ -338,19 +338,6 @@ sub countdown($self) {
     weeks  => sprintf("%.01f", $days / 7),
     months => sprintf("%.01f", $start->yearfrac($now) * 12)
   };
-}
-
-sub results_url {
-  my $self = shift;
-
-  my @urls;
-  foreach ($self->event_references) {
-    my $ert = $_->event_reference_type;
-    my $importer = sprintf('Moove::Import::Event::%s', $ert->description)->new(event_id => $_->ref_num, race_id => $_->sub_ref_num);
-    push(@urls, $importer->url);
-  }
-
-  return $urls[0];
 }
 
 1;
