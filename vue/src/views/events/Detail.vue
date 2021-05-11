@@ -119,6 +119,12 @@
                 </b-progress-bar>
               </b-progress>
             </div>
+
+            <div class="text-center mt-4">
+              <b-link v-if="event.url" :href="event.url" target="_blank"
+                >Original Results</b-link
+              >
+            </div>
           </b-col>
         </b-row>
       </b-card-body>
