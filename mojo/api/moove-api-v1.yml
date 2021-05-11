@@ -493,6 +493,47 @@ paths:
                 type: string
       tags:
         - Event
+  /donors:
+    get:
+      parameters:
+        - in: query
+          name: firstname
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: lastname
+          required: false
+          schema:
+            type: string
+      summary: Search for prior donors
+      x-mojo-to: DonorList#list
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Donor"
+      tags:
+        - Fundraising
+  /donors/{personID}:
+    parameters:
+      - $ref: "#/components/parameters/PersonID"
+    get:
+      summary: Get the record for a donor with donations for the logged in user
+      x-mojo-to: Donor#get
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Donor"
+      tags:
+        - Fundraising
   /user/events:
     get:
       summary: Get an optionally-filtered list of events to which a user is registered
@@ -581,6 +622,25 @@ paths:
                 type: string
       tags:
         - Event
+  /user/events/{userEventActivityID}/donations:
+    parameters:
+      - $ref: "#/components/parameters/UserEventActivityID"
+    post:
+      summary: Create a new donation record
+      x-mojo-to: Donation#create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Donation"
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Fundraising"
   /goals:
     get:
       summary: Get an optionally-filtered list of all goals
@@ -853,6 +913,13 @@ components:
       in: path
       name: activityID
       description: The ID number of the activity
+      required: true
+      schema:
+        $ref: "#/components/schemas/DatabaseID"
+    PersonID:
+      in: path
+      name: personID
+      description: The ID number of the donor
       required: true
       schema:
         $ref: "#/components/schemas/DatabaseID"
@@ -1165,20 +1232,28 @@ components:
           $ref: "#/components/schemas/DatabaseID"
         street1:
           type: string
+          nullable: true
         street2:
           type: string
+          nullable: true
         city:
           type: string
+          nullable: true
         state:
           type: string
+          nullable: true
         zip:
           type: string
+          nullable: true
         phone:
           type: string
+          nullable: true
         country:
           type: string
+          nullable: true
         email:
           type: string
+          nullable: true
     Event:
       type: object
       additionalProperties: true
@@ -1247,6 +1322,49 @@ components:
           type: string
         baseUrl:
           type: string
+    Donation:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+          format: date
+        amount:
+          type: number
+        person:
+          $ref: "#/components/schemas/Person"
+        address:
+          $ref: "#/components/schemas/Address"
+        event:
+          $ref: "#/components/schemas/SimpleEvent"
+    Donor:
+      type: object
+      additionalProperties: true
+      properties:
+        person:
+          $ref: "#/components/schemas/Person"
+        addresses:
+          type: array
+          items:
+            $ref: "#/components/schemas/Address"
+        donations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Donation"
+    Fundraising:
+      type: object
+      additionalProperties: false
+      properties:
+        minimum:
+          type: number
+        received:
+          type: number
+        donations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Donation"
     Goal:
       type: object
       additionalProperties: true
@@ -1321,6 +1439,19 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Workout"
+    SimpleEvent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: integer
+        eventName:
+          type: string
+        eventActivityName:
+          type: string
+          nullable: true
+        eventYear:
+          type: integer
     Unit:
       type: object
       additionalProperties: false
@@ -1460,6 +1591,7 @@ tags:
     description: Login and logout functions
   - name: Meta
     description: Application-wide value lists
+  - name: Fundraising
   - name: User
   - name: Activity
   - name: Event
