@@ -3,10 +3,11 @@ use strict;
 use warnings;
 
 use base qw(DBIx::Class::ResultSet);
+use String::Util qw(trim);
 
 use experimental qw(signatures postderef);
 
-sub find_or_create_donor($self, $first_name, $last_name) {
+sub find_or_create_donor ($self, $first_name, $last_name) {
   my ($person) = $self->search(
     {
       first_name => $first_name,
@@ -24,6 +25,24 @@ sub find_or_create_donor($self, $first_name, $last_name) {
     unless (defined($person));
 
   return $person;
+}
+
+sub by_name ($self, $fname, $lname) {
+  my $surround = sub ($str, $q = q{%}) {qq{$q$str$q}};
+  my $rs       = $self;
+  $rs = $rs->search({firstname => {-like => $surround->($fname)}}) if (defined($fname));
+  $rs = $rs->search({lastname  => {-like => $surround->($lname)}}) if (defined($lname));
+  return $rs;
+}
+
+sub who_donated_to_user ($self, $user) {
+  return $self->search(
+    {
+      user_id => $user->id
+    }, {
+      prefetch => {donations => ['user_event_activity', 'address']},
+    }
+  );
 }
 
 1;
