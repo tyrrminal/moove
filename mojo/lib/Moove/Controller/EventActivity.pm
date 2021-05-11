@@ -11,4 +11,12 @@ sub resultset ($self) {
   return $rs;
 }
 
+sub import_results ($self) {
+  return $self->render(openapi => {});
+}
+
+sub delete_results ($self) {
+  return $self->render(openapi => {});
+}
+
 1;
