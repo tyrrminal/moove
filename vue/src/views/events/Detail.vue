@@ -1,8 +1,21 @@
 <template>
   <b-container v-if="userEventActivity">
     <b-card no-body class="mt-3 mb-3">
-      <b-card-header
-        ><h2>{{ event.year }} {{ event.name }}</h2></b-card-header
+      <b-card-header>
+        <b-button-group class="float-right">
+          <b-button
+            v-for="n in navLinks"
+            :key="n.id"
+            variant="outline-secondary"
+            :disabled="nav[n.id] == null"
+            :to="
+              nav[n.id] ? { to: 'event', params: { id: nav[n.id].id } } : null
+            "
+            :title="nav[n.id] ? nav[n.id].name : ''"
+            ><b-icon :icon="n.icon"
+          /></b-button>
+        </b-button-group>
+        <h2>{{ event.year }} {{ event.name }}</h2></b-card-header
       >
       <b-card-body>
         <b-row>
@@ -269,6 +282,15 @@ export default {
   },
   data: function () {
     return {
+      navLinks: [
+        { id: "prev", icon: "chevron-left" },
+        { id: "next", icon: "chevron-right" },
+      ],
+      nav: {
+        next: null,
+        prev: null,
+      },
+
       event: null,
       eventActivity: null,
       eventGroup: null,
@@ -281,12 +303,18 @@ export default {
       donorFields: [{ key: "date" }, { key: "event" }, { key: "amount" }],
     };
   },
+  props: {
+    id: {
+      type: [Number, String],
+      required: true,
+    },
+  },
   methods: {
     init: function () {
       let self = this;
       this.sequence = [];
       this.$http
-        .get(["user", "events", this.$route.params.id].join("/"))
+        .get(["user", "events", this.id].join("/"))
         .then((response) => {
           self.userEventActivity = response.data;
           self.eventActivity = self.userEventActivity.eventActivity;
@@ -301,6 +329,8 @@ export default {
           delete self.userEventActivity.activity;
           self.fundraising = self.userEventActivity.fundraising;
           delete self.userEventActivity.fundraising;
+          self.nav = self.userEventActivity.nav;
+          delete self.userEventActivity.nav;
         })
         .catch((err) => (self.error = err.response.data.message));
     },
@@ -342,7 +372,7 @@ export default {
     this.init();
   },
   watch: {
-    "$route.params": {
+    id: {
       handler(newValue) {
         this.init();
       },

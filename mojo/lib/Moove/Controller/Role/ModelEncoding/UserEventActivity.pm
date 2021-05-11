@@ -27,7 +27,22 @@ sub encode_model_usereventactivity ($self, $entity) {
   if (my $fr = $self->encode_model_usereventactivity_fundraising($entity)) {
     $r->{fundraising} = $fr;
   }
+  $r->{nav} = {
+    prev => $self->encode_model_simple(
+      $self->resultset->before($entity)->for_user($entity->user)->visible_to($self->current_user)->first
+    ),
+    next =>
+      $self->encode_model_simple($self->resultset->after($entity)->for_user($entity->user)->visible_to($self->current_user)->first),
+  };
   return $r;
+}
+
+sub encode_model_simple ($self, $entity) {
+  return undef unless (defined($entity));
+  return {
+    id   => $entity->id,
+    name => $entity->name
+  };
 }
 
 sub encode_model_usereventactivity_fundraising ($self, $entity) {

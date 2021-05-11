@@ -244,12 +244,12 @@ use experimental qw(signatures postderef);
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+use DCS::Constants qw(:symbols);
 
-sub sequence {
-  my $self = shift;
-
-  return $self->result_source->schema->resultset('EventRegistration')->in_sequence($self->event->event_group->event_sequence_id)
-    ->for_user($self->user);
+sub name ($self) {
+  join($SPACE,
+    grep {defined} $self->event_registration->event_activity->event->name,
+    $self->event_registration->event_activity->name);
 }
 
 1;
