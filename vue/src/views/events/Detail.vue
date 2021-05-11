@@ -103,6 +103,11 @@
         <b-row>
           <b-col cols="4">
             <b-jumbotron class="event-details py-2" border-variant="secondary">
+              <h4>
+                <b-link :to="{ name: 'activity', params: { id: activity.id } }"
+                  >{{ at(activity.activityTypeID).description }}
+                </b-link>
+              </h4>
               <b-form-group label="Measured Distance">
                 {{ fillUnits(activity.distance) | formatDistance }}
               </b-form-group>
@@ -391,7 +396,7 @@ export default {
     },
   },
   computed: {
-    ...mapGetters("meta", { uom: "getUnitOfMeasure" }),
+    ...mapGetters("meta", { uom: "getUnitOfMeasure", at: "getActivityType" }),
     title: function () {
       if (this.event)
         return `${this.applicationName} / Event / ${this.event.year} ${this.event.name}`;
