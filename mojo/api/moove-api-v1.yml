@@ -550,6 +550,10 @@ paths:
         - $ref: "#/components/parameters/SearchEnddate"
         - $ref: "#/components/parameters/SearchActivityType"
         - $ref: "#/components/parameters/SearchUsername"
+        - in: query
+          name: eventGroupID
+          schema:
+            $ref: "#/components/schemas/DatabaseID"
       responses:
         200:
           description: OK

@@ -28,6 +28,9 @@ sub resultset ($self) {
   if (my $end = $self->validation->param('end')) {
     $rs = $rs->on_or_before($self->parse_api_date($end));
   }
+  if (my $group_id = $self->validation->param('eventGroupID')) {
+    $rs = $rs->in_group($group_id);
+  }
 
   return $rs;
 }
