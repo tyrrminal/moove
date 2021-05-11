@@ -1,6 +1,10 @@
 package Moove::Controller::Role::ModelEncoding::UserEventActivity;
 use Role::Tiny;
 
+with 'Moove::Controller::Role::ModelEncoding::Donation';
+
+use List::Util qw(sum);
+
 use experimental qw(signatures postderef);
 
 sub encode_model_usereventactivity ($self, $entity) {
@@ -20,6 +24,23 @@ sub encode_model_usereventactivity ($self, $entity) {
   $r->{activity}   = $self->encode_model($entity->activity) if (defined($entity->activity));
   $r->{placements} = $self->encode_model([$participant->event_placements->all])
     if (defined($participant) && $participant->event_placements->count);
+  if (my $fr = $self->encode_model_usereventactivity_fundraising($entity)) {
+    $r->{fundraising} = $fr;
+  }
+  return $r;
+}
+
+sub encode_model_usereventactivity_fundraising ($self, $entity) {
+  my $r;
+  if (defined($entity->fundraising_requirement)) {
+    $r = {
+      minimum  => $entity->fundraising_requirement,
+      received => sum(map {$_->amount} $entity->donations->all),
+    };
+    if ($entity->user->id == $self->current_user->id) {
+      $r->{donations} = $self->encode_model([$entity->donations->all]);
+    }
+  }
   return $r;
 }
 
