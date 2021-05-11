@@ -8,7 +8,6 @@ sub encode_model_event ($self, $event) {
     id      => $event->id,
     name    => $event->name,
     year    => $event->year,
-    url     => $event->url,
     address => $self->encode_model($event->address),
     defined($event->event_group) ? (eventGroup => $self->encode_model($event->event_group)) : (),
     eventSeries => $self->encode_model([$event->event_groups]),
