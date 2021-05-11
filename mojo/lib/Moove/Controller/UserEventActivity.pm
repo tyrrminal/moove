@@ -2,7 +2,7 @@ package Moove::Controller::UserEventActivity;
 use Mojo::Base 'DCS::Base::API::Model::Controller';
 
 use Role::Tiny::With;
-with 'DCS::Base::Role::Rest::PaginatedList', 'DCS::API::Role::Rest::Create', 'DCS::API::Role::Rest::Delete';
+with 'DCS::Base::Role::Rest::Collection', 'DCS::Base::Role::Rest::Entity';
 with 'Moove::Controller::Role::ModelEncoding::UserEventActivity',
   'Moove::Controller::Role::ModelEncoding::Activity',
   'Moove::Controller::Role::ModelEncoding::EventPlacement',
@@ -10,6 +10,10 @@ with 'Moove::Controller::Role::ModelEncoding::UserEventActivity',
   'Moove::Controller::Role::ModelEncoding::Registration::EventActivity';
 
 use experimental qw(signatures postderef switch);
+
+sub decode_model ($self, $data) {
+  return $data;
+}
 
 sub resultset ($self) {
   my $rs = $self->unfiltered_resultset()->search(
@@ -36,15 +40,13 @@ sub custom_sort_for_column ($self, $col) {
 }
 
 sub unfiltered_resultset ($self) {
-  my $rs = $self->SUPER::unfiltered_resultset();
+  my $rs = $self->SUPER::unfiltered_resultset()->visible_to($self->current_user);
 
   my $user = $self->current_user;
   if (my $username = $self->validation->param('username')) {
     $user = $self->model('User')->find({username => $username});
   }
-  $rs = $rs->for_user($user)->visible_to($self->current_user);
-
-  return $rs;
+  return $rs->for_user($user);
 }
 
 1;
