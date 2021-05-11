@@ -8,6 +8,10 @@ with 'Moove::Controller::Role::ModelEncoding::Default';
 
 use experimental qw(signatures);
 
+sub decode_model ($self, $data) {
+  return $data;
+}
+
 sub resultset ($self, @args) {
   my $rs = $self->SUPER::resultset(@args);
   if (my $start = $self->validation->param('start')) {
