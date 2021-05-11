@@ -81,23 +81,13 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import Branding from "@/mixins/Branding.js";
-import LayoutDefault from "@/layouts/LayoutDefault.vue";
-import SideBar from "@/components/SideBar.vue";
-
-import EventDetails from "@/components/event/cards/EventDetails.vue";
-import RegistrationStatus from "@/components/event/fragments/Registered.vue";
-import Countdown from "@/components/event/cards/Countdown.vue";
-import ActivityResult from "@/components/activity/cards/Result.vue";
-import ActivityRecords from "@/components/activity/cards/Records.vue";
-import ActivityAchievements from "@/components/activity/cards/Achievements.vue";
-import EventResult from "@/components/event/cards/Result.vue";
-import Fundraising from "@/components/event/cards/Fundraising.vue";
-import Notes from "@/components/event/cards/Notes.vue";
-import Links from "@/components/event/fragments/Links.vue";
-import EventSequence from "@/components/event/fragments/Sequence.vue";
-
-const moment = require("moment");
+import EventFilters from "@/mixins/EventFilters.js";
+import UnitConversion from "@/mixins/UnitConversion.js";
+import { DateTime } from "luxon";
+import Countdown from "vuejs-countdown";
+import AddDonation from "@/components/event/fundraising/AddDonation.vue";
 
 export default {
   name: "EventDetail",
