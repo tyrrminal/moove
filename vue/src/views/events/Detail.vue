@@ -400,7 +400,7 @@ export default {
           let l = resp.data.elements;
           l.sort((a, b) =>
             a.eventActivity.scheduledStart.localeCompare(
-              b.activity.scheduledStart
+              b.eventActivity.scheduledStart
             )
           );
           let idx = l.findIndex((el) => el.id == self.id);
