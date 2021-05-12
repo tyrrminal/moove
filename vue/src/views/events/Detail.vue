@@ -48,6 +48,44 @@
                   eventGroup.url
                 }}</b-link>
               </b-form-group>
+              <b-form-group label="Related Events">
+                <div v-for="s in [eventGroup, ...eventSeries]" :key="s.id">
+                  <b-button
+                    size="sm"
+                    :disabled="s.prev == null"
+                    variant="none"
+                    class="mr-1"
+                    :to="
+                      s.prev
+                        ? { name: 'event', params: { id: s.prev.id } }
+                        : null
+                    "
+                    ><b-icon variant="primary" icon="caret-left-fill"
+                  /></b-button>
+                  <b-link
+                    :to="{
+                      name: 'events',
+                      params: {
+                        eventGroupID: s.id,
+                        username: userEventActivity.user.username,
+                      },
+                    }"
+                    ><span v-if="s.year">{{ s.year }} </span
+                    >{{ s.name }}</b-link
+                  ><b-button
+                    size="sm"
+                    :disabled="s.next == null"
+                    variant="none"
+                    class="ml-1"
+                    :to="
+                      s.next
+                        ? { name: 'event', params: { id: s.next.id } }
+                        : null
+                    "
+                    ><b-icon variant="primary" icon="caret-right-fill"
+                  /></b-button>
+                </div>
+              </b-form-group>
             </b-jumbotron>
           </b-col>
           <b-col>
@@ -339,6 +377,9 @@ export default {
           delete self.event.eventSeries;
           self.eventGroup = self.event.eventGroup;
           delete self.event.eventGroup;
+          [self.eventGroup, ...self.eventSeries].forEach((s) =>
+            self.getGroupNav(s)
+          );
           self.activity = self.userEventActivity.activity;
           delete self.userEventActivity.activity;
           self.fundraising = self.userEventActivity.fundraising;
@@ -347,6 +388,26 @@ export default {
           delete self.userEventActivity.nav;
         })
         .catch((err) => (self.error = err.response.data.message));
+    },
+    getGroupNav: function (s) {
+      let self = this;
+      if (s == null) return;
+      this.$http
+        .get(["user", "events"].join("/"), {
+          params: { "page.length": 0, eventGroupID: s.id },
+        })
+        .then((resp) => {
+          let l = resp.data.elements;
+          l.sort((a, b) =>
+            a.eventActivity.scheduledStart.localeCompare(
+              b.activity.scheduledStart
+            )
+          );
+          let idx = l.findIndex((el) => el.id == self.id);
+          console.log(idx);
+          this.$set(s, "next", l[idx + 1]);
+          this.$set(s, "prev", l[idx - 1]);
+        });
     },
     updateFundraising: function (newValue) {
       this.fundraising = newValue;
