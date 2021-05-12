@@ -10,7 +10,7 @@ sub encode_model_eventplacement ($self, $entity) {
     description => $entity->event_placement_partition->description,
   };
   if (my $pt = $entity->event_placement_partition->partition_type) {
-    $r->{partition_type} = $pt;
+    $r->{partitionType} = $pt;
   }
   return $r;
 }

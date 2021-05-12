@@ -14,8 +14,8 @@ sub encode_model_activity ($self, $entity) {
     externalDataSource => $entity->external_data_source_id,
     externalIdentifier => $entity->external_identifier,
     visibilityTypeID   => $entity->visibility_type_id,
-    created_at         => $self->encode_datetime($entity->created_at),
-    updated_at         => $self->encode_datetime($entity->updated_at),
+    createdAt          => $self->encode_datetime($entity->created_at),
+    updatedAt          => $self->encode_datetime($entity->updated_at),
     $self->encode_model_result($entity->activity_type, $entity->activity_result)->%*,
   };
 }
@@ -24,9 +24,9 @@ sub encode_model_result ($self, $type, $entity) {
   my $base    = $type->base_activity_type;
   my $context = $type->activity_context;
   my $r       = {
-    start_time  => $self->encode_datetime($entity->start_time),
+    startTime   => $self->encode_datetime($entity->start_time),
     weight      => $entity->weight,
-    heart_rate  => $entity->heart_rate,
+    heartRate   => $entity->heart_rate,
     temperature => $entity->temperature,
   };
   if ($base->has_distance) {
@@ -36,13 +36,13 @@ sub encode_model_result ($self, $type, $entity) {
     $r->{duration} = $self->encode_time($entity->duration);
   }
   if ($base->has_speed) {
-    $r->{net_time} = $self->encode_time($entity->net_time);
+    $r->{netTime} = $self->encode_time($entity->net_time);
     $r->{speed} =
       $self->encode_value_with_units($entity->speed, $self->model('UnitOfMeasure')->find({abbreviation => 'mph'}));
   }
   if ($base->has_pace) {
-    $r->{net_time} = $self->encode_time($entity->net_time);
-    $r->{pace}     = $self->encode_value_with_units($self->encode_time($entity->pace),
+    $r->{netTime} = $self->encode_time($entity->net_time);
+    $r->{pace}    = $self->encode_value_with_units($self->encode_time($entity->pace),
       $self->model('UnitOfMeasure')->find({abbreviation => '/mi'}));
   }
   if ($base->has_repeats) {

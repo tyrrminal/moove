@@ -14,12 +14,13 @@ sub encode_model_usereventactivity ($self, $entity) {
   my $event       = $ea->event;
 
   my $r = {
-    id                  => $entity->id,
-    eventActivity       => $self->encode_model($ea),
-    registration_number => $reg->registration_number,
-    fee                 => $entity->registration_fee,
-    date_registered     => $self->encode_date($entity->date_registered),
-    visibilityTypeID    => $entity->visibility_type_id,
+    id                 => $entity->id,
+    eventActivity      => $self->encode_model($ea),
+    registrationNumber => $reg->registration_number,
+    fee                => $entity->registration_fee,
+    registeredDate     => $self->encode_date($entity->date_registered),
+    visibilityTypeID   => $entity->visibility_type_id,
+    user               => $self->encode_model($entity->user),
   };
   $r->{activity}   = $self->encode_model($entity->activity) if (defined($entity->activity));
   $r->{placements} = $self->encode_model([$participant->event_placements->all])
@@ -35,6 +36,13 @@ sub encode_model_usereventactivity ($self, $entity) {
       $self->encode_model_simple($self->resultset->after($entity)->for_user($entity->user)->visible_to($self->current_user)->first),
   };
   return $r;
+}
+
+sub encode_model_user ($self, $entity) {
+  return {
+    id       => $entity->id,
+    username => $entity->username
+  };
 }
 
 sub encode_model_simple ($self, $entity) {

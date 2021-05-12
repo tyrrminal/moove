@@ -39,7 +39,7 @@ sub perform_delete ($self, $user) {
   $person->delete unless ($person->donations->count || $person->participants->count);
 }
 
-sub get_summary($self) {
+sub get_summary ($self) {
   return unless ($self->openapi->valid_input);
 
   my $user_id = $self->validation->param('user');
@@ -51,9 +51,9 @@ sub get_summary($self) {
   return $self->render(
     openapi => $self->encode_model(
       {
-        user              => $user,
-        recent_activities => [$user->activities->whole->ordered('-desc')->slice(0, 4)],
-        events            => {
+        user             => $user,
+        recentActivities => [$user->activities->whole->ordered('-desc')->slice(0, 4)],
+        events           => {
           previous => $reg->past->ordered('-desc')->first,
           next     => $reg->future->ordered('-asc')->first
         },
