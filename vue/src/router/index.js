@@ -136,7 +136,7 @@ let router = new Router({
     },
     {
       path: "*",
-      name: "error_not_found",
+      name: "errorNotFound",
       component: ErrorNotFound
     }
   ]

@@ -3,7 +3,7 @@ Vue.use(require('vue-moment'));
 
 import axios from '@/services/axios';
 
-let guest = { id: 0, username: 'Guest', person: { first_name: 'Guest', last_name: '' } };
+let guest = { id: 0, username: 'Guest', person: { firstname: 'Guest', lastname: '' } };
 
 const state = {
   status: '',
@@ -24,32 +24,32 @@ const getters = {
 const actions = {
   login({ commit }, d) {
     return new Promise((resolve, reject) => {
-      commit('auth_request');
+      commit('authRequest');
       axios
         .post('/auth/login', {}, { auth: { username: d[0], password: d[1] } })
         .then(resp => {
           const s = resp.data;
-          commit('auth_success', s);
+          commit('authSuccess', s);
           resolve(resp);
         })
         .catch(err => {
-          commit('auth_error');
+          commit('authError');
           reject(err);
         })
     })
   },
   check({ commit }) {
     return new Promise((resolve, reject) => {
-      commit('auth_request');
+      commit('authRequest');
       axios
         .get('/auth/status')
         .then(resp => {
           const s = resp.data;
-          commit('auth_success', s);
+          commit('authSuccess', s);
           resolve(resp);
         })
         .catch(err => {
-          commit('auth_error');
+          commit('authError');
           reject(err);
         })
     })
@@ -63,7 +63,7 @@ const actions = {
           resolve(resp);
         })
         .catch(err => {
-          commit('auth_error');
+          commit('authError');
           reject(err);
         })
     })
@@ -71,16 +71,16 @@ const actions = {
 }
 
 const mutations = {
-  auth_request(state) {
+  authRequest(state) {
     state.status = 'loading';
   },
-  auth_success(state, s) {
+  authSuccess(state, s) {
     state.status = 'success';
     state.user = s.user;
     state.roles = s.roles;
     state.expiration = s.expiration;
   },
-  auth_error(state) {
+  authError(state) {
     state.status = 'error';
     state.user = guest;
     state.roles = [];
