@@ -55,17 +55,17 @@
               class="py-2 event-details"
               border-variant="info"
               v-if="
-                userEventActivity.date_registered ||
+                userEventActivity.registeredDate ||
                 Number.parseFloat(userEventActivity.fee) ||
-                userEventActivity.registration_number
+                userEventActivity.registrationNumber
               "
             >
               <b-form-group
                 label="Registered On"
-                v-if="userEventActivity.date_registered"
+                v-if="userEventActivity.registeredDate"
               >
                 {{
-                  userEventActivity.date_registered
+                  userEventActivity.registeredDate
                     | luxon({ input: { zone: "local" }, output: "date_med" })
                 }}
               </b-form-group>
@@ -77,9 +77,9 @@
               </b-form-group>
               <b-form-group
                 label="Registration Number"
-                v-if="userEventActivity.registration_number != null"
+                v-if="userEventActivity.registrationNumber != null"
               >
-                #{{ userEventActivity.registration_number }}
+                #{{ userEventActivity.registrationNumber }}
               </b-form-group>
             </b-jumbotron>
           </b-col>
@@ -116,11 +116,9 @@
               </b-form-group>
               <b-form-group
                 label="Net Time"
-                v-if="
-                  activity.net_time && activity.duration != activity.net_time
-                "
+                v-if="activity.netTime && activity.duration != activity.netTime"
               >
-                {{ activity.net_time }}
+                {{ activity.netTime }}
               </b-form-group>
               <b-form-group label="Avg. Pace" v-if="activity.pace">
                 {{ fillUnits(activity.pace) | formatDistance }}

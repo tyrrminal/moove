@@ -78,19 +78,19 @@
           | invDecimate
           | percent(1)
       }}</template>
-      <template v-slot:cell(place_gender)="data">{{
+      <template v-slot:cell(placeGender)="data">{{
         getResultsGroup(data.item.placements, "gender") | extract("place")
       }}</template>
-      <template v-slot:cell(pct_gender)="data">{{
+      <template v-slot:cell(pctGender)="data">{{
         getResultsGroup(data.item.placements, "gender")
           | extract("percentile")
           | invDecimate
           | percent(1)
       }}</template>
-      <template v-slot:cell(place_div)="data">{{
+      <template v-slot:cell(placeDiv)="data">{{
         getResultsGroup(data.item.placements, "division") | extract("place")
       }}</template>
-      <template v-slot:cell(pct_div)="data">{{
+      <template v-slot:cell(pctDiv)="data">{{
         getResultsGroup(data.item.placements, "division")
           | extract("percentile")
           | invDecimate
@@ -116,7 +116,6 @@ export default {
   data: function () {
     return {
       isLoading: true,
-      sequence_id: null,
       filters: {
         type: null,
         completed: false,
@@ -198,7 +197,7 @@ export default {
         b = b.activity ? b.activity.speed.value : 0;
       }
       var m;
-      if ((m = key.match(/(place|pct)_?(division|gender)?/))) {
+      if ((m = key.match(/(place|pct)?(Division|Gender)?/))) {
         t = "num";
         let f = m[1] == "pct" ? "percentile" : m[1];
         let g = m[2] === null ? "overall" : m[2];
@@ -221,8 +220,8 @@ export default {
     getResultsGroup: function (results, partitionType) {
       let groups = results;
       if (partitionType == "overall")
-        groups = groups.filter((r) => !r.hasOwnProperty("partition_type"));
-      else groups = groups.filter((r) => r.partition_type == partitionType);
+        groups = groups.filter((r) => !r.hasOwnProperty("partitionType"));
+      else groups = groups.filter((r) => r.partitionType == partitionType);
       let g = groups[0];
       if (g == null) return null;
       g.percentile = (100 * g.place) / g.of;
