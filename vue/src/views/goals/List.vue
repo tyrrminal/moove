@@ -14,7 +14,7 @@
           :to="{ name: 'goal', params: { user: effectiveUser, id: g.id } }"
         >
           <span>
-            <span class="text-muted">[{{ g.activity_type.description }}]</span>
+            <span class="text-muted">[{{ g.activityType.description }}]</span>
             <label class="listlabel">{{ g.name }}:</label>
             <template v-if="g.count">{{
               g.fulfillments[0].description
@@ -31,7 +31,7 @@
       <h3>Achievements</h3>
       <b-list-group class="py-0">
         <b-list-group-item v-for="g in achievements" :key="g.id">
-          <span class="text-muted">[{{ g.activity_type.description }}]</span>
+          <span class="text-muted">[{{ g.activityType.description }}]</span>
           <label class="listlabel">{{ g.name }}:</label>
           <span v-if="g.count">
             {{ g.fulfillments[0].date | moment("M/D/YY") }}

@@ -8,15 +8,15 @@
       <b-row>
         <b-col sm="12" class="text-center">
           <h3>
-            {{ user.person.first_name }}
+            {{ user.person.firstname }}
             <template
               v-if="
-                user.person.first_name.toLowerCase() !==
+                user.person.firstname.toLowerCase() !==
                 user.username.toLowerCase()
               "
               >"{{ user.username }}"</template
             >
-            {{ user.person.last_name }}
+            {{ user.person.lastname }}
           </h3>
         </b-col>
       </b-row>
@@ -24,11 +24,8 @@
       <b-row>
         <b-col sm="10" class="text-center">
           <span class="text-muted">Lifetime:</span>
-          <span
-            v-for="t in totals.length"
-            :key="totals[t - 1].activity_type.id"
-          >
-            {{ totals[t - 1].activity_type.description }}
+          <span v-for="t in totals.length" :key="totals[t - 1].activityType.id">
+            {{ totals[t - 1].activityType.description }}
             {{ totals[t - 1].distance | formatDistance }}
             <span v-if="t < totals.length" class="text-muted">/</span>
           </span>
@@ -43,9 +40,9 @@
           <h5>Recent</h5>
           <b-list-group>
             <b-list-group-item v-for="a in activities" :key="a.id">
-              <timeago :datetime="a.start_time"></timeago>
+              <timeago :datetime="a.startTime"></timeago>
               &mdash; {{ a.distance | formatDistance }}
-              {{ a.activity_type.description }}
+              {{ a.activityType.description }}
             </b-list-group-item>
           </b-list-group>
         </b-col>
@@ -56,13 +53,13 @@
           <EventDetails
             v-if="events.previous"
             :event="events.previous.event"
-            :isPublic="events.previous.registration.is_public"
+            :isPublic="events.previous.registration.isPublic"
           />
           <h5>Next</h5>
           <EventDetails
             v-if="events.next"
             :event="events.next.event"
-            :isPublic="events.next.registration.is_public"
+            :isPublic="events.next.registration.isPublic"
           />
         </b-col>
 
@@ -115,7 +112,7 @@ export default {
       .get("user/" + self.effectiveUser + "/summary")
       .then((response) => {
         self.user = response.data.user;
-        self.activities = response.data.recent_activities;
+        self.activities = response.data.recentActivities;
         self.events = response.data.events;
         self.totals = response.data.totals;
         self.goals = response.data.goals;
@@ -131,7 +128,7 @@ export default {
       return this.$store.getters["auth/currentUser"].username;
     },
     prs: function () {
-      return this.goals.filter((g) => g.is_pr);
+      return this.goals.filter((g) => g.isPR);
     },
   },
 };

@@ -35,17 +35,17 @@
         ><b-link
           :to="{ name: 'activity', params: { id: data.item.id } }"
           class="activityLink"
-          >{{ dayPart(data.item.start_time) }}
+          >{{ dayPart(data.item.startTime) }}
           {{ getActivityType(data.value).labels.base }}</b-link
         ></template
       >
-      <template #cell(start_time)="data">
+      <template #cell(startTime)="data">
         <span v-b-tooltip.hover :title="formatDate(data.value)">
           {{ data.value | luxon }}
         </span>
       </template>
       <template #cell(time)="data">
-        {{ data.item.net_time }}
+        {{ data.item.netTime }}
       </template>
       <template #cell(distance)="data">
         <template v-if="data.value">
@@ -142,7 +142,7 @@ export default {
         .get(["activities"].join("/"), {
           params: {
             ...this.queryParams,
-            "order.by": ctx.sortBy || "start_time",
+            "order.by": ctx.sortBy || "startTime",
             "order.dir": ctx.sortDesc ? "desc" : "asc",
             "page.number": ctx.currentPage,
             "page.length": ctx.perPage,
@@ -179,7 +179,7 @@ export default {
     columns: function () {
       let r = [
         {
-          key: "start_time",
+          key: "startTime",
           sortable: true,
           label: "Date",
         },

@@ -2,8 +2,10 @@
   <b-list-group :flush="flush">
     <b-list-group-item v-for="r in records" :key="`pr-${r.id}`">
       <label>
-        <b-link :to="{ name: 'goal', params: { id: r.id } }">{{ r.name }}</b-link>
-      </label>:
+        <b-link :to="{ name: 'goal', params: { id: r.id } }">{{
+          r.name
+        }}</b-link> </label
+      >:
       <span :class="displayClass(r)">{{ r.fulfillments[0].description }}</span>
     </b-list-group-item>
   </b-list-group>
@@ -15,14 +17,14 @@ export default {
     records: Array,
     flush: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   methods: {
-    displayClass: function(r) {
-      return r.fulfillments[0].is_current ? "current" : "text-muted";
-    }
-  }
+    displayClass: function (r) {
+      return r.fulfillments[0].isCurrent ? "current" : "text-muted";
+    },
+  },
 };
 </script>
 

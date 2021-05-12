@@ -8,7 +8,13 @@
       </div>
       <label for="name">Username</label>
       <div>
-        <input id="username" type="text" v-model="username" required autofocus />
+        <input
+          id="username"
+          type="text"
+          v-model="username"
+          required
+          autofocus
+        />
       </div>
       <label for="password">Password</label>
       <div>
@@ -16,7 +22,12 @@
       </div>
       <label for="password">Confirm Password</label>
       <div>
-        <input id="password-confirm" type="password" v-model="password_confirmation" required />
+        <input
+          id="password-confirm"
+          type="password"
+          v-model="passwordConfirmation"
+          required
+        />
       </div>
       <div>
         <button type="submit">Register</button>
@@ -32,25 +43,24 @@ export default {
       name: "",
       username: "",
       password: "",
-      password_confirmation: ""
+      passwordConfirmation: "",
     };
   },
   methods: {
-    register: function() {
+    register: function () {
       let data = {
         name: this.name,
         username: this.username,
-        password: this.password
+        password: this.password,
       };
       this.$store
         .dispatch("auth/register", data)
         .then(() => this.$router.push("/"))
-        .catch(err => console.log(err));
-    }
-  }
-}
+        .catch((err) => console.log(err));
+    },
+  },
+};
 </script>
 
 <style>
-
 </style>

@@ -11,13 +11,13 @@
 <script>
 export default {
   props: {
-    records: Array
+    records: Array,
   },
   methods: {
-    displayClass: function(r) {
-      return r.fulfillments[0].is_current ? "current" : "text-muted";
-    }
-  }
+    displayClass: function (r) {
+      return r.fulfillments[0].isCurrent ? "current" : "text-muted";
+    },
+  },
 };
 </script>
 

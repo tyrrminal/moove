@@ -12,7 +12,7 @@
     ></b-card-title>
     <b-card-sub-title
       >{{ event.distance | formatDistanceTrim }}
-      {{ event.event_type.description }}</b-card-sub-title
+      {{ event.eventType.description }}</b-card-sub-title
     >
     <h6 slot="footer">
       {{ event.scheduledStart | moment("M/D/YY h:mma")
