@@ -48,8 +48,8 @@
                   eventGroup.url
                 }}</b-link>
               </b-form-group>
-              <b-form-group label="Related Events">
-                <div v-for="s in [eventGroup, ...eventSeries]" :key="s.id">
+              <b-form-group label="Related Events" v-if="relatedEvents.length">
+                <div v-for="s in relatedEvents" :key="s.id">
                   <b-button
                     size="sm"
                     :disabled="s.prev == null"
@@ -383,9 +383,7 @@ export default {
           delete self.event.eventSeries;
           self.eventGroup = self.event.eventGroup;
           delete self.event.eventGroup;
-          [self.eventGroup, ...self.eventSeries].forEach((s) =>
-            self.getGroupNav(s)
-          );
+          this.relatedEvents.forEach((s) => self.getGroupNav(s));
           self.activity = self.userEventActivity.activity;
           delete self.userEventActivity.activity;
           self.fundraising = self.userEventActivity.fundraising;
@@ -410,7 +408,6 @@ export default {
             )
           );
           let idx = l.findIndex((el) => el.id == self.id);
-          console.log(idx);
           this.$set(s, "next", l[idx + 1]);
           this.$set(s, "prev", l[idx - 1]);
         });
@@ -466,6 +463,9 @@ export default {
       if (this.event)
         return `${this.applicationName} / Event / ${this.event.year} ${this.event.name}`;
       else return this.applicationName;
+    },
+    relatedEvents: function () {
+      return [this.eventGroup, ...this.eventSeries].filter((s) => s != null);
     },
     effectiveUser: function () {
       if (this.$route.params.user) return this.$route.params.user;
