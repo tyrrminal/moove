@@ -5,7 +5,9 @@ use Role::Tiny::With;
 with 'DCS::Base::Role::Rest::Collection', 'DCS::Base::Role::Rest::Entity';
 with 'Moove::Controller::Role::ModelEncoding::UserEventActivity',
   'Moove::Controller::Role::ModelEncoding::Activity',
+  'Moove::Controller::Role::ModelEncoding::ActivityType',
   'Moove::Controller::Role::ModelEncoding::EventPlacement',
+  'Moove::Controller::Role::ModelEncoding::EventType',
   'Moove::Controller::Role::ModelEncoding::Registration::Event',
   'Moove::Controller::Role::ModelEncoding::Registration::EventActivity';
 
