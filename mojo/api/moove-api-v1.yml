@@ -1367,6 +1367,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/EventPlacement"
+        fundraising:
+          $ref: "#/components/schemas/Fundraising"
         user:
           $ref: "#/components/schemas/User"
     PaginatedEventRegistrations:
