@@ -1,7 +1,8 @@
 var numeral = require('numeral');
 
 function isNumber(str) {
-  if (typeof str != "string") return false // we only process strings!
+  if (typeof str == "number") return true;
+  if (typeof str != "string") return false;
   // could also coerce to string: str = ""+str
   return !isNaN(str) && !isNaN(parseFloat(str))
 }
