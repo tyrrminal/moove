@@ -1264,18 +1264,111 @@ components:
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"
+        name:
+          type: string
+        year:
+          type: integer
+        address:
+          $ref: "#/components/schemas/Address"
+        eventGroup:
+          $ref: "#/components/schemas/EventGroup"
+        eventSeries:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventGroup"
     EventActivity:
       type: object
       additionalProperties: true
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"
+        name:
+          type: string
+          nullable: true
+        resultsURL:
+          type: string
+          format: uri
+          nullable: true
+        scheduledStart:
+          type: string
+          format: date-time
+        distance:
+          $ref: "#/components/schemas/UnitValue"
+        entrants:
+          type: integer
+          nullable: true
+        event:
+          $ref: "#/components/schemas/Event"
+        eventType:
+          $ref: "#/components/schemas/EventType"
+    EventGroup:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+        name:
+          type: string
+        url:
+          type: string
+          format: uri
+          nullable: true
+        year:
+          type: integer
+          nullable: true
+    EventPlacement:
+      type: object
+      additionalProperties: false
+      required:
+        - description
+        - of
+        - place
+      properties:
+        description:
+          type: string
+        of:
+          type: integer
+          minimum: 1
+        place:
+          type: integer
+          minimum: 1
+        partitionType:
+          type: string
     EventRegistration:
       type: object
       additionalProperties: true
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"
+        fee:
+          type: number
+          nullable: true
+        activity:
+          $ref: "#/components/schemas/Activity"
+        eventActivity:
+          $ref: "#/components/schemas/EventActivity"
+        registeredDate:
+          type: string
+          format: date
+          nullable: true
+        registrationNumber:
+          type: string
+          nullable: true
+        visibilityTypeID:
+          type: integer
+        nav:
+          type: object
+          properties:
+            next:
+              $ref: "#/components/schemas/Event"
+            prev:
+              $ref: "#/components/schemas/Event"
+        placements:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventPlacement"
+        user:
+          $ref: "#/components/schemas/User"
     PaginatedEventRegistrations:
       type: object
       additionalProperties: false
@@ -1481,9 +1574,8 @@ components:
           $ref: "#/components/schemas/DatabaseID"
         value:
           type: number
-          minimum: 0
-        unit:
-          $ref: "#/components/schemas/Unit"
+        unitOfMeasureID:
+          type: integer
     VisibilityType:
       type: object
       required:
