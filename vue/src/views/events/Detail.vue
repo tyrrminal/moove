@@ -146,6 +146,12 @@
                   >{{ at(activity.activityTypeID).description }}
                 </b-link>
               </h4>
+              <b-form-group label="Actual Start Time">
+                {{
+                  activity.startTime
+                    | luxon({ input: { zone: "local" }, output: "f" })
+                }}
+              </b-form-group>
               <b-form-group label="Measured Distance">
                 {{ fillUnits(activity.distance) | formatDistance }}
               </b-form-group>
