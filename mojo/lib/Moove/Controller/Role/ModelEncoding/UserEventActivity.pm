@@ -35,6 +35,9 @@ sub encode_model_usereventactivity ($self, $entity) {
     next =>
       $self->encode_model_simple($self->resultset->after($entity)->for_user($entity->user)->visible_to($self->current_user)->first),
   };
+  foreach (qw(next prev)) {
+    delete($r->{nav}->{$_}) unless (defined($r->{nav}->{$_}));
+  }
   return $r;
 }
 
