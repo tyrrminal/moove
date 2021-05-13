@@ -14,9 +14,6 @@ export default {
     formatDistanceTrim: d => numeral(d.quantity.value).format('0,0.00').replace(/[.]?0+$/, '') + ' ' + d.quantity.units.abbreviation,
     formatNormalizedDistance: d => numeral(d.normalizedQuantity.value).format('0,0.00') + " " + d.normalizedQuantity.units.abbreviation,
 
-    decimate: v => v / 100,
-    invDecimate: v => { if (v == null) return null; return (100 - v) / 100 },
-
     formatAddress: a => {
       let str = "";
       if (a.street1)
