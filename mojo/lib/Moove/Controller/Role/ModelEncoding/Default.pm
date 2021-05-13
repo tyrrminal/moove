@@ -3,9 +3,9 @@ use Role::Tiny;
 
 use experimental qw(signatures);
 
-sub encode_model_address($self, $address) {
+sub encode_model_address ($self, $address) {
   my %r = $self->encode_simple_model($address)->%*;
-  return {map { $_ => $r{$_} } grep { defined($r{$_}) } keys(%r)};
+  return {map {$_ => $r{$_}} grep {defined($r{$_})} keys(%r)};
 }
 
 sub encode_model_cumulativetotal ($self, $total) {
@@ -21,7 +21,7 @@ sub encode_model_distance ($self, $distance) {
   return {
     value  => $distance->value,
     unitID => $distance->unit_of_measure->id,
-    label  =>  $distance->unit_of_measure->abbreviation
+    label  => $distance->unit_of_measure->abbreviation
   };
 }
 
