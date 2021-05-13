@@ -10,7 +10,7 @@ export default {
   filters: {
     stripDecimals: d => d.replace(/[.]0+$/, ''),
 
-    formatDistance: d => (isNumber(d.quantity.value) ? numeral(d.quantity.value).format('0,0.00') : d.quantity.value.replace(/^[0:]*/, '')) + ' ' + d.quantity.units.abbreviation,
+    formatDistance: d => (isNumber(d.quantity.value) ? numeral(d.quantity.value).format('0,0.00') : d.quantity.value.toString().replace(/^[0:]*/, '')) + ' ' + d.quantity.units.abbreviation,
     formatDistanceTrim: d => numeral(d.quantity.value).format('0,0.00').replace(/[.]?0+$/, '') + ' ' + d.quantity.units.abbreviation,
     formatNormalizedDistance: d => numeral(d.normalizedQuantity.value).format('0,0.00') + " " + d.normalizedQuantity.units.abbreviation,
 
