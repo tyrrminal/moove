@@ -550,10 +550,6 @@ paths:
         - $ref: "#/components/parameters/SearchEnddate"
         - $ref: "#/components/parameters/SearchActivityType"
         - $ref: "#/components/parameters/SearchUsername"
-        - in: query
-          name: eventGroupID
-          schema:
-            $ref: "#/components/schemas/DatabaseID"
       responses:
         200:
           description: OK
@@ -645,6 +641,21 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Fundraising"
+  /user/events/groups/{eventGroupID}:
+    parameters:
+      - $ref: "#/components/parameters/EventGroupID"
+    get:
+      summary: Get an event group and its registered events for the given user
+      x-mojo-to: EventGroup#get
+      parameters:
+        - $ref: "#/components/parameters/SearchUsername"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventGroup"
   /goals:
     get:
       summary: Get an optionally-filtered list of all goals
@@ -937,6 +948,13 @@ components:
     EventActivityID:
       in: path
       name: eventActivityID
+      description: The ID number of the event
+      required: true
+      schema:
+        $ref: "#/components/schemas/DatabaseID"
+    EventGroupID:
+      in: path
+      name: eventGroupID
       description: The ID number of the event
       required: true
       schema:
@@ -1316,6 +1334,10 @@ components:
         year:
           type: integer
           nullable: true
+        events:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventRegistration"
     EventPlacement:
       type: object
       additionalProperties: false
