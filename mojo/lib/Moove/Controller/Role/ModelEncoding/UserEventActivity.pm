@@ -28,15 +28,18 @@ sub encode_model_usereventactivity ($self, $entity) {
   if (my $fr = $self->encode_model_usereventactivity_fundraising($entity)) {
     $r->{fundraising} = $fr;
   }
-  $r->{nav} = {
-    prev => $self->encode_model_simple(
-      $self->resultset->before($entity)->for_user($entity->user)->visible_to($self->current_user)->first
-    ),
-    next =>
-      $self->encode_model_simple($self->resultset->after($entity)->for_user($entity->user)->visible_to($self->current_user)->first),
-  };
-  foreach (qw(next prev)) {
-    delete($r->{nav}->{$_}) unless (defined($r->{nav}->{$_}));
+  if (ref($self->resultset) =~ /UserEventActivity/) {
+    $r->{nav} = {
+      prev => $self->encode_model_simple(
+        $self->resultset->before($entity)->for_user($entity->user)->visible_to($self->current_user)->first
+      ),
+      next => $self->encode_model_simple(
+        $self->resultset->after($entity)->for_user($entity->user)->visible_to($self->current_user)->first
+      ),
+    };
+    foreach (qw(next prev)) {
+      delete($r->{nav}->{$_}) unless (defined($r->{nav}->{$_}));
+    }
   }
   return $r;
 }
