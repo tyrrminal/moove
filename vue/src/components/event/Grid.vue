@@ -144,37 +144,55 @@
       ) | formatDistance
     }}</template>
 
-    <template v-slot:cell(place)="data">{{
-      data.item.placements.overall.place
-    }}</template>
-    <template v-slot:cell(pct)="data">{{
-      data.item.placements.overall.percentile | percent(1)
-    }}</template>
-    <template v-slot:cell(placeGender)="data">{{
-      data.item.placements.gender.place
-    }}</template>
-    <template v-slot:cell(pctGender)="data">{{
-      data.item.placements.gender.percentile | percent(1)
-    }}</template>
-    <template v-slot:cell(placeDivision)="data">{{
-      data.item.placements.division.place
-    }}</template>
-    <template v-slot:cell(pctDivision)="data"
-      ><span v-if="data.item.placements.division.percentile != null">{{
-        data.item.placements.division.percentile | percent(1)
+    <template v-slot:cell(place)="data"
+      ><span v-if="data.item.placements && data.item.placements.overall">{{
+        data.item.placements.overall.place
       }}</span></template
     >
+    <template v-slot:cell(pct)="data"
+      ><span v-if="data.item.placements && data.item.placements.overall">{{
+        data.item.placements.overall.percentile | percent(1)
+      }}</span></template
+    >
+    <template v-slot:cell(placeGender)="data"
+      ><span v-if="data.item.placements && data.item.placements.gender">{{
+        data.item.placements.gender.place
+      }}</span></template
+    >
+    <template v-slot:cell(pctGender)="data"
+      ><span v-if="data.item.placements && data.item.placements.gender">{{
+        data.item.placements.gender.percentile | percent(1)
+      }}</span></template
+    >
+    <template v-slot:cell(placeDivision)="data"
+      ><span v-if="data.item.placements && data.item.placements.division">{{
+        data.item.placements.division.place
+      }}</span></template
+    >
+    <template v-slot:cell(pctDivision)="data"
+      ><span v-if="data.item.placements && data.item.placements.division"
+        ><span v-if="data.item.placements.division.percentile != null">{{
+          data.item.placements.division.percentile | percent(1)
+        }}</span></span
+      ></template
+    >
 
-    <template v-slot:cell(frMinimum)="data">{{
-      data.item.fundraising.minimum | currency
-    }}</template>
-    <template v-slot:cell(frReceived)="data">{{
-      data.item.fundraising.received | currency
-    }}</template>
-    <template v-slot:cell(frPct)="data">{{
-      (data.item.fundraising.received / data.item.fundraising.minimum)
-        | percent(1)
-    }}</template>
+    <template v-slot:cell(frMinimum)="data"
+      ><span v-if="data.item.fundraising">{{
+        data.item.fundraising.minimum | currency
+      }}</span></template
+    >
+    <template v-slot:cell(frReceived)="data"
+      ><span v-if="data.item.fundraising">{{
+        data.item.fundraising.received | currency
+      }}</span></template
+    >
+    <template v-slot:cell(frPct)="data"
+      ><span v-if="data.item.fundraising">{{
+        (data.item.fundraising.received / data.item.fundraising.minimum)
+          | percent(1)
+      }}</span></template
+    >
   </b-table>
 </template>
 
@@ -308,10 +326,10 @@ export default {
       var m;
       if ((m = key.match(/(place|pct)(Division|Gender)?/))) {
         t = "num";
-        let f = m[1] == "pct" ? "percentile" : m[1];
-        let g = m[2] == null ? "overall" : m[2].toLowerCase();
-        a = a.placements[g][f] || Number.MAX_SAFE_INTEGER;
-        b = b.placements[g][f] || Number.MAX_SAFE_INTEGER;
+        // let f = m[1] == "pct" ? "percentile" : m[1];
+        // let g = m[2] == null ? "overall" : m[2].toLowerCase();
+        a = m; //a.placements[g][f] || Number.MAX_SAFE_INTEGER;
+        b = -1; //b.placements[g][f] || Number.MAX_SAFE_INTEGER;
       }
       if (key == "frMinimum") {
         t = "num";
