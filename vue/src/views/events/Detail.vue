@@ -320,7 +320,7 @@
 <script>
 import { mapGetters } from "vuex";
 import Branding from "@/mixins/Branding.js";
-import EventFilters from "@/mixins/EventFilters.js";
+import EventFilters from "@/mixins/events/Filters.js";
 import UnitConversion from "@/mixins/UnitConversion.js";
 import { DateTime } from "luxon";
 import Countdown from "vuejs-countdown";

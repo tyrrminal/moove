@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import EventFilters from "@/mixins/EventFilters.js";
+import EventFilters from "@/mixins/events/Filters.js";
 
 export default {
   mixins: [EventFilters],

@@ -181,7 +181,7 @@
 <script>
 import UnitConversion from "@/mixins/UnitConversion.js";
 import { mapGetters } from "vuex";
-import EventFilters from "@/mixins/EventFilters.js";
+import EventFilters from "@/mixins/events/Filters.js";
 
 export default {
   mixins: [UnitConversion, EventFilters],

@@ -75,7 +75,7 @@
 
 <script>
 import Branding from "@/mixins/Branding.js";
-import EventFilters from "@/mixins/EventFilters.js";
+import EventFilters from "@/mixins/events/Filters.js";
 
 import LayoutDefault from "@/layouts/LayoutDefault.vue";
 import SideBar from "@/components/SideBar.vue";
