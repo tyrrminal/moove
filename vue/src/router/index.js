@@ -20,6 +20,7 @@ import ActivitySummary from "@/views/activities/Summary.vue";
 import Events from "@/views/events/Base.vue";
 import EventList from "@/views/events/List.vue";
 import Event from "@/views/events/Detail.vue";
+import EventGroup from "@/views/events/Group.vue";
 
 import Goals from "@/views/goals/Base.vue";
 import GoalList from "@/views/goals/List.vue";
@@ -115,6 +116,12 @@ let router = new Router({
           component: Event,
           props: true
         },
+        {
+          path: "group/:id",
+          name: "event-group",
+          component: EventGroup,
+          props: true
+        }
       ]
     },
     {
