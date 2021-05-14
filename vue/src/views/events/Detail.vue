@@ -64,9 +64,9 @@
                   /></b-button>
                   <b-link
                     :to="{
-                      name: 'events',
+                      name: 'event-group',
                       params: {
-                        eventGroupID: s.id,
+                        id: s.id,
                         username: userEventActivity.user.username,
                       },
                     }"
