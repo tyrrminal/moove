@@ -24,13 +24,14 @@
 
 <script>
 import Branding from "@/mixins/Branding.js";
+import Events from "@/mixins/events/API.js";
 import Grid from "@/components/event/Grid.vue";
 
 export default {
   components: {
     Grid,
   },
-  mixins: [Branding],
+  mixins: [Branding, Events],
   metaInfo: function () {
     return {
       title: this.title,
@@ -38,12 +39,15 @@ export default {
   },
   data: function () {
     return {
+      params: {
+        username: this.username,
+        "order.by": "scheduledStart",
+        "order.dir": "desc",
+      },
       filters: {
         activityTypeID: null,
         completed: false,
       },
-      events: [],
-
       view: {
         type: 0,
         options: [
@@ -59,63 +63,18 @@ export default {
       type: String,
       required: true,
     },
-    eventGroupID: {
-      type: Number,
-      required: false,
-    },
   },
   mounted: function () {
     this.init();
   },
   methods: {
-    init() {
-      this.loadDataPage(1);
-    },
-    loadDataPage: function (pageNum) {
-      let self = this;
-      self.$http
-        .get(["user", "events"].join("/"), {
-          params: { ...this.params, "page.number": pageNum },
-        })
-        .then((resp) => {
-          self.events.push(
-            ...resp.data.elements.map((x) => this.processEventPlacements(x))
-          );
-          if (self.events.length < resp.data.pagination.counts.filter)
-            self.loadDataPage(pageNum + 1);
-        });
-    },
-    processEventPlacements: function (event) {
-      if (event.placements != null) {
-        let placements = event.placements;
-        event.placements = {
-          overall: { place: null, percentile: null },
-          gender: { place: null, percentile: null },
-          division: { place: null, percentile: null },
-        };
-        placements.forEach(
-          (p) =>
-            (event.placements[p.partitionType || "overall"] = {
-              ...p,
-              percentile: 1 - p.place / p.of,
-            })
-        );
-      }
-      return event;
+    init: function () {
+      this.loadEvents();
     },
   },
   computed: {
     title: function () {
       return `${this.applicationName} / Events`;
-    },
-    params: function () {
-      let q = {
-        username: this.username,
-        "order.by": "scheduledStart",
-        "order.dir": "desc",
-      };
-      if (this.eventGroupID) qs.eventGroupID = this.eventGroupID;
-      return q;
     },
     filteredEvents: function () {
       let events = this.events;
