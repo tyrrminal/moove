@@ -397,11 +397,9 @@ export default {
       let self = this;
       if (s == null) return;
       this.$http
-        .get(["user", "events"].join("/"), {
-          params: { "page.length": 0, eventGroupID: s.id },
-        })
+        .get(["user", "events", "groups", s.id].join("/"))
         .then((resp) => {
-          let l = resp.data.elements;
+          let l = resp.data.events;
           l.sort((a, b) =>
             a.eventActivity.scheduledStart.localeCompare(
               b.eventActivity.scheduledStart
