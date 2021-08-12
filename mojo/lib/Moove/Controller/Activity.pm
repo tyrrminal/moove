@@ -258,10 +258,13 @@ sub import ($self) {
   my $importer = $import_class->new();
 
   foreach my $activity ($importer->get_activities($asset)) {
-    push(@activities, $self->import_activity($activity, $self->current_user));
+    my ($activity, $is_existing) = $self->import_activity($activity, $self->current_user);
+    $activity = $self->encode_model($activity);
+    $activity->{isNew} = !$is_existing;
+    push(@activities, $activity);
   }
 
-  return $self->render(openapi => $self->encode_model([@activities]));
+  return $self->render(openapi => \@activities);
 }
 
 sub _days_in_period ($period, $period_start) {
