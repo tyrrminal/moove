@@ -13,14 +13,14 @@ use DCS::Constants qw(:existence);
 use experimental qw(signatures postderef);
 
 sub import_activity ($self, $activity, $user, $workout = undef) {
-  my $has_map = defined($activity->{activity_points});
+  my $has_map       = defined($activity->{activity_points});
   my $activity_type = $self->model('ActivityType')->lookup($activity->{type}, $has_map);
 
   my $data_source;
   if ($activity->{importer}) {
     $data_source = $self->app->model('ExternalDataSource')->find({name => $activity->{importer}});
     if (my $existing = $self->app->model('Activity')->prior_import($activity->{activity_id}, $data_source)->first) {
-      return $existing;
+      return ($existing, true);
     }
   }
 
@@ -35,7 +35,7 @@ sub import_activity ($self, $activity, $user, $workout = undef) {
 
   my $result_params = {
     start_time  => $activity->{date},
-    weight      => $activity->{weight} || $NULL,
+    weight      => $activity->{weight}     || $NULL,
     heart_rate  => $activity->{heart_rate} || $NULL,
     temperature => $activity->{temperature},
   };
@@ -48,7 +48,7 @@ sub import_activity ($self, $activity, $user, $workout = undef) {
     $result_params->{duration} = $activity->{gross_time},;
   }
   if ($activity_type->base_activity_type->has_pace || $activity_type->base_activity_type->has_speed) {
-    my $pace_units = $self->model('UnitOfMeasure')->find({abbreviation => '/mi'});
+    my $pace_units  = $self->model('UnitOfMeasure')->find({abbreviation => '/mi'});
     my $speed_units = $self->model('UnitOfMeasure')->find({abbreviation => 'mph'});
     $result_params->{net_time} = $activity->{net_time};
     $result_params->{pace} =
