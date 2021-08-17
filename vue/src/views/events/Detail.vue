@@ -72,16 +72,24 @@
                     }"
                     ><span v-if="s.year">{{ s.year }} </span
                     >{{ s.name }}</b-link
-                  ><b-button
+                  >
+                  <b-button
                     size="sm"
-                    :disabled="s.next == null"
+                    variant="outline-primary"
+                    class="ml-2"
+                    v-if="s.next == null"
+                    :to="{
+                      name: 'create-event',
+                      params: { event, eventGroup, eventActivity },
+                    }"
+                    ><b-icon icon="plus" :scale="1.5"
+                  /></b-button>
+                  <b-button
+                    size="sm"
+                    v-else
                     variant="none"
                     class="ml-1"
-                    :to="
-                      s.next
-                        ? { name: 'event', params: { id: s.next.id } }
-                        : null
-                    "
+                    :to="{ name: 'event', params: { id: s.next.id } }"
                     ><b-icon variant="primary" icon="caret-right-fill"
                   /></b-button>
                 </div>

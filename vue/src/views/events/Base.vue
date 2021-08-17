@@ -1,7 +1,23 @@
-<template><router-view></router-view></template>
+<template>
+  <div>
+    <Sidebar :items="menu" />
+    <router-view></router-view>
+  </div>
+</template>
 
 <script>
-export default {};
+import Sidebar from "@/components/SideBar.vue";
+
+export default {
+  components: {
+    Sidebar,
+  },
+  data: function () {
+    return {
+      menu: [{ text: "Add", to: { name: "create-event" } }],
+    };
+  },
+};
 </script>
 
 <style>

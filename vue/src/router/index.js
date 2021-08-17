@@ -21,6 +21,8 @@ import Events from "@/views/events/Base.vue";
 import EventList from "@/views/events/List.vue";
 import Event from "@/views/events/Detail.vue";
 import EventGroup from "@/views/events/Group.vue";
+import EventAdd from "@/views/events/Add.vue";
+import EventEdit from "@/views/events/Edit.vue";
 
 import Goals from "@/views/goals/Base.vue";
 import GoalList from "@/views/goals/List.vue";
@@ -117,9 +119,21 @@ let router = new Router({
           props: true
         },
         {
-          path: "group/:id",
+          path: "series/:id",
           name: "event-group",
           component: EventGroup,
+          props: true
+        },
+        {
+          path: "add",
+          name: "create-event",
+          component: EventAdd,
+          props: true
+        },
+        {
+          path: "edit",
+          name: "edit-event",
+          component: EventEdit,
           props: true
         }
       ]

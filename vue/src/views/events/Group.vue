@@ -3,7 +3,8 @@
     <b-card v-if="group" no-body class="mt-2">
       <b-card-header>
         <h3>
-          <span v-if="group.year">{{ group.year }} </span>{{ group.name }}
+          Event Series: <span v-if="group.year">{{ group.year }} </span
+          >{{ group.name }}
         </h3>
       </b-card-header>
 
