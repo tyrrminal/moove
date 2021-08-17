@@ -12,7 +12,9 @@ sub encode_model_event ($self, $event) {
     address    => $self->encode_model($event->address),
     activities => $self->encode_model([$event->event_activities]),
     defined($event->event_group) ? (eventGroup => $self->encode_model($event->event_group)) : (),
-    eventSeries => $self->encode_model([$event->event_groups]),
+    eventSeries          => $self->encode_model([$event->event_groups]),
+    externalDataSourceID => $event->external_data_source_id,
+    externalIdentifier   => $event->external_identifier,
   };
 }
 
