@@ -1,39 +1,25 @@
 <template>
-  <div></div>
+  <b-container class="mt-4">
+    <b-row>
+      <b-col v-for="(s, i) in sections" :key="i" cols="3">
+        <Summary :period="s" />
+      </b-col>
+    </b-row>
+  </b-container>
 </template>
 
 <script>
-const { DateTime } = require("luxon");
+import Summary from "@/components/activity/Summary";
 
 export default {
   name: "ActivitySummary",
+  components: {
+    Summary,
+  },
   data: function () {
     return {
-      overall: {},
-      current: {
-        year: {},
-        month: {},
-        week: {},
-      },
+      sections: [null, "year", "month", "week"],
     };
-  },
-  mounted: function () {
-    let resource = ["activities", "summary"].join("/");
-    this.$http.get(resource).then((resp) => {
-      this.overall = resp.data;
-    });
-    this.$http
-      .get(resource, {
-        params: { start: this.startOfYear.toISODate(), period: "year" },
-      })
-      .then((resp) => {
-        this.current.year = resp.data;
-      });
-  },
-  computed: {
-    startOfYear: function () {
-      return DateTime.local().startOf("year");
-    },
   },
 };
 </script>
