@@ -343,7 +343,7 @@ paths:
             schema:
               $ref: "#/components/schemas/Event"
       responses:
-        200:
+        201:
           description: OK
           content:
             application/json:
@@ -641,6 +641,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Fundraising"
+      tags:
+        - Event
   /user/events/groups/{eventGroupID}:
     parameters:
       - $ref: "#/components/parameters/EventGroupID"
@@ -656,6 +658,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/EventGroup"
+      tags:
+        - Event
   /goals:
     get:
       summary: Get an optionally-filtered list of all goals
@@ -1278,7 +1282,7 @@ components:
           nullable: true
     Event:
       type: object
-      additionalProperties: true
+      additionalProperties: false
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"
@@ -1286,6 +1290,9 @@ components:
           type: string
         year:
           type: integer
+        url:
+          type: string
+          nullable: true
         address:
           $ref: "#/components/schemas/Address"
         eventGroup:
@@ -1294,9 +1301,19 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/EventGroup"
+        externalDataSourceID:
+          type: integer
+          nullable: true
+        externalIdentifier:
+          type: string
+          nullable: true
+        activities:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventActivity"
     EventActivity:
       type: object
-      additionalProperties: true
+      additionalProperties: false
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"
@@ -1319,6 +1336,9 @@ components:
           $ref: "#/components/schemas/Event"
         eventType:
           $ref: "#/components/schemas/EventType"
+        externalIdentifier:
+          type: string
+          nullable: true
     EventGroup:
       type: object
       additionalProperties: false
