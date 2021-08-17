@@ -6,9 +6,23 @@ with 'DCS::Base::Role::Rest::Collection',             'DCS::Base::Role::Rest::En
 with 'Moove::Controller::Role::ModelEncoding::Event', 'Moove::Controller::Role::ModelEncoding::EventActivity';
 with 'Moove::Controller::Role::ModelEncoding::Default';
 
-use experimental qw(signatures);
+use DCS::Util::NameConversion qw(camel_to_snake convert_hash_keys);
+
+use experimental qw(signatures postderef);
 
 sub decode_model ($self, $data) {
+  delete($data->{id});
+  $data = {convert_hash_keys($data->%*, \&camel_to_snake)};
+  if (exists($data->{address}) && exists($data->{address}->{id})) {
+    $data->{address_id} = $data->{address}->{id};
+    delete($data->{address});
+  }
+  if (exists($data->{event_group}->{id})) {
+    $data->{event_group_id} = $data->{event_group}->{id};
+    delete($data->{event_group});
+  }
+  delete($data->{external_identifier}) unless ($data->{external_identifier});
+  delete($data->{url})                 unless ($data->{url});
   return $data;
 }
 
