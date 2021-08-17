@@ -77,8 +77,9 @@ sub summary ($self) {
   return unless ($self->openapi->valid_input);
 
   try {
-    my $ars = $self->resultset()->completed->ordered;
-    my $ers = $self->resultset(combine => false)->has_event;
+    my $unit = $self->model('UnitOfMeasure')->search({normal_unit_id => undef, abbreviation => 'mi'})->first;
+    my $ars  = $self->resultset()->completed->ordered;
+    my $ers  = $self->resultset(combine => false)->has_event;
 
     my $start = $self->parse_api_date($self->validation->param('start')) // ($ars->all)[0]->activity_result->start_time;
     my $end   = DateTime->now(time_zone => 'local');
@@ -86,7 +87,9 @@ sub summary ($self) {
     my @activity_types;
     my $period = $self->validation->param('period');
     if (defined($period)) {
-      $end = min($start->clone->truncate(to => $period)->add("${period}s" => 1), DateTime->today);
+      my $offset = $period eq 'week' ? 1 : 0;
+      $end = min($start->clone->add(days => $offset)->truncate(to => $period)->add("${period}s" => 1)->subtract(days => $offset),
+        DateTime->today->add(days => 1));
       $ars = $ars->before_date($end);
       $ers = $ers->before_date($end);
 
@@ -101,8 +104,9 @@ sub summary ($self) {
         }
         push(
           @activity_types, {
-            activity_type_id => $_->id,
-            distance         => $sl->total_distance,
+            activityTypeID => $_->id,
+            distance       => $sl->total_distance,
+            unitID         => $unit->id,
             %nom
           }
           )
@@ -113,15 +117,16 @@ sub summary ($self) {
     return $self->render(
       openapi => {
         period => {
-          daysElapsed => $end->delta_days($start)->delta_days,
+          daysElapsed => $end->subtract(days => $end > DateTime->today ? 1 : 0)->delta_days($start)->delta_days,
           defined($period) ? (daysTotal => _days_in_period($period, $start)) : (),
           years => $end->yearfrac($start),
         },
         activities => [
           {
-            activity_type_id => undef,
-            distance         => $ars->total_distance,
-            eventDistance    => $ers->total_distance,
+            activityTypeID => undef,
+            distance       => $ars->total_distance,
+            unitID         => $unit->id,
+            eventDistance  => $ers->total_distance,
           },
           @activity_types
         ]
