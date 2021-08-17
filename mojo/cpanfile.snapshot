@@ -1057,6 +1057,14 @@ DISTRIBUTIONS
       constant 0
       perl 5.006
       strict 0
+  DateTime-Format-HTTP-0.42
+    pathname: C/CK/CKRAS/DateTime-Format-HTTP-0.42.tar.gz
+    provides:
+      DateTime::Format::HTTP 0.42
+    requirements:
+      DateTime 0.17
+      HTTP::Date 1.44
+      Test::More 0.47
   DateTime-Format-ISO8601-0.16
     pathname: D/DR/DROLSKY/DateTime-Format-ISO8601-0.16.tar.gz
     provides:
@@ -1611,6 +1619,114 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 6.30
       Module::Runtime 0.009
       base 0
+      strict 0
+      warnings 0
+  Email-Abstract-3.009
+    pathname: R/RJ/RJBS/Email-Abstract-3.009.tar.gz
+    provides:
+      Email::Abstract 3.009
+      Email::Abstract::EmailMIME 3.009
+      Email::Abstract::EmailSimple 3.009
+      Email::Abstract::MIMEEntity 3.009
+      Email::Abstract::MailInternet 3.009
+      Email::Abstract::MailMessage 3.009
+      Email::Abstract::Plugin 3.009
+    requirements:
+      Carp 0
+      Email::Simple 1.998
+      ExtUtils::MakeMaker 6.78
+      MRO::Compat 0
+      Module::Pluggable 1.5
+      Scalar::Util 0
+      perl 5.006
+      strict 0
+      warnings 0
+  Email-Address-1.912
+    pathname: R/RJ/RJBS/Email-Address-1.912.tar.gz
+    provides:
+      Email::Address 1.912
+    requirements:
+      ExtUtils::MakeMaker 0
+      overload 0
+      strict 0
+      warnings 0
+  Email-Date-Format-1.005
+    pathname: R/RJ/RJBS/Email-Date-Format-1.005.tar.gz
+    provides:
+      Email::Date::Format 1.005
+    requirements:
+      Exporter 5.57
+      ExtUtils::MakeMaker 0
+      Time::Local 0
+      strict 0
+      warnings 0
+  Email-Sender-2.500
+    pathname: R/RJ/RJBS/Email-Sender-2.500.tar.gz
+    provides:
+      Email::Sender 2.500
+      Email::Sender::Failure 2.500
+      Email::Sender::Failure::Multi 2.500
+      Email::Sender::Failure::Permanent 2.500
+      Email::Sender::Failure::Temporary 2.500
+      Email::Sender::Manual 2.500
+      Email::Sender::Manual::QuickStart 2.500
+      Email::Sender::Role::CommonSending 2.500
+      Email::Sender::Role::HasMessage 2.500
+      Email::Sender::Simple 2.500
+      Email::Sender::Success 2.500
+      Email::Sender::Success::Partial 2.500
+      Email::Sender::Transport 2.500
+      Email::Sender::Transport::DevNull 2.500
+      Email::Sender::Transport::Failable 2.500
+      Email::Sender::Transport::Maildir 2.500
+      Email::Sender::Transport::Mbox 2.500
+      Email::Sender::Transport::Print 2.500
+      Email::Sender::Transport::SMTP 2.500
+      Email::Sender::Transport::SMTP::Persistent 2.500
+      Email::Sender::Transport::Sendmail 2.500
+      Email::Sender::Transport::Test 2.500
+      Email::Sender::Transport::Wrapper 2.500
+      Email::Sender::Util 2.500
+    requirements:
+      Carp 0
+      Email::Abstract 3.006
+      Email::Address 0
+      Email::Simple 1.998
+      ExtUtils::MakeMaker 6.78
+      Fcntl 0
+      File::Basename 0
+      File::Path 2.06
+      File::Spec 0
+      IO::File 1.11
+      IO::Handle 0
+      List::Util 1.45
+      Module::Runtime 0
+      Moo 2.000000
+      Moo::Role 0
+      MooX::Types::MooseLike 0.15
+      MooX::Types::MooseLike::Base 0
+      Net::SMTP 3.07
+      Scalar::Util 0
+      Sub::Exporter 0
+      Sub::Exporter::Util 0
+      Sys::Hostname 0
+      Throwable::Error 0.200003
+      Try::Tiny 0
+      perl 5.012
+      strict 0
+      utf8 0
+      warnings 0
+  Email-Simple-2.216
+    pathname: R/RJ/RJBS/Email-Simple-2.216.tar.gz
+    provides:
+      Email::Simple 2.216
+      Email::Simple::Creator 2.216
+      Email::Simple::Header 2.216
+    requirements:
+      Carp 0
+      Email::Date::Format 0
+      ExtUtils::MakeMaker 0
+      perl 5.008
       strict 0
       warnings 0
   Encode-Locale-1.05
@@ -2576,44 +2692,56 @@ DISTRIBUTIONS
       Module::Build::Tiny 0.035
       Mojolicious 7.82
       perl 5.020001
-  Mojolicious-Plugin-DCS-Base-0.002
-    pathname: D/DI/DIGICOW/Mojolicious-Plugin-DCS-Base-0.002.tar.gz
+  Mojolicious-Plugin-DCS-Base-2.000
+    pathname: D/DI/DIGICOW/Mojolicious-Plugin-DCS-Base-2.000.tar.gz
     provides:
-      DCS::API::Base::Auth 0.002
-      DCS::API::Base::Controller 0.002
-      DCS::API::Base::ModelController 0.002
-      DCS::API::Base::Status 0.002
-      DCS::API::Role::ModelEncoding::AuthUser 0.002
-      DCS::API::Role::ModelEntity 0.002
-      DCS::API::Role::Rest::Collection 0.002
-      DCS::API::Role::Rest::Create 0.002
-      DCS::API::Role::Rest::Delete 0.002
-      DCS::API::Role::Rest::Entity 0.002
-      DCS::API::Role::Rest::Get 0.002
-      DCS::API::Role::Rest::List 0.002
-      DCS::API::Role::Rest::Update 0.002
-      DCS::Command::load_schema 0.002
-      DCS::Command::migrate_schema 0.002
-      DCS::DateTime::Extras 0.002
-      DCS::LDAP 0.002
-      DCS::LDAP::Exceptions 0.002
-      DCS::LDAP::User 0.002
-      DCS::NameConversion 0.002
-      DCS::Utils 0.002
-      Mojolicious::Plugin::DCS::API 0.002
-      Mojolicious::Plugin::DCS::Authentication 0.002
-      Mojolicious::Plugin::DCS::Authorization 0.002
-      Mojolicious::Plugin::DCS::Base 0.002
-      Mojolicious::Plugin::DCS::Cron 0.002
-      Mojolicious::Plugin::DCS::DB 0.002
-      Mojolicious::Plugin::DCS::PersistentLogging 0.002
-      Mojolicious::Plugin::DCS::Session 0.002
-      Mojolicious::Plugin::DCS::Vue 0.002
+      DCS::Base::API::Auth::Controller 2.000
+      DCS::Base::API::Model::Controller 2.000
+      DCS::Base::Exception::Authorization 2.000
+      DCS::Base::Exception::EntityNotFound 2.000
+      DCS::Base::Role::Email 2.000
+      DCS::Base::Role::Rendering 2.000
+      DCS::Base::Role::Rest::Collection 2.000
+      DCS::Base::Role::Rest::Create 2.000
+      DCS::Base::Role::Rest::Delete 2.000
+      DCS::Base::Role::Rest::Entity 2.000
+      DCS::Base::Role::Rest::Get 2.000
+      DCS::Base::Role::Rest::List 2.000
+      DCS::Base::Role::Rest::PaginatedList 2.000
+      DCS::Base::Role::Rest::Replace 2.000
+      DCS::Base::Role::Rest::Update 2.000
+      DCS::Base::Role::ResultSet::Ordering 2.000
+      DCS::Base::Role::ResultSet::Pagination 2.000
+      DCS::Command::load_schema 2.000
+      DCS::Command::migrate_schema 2.000
+      DCS::DateTime::Extras 2.000
+      DCS::Email::Sender 2.000
+      DCS::LDAP 2.000
+      DCS::LDAP::Exceptions 2.000
+      DCS::LDAP::User 2.000
+      DCS::Util::NameConversion 2.000
+      Mojolicious::Plugin::DCS::Base 2.000
+      Mojolicious::Plugin::DCS::Base::API 2.000
+      Mojolicious::Plugin::DCS::Base::Authentication 2.000
+      Mojolicious::Plugin::DCS::Base::Authorization 2.000
+      Mojolicious::Plugin::DCS::Base::Constants 2.000
+      Mojolicious::Plugin::DCS::Base::DB 2.000
+      Mojolicious::Plugin::DCS::Base::DateParsing 2.000
+      Mojolicious::Plugin::DCS::Base::PersistentLogging 2.000
+      Mojolicious::Plugin::DCS::Base::Session 2.000
+      Mojolicious::Plugin::DCS::Base::Vue 2.000
+      Mojolicious::Plugin::DCS::Cron 2.000
     requirements:
       Carp 0
+      DBIx::Class::Schema 0
       DBIx::Class::Schema::Loader 0
       DCS::Constants 0
       DateTime 0
+      DateTime::Format::Duration 0
+      DateTime::Format::HTTP 0
+      DateTime::Format::Strptime 0
+      Email::Sender::Simple 0
+      Email::Sender::Transport::SMTP 0
       English 0
       Exception::Class 0
       Exporter 0
@@ -2629,6 +2757,7 @@ DISTRIBUTIONS
       Modern::Perl 0
       Module::Find 0
       Mojo::Base 0
+      Mojo::Template 0
       Mojo::Util 0
       Mojolicious::Plugin::Cron 0
       Moose 0
@@ -2640,9 +2769,11 @@ DISTRIBUTIONS
       Syntax::Keyword::Try 0
       Text::Balanced 0
       Time::Seconds 0
+      base 0
       boolean 0
       experimental 0
       overload 0
+      perl 5.032
       strict 0
       syntax 0
       warnings 0
@@ -4907,6 +5038,7 @@ DISTRIBUTIONS
       HTTP::Status 0
       IO::File 0
       IO::Socket::SSL 1.26
+      JSON 0
       LWP 0
       LWP::MediaTypes 0
       LWP::Protocol 0
