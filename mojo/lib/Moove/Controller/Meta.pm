@@ -7,11 +7,11 @@ with 'Moove::Controller::Role::ModelEncoding::ActivityType',
   'Moove::Controller::Role::ModelEncoding::ExternalDataSource',
   'Moove::Controller::Role::ModelEncoding::UnitOfMeasure';
 
-use DCS::NameConversion qw(camel_lower_to_upper camel_plural_to_singular);
+use DCS::Util::NameConversion qw(camel_lower_to_upper camel_plural_to_singular);
 
 use experimental qw(signatures);
 
-sub list($self) {
+sub list ($self) {
   return unless $self->openapi->valid_input;
 
   my $r = {};

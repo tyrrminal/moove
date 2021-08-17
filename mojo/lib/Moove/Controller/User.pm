@@ -2,15 +2,17 @@ package Moove::Controller::User;
 use Mojo::Base 'DCS::Base::API::Model::Controller';
 use Role::Tiny::With;
 
-with 'DCS::API::Role::Rest::Create',
-  'DCS::API::Role::Rest::Delete',
-  'DCS::API::Role::Rest::Get',
-  'DCS::API::Role::Rest::List',
-  'DCS::API::Role::Rest::Update';
+with 'DCS::Base::Role::Rest::Create',
+  'DCS::Base::Role::Rest::Delete',
+  'DCS::Base::Role::Rest::Get',
+  'DCS::Base::Role::Rest::List',
+  'DCS::Base::Role::Rest::Update';
 with 'Moove::Controller::Role::ModelEncoding::Default';
 with 'Moove::Controller::Role::ModelDecoding::User';
 
 use experimental qw(signatures);
+
+sub decode_model ($self, $data) { }
 
 sub resultset ($self, @args) {
   my $rs = $self->SUPER::resultset(@args);

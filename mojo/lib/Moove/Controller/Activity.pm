@@ -2,7 +2,7 @@ package Moove::Controller::Activity;
 use Mojo::Base 'DCS::Base::API::Model::Controller';
 
 use Role::Tiny::With;
-with 'DCS::API::Role::Rest::Collection', 'DCS::API::Role::Rest::Entity';
+with 'DCS::Base::Role::Rest::Collection', 'DCS::Base::Role::Rest::Entity';
 with 'Moove::Controller::Role::ModelEncoding::Activity';
 with 'Moove::Role::Import::Activity';
 
@@ -17,6 +17,8 @@ use HTTP::Status qw(:constants);
 use experimental qw(signatures postderef switch);
 
 no strict 'refs';
+
+sub decode_model ($self, $data) { }
 
 sub effective_user ($self) {
   my $user = $self->current_user;
