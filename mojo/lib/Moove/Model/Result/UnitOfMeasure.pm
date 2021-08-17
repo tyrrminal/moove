@@ -221,8 +221,12 @@ use experimental qw(signatures postderef);
 
 use Class::Method::Modifiers;
 
-sub is_normal_unit($self) {
+sub is_normal_unit ($self) {
   return !defined($self->normal_unit_id);
+}
+
+sub normalized_unit ($self) {
+  return $self->is_normal_unit ? $self : $self->normal_unit;
 }
 
 around [qw(inverted)] => sub ($orig, $self, $value = undef) {
