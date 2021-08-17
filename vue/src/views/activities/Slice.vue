@@ -2,7 +2,7 @@
   <b-container>
     <h2 class="mt-3">Activity Slice</h2>
     <b-row class="mt-3 mb-3">
-      <b-col cols="3">
+      <b-col cols="4">
         <b-button-group>
           <b-button
             v-for="l in orderedLevels"
@@ -21,13 +21,10 @@
               ><b-icon icon="search"></b-icon
             ></b-button>
           </template>
-          <b-input
-            v-model="search"
-            placeholder="Search Period Label..."
-          ></b-input>
+          <b-input v-model="search" placeholder="Quick Filter..."></b-input>
         </b-input-group>
       </b-col>
-      <b-col cols="1" offset="5">
+      <b-col cols="1" class="ml-auto">
         <b-button v-b-modal.filters>Filters</b-button>
       </b-col>
     </b-row>
