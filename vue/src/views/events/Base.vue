@@ -12,10 +12,20 @@ export default {
   components: {
     Sidebar,
   },
-  data: function () {
-    return {
-      menu: [{ text: "Add", to: { name: "create-event" } }],
-    };
+  computed: {
+    menu: function () {
+      return [
+        { text: "Add", icon: "plus", to: { name: "create-event" } },
+        {
+          text: "List",
+          icon: "list",
+          to: { name: "events", params: { username: this.username } },
+        },
+      ];
+    },
+    username: function () {
+      return this.$store.getters["auth/currentUser"].username;
+    },
   },
 };
 </script>

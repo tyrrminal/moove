@@ -46,13 +46,17 @@ export default {
           to: { name: "workouts", params: { username: this.username } },
         },
         {
+          name: "Activities",
+          to: { name: "activities", params: { username: this.username } },
+        },
+        {
           name: "Events",
           to: { name: "events", params: { username: this.username } },
         },
-        {
-          name: "Goals",
-          to: { name: "goals", params: { username: this.username } },
-        },
+        //        {
+        //          name: "Goals",
+        //          to: { name: "goals", params: { username: this.username } },
+        //        },
       ];
     },
     isLoggedIn: function () {

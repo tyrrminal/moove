@@ -1,5 +1,5 @@
 <template>
-  <b-container> Hello </b-container>
+  <b-container> </b-container>
 </template>
 
 <script>

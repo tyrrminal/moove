@@ -12,14 +12,23 @@ export default {
   components: {
     Sidebar,
   },
-  data: function () {
-    return {
-      menu: [
-        { text: "Create", to: { name: "createWorkout" } },
-        { text: "Summary", to: { name: "activitiesSummary" } },
-        { text: "Slice", to: { name: "activitiesSlice" } },
-      ],
-    };
+  computed: {
+    menu: function () {
+      return [
+        { text: "Create", icon: "plus", to: { name: "createWorkout" } },
+        {
+          text: "Calendar",
+          icon: "calendar2-date",
+          to: {
+            name: "calendar",
+            params: { username: this.username },
+          },
+        },
+      ];
+    },
+    username: function () {
+      return this.$store.getters["auth/currentUser"].username;
+    },
   },
 };
 </script>

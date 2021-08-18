@@ -8,7 +8,6 @@ import User from "@/views/User.vue";
 
 import Workouts from "@/views/workouts/Base.vue";
 import WorkoutList from "@/views/workouts/List.vue";
-import WorkoutEdit from "@/views/workouts/Edit.vue";
 import Workout from "@/views/workouts/Detail.vue";
 
 import Activities from "@/views/activities/Base.vue";
@@ -16,6 +15,7 @@ import Activity from "@/views/activities/Detail.vue";
 import ActivityList from "@/views/activities/List.vue";
 import ActivitySlice from "@/views/activities/Slice.vue";
 import ActivitySummary from "@/views/activities/Summary.vue";
+import ActivityImport from "@/views/activities/Import.vue";
 
 import Events from "@/views/events/Base.vue";
 import EventList from "@/views/events/List.vue";
@@ -62,11 +62,6 @@ let router = new Router({
           component: WorkoutList,
         },
         {
-          path: "create",
-          name: "createWorkout",
-          component: WorkoutEdit,
-        },
-        {
           path: ":id",
           name: "workout",
           component: Workout,
@@ -93,6 +88,10 @@ let router = new Router({
           path: "/user/:username/activities/slice",
           name: "activitiesSlice",
           component: ActivitySlice
+        }, {
+          path: "import",
+          name: "importActivities",
+          component: ActivityImport,
         },
         {
           path: ":id",
