@@ -946,7 +946,8 @@ INSERT INTO `ExternalDataSource` (`id`, `name`, `import_class`, `base_url`) VALU
 (2, 'iResultsLive', 'Moove::Import::Event::iResultsLive','http://www.iresultslive.com/'),
 (3, 'MilenniumRunning', 'Moove::Import::Event::MilenniumRunning','http://www.millenniumrunning.com/'),
 (4, 'MTEC', 'Moove::Import::Event::MTEC','https://www.mtecresults.com/'),
-(5, 'RunKeeper', 'Moove::Import::Activity::RunKeeper','https://www.runkeeper.com/');
+(5, 'RaceRoster', 'Moove::Import::Event::RaceRoster','https://raceroster.com/'),
+(6, 'RunKeeper', 'Moove::Import::Activity::RunKeeper','https://www.runkeeper.com/');
 
 -- -----------------------------------------------------
 -- Data for table `VisibilityType`
