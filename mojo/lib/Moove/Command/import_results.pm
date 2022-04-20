@@ -10,6 +10,7 @@ use Moove::Import::Event::RaceWire;
 use Moove::Import::Event::IResultsLive;
 use Moove::Import::Event::MillenniumRunning;
 use Moove::Import::Event::MTEC;
+use Moove::Import::Event::RaceRoster;
 
 use Moove::Import::Helper::TextBalancedFix;
 
@@ -50,7 +51,7 @@ sub run ($self, @args) {
 }
 
 sub import_event ($self, $import_class, $id, $race) {
-  say "id is required" and exit 1 unless (defined($id));
+  say "id is required"           and exit 1 unless (defined($id));
   say "results site is required" and exit 1 unless ($import_class->can('new'));
 
   my $importer = $import_class->new(event_id => $id, race_id => $race);
@@ -61,8 +62,8 @@ sub import_event ($self, $import_class, $id, $race) {
   foreach my $p ($importer->fetch_results()) {
     #lookup (create as needed)
     my $division = $p->{division} ? $self->app->model('Division')->find_or_create({name => $p->{division}}) : $NULL;
-    my $address = $self->app->model('Address')->find_address(city => $p->{city}, state => $p->{state}, country => $p->{country});
-    my $gender = $self->app->model('Gender')->find({description => $p->{gender}});
+    my $address  = $self->app->model('Address')->find_address(city => $p->{city}, state => $p->{state}, country => $p->{country});
+    my $gender   = $self->app->model('Gender')->find({description => $p->{gender}});
 
     $p->{age} = undef unless (looks_like_number($p->{age}));
 
