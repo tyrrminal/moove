@@ -249,11 +249,6 @@ use experimental qw(signatures postderef);
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-04-02 11:05:01
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:2yxu82xSamlqm5ds//4MVQ
 
-use Moove::Import::Event::RaceWire;
-use Moove::Import::Event::IResultsLive;
-use Moove::Import::Event::MTEC;
-use Moove::Import::Event::MillenniumRunning;
-
 use DCS::DateTime::Extras;
 use DCS::Constants qw(:existence :symbols);
 
