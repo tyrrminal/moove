@@ -84,6 +84,7 @@ export default {
   mounted: function () {
     if (this.period)
       this.date = (this.startDate || DateTime.local())
+        .plus({ days: this.period == "week" ? 1 : 0 })
         .startOf(this.period)
         .minus({ days: this.period == "week" ? 1 : 0 });
 
