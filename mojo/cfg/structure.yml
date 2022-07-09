@@ -1,0 +1,51 @@
+secrets:
+  isa: ArrayRef[Str]
+  description: an array of keys; the first is used for encrypting sessions, all are tried in order for verifying sessions
+  url: https://mojolicious.org/perldoc/Mojolicious#secrets
+
+db:
+  host:
+    isa: Str
+    default: localhost
+    description: the database server hostname
+  port:
+    isa: Int
+    default: 3306
+    description: the port to connect to on the database server
+  name:
+    isa: Str
+    description: the name of the database to connect to
+  user:
+    isa: Str
+    default: moove
+    description: the username of the database user
+  pass:
+    isa: Str
+    description: the database user's password
+    notes: this value is commonly provided via an ENV or a secrets file, for security purposes
+  sqitch:
+    registry:
+      isa: Str
+      description: the name of the database for sqitch migration
+    user:
+      isa: Str
+      default: sqitch
+      description: the username of the sqitch database user
+    pass:
+      isa: Str
+      description: the sqitch database user's password
+
+auth:
+  ldap:
+    host:
+      isa: Str
+      default: localhost
+    binddn:
+      isa: Str
+      description: Distinguished node of LDAP user
+    bindpw:
+      isa: Str
+      description: LDAP user password
+  roles:
+    isa: HashRef
+    description: map from App roles to backend auth groups

@@ -1,0 +1,1738 @@
+openapi: 3.0.3
+info:
+  title: Moo've
+  description: "Moo've Fitness Tracker"
+  contact:
+    email: moove@digicow.net
+  version: 2.0.0
+servers:
+  - url: https://moove.digicowsoftware.com/api/v1
+security:
+  - Session: []
+paths:
+  /auth/login:
+    post:
+      security:
+        - Password: []
+      summary: Initiate an authenticated login session
+      x-mojo-to: Auth#login
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginSession"
+      tags:
+        - Auth
+  /auth/status:
+    get:
+      security: []
+      summary: Find out whether the user is logged in
+      x-mojo-to: Auth#status
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginSession"
+      tags:
+        - Auth
+  /auth/logout:
+    post:
+      security: []
+      summary: End a login session
+      x-mojo-to: Auth#logout
+      responses:
+        204:
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: string
+      tags:
+        - Auth
+  /meta/values:
+    get:
+      summary: Get one or more value lookup tables
+      x-mojo-to: Meta#list
+      parameters:
+        - in: query
+          name: all
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: activityTypes
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: eventTypes
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: unitOfMeasure
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: externalDataSources
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: visibilityTypes
+          required: false
+          schema:
+            type: boolean
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  activityTypes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ActivityType"
+                  eventTypes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/EventType"
+                  unitOfMeasure:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Unit"
+                  externalDataSource:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ExternalDataSource"
+                  visibilityTypes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/VisibilityType"
+      tags:
+        - Meta
+  /activities:
+    get:
+      summary: Get an optionally-filtered list of all activities
+      x-mojo-to: Activity#list
+      parameters:
+        # Pagination Params
+        - $ref: "#/components/parameters/PageNumber"
+        - $ref: "#/components/parameters/PageLength"
+        - $ref: "#/components/parameters/SortField"
+        - $ref: "#/components/parameters/SortDirection"
+        # Query Params
+        - $ref: "#/components/parameters/SearchWorkoutID"
+        - $ref: "#/components/parameters/SearchUsername"
+        - $ref: "#/components/parameters/SearchActivityType"
+        - $ref: "#/components/parameters/SearchStartdate"
+        - $ref: "#/components/parameters/SearchEnddate"
+        - $ref: "#/components/parameters/WholeActivity"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedActivities"
+      tags:
+        - Activity
+    post:
+      summary: Create a activity
+      x-mojo-to: Activity#create
+      requestBody:
+        description: The Activity parameters
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Activity"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Activity"
+      tags:
+        - Activity
+  /activities/import:
+    post:
+      summary: Import activities from a file
+      x-mojo-to: Activity#import
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - externalDataSourceID
+                - file
+              additionalProperties: false
+              properties:
+                externalDataSourceID:
+                  $ref: "#/components/schemas/DatabaseID"
+                file:
+                  type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Activity"
+      tags:
+        - Activity
+  /activities/{activityID}:
+    parameters:
+      - $ref: "#/components/parameters/ActivityID"
+    get:
+      summary: Get a activity
+      x-mojo-to: Activity#get
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Activity"
+      tags:
+        - Activity
+    patch:
+      summary: Update a activity
+      x-mojo-to: Activity#update
+      requestBody:
+        description: The Activity parameters
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Activity"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Activity"
+      tags:
+        - Activity
+    delete:
+      summary: Delete a activity
+      x-mojo-to: Activity#delete
+      responses:
+        204:
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+      tags:
+        - Activity
+  /activities/summary:
+    get:
+      summary: Get a summary of activity in selected time frame
+      x-mojo-to: Activity#summary
+      parameters:
+        - $ref: "#/components/parameters/SearchUserID"
+        - $ref: "#/components/parameters/OutputPeriod"
+        - $ref: "#/components/parameters/SearchStartdate"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActivitySummary"
+      tags:
+        - Activity
+  /activities/slice:
+    get:
+      summary: Get activities sliced by time period
+      x-mojo-to: Activity#slice
+      parameters:
+        # Query Params
+        - $ref: "#/components/parameters/SearchUserID"
+        - $ref: "#/components/parameters/SearchActivityType"
+        - $ref: "#/components/parameters/SearchStartdate"
+        - $ref: "#/components/parameters/SearchEnddate"
+        # Output Params
+        - $ref: "#/components/parameters/OutputPeriod"
+        - in: query
+          name: includeEmpty
+          required: false
+          schema:
+            type: boolean
+          description: Include slices for periods with no activities
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivitySlice"
+      tags:
+        - Activity
+  /activities/merge:
+    post:
+      summary: Merge activities together
+      x-mojo-to: Activity#merge
+      requestBody:
+        description: The list of activities to merge together
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              minItems: 2
+              items:
+                $ref: "#/components/schemas/Activity"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Activity"
+      tags:
+        - Activity
+  /events:
+    get:
+      summary: Get an optionally-filtered list of all events
+      x-mojo-to: Event#list
+      parameters:
+        # Pagination Params
+        - $ref: "#/components/parameters/PageNumber"
+        - $ref: "#/components/parameters/PageLength"
+        - $ref: "#/components/parameters/SortField"
+        - $ref: "#/components/parameters/SortDirection"
+        # Query Params
+        - $ref: "#/components/parameters/SearchEventname"
+        - $ref: "#/components/parameters/SearchStartdate"
+        - $ref: "#/components/parameters/SearchEnddate"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedEvents"
+      tags:
+        - Event
+    post:
+      summary: Create a event
+      x-mojo-to: Event#create
+      requestBody:
+        description: The Event parameters
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Event"
+      responses:
+        201:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+      tags:
+        - Event
+  /events/{eventID}:
+    parameters:
+      - $ref: "#/components/parameters/EventID"
+    get:
+      summary: Get a event
+      x-mojo-to: Event#get
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+      tags:
+        - Event
+    patch:
+      summary: Update a event
+      x-mojo-to: Event#update
+      requestBody:
+        description: The Event parameters
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Event"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+      tags:
+        - Event
+    delete:
+      summary: Delete a event
+      x-mojo-to: Event#delete
+      responses:
+        204:
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+      tags:
+        - Event
+  /events/{eventID}/activities:
+    parameters:
+      - $ref: "#/components/parameters/EventID"
+    post:
+      summary: Add an Event Activity to an existing Event
+      x-mojo-to: EventActivity#create
+      requestBody:
+        description: The EventActivity data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EventActivity"
+      responses:
+        201:
+          description: Added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+      tags:
+        - Event
+  /events/{eventID}/activities/{eventActivityID}:
+    parameters:
+      - $ref: "#/components/parameters/EventID"
+      - $ref: "#/components/parameters/EventActivityID"
+    patch:
+      summary: Update an Event Activity
+      x-mojo-to: EventActivity#update
+      requestBody:
+        description: The EventActivity data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EventActivity"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+      tags:
+        - Event
+    delete:
+      summary: Delete an Event Activity
+      x-mojo-to: EventActivity#delete
+      responses:
+        204:
+          description: Deleted
+          content:
+            text/plain:
+              schema:
+                type: string
+      tags:
+        - Event
+  /events/{eventID}/activities/{eventActivityID}/results:
+    parameters:
+      - $ref: "#/components/parameters/EventID"
+      - $ref: "#/components/parameters/EventActivityID"
+    post:
+      summary: Import event results from a file or the web
+      x-mojo-to: EventActivity#import_results
+      requestBody:
+        description: The import data; imports from a web resource if not supplied
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+      tags:
+        - Event
+    delete:
+      summary: Delete event results
+      x-mojo-to: EventActivity#delete_results
+      responses:
+        204:
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+      tags:
+        - Event
+  /donors:
+    get:
+      parameters:
+        - in: query
+          name: firstname
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: lastname
+          required: false
+          schema:
+            type: string
+      summary: Search for prior donors
+      x-mojo-to: DonorList#list
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Donor"
+      tags:
+        - Fundraising
+  /donors/{personID}:
+    parameters:
+      - $ref: "#/components/parameters/PersonID"
+    get:
+      summary: Get the record for a donor with donations for the logged in user
+      x-mojo-to: Donor#get
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Donor"
+      tags:
+        - Fundraising
+  /user/events:
+    get:
+      summary: Get an optionally-filtered list of events to which a user is registered
+      x-mojo-to: UserEventActivity#list
+      parameters:
+        # Pagination Params
+        - $ref: "#/components/parameters/PageNumber"
+        - $ref: "#/components/parameters/PageLength"
+        - $ref: "#/components/parameters/SortField"
+        - $ref: "#/components/parameters/SortDirection"
+        # Query Params
+        - $ref: "#/components/parameters/SearchEventname"
+        - $ref: "#/components/parameters/SearchStartdate"
+        - $ref: "#/components/parameters/SearchEnddate"
+        - $ref: "#/components/parameters/SearchActivityType"
+        - $ref: "#/components/parameters/SearchUsername"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedEventRegistrations"
+      tags:
+        - Event
+    post:
+      summary: Register to an event
+      x-mojo-to: UserEventActivity#create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EventRegistration"
+      responses:
+        201:
+          description: Registered
+          content:
+            text/plain:
+              schema:
+                type: string
+      tags:
+        - Event
+  /user/events/{userEventActivityID}:
+    parameters:
+      - $ref: "#/components/parameters/UserEventActivityID"
+    get:
+      summary: Get a registered event for a user
+      x-mojo-to: UserEventActivity#get
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventRegistration"
+      tags:
+        - Event
+    patch:
+      summary: Update a user's event registration
+      x-mojo-to: UserEventActivity#update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EventRegistration"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventRegistration"
+      tags:
+        - Event
+    delete:
+      summary: Unregister from an event
+      x-mojo-to: UserEventActivity#delete
+      responses:
+        204:
+          description: Unregistered
+          content:
+            text/plain:
+              schema:
+                type: string
+      tags:
+        - Event
+  /user/events/{userEventActivityID}/donations:
+    parameters:
+      - $ref: "#/components/parameters/UserEventActivityID"
+    post:
+      summary: Create a new donation record
+      x-mojo-to: Donation#create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Donation"
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Fundraising"
+      tags:
+        - Event
+  /user/events/groups/{eventGroupID}:
+    parameters:
+      - $ref: "#/components/parameters/EventGroupID"
+    get:
+      summary: Get an event group and its registered events for the given user
+      x-mojo-to: EventGroup#get
+      parameters:
+        - $ref: "#/components/parameters/SearchUsername"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventGroup"
+      tags:
+        - Event
+  /goals:
+    get:
+      summary: Get an optionally-filtered list of all goals
+      x-mojo-to: Goal#list
+      parameters:
+        # Pagination Params
+        - $ref: "#/components/parameters/PageNumber"
+        - $ref: "#/components/parameters/PageLength"
+        - $ref: "#/components/parameters/SortField"
+        - $ref: "#/components/parameters/SortDirection"
+        # Query Params
+        - $ref: "#/components/parameters/SearchGoalname"
+        - $ref: "#/components/parameters/SearchUsername"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedGoals"
+      tags:
+        - Goal
+    post:
+      summary: Create a goal
+      x-mojo-to: Goal#create
+      requestBody:
+        description: The Goal parameters
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Goal"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Goal"
+      tags:
+        - Goal
+  /goals/{goalID}:
+    parameters:
+      - $ref: "#/components/parameters/GoalID"
+    get:
+      summary: Get a goal
+      x-mojo-to: Goal#get
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Goal"
+      tags:
+        - Goal
+    patch:
+      summary: Update a goal
+      x-mojo-to: Goal#update
+      requestBody:
+        description: The Goal parameters
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Goal"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Goal"
+      tags:
+        - Goal
+    delete:
+      summary: Delete a goal
+      x-mojo-to: Goal#delete
+      responses:
+        204:
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+      tags:
+        - Goal
+  /admin/users:
+    get:
+      summary: Get an optionally-filtered list of all users
+      x-mojo-to: User#list
+      parameters:
+        # Pagination Params
+        - $ref: "#/components/parameters/PageNumber"
+        - $ref: "#/components/parameters/PageLength"
+        - $ref: "#/components/parameters/SortField"
+        - $ref: "#/components/parameters/SortDirection"
+        # Query Params
+        - $ref: "#/components/parameters/SearchUsername"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedUsers"
+      tags:
+        - User
+      security:
+        - session:
+            - admin
+  /users:
+    post:
+      summary: Create a user
+      x-mojo-to: User#create
+      requestBody:
+        description: The User parameters
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+      tags:
+        - User
+  /users/{userID}:
+    parameters:
+      - $ref: "#/components/parameters/UserID"
+    get:
+      summary: Get a user
+      x-mojo-to: User#get
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+      tags:
+        - User
+    patch:
+      summary: Update a user
+      x-mojo-to: User#update
+      requestBody:
+        description: The User parameters
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+      tags:
+        - User
+    delete:
+      summary: Delete a user
+      x-mojo-to: User#delete
+      responses:
+        204:
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+      tags:
+        - User
+  /workouts:
+    get:
+      summary: Get an optionally-filtered list of all workouts
+      x-mojo-to: Workout#list
+      parameters:
+        # Pagination Params
+        - $ref: "#/components/parameters/PageNumber"
+        - $ref: "#/components/parameters/PageLength"
+        - $ref: "#/components/parameters/SortField"
+        - $ref: "#/components/parameters/SortDirection"
+        # Query Params
+        - $ref: "#/components/parameters/SearchStartdate"
+        - $ref: "#/components/parameters/SearchEnddate"
+        - $ref: "#/components/parameters/SearchUsername"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedWorkouts"
+      tags:
+        - Workout
+    post:
+      summary: Create a workout
+      x-mojo-to: Workout#create
+      requestBody:
+        description: The Workout parameters
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Workout"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workout"
+      tags:
+        - Workout
+  /workouts/{workoutID}:
+    parameters:
+      - $ref: "#/components/parameters/WorkoutID"
+    get:
+      summary: Get a workout
+      x-mojo-to: Workout#get
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workout"
+      tags:
+        - Workout
+    patch:
+      summary: Update a workout
+      x-mojo-to: Workout#update
+      requestBody:
+        description: The Workout parameters
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Workout"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workout"
+      tags:
+        - Workout
+    delete:
+      summary: Delete a workout
+      x-mojo-to: Workout#delete
+      responses:
+        204:
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+      tags:
+        - Workout
+components:
+  parameters:
+    # Path Params
+    ActivityID:
+      in: path
+      name: activityID
+      description: The ID number of the activity
+      required: true
+      schema:
+        $ref: "#/components/schemas/DatabaseID"
+    PersonID:
+      in: path
+      name: personID
+      description: The ID number of the donor
+      required: true
+      schema:
+        $ref: "#/components/schemas/DatabaseID"
+    EventID:
+      in: path
+      name: eventID
+      description: The ID number of the event
+      required: true
+      schema:
+        $ref: "#/components/schemas/DatabaseID"
+    EventActivityID:
+      in: path
+      name: eventActivityID
+      description: The ID number of the event
+      required: true
+      schema:
+        $ref: "#/components/schemas/DatabaseID"
+    EventGroupID:
+      in: path
+      name: eventGroupID
+      description: The ID number of the event
+      required: true
+      schema:
+        $ref: "#/components/schemas/DatabaseID"
+    GoalID:
+      in: path
+      name: goalID
+      description: The ID number of the goal
+      required: true
+      schema:
+        $ref: "#/components/schemas/DatabaseID"
+    UserEventActivityID:
+      in: path
+      name: userEventActivityID
+      description: the ID number of the user event activity
+      required: true
+      schema:
+        $ref: "#/components/schemas/DatabaseID"
+    UserID:
+      in: path
+      name: userID
+      description: The ID number of the user
+      required: true
+      schema:
+        $ref: "#/components/schemas/DatabaseID"
+    WorkoutID:
+      in: path
+      name: workoutID
+      description: The ID number of the workout
+      required: true
+      schema:
+        $ref: "#/components/schemas/DatabaseID"
+    # Query Params
+    OutputPeriod:
+      in: query
+      name: period
+      schema:
+        enum:
+          - all
+          - year
+          - quarter
+          - month
+          - week
+      description: Periods to slice data into
+    SearchActivityType:
+      in: query
+      name: activityTypeID
+      required: false
+      schema:
+        $ref: "#/components/schemas/DatabaseID"
+      description: Activity Type to filter on
+    SearchEventname:
+      in: query
+      name: name
+      required: false
+      schema:
+        type: string
+      description: Event name to search for (substring match)
+    SearchStartdate:
+      in: query
+      name: start
+      required: false
+      schema:
+        type: string
+        format: date
+      description: Start Date
+    SearchEnddate:
+      in: query
+      name: end
+      required: false
+      schema:
+        type: string
+        format: date
+      description: End Date
+    SearchGoalname:
+      in: query
+      name: name
+      required: false
+      schema:
+        type: string
+      description: Goal to search for (substring match)
+    SearchUserID:
+      in: query
+      name: userID
+      required: false
+      schema:
+        $ref: "#/components/schemas/DatabaseID"
+      description: Search by User ID
+    SearchUsername:
+      in: query
+      name: username
+      required: false
+      schema:
+        type: string
+      description: Username to search for (substring match)
+    SearchWorkoutID:
+      in: query
+      name: workoutID
+      required: false
+      schema:
+        $ref: "#/components/schemas/DatabaseID"
+      description: Search by Workout ID
+    WholeActivity:
+      in: query
+      name: combine
+      required: false
+      schema:
+        type: boolean
+    # Pagination Params
+    PageNumber:
+      in: query
+      name: page.number
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+      description: Results page number
+    PageLength:
+      in: query
+      name: page.length
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+      description: Results page length
+    SortField:
+      in: query
+      name: "order.by"
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+      description: Field to sort list by
+    SortDirection:
+      in: query
+      name: "order.dir"
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+          enum: ["asc", "desc"]
+      description: "Direction to sort list (default: ASC)"
+  schemas:
+    DatabaseID:
+      type: integer
+      minimum: 1
+    ActivityType:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+        description:
+          type: string
+        hasRepeats:
+          type: boolean
+        hasDistance:
+          type: boolean
+        hasDuration:
+          type: boolean
+        hasMap:
+          type: boolean
+        hasSpeed:
+          type: boolean
+        hasPace:
+          type: boolean
+        labels:
+          type: object
+    Activity:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+    ActivitySummary:
+      type: object
+      additionalProperties: true
+    ActivitySlice:
+      type: object
+      additionalProperties: false
+      required:
+        - period
+        - count
+      properties:
+        period:
+          $ref: "#/components/schemas/SlicePeriod"
+        count:
+          type: integer
+          minimum: 0
+        distance:
+          $ref: "#/components/schemas/SummaryNumericValue"
+        time:
+          $ref: "#/components/schemas/SummaryTimeValue"
+        pace:
+          $ref: "#/components/schemas/SummaryTimeValue"
+        speed:
+          $ref: "#/components/schemas/SummaryNumericValue"
+    SlicePeriod:
+      type: object
+      additionalProperties: false
+      required:
+        - daysInPeriod
+      properties:
+        start:
+          type: string
+          format: date
+        end:
+          type: string
+          format: date
+        year:
+          nullable: true
+          type: integer
+          minimum: 1900
+        quarter:
+          nullable: true
+          type: integer
+          minimum: 1
+          maximum: 4
+        month:
+          nullable: true
+          type: integer
+          minimum: 1
+          maximum: 12
+        weekOfMonth:
+          nullable: true
+          type: integer
+          minimum: 0
+          maximum: 5
+        weekOfYear:
+          nullable: true
+          type: integer
+          minimum: 0
+          maximum: 53
+        daysInPeriod:
+          type: integer
+          minimum: 1
+    SummaryNumericValue:
+      type: object
+      required:
+        - sum
+      additionalProperties: false
+      properties:
+        sum:
+          type: number
+          minimum: 0
+        min:
+          type: number
+          minimum: 0
+        max:
+          type: number
+          minimum: 0
+        avg:
+          type: number
+          minimum: 0
+    SummaryTimeValue:
+      type: object
+      required:
+        - sum
+      additionalProperties: false
+      properties:
+        sum:
+          type: string
+          format: time
+        min:
+          type: string
+          format: time
+        max:
+          type: string
+          format: time
+        avg:
+          type: string
+          format: time
+    PaginatedActivities:
+      type: object
+      required:
+        - pagination
+        - elements
+      additionalProperties: false
+      properties:
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        elements:
+          type: array
+          items:
+            $ref: "#/components/schemas/Activity"
+    Address:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+        street1:
+          type: string
+          nullable: true
+        street2:
+          type: string
+          nullable: true
+        city:
+          type: string
+          nullable: true
+        state:
+          type: string
+          nullable: true
+        zip:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        country:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+    Event:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+        name:
+          type: string
+        year:
+          type: integer
+        url:
+          type: string
+          nullable: true
+        address:
+          $ref: "#/components/schemas/Address"
+        eventGroup:
+          $ref: "#/components/schemas/EventGroup"
+        eventSeries:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventGroup"
+        externalDataSourceID:
+          type: integer
+          nullable: true
+        externalIdentifier:
+          type: string
+          nullable: true
+        activities:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventActivity"
+    EventActivity:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+        name:
+          type: string
+          nullable: true
+        resultsURL:
+          type: string
+          format: uri
+          nullable: true
+        scheduledStart:
+          type: string
+          format: date-time
+        distance:
+          $ref: "#/components/schemas/UnitValue"
+        entrants:
+          type: integer
+          nullable: true
+        event:
+          $ref: "#/components/schemas/Event"
+        eventType:
+          $ref: "#/components/schemas/EventType"
+        externalIdentifier:
+          type: string
+          nullable: true
+    EventGroup:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+        name:
+          type: string
+        url:
+          type: string
+          format: uri
+          nullable: true
+        year:
+          type: integer
+          nullable: true
+        events:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventRegistration"
+    EventPlacement:
+      type: object
+      additionalProperties: false
+      required:
+        - description
+        - of
+        - place
+      properties:
+        description:
+          type: string
+        of:
+          type: integer
+          minimum: 1
+        place:
+          type: integer
+          minimum: 1
+        partitionType:
+          type: string
+    EventRegistration:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+        fee:
+          type: number
+          nullable: true
+        activity:
+          $ref: "#/components/schemas/Activity"
+        eventActivity:
+          $ref: "#/components/schemas/EventActivity"
+        registeredDate:
+          type: string
+          format: date
+          nullable: true
+        registrationNumber:
+          type: string
+          nullable: true
+        visibilityTypeID:
+          type: integer
+        nav:
+          type: object
+          properties:
+            next:
+              $ref: "#/components/schemas/Event"
+            prev:
+              $ref: "#/components/schemas/Event"
+        placements:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventPlacement"
+        fundraising:
+          $ref: "#/components/schemas/Fundraising"
+        user:
+          $ref: "#/components/schemas/User"
+    PaginatedEventRegistrations:
+      type: object
+      additionalProperties: false
+      required:
+        - pagination
+        - elements
+      properties:
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        elements:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventRegistration"
+    PaginatedEvents:
+      type: object
+      additionalProperties: false
+      required:
+        - pagination
+        - elements
+      properties:
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        elements:
+          type: array
+          items:
+            $ref: "#/components/schemas/Event"
+    EventType:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+        activityType:
+          $ref: "#/components/schemas/ActivityType"
+        description:
+          type: string
+    ExternalDataSource:
+      type: object
+      required:
+        - name
+      additionalProperties: false
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+        name:
+          type: string
+        type:
+          type: string
+        baseUrl:
+          type: string
+    Donation:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+          format: date
+        amount:
+          type: number
+        person:
+          $ref: "#/components/schemas/Person"
+        address:
+          $ref: "#/components/schemas/Address"
+        event:
+          $ref: "#/components/schemas/SimpleEvent"
+    Donor:
+      type: object
+      additionalProperties: true
+      properties:
+        person:
+          $ref: "#/components/schemas/Person"
+        addresses:
+          type: array
+          items:
+            $ref: "#/components/schemas/Address"
+        donations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Donation"
+    Fundraising:
+      type: object
+      additionalProperties: false
+      properties:
+        minimum:
+          type: number
+        received:
+          type: number
+        donations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Donation"
+    Goal:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+    PaginatedGoals:
+      type: object
+      additionalProperties: false
+      required:
+        - pagination
+        - elements
+      properties:
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        elements:
+          type: array
+          items:
+            $ref: "#/components/schemas/Goal"
+    Person:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+        firstname:
+          type: string
+        lastname:
+          type: string
+    User:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+        username:
+          type: string
+        person:
+          $ref: "#/components/schemas/Person"
+        roles:
+          type: array
+          items:
+            type: string
+    PaginatedUsers:
+      type: object
+      additionalProperties: false
+      required:
+        - pagination
+        - elements
+      properties:
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        elements:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+    Workout:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+    PaginatedWorkouts:
+      type: object
+      additionalProperties: false
+      required:
+        - pagination
+        - elements
+      properties:
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        elements:
+          type: array
+          items:
+            $ref: "#/components/schemas/Workout"
+    SimpleEvent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: integer
+        eventName:
+          type: string
+        eventActivityName:
+          type: string
+          nullable: true
+        eventYear:
+          type: integer
+    Unit:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+        name:
+          type: string
+        abbreviation:
+          type: string
+        normalizationFactor:
+          type: number
+          minimum: 0
+        normalUnitID:
+          type: number
+          minimum: 1
+          nullable: true
+    UnitValue:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+        value:
+          type: number
+        unitOfMeasureID:
+          type: integer
+    VisibilityType:
+      type: object
+      required:
+        - id
+        - description
+      additionalProperties: false
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+        description:
+          type: string
+    LoginSession:
+      type: object
+      required:
+        - user
+        - expiration
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        expiration:
+          type: string
+          format: date-time
+    Pagination:
+      type: object
+      required:
+        - counts
+        - page
+        - links
+      additionalProperties: false
+      properties:
+        counts:
+          $ref: "#/components/schemas/PaginationCounts"
+        page:
+          $ref: "#/components/schemas/PaginationPage"
+        links:
+          $ref: "#/components/schemas/PaginationLinks"
+        order:
+          $ref: "#/components/schemas/PaginationOrder"
+    PaginationCounts:
+      type: object
+      required:
+        - page
+        - filter
+        - total
+      additionalProperties: false
+      properties:
+        page:
+          type: integer
+          minimum: 0
+        filter:
+          type: integer
+          minimum: 0
+        total:
+          type: integer
+          minimum: 0
+    PaginationPage:
+      type: object
+      required:
+        - number
+        - length
+      additionalProperties: false
+      properties:
+        number:
+          type: integer
+          minimum: 1
+        length:
+          type: integer
+          minimum: 0
+    PaginationLinks:
+      type: object
+      additionalProperties: false
+      properties:
+        next:
+          type: string
+          format: uri
+        previous:
+          type: string
+          format: uri
+    PaginationOrder:
+      type: array
+      items:
+        type: object
+        properties:
+          by:
+            type: string
+          dir:
+            type: string
+            enum: ["asc", "desc"]
+    NullValue:
+      not:
+        anyOf:
+          - type: string
+          - type: number
+          - type: boolean
+          - type: object
+          - type: array
+  securitySchemes:
+    Password:
+      type: http
+      scheme: basic
+    Session:
+      type: apiKey
+      name: mojolicious
+      in: cookie
+tags:
+  - name: Admin
+    description: Administrative functions
+  - name: Auth
+    description: Login and logout functions
+  - name: Meta
+    description: Application-wide value lists
+  - name: Fundraising
+  - name: User
+  - name: Activity
+  - name: Event
+  - name: Goal
+  - name: Workout
