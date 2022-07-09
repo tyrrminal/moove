@@ -423,9 +423,11 @@ sub is_cycling_activity ($self) {
   return $self->activity_type->description eq 'Ride';
 }
 
-sub end_time($self) {
-  return $self->start_time unless (defined($self->result));
-  return $self->start_time + ($self->result->gross_time // $self->result->net_time);
+sub end_time ($self) {
+  if (my $ar = $self->activity_result) {
+    return $ar->start_time + $self->total_time;
+  }
+  return undef;
 }
 
 sub total_time ($self) {
