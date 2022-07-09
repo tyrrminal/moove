@@ -286,8 +286,6 @@ paths:
       tags:
         - Activity
   /activities/merge:
-    parameters:
-      - $ref: "#/components/parameters/ActivityID"
     post:
       summary: Merge activities together
       x-mojo-to: Activity#merge
@@ -298,6 +296,7 @@ paths:
           application/json:
             schema:
               type: array
+              minItems: 2
               items:
                 $ref: "#/components/schemas/Activity"
       responses:
