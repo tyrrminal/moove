@@ -863,16 +863,16 @@ DISTRIBUTIONS
       Data::UUID 0
       ExtUtils::MakeMaker 6.42
       perl 5.008001
-  DCS-Constants-0.001
-    pathname: D/DI/DIGICOW/DCS-Constants-0.001.tar.gz
+  DCS-Constants-0.002
+    pathname: D/DI/DIGICOW/DCS-Constants-0.002.tar.gz
     provides:
-      DCS::Constants 0.001
+      DCS::Constants 0.002
     requirements:
       Exporter 0
       ExtUtils::MakeMaker 0
-      Modern::Perl 0
       Readonly 0
       base 0
+      perl 5.036000
   Data-DPath-0.58
     pathname: S/SC/SCHWIGON/Data-DPath-0.58.tar.gz
     provides:
@@ -1559,7 +1559,7 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 0
       File::Spec 0
       File::Temp 0.16
-      perl 5.00405
+      perl 5.004050
   Devel-GlobalDestruction-0.14
     pathname: H/HA/HAARG/Devel-GlobalDestruction-0.14.tar.gz
     provides:
@@ -2287,7 +2287,7 @@ DISTRIBUTIONS
     requirements:
       Carp 0
       Class::Accessor::Fast 0
-      ExtUtils::MakeMaker 7.44
+      ExtUtils::MakeMaker 7.64
       HTML::TokeParser 2
       List::Util 0
       Test::More 0
@@ -2524,7 +2524,7 @@ DISTRIBUTIONS
       File::Spec 3.00
       File::Spec::Functions 0
       if 0
-      perl 5.00503
+      perl 5.005030
       strict 0
   Module-Runtime-0.016
     pathname: Z/ZE/ZEFRAM/Module-Runtime-0.016.tar.gz
@@ -2692,45 +2692,45 @@ DISTRIBUTIONS
       Module::Build::Tiny 0.035
       Mojolicious 7.82
       perl 5.020001
-  Mojolicious-Plugin-DCS-Base-2.001
-    pathname: D/DI/DIGICOW/Mojolicious-Plugin-DCS-Base-2.001.tar.gz
+  Mojolicious-Plugin-DCS-Base-2.002
+    pathname: D/DI/DIGICOW/Mojolicious-Plugin-DCS-Base-2.002.tar.gz
     provides:
-      DCS::Base::API::Auth::Controller 2.001
-      DCS::Base::API::Model::Controller 2.001
-      DCS::Base::Exception::Authorization 2.001
-      DCS::Base::Exception::EntityNotFound 2.001
-      DCS::Base::Role::Email 2.001
-      DCS::Base::Role::Rendering 2.001
-      DCS::Base::Role::Rest::Collection 2.001
-      DCS::Base::Role::Rest::Create 2.001
-      DCS::Base::Role::Rest::Delete 2.001
-      DCS::Base::Role::Rest::Entity 2.001
-      DCS::Base::Role::Rest::Get 2.001
-      DCS::Base::Role::Rest::List 2.001
-      DCS::Base::Role::Rest::PaginatedList 2.001
-      DCS::Base::Role::Rest::Replace 2.001
-      DCS::Base::Role::Rest::Update 2.001
-      DCS::Base::Role::ResultSet::Ordering 2.001
-      DCS::Base::Role::ResultSet::Pagination 2.001
-      DCS::Command::load_schema 2.001
-      DCS::Command::migrate_schema 2.001
-      DCS::DateTime::Extras 2.001
-      DCS::Email::Sender 2.001
-      DCS::LDAP 2.001
-      DCS::LDAP::Exceptions 2.001
-      DCS::LDAP::User 2.001
-      DCS::Util::NameConversion 2.001
-      Mojolicious::Plugin::DCS::Base 2.001
-      Mojolicious::Plugin::DCS::Base::API 2.001
-      Mojolicious::Plugin::DCS::Base::Authentication 2.001
-      Mojolicious::Plugin::DCS::Base::Authorization 2.001
-      Mojolicious::Plugin::DCS::Base::Constants 2.001
-      Mojolicious::Plugin::DCS::Base::DB 2.001
-      Mojolicious::Plugin::DCS::Base::DateParsing 2.001
-      Mojolicious::Plugin::DCS::Base::PersistentLogging 2.001
-      Mojolicious::Plugin::DCS::Base::Session 2.001
-      Mojolicious::Plugin::DCS::Base::Vue 2.001
-      Mojolicious::Plugin::DCS::Cron 2.001
+      DCS::Base::API::Auth::Controller 2.002
+      DCS::Base::API::Model::Controller 2.002
+      DCS::Base::Exception::Authorization 2.002
+      DCS::Base::Exception::EntityNotFound 2.002
+      DCS::Base::Role::Email 2.002
+      DCS::Base::Role::Rendering 2.002
+      DCS::Base::Role::Rest::Collection 2.002
+      DCS::Base::Role::Rest::Create 2.002
+      DCS::Base::Role::Rest::Delete 2.002
+      DCS::Base::Role::Rest::Entity 2.002
+      DCS::Base::Role::Rest::Get 2.002
+      DCS::Base::Role::Rest::List 2.002
+      DCS::Base::Role::Rest::PaginatedList 2.002
+      DCS::Base::Role::Rest::Replace 2.002
+      DCS::Base::Role::Rest::Update 2.002
+      DCS::Base::Role::ResultSet::Ordering 2.002
+      DCS::Base::Role::ResultSet::Pagination 2.002
+      DCS::Command::load_schema 2.002
+      DCS::Command::migrate_schema 2.002
+      DCS::DateTime::Extras 2.002
+      DCS::Email::Sender 2.002
+      DCS::LDAP 2.002
+      DCS::LDAP::Exceptions 2.002
+      DCS::LDAP::User 2.002
+      DCS::Util::NameConversion 2.002
+      Mojolicious::Plugin::DCS::Base 2.002
+      Mojolicious::Plugin::DCS::Base::API 2.002
+      Mojolicious::Plugin::DCS::Base::Authentication 2.002
+      Mojolicious::Plugin::DCS::Base::Authorization 2.002
+      Mojolicious::Plugin::DCS::Base::Constants 2.002
+      Mojolicious::Plugin::DCS::Base::DB 2.002
+      Mojolicious::Plugin::DCS::Base::DateParsing 2.002
+      Mojolicious::Plugin::DCS::Base::PersistentLogging 2.002
+      Mojolicious::Plugin::DCS::Base::Session 2.002
+      Mojolicious::Plugin::DCS::Base::Vue 2.002
+      Mojolicious::Plugin::DCS::Cron 2.002
     requirements:
       Carp 0
       DBIx::Class::Schema 0
@@ -2754,7 +2754,6 @@ DISTRIBUTIONS
       List::Util 0
       Memoize 0
       Memoize::Expire 0
-      Modern::Perl 0
       Module::Find 0
       Mojo::Base 0
       Mojo::Template 0
@@ -2770,13 +2769,11 @@ DISTRIBUTIONS
       Text::Balanced 0
       Time::Seconds 0
       base 0
-      boolean 0
+      builtin 0
       experimental 0
       overload 0
-      perl 5.032
-      strict 0
+      perl 5.036000
       syntax 0
-      warnings 0
   Mojolicious-Plugin-Database-1.10
     pathname: M/MA/MADCAT/Mojolicious-Plugin-Database-1.10.tar.gz
     provides:
@@ -3814,16 +3811,6 @@ DISTRIBUTIONS
       Sub::Quote 0
       Try::Tiny 0.04
       perl 5.008001
-  Scalar-List-Utils-1.56
-    pathname: P/PE/PEVANS/Scalar-List-Utils-1.56.tar.gz
-    provides:
-      List::Util 1.56
-      List::Util::XS 1.56
-      Scalar::Util 1.56
-      Sub::Util 1.56
-    requirements:
-      ExtUtils::MakeMaker 0
-      perl 5.006
   Scope-Guard-0.21
     pathname: C/CH/CHOCOLATE/Scope-Guard-0.21.tar.gz
     provides:
@@ -4266,7 +4253,7 @@ DISTRIBUTIONS
       Exporter 0
       ExtUtils::MakeMaker 0
       constant 0
-      perl 5.00503
+      perl 5.005030
   Text-Soundex-3.05
     pathname: R/RJ/RJBS/Text-Soundex-3.05.tar.gz
     provides:
@@ -4587,7 +4574,7 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       LWP::UserAgent 0
-      perl 5.00405
+      perl 5.004050
   XML-TokeParser-0.05
     pathname: P/PO/PODMASTER/XML-TokeParser-0.05.tar.gz
     provides:
