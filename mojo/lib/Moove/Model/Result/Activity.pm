@@ -428,7 +428,14 @@ sub end_time($self) {
   return $self->start_time + ($self->result->gross_time // $self->result->net_time);
 }
 
-sub first_activity_point($self) {
+sub total_time ($self) {
+  if (my $ar = $self->activity_result) {
+    return $ar->duration // $ar->net_time;
+  }
+  return undef;
+}
+
+sub first_activity_point ($self) {
   return $self->activity_result->activity_points->search(
     {},
     {
