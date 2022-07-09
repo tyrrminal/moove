@@ -225,6 +225,29 @@ sub total_distance ($self) {
 }
 
 
+sub _avg_val ($self, $key, @activities) {
+  @activities = $self->all unless (@activities);
+  my $to_sec = DateTime::Format::Duration->new(pattern => '%s', normalize => 1);
+  my ($time, $total) = (DateTime::Duration->new(hours => 0, minutes => 0, seconds => 0), 0);
+  foreach (grep {defined} map {$_->activity_result} @activities) {
+    if (defined($_->$key)) {
+      $time  = $time->add($_->net_time);
+      $total = $total + $_->$key * $to_sec->format_duration($_->net_time) / 60;
+    }
+  }
+  return undef unless ($total);
+  my $min = $to_sec->format_duration($time) / 60;
+  return $total / $min;
+}
+
+sub average_temperature ($self, @activities) {
+  return $self->_avg_val('temperature', @activities);
+}
+
+sub average_hr ($self, @activities) {
+  return $self->_avg_val('heart_rate', @activities);
+}
+
 sub merge ($self, @activities) {
   die("At least two activities are required for merging") unless (@activities >= 2);
   my @merge = sort {$a->start_time <=> $b->start_time} @activities;
@@ -301,4 +324,5 @@ sub merge ($self, @activities) {
   );
   return $activity;
 }
+
 1;
