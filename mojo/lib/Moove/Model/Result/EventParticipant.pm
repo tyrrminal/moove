@@ -289,4 +289,16 @@ use v5.36;
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-09 12:32:18
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ebsG86Mk41mhTcSvktPb9w
 
+sub add_placement ($self, $group, $place) {
+  return unless (defined($group));
+  return unless (defined($place));
+
+  return $self->add_event_placement(
+    {
+      event_placement_partition => $group,
+      place                     => $place,
+    }
+  );
+}
+
 1;
