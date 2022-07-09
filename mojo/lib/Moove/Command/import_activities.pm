@@ -1,4 +1,6 @@
 package Moove::Command::import_activities;
+use v5.36;
+
 use Mojo::Base 'Mojolicious::Command';
 
 use Role::Tiny::With;
@@ -10,10 +12,6 @@ use DateTime::Format::Duration;
 use Module::Util qw(module_path);
 use Mojo::Util 'getopt';
 use Mojo::Asset::File;
-
-use DCS::Constants qw(:existence);
-
-use experimental qw(signatures);
 
 has 'description' => 'Import Cardio Activities from File';
 has 'usage'       => <<"USAGE";
@@ -33,7 +31,7 @@ sub run ($self, @args) {
 
   ## Validate File ##
   say "You must specify an import file" and exit 1 unless (defined($file));
-  say "File '$file' does not exist" and exit 1 unless (-r $file);
+  say "File '$file' does not exist"     and exit 1 unless (-r $file);
 
   ## Validate Data Source ##
   say "You must identify the data source" and exit 1 unless ($importer_name);
@@ -54,7 +52,7 @@ sub run ($self, @args) {
   my $importer = $ds->import_class->new();
   my $now      = DateTime->now();
   foreach my $activity ($importer->get_activities(Mojo::Asset::File->new(path => $file))) {
-    my $act = $self->import_activity($activity, $user);
+    my $act    = $self->import_activity($activity, $user);
     my $status = 'Importing';
     if (defined($act->updated_at) && $act->updated_at >= $now) {
       $status = 'Updating';

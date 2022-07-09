@@ -1,4 +1,6 @@
 package Moove::Controller::Event;
+use v5.36;
+
 use Mojo::Base 'DCS::Base::API::Model::Controller';
 use Role::Tiny::With;
 
@@ -7,8 +9,6 @@ with 'Moove::Controller::Role::ModelEncoding::Event', 'Moove::Controller::Role::
 with 'Moove::Controller::Role::ModelEncoding::Default';
 
 use DCS::Util::NameConversion qw(camel_to_snake convert_hash_keys);
-
-use experimental qw(signatures postderef);
 
 sub decode_model ($self, $data) {
   delete($data->{id});

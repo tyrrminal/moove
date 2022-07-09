@@ -1,10 +1,7 @@
 package Moove::Model::ResultSet::Distance;
-use strict;
-use warnings;
+use v5.36;
 
 use base qw(DBIx::Class::ResultSet);
-
-use experimental qw(signatures postderef);
 
 sub find_or_create_in_units ($self, $d, $unit) {
   my $normal_unit = $unit->normal_unit // $unit;

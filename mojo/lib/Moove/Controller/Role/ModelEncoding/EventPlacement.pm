@@ -1,7 +1,7 @@
 package Moove::Controller::Role::ModelEncoding::EventPlacement;
-use Role::Tiny;
+use v5.36;
 
-use experimental qw(signatures postderef);
+use Role::Tiny;
 
 sub encode_model_eventplacement ($self, $entity) {
   my $r = {

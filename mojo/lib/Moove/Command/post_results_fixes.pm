@@ -1,12 +1,11 @@
 package Moove::Command::post_results_fixes;
-use Mojo::Base 'Mojolicious::Command', -signatures;
+use v5.36;
+
+use Mojo::Base 'Mojolicious::Command';
 
 use DateTime;
 
 use Moove::Import::Helper::TextBalancedFix;
-
-use DCS::Constants qw(:existence);
-use Data::Dumper;
 
 has 'description' => 'Address import deficiencies';
 has 'usage'       => <<"USAGE";
@@ -25,10 +24,10 @@ sub run ($self, @args) {
 sub fix_addresss {
   my $self = shift;
 
-  my %other_fields = map {$_ => $NULL} qw(street1 street2 zip phone country);
+  my %other_fields = map {$_ => undef} qw(street1 street2 zip phone country);
   foreach (
-    ['Mansfield'  => 'Mansfield',  $NULL => 'MA'],
-    ['New London' => 'New London', $NULL => 'CT'],
+    ['Mansfield'  => 'Mansfield',  undef => 'MA'],
+    ['New London' => 'New London', undef => 'CT'],
     ['Pemroke'    => 'Pembroke',   'MA'  => 'MA'],
     ['Westofrd'   => 'Westford',   'MA'  => 'MA']
     )

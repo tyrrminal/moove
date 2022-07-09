@@ -1,16 +1,15 @@
 package Moove::Role::Import::Activity;
+use v5.36;
+
 use Role::Tiny;
 
 with 'Moove::Role::Unit::Conversion';
 
-use boolean;
 use DateTime;
 use DateTime::Format::MySQL;
 use DBIx::Class::InflateColumn::Time;
 
-use DCS::Constants qw(:existence);
-
-use experimental qw(signatures postderef);
+use experimental qw(builtin);
 
 sub import_activity ($self, $activity, $user, $workout = undef) {
   my $has_map       = defined($activity->{activity_points});
@@ -20,7 +19,7 @@ sub import_activity ($self, $activity, $user, $workout = undef) {
   if ($activity->{importer}) {
     $data_source = $self->app->model('ExternalDataSource')->find({name => $activity->{importer}});
     if (my $existing = $self->app->model('Activity')->prior_import($activity->{activity_id}, $data_source)->first) {
-      return ($existing, true);
+      return ($existing, builtin::true);
     }
   }
 
@@ -35,8 +34,8 @@ sub import_activity ($self, $activity, $user, $workout = undef) {
 
   my $result_params = {
     start_time  => $activity->{date},
-    weight      => $activity->{weight}     || $NULL,
-    heart_rate  => $activity->{heart_rate} || $NULL,
+    weight      => $activity->{weight}     || undef,
+    heart_rate  => $activity->{heart_rate} || undef,
     temperature => $activity->{temperature},
   };
   if ($activity_type->base_activity_type->has_distance) {
@@ -78,7 +77,7 @@ sub import_activity ($self, $activity, $user, $workout = undef) {
       set_num                 => 1,
       activity_result         => $result,
       note                    => $activity->{notes},
-      external_data_source_id => (defined($data_source) ? $data_source->id : $NULL),
+      external_data_source_id => (defined($data_source) ? $data_source->id : undef),
       external_identifier     => $activity->{activity_id},
     }
   );
@@ -116,7 +115,7 @@ sub find_matching_event_result ($self, $activity, $activity_type, $user) {
       join => {event_registration => {event_activity => 'event_type'}}
     }
   )->first;
-  return $NULL unless (defined($uea));
+  return undef unless (defined($uea));
 
   return $uea->event_registration->event_participants->first->activity_result;
 }

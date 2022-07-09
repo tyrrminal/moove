@@ -1,8 +1,9 @@
 package Moove::Command::longest;
-use Mojo::Base 'Mojolicious::Command', -signatures;
+use v5.36;
+
+use Mojo::Base 'Mojolicious::Command';
 
 use DateTime;
-use DCS::Constants qw(:existence);
 use Data::Dumper;
 use Mojo::Util 'getopt';
 use List::Util qw(sum);

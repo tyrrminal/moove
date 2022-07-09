@@ -1,14 +1,14 @@
 package Moove::Import::Event::IResultsLive;
-use Modern::Perl;
+use v5.36;
+
 use Moose;
 
-use boolean;
 use DateTime::Format::Strptime;
 
 use Role::Tiny::With;
 with 'Moove::Role::Unit::Normalization';
 
-use DCS::Constants qw(:existence);
+use experimental qw(builtin);
 
 has 'race_id' => (
   is     => 'rw',
@@ -19,21 +19,21 @@ has 'race_id' => (
 has 'event_id' => (
   is       => 'ro',
   isa      => 'Str',
-  required => true
+  required => builtin::true
 );
 
 has 'base_url' => (
   is       => 'ro',
   isa      => 'Str',
-  init_arg => $NULL,
+  init_arg => undef,
   default  => 'http://www.iresultslive.com/'
 );
 
 has '_url' => (
   is       => 'ro',
   isa      => 'Mojo::URL',
-  init_arg => $NULL,
-  lazy     => true,
+  init_arg => undef,
+  lazy     => builtin::true,
   builder  => '_build_url'
 );
 
@@ -140,7 +140,7 @@ sub fetch_results {
       }
       )->to_array
   };
-  shift(@col_map);                            # first column participant links
+  shift(@col_map);    # first column participant links
 
   my @results;
   while () {
@@ -150,7 +150,7 @@ sub fetch_results {
         my ($e, $num) = @_;
         my %record;
         my @values = @{$e->children('td')->map('text')->to_array};
-        shift(@values);                       # first column participant links
+        shift(@values);    # first column participant links
         @record{@col_map} = @values;
         normalize_times(\%record);
         $n = push(@results, {%record});

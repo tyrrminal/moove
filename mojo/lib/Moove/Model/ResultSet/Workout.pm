@@ -1,10 +1,7 @@
 package Moove::Model::ResultSet::Workout;
-use strict;
-use warnings;
+use v5.36;
 
 use base qw(DBIx::Class::ResultSet);
-
-use experimental qw(signatures postderef);
 
 sub after_date ($self, $date) {
   my $d = ref($date) ? DateTime::Format::MySQL->format_date($date) : $date;

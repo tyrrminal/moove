@@ -1,4 +1,6 @@
 package Moove::Controller::Donation;
+use v5.36;
+
 use Mojo::Base 'DCS::Base::API::Model::Controller';
 
 use Role::Tiny::With;
@@ -6,8 +8,6 @@ with 'DCS::Base::Role::Rest::Create';
 with 'Moove::Controller::Role::ModelEncoding::UserEventActivity';
 
 use HTTP::Status qw(:constants);
-
-use experimental qw(signatures postderef);
 
 sub decode_model ($self, $data) {
   if (defined($data->{person}) && defined($data->{person}->{id})) {

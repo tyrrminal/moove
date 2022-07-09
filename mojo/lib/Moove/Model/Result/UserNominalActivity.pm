@@ -165,12 +165,10 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 #>>>
-use experimental qw(signatures postderef);
+use v5.36;
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-04-06 16:09:56
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:cxuDVTxmg5hL7zKBAXOATw
-use experimental qw(switch);
-
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-09 16:32:11
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ha97sKhVVZO3ll0DEvEKvw
 use Mojo::JSON qw(decode_json);
 
 use Data::Printer {
@@ -216,12 +214,10 @@ sub year_length ($self) {
 }
 
 sub _per_day ($self, $period, $v) {
-  given ($period) {
-    when ('week')  {return $v / 7}
-    when ('month') {return $v / ($self->year_length / 12)}
-    when ('year')  {return $v / $self->year_length}
-    default        {return $v}
-  }
+  return $v / 7                         if ($period eq 'week');
+  return $v / ($self->year_length / 12) if ($period eq 'month');
+  return $v / $self->year_length        if ($period eq 'year');
+  return $v;
 }
 
 1;

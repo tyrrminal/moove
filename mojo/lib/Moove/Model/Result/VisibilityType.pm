@@ -144,10 +144,10 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 #>>>
-use experimental qw(signatures postderef);
+use v5.36;
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-04-02 11:05:01
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:7d9sInakQBOZFlr6eCiUTg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-09 12:32:18
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:uH3NM58Gxs4CH0BaiNmIJw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

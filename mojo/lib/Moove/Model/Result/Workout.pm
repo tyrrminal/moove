@@ -166,10 +166,10 @@ __PACKAGE__->many_to_many(
   "user_goal_fulfillment",
 );
 #>>>
-use experimental qw(signatures postderef);
+use v5.36;
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-04-02 11:05:01
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:QmsTkBx+w3fNRJd56rPe7g
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-09 12:32:18
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:fD0OJcPpWLoeJmd8XZyjPQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

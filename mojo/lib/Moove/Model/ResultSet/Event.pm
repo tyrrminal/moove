@@ -1,15 +1,10 @@
 package Moove::Model::ResultSet::Event;
-use strict;
-use warnings;
+use v5.36;
 
 use base qw(DBIx::Class::ResultSet);
 
 use DateTime;
 use DateTime::Format::MySQL;
-
-use DCS::Constants qw(:existence);
-
-use experimental qw(signatures postderef);
 
 sub find_event($self, $year, $name) {
   return $self->by_name($name)->in_year($year)->first;

@@ -1,5 +1,7 @@
 package Moove::Command::import_results;
-use Mojo::Base 'Mojolicious::Command', -signatures;
+use v5.36;
+
+use Mojo::Base 'Mojolicious::Command';
 
 use Mojo::Util 'getopt';
 
@@ -13,9 +15,6 @@ use Moove::Import::Event::MTEC;
 use Moove::Import::Event::RaceRoster;
 
 use Moove::Import::Helper::TextBalancedFix;
-
-use DCS::Constants qw(:existence);
-use Data::Dumper;
 
 has 'description' => 'Import the results from a race or ride';
 has 'usage'       => <<"USAGE";

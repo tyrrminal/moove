@@ -1,4 +1,6 @@
 package Moove::Controller::EventGroup;
+use v5.36;
+
 use Mojo::Base 'DCS::Base::API::Model::Controller';
 use Role::Tiny::With;
 
@@ -9,8 +11,6 @@ with 'Moove::Controller::Role::ModelEncoding::UserEventActivity',
   'Moove::Controller::Role::ModelEncoding::EventPlacement',
   'Moove::Controller::Role::ModelEncoding::EventType',
   'Moove::Controller::Role::ModelEncoding::Registration::EventActivity';
-
-use experimental qw(signatures postderef);
 
 sub encode_model_event ($self, $event) {
   return {

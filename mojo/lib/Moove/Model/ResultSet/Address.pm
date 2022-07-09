@@ -1,22 +1,17 @@
 package Moove::Model::ResultSet::Address;
-use strict;
-use warnings;
+use v5.36;
 
 use base qw(DBIx::Class::ResultSet);
 
-use DCS::Constants qw(:existence);
-
-use experimental qw(signatures postderef);
-
-sub find_address ($self, %v) {
+sub get_address ($self, %v) {
   return $self->find_or_create(
     {
-      street1 => $NULL,
-      street2 => $NULL,
+      street1 => undef,
+      street2 => undef,
       city    => $v{city},
       state   => $v{state},
-      zip     => $NULL,
-      phone   => $NULL,
+      zip     => undef,
+      phone   => undef,
       country => $v{country}
     }
   );

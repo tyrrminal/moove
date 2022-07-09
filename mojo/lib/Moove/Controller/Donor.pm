@@ -1,12 +1,12 @@
 package Moove::Controller::Donor;
+use v5.36;
+
 use Mojo::Base 'DCS::Base::API::Model::Controller';
 
 use Role::Tiny::With;
 with 'DCS::Base::Role::Rest::Get';
 
 use HTTP::Status qw(:constants);
-
-use experimental qw(signatures postderef);
 
 sub encode_model_person ($self, $entity) {
   return {

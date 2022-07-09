@@ -1,5 +1,7 @@
 package Moove::Command::combine_activities;
-use Mojo::Base 'Mojolicious::Command', -signatures;
+use v5.36;
+
+use Mojo::Base 'Mojolicious::Command';
 
 use Mojo::Util 'getopt';
 use DateTime;
@@ -7,8 +9,6 @@ use DateTime::Format::MySQL;
 use List::Util qw(reduce uniq sum);
 
 use Moove::Import::Helper::TextBalancedFix;
-
-use DCS::Constants qw(:existence);
 
 has 'description' => 'Combine two or more activities into a single activiity';
 has 'usage'       => <<"USAGE";

@@ -1,12 +1,9 @@
 package Moove::Model::ResultSet::UserGoalFulfillment;
-use strict;
-use warnings;
+use v5.36;
 
 use base qw(DBIx::Class::ResultSet);
 
-use experimental qw(signatures postderef);
-
-sub ordered($self, $direction = '-asc') {
+sub ordered ($self, $direction = '-asc') {
   $self->search(
     {},
     {
@@ -15,7 +12,7 @@ sub ordered($self, $direction = '-asc') {
   );
 }
 
-sub most_recent($self) {
+sub most_recent ($self) {
   $self->search(
     {},
     {

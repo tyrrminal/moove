@@ -1,7 +1,7 @@
 package Moove::Controller::Role::ModelEncoding::Workout;
-use Role::Tiny;
+use v5.36;
 
-use experimental qw(signatures postderef);
+use Role::Tiny;
 
 sub encode_model_workout ($self, $entity) {
   return {
@@ -16,7 +16,7 @@ sub encode_model_user ($self, $entity) {
   return {
     id       => $entity->id,
     username => $entity->username,
-    };
+  };
 }
 
 1;

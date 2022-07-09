@@ -1,10 +1,7 @@
 package Moove::Model::ResultSet::EventParticipant;
-use strict;
-use warnings;
+use v5.36;
 
 use base qw(DBIx::Class::ResultSet);
-
-use experimental qw(signatures postderef);
 
 sub for_event_activity ($self, $ea) {
   return $self->search(

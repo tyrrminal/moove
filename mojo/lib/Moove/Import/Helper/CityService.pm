@@ -1,11 +1,10 @@
 package Moove::Import::Helper::CityService;
+use v5.36;
+
 use Moose;
-use Modern::Perl;
+
 use Mojo::JSON qw(from_json);
-
 use Readonly;
-
-use DCS::Constants qw(:existence);
 
 Readonly::Scalar my $GIT_API_BASE   => q{https://api.github.com/};
 Readonly::Scalar my $GIT_USER_GISTS => q{users/%s/gists};
@@ -20,7 +19,7 @@ Readonly::Scalar my $STATELIST_FILENAME => 'states_hash.json';
 has 'city_list' => (
   is       => 'ro',
   isa      => 'ArrayRef[HashRef[Str]]',
-  init_arg => $NULL,
+  init_arg => undef,
   builder  => '_build_city_list'
 );
 
@@ -39,8 +38,8 @@ sub _build_city_list {
 sub _get_gist_content {
   my ($author, $filename) = @_;
 
-  my $ua = Mojo::UserAgent->new();
-  my $res = $ua->get(sprintf($GIT_API_BASE . $GIT_USER_GISTS, $author))->result;
+  my $ua     = Mojo::UserAgent->new();
+  my $res    = $ua->get(sprintf($GIT_API_BASE . $GIT_USER_GISTS, $author))->result;
   my ($gist) = grep {exists($_->{files}->{$filename})} @{$res->json};
 
   $res = $ua->get(sprintf($GIT_API_BASE . $GIT_GIST, $gist->{id}))->result;

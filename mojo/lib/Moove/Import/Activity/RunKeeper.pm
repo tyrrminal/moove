@@ -1,20 +1,20 @@
 package Moove::Import::Activity::RunKeeper;
-use Modern::Perl;
+use v5.36;
+
 use Moose;
 
 use Role::Tiny::With;
 with 'Moove::Role::Unit::Normalization';
 
-use boolean;
 use File::Spec;
 use DateTime::Format::Strptime;
 use IO::Uncompress::Unzip qw(unzip);
 use Text::CSV_XS;
 use Geo::Gpx;
 
-use DCS::Constants qw(:existence :symbols);
+use DCS::Constants qw(:symbols);
 
-use experimental qw(signatures postderef);
+use experimental qw(builtin);
 
 # Activity Id,Date,Type,Route Name,Distance (mi),Duration,Average Pace,Average Speed (mph),Calories Burned,
 # Climb (ft),Average Heart Rate (bpm),Friend's Tagged,Notes,GPX File
@@ -23,7 +23,7 @@ has 'key_map' => (
   traits   => ['Hash'],
   is       => 'ro',
   isa      => 'HashRef[Str]',
-  init_arg => $NULL,
+  init_arg => undef,
   default  => sub {
     {
       'Activity Id'              => 'activity_id',
@@ -51,7 +51,7 @@ has 'type_map' => (
   traits   => ['Hash'],
   is       => 'ro',
   isa      => 'HashRef[Str]',
-  init_arg => $NULL,
+  init_arg => undef,
   default  => sub {
     {
       'Running'  => 'Run',
@@ -71,8 +71,8 @@ sub get_activities ($self, $asset) {
   my $zip = $asset->slurp();
   unzip(\$zip => \my $activities, Name => 'cardioActivities.csv');
 
-  my $csv = Text::CSV_XS->new({binary => true, auto_diag => true});
-  my $p = DateTime::Format::Strptime->new(
+  my $csv = Text::CSV_XS->new({binary => builtin::true, auto_diag => builtin::true});
+  my $p   = DateTime::Format::Strptime->new(
     pattern   => '%F %T',
     locale    => 'en_US',
     time_zone => 'America/New_York'
@@ -84,8 +84,8 @@ sub get_activities ($self, $asset) {
   while (my $row = $csv->getline($F)) {
     my %v = (importer => 'RunKeeper');
     @v{@col_map} = @$row;
-    $v{date} = $p->parse_datetime($v{date}) if (defined($v{date}));
-    $v{type} = $self->get_type($v{type});
+    $v{date}     = $p->parse_datetime($v{date}) if (defined($v{date}));
+    $v{type}     = $self->get_type($v{type});
     $self->normalize_times(\%v);
     $self->_extract_temp(\%v);
     if ($v{gpx}) {
@@ -99,7 +99,7 @@ sub get_activities ($self, $asset) {
 
 sub _calculate_gross_time ($self, $zip, $v) {
   unzip(\$zip => \my $data, Name => $v->{gpx});
-  my $gpx = Geo::Gpx->new(xml => $data, use_datetime => true);
+  my $gpx = Geo::Gpx->new(xml => $data, use_datetime => builtin::true);
 
   my @segments = map {@{$_->{segments}}} @{$gpx->tracks};
   my $f_p      = $segments[0]->{points}->[0];
@@ -110,7 +110,7 @@ sub _calculate_gross_time ($self, $zip, $v) {
 
 sub _add_points ($self, $zip, $v) {
   unzip(\$zip => \my $data, Name => $v->{gpx});
-  my $gpx = Geo::Gpx->new(xml => $data, use_datetime => true);
+  my $gpx = Geo::Gpx->new(xml => $data, use_datetime => builtin::true);
 
   $v->{activity_points} = [map {@{$_->{points}}} map {@{$_->{segments}}} @{$gpx->tracks}];
 }

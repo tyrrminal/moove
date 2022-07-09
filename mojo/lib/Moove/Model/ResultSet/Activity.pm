@@ -1,13 +1,14 @@
 package Moove::Model::ResultSet::Activity;
-use strict;
-use warnings;
+use v5.36;
 
 use base qw(DBIx::Class::ResultSet);
-use List::Util qw(sum);
+use DateTime;
+use DateTime::Duration;
+use DateTime::Format::Duration;
+use DateTime::Format::MySQL;
+use List::Util qw(sum max min reduce);
 
-use DCS::Constants qw(:existence);
-
-use experimental qw(signatures postderef);
+use DCS::Constants qw(:symbols);
 
 sub prior_import ($self, $id, $importer) {
   return $self->search(
@@ -66,7 +67,7 @@ sub for_person ($self, $person) {
 sub whole ($self) {
   return $self->search(
     {
-      'whole_activity_id' => $NULL
+      'whole_activity_id' => undef
     }
   );
 }
@@ -75,7 +76,7 @@ sub uncombined ($self) {
   return $self->search(
     {
       'me.id' => {
-        -not_in => $self->result_source->schema->resultset('Activity')->search({whole_activity_id => {'<>' => $NULL}})
+        -not_in => $self->result_source->schema->resultset('Activity')->search({whole_activity_id => {'<>' => undef}})
           ->get_column('whole_activity_id')->as_query
       }
     }
@@ -85,7 +86,7 @@ sub uncombined ($self) {
 sub whole_or_event ($self) {
   return $self->search(
     {
-      '-or' => [{'event_id' => {'!=', $NULL}}, {'whole_activity_id' => $NULL}]
+      '-or' => [{'event_id' => {'!=', undef}}, {'whole_activity_id' => undef}]
     }
   );
 }

@@ -1,16 +1,12 @@
 package Moove::Role::Unit::Conversion;
-use Role::Tiny;
-use v5.32;
-use strict;
-use warnings;
+use v5.36;
 
-use boolean;
+use Role::Tiny;
+
 use DateTime::Format::Duration;
 use Scalar::Util qw(looks_like_number);
 
 use DCS::Constants qw(:symbols);
-
-use experimental qw(signatures postderef);
 
 sub time_to_minutes ($self, $duration) {
   my $minutes;
@@ -41,7 +37,7 @@ sub unit_conversion ($self, %params) {
   my $from = $params{from};
   my $to   = $params{to};
   warn("From must be a Model UnitOfMeasure") and return if (!defined($from) || ref($from) ne $uc);
-  warn("To must be a Model UnitOfMeasure") and return if (defined($to) && ref($to) ne $uc);
+  warn("To must be a Model UnitOfMeasure")   and return if (defined($to) && ref($to) ne $uc);
 
   $to = $from->normal_unit // $from unless (defined($to));
   return $v if ($from->id == $to->id);

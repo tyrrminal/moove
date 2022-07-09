@@ -1,14 +1,13 @@
 package Moove::Controller::Workout;
+use v5.36;
+
 use Mojo::Base 'DCS::Base::API::Model::Controller';
 
 use Role::Tiny::With;
 with 'DCS::Base::Role::Rest::Collection';
 with 'Moove::Controller::Role::ModelEncoding::Workout';
 
-use boolean;
 use List::Util qw(sum min max);
-
-use experimental qw(signatures postderef);
 
 sub decode_model ($self, $data) { }
 

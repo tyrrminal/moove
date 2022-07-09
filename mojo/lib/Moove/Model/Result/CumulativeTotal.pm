@@ -1,10 +1,7 @@
-use utf8;
 package Moove::Model::Result::CumulativeTotal;
+use v5.36;
 
 use base 'DBIx::Class::Core';
-
-use strict;
-use warnings;
 
 __PACKAGE__->table_class('DBIx::Class::ResultSource::View');
 

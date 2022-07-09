@@ -1,16 +1,18 @@
 package Moove::Import::Event::MTEC;
+use v5.36;
+
 use Moose;
-use Modern::Perl;
 
 use Role::Tiny::With;
 with 'Moove::Role::Unit::Normalization';
 
-use boolean;
 use Readonly;
 use Scalar::Util qw(looks_like_number);
 use Data::Dumper;
 
-use DCS::Constants qw(:existence :symbols);
+use DCS::Constants qw(:symbols);
+
+use experimental qw(builtin);
 
 Readonly::Scalar my $metadata_url => 'https://www.mtecresults.com/race/show/%s/';
 Readonly::Scalar my $results_url  => 'http://farm.mtecresults.com/race/show/%s';
@@ -18,20 +20,20 @@ Readonly::Scalar my $results_url  => 'http://farm.mtecresults.com/race/show/%s';
 has 'event_id' => (
   is       => 'ro',
   isa      => 'Str',
-  required => true
+  required => builtin::true
 );
 
 has 'race_id' => (
   is      => 'ro',
   isa     => 'Undef',
-  default => $NULL
+  default => undef
 );
 
 has 'key_map' => (
   traits   => ['Hash'],
   is       => 'ro',
   isa      => 'HashRef[Str]',
-  init_arg => $NULL,
+  init_arg => undef,
   default  => sub {
     {
       'Bib'     => 'bib_no',
@@ -156,7 +158,7 @@ sub _fix_name {
       last;
     }
   }
-  $v->{first_name} = join($SPACE, @parts) || $NULL;
+  $v->{first_name} = join($SPACE, @parts) || undef;
   $v->{first_name} .= $SPACE . $s if (defined($v->{first_name}) && defined($s));
 }
 
@@ -174,7 +176,7 @@ sub _fix_place {
 
 sub _fix_age {
   my ($v) = @_;
-  $v->{age} = $NULL unless (looks_like_number($v->{age}));
+  $v->{age} = undef unless (looks_like_number($v->{age}));
 }
 
 sub _fix_division {

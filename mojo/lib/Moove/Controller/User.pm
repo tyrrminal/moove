@@ -1,4 +1,6 @@
 package Moove::Controller::User;
+use v5.36;
+
 use Mojo::Base 'DCS::Base::API::Model::Controller';
 use Role::Tiny::With;
 
@@ -9,8 +11,6 @@ with 'DCS::Base::Role::Rest::Create',
   'DCS::Base::Role::Rest::Update';
 with 'Moove::Controller::Role::ModelEncoding::Default';
 with 'Moove::Controller::Role::ModelDecoding::User';
-
-use experimental qw(signatures);
 
 sub decode_model ($self, $data) { }
 

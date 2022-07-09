@@ -1,4 +1,6 @@
 package Moove::Controller::UserEventActivity;
+use v5.36;
+
 use Mojo::Base 'DCS::Base::API::Model::Controller';
 
 use Role::Tiny::With;
@@ -10,8 +12,6 @@ with 'Moove::Controller::Role::ModelEncoding::UserEventActivity',
   'Moove::Controller::Role::ModelEncoding::EventType',
   'Moove::Controller::Role::ModelEncoding::Registration::Event',
   'Moove::Controller::Role::ModelEncoding::Registration::EventActivity';
-
-use experimental qw(signatures postderef switch);
 
 sub decode_model ($self, $data) {
   return $data;
@@ -38,10 +38,8 @@ sub resultset ($self) {
 }
 
 sub custom_sort_for_column ($self, $col) {
-  given ($col) {
-    when ('scheduledStart') {return 'event_activity.scheduled_start'}
-    default                 {return undef}
-  }
+  return 'event_activity.scheduled_start' if ($col eq 'scheduledStart');
+  return undef;
 }
 
 sub unfiltered_resultset ($self) {

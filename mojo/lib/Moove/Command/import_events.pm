@@ -1,12 +1,13 @@
 package Moove::Command::import_events;
-use Mojo::Base 'Mojolicious::Command', -signatures;
+use v5.36;
+
+use Mojo::Base 'Mojolicious::Command';
 
 use Mojo::Util 'getopt';
 
 use Text::CSV_XS;
 
-use boolean;
-use DCS::Constants qw(:existence);
+use experimental qw(builtin);
 
 has 'description' => 'Import a list of events';
 has 'usage'       => <<"USAGE";
@@ -18,7 +19,7 @@ USAGE
 sub run ($self, @args) {
   getopt(\@args, 'file:s' => \my $filename);
 
-  my $csv = Text::CSV_XS->new({binary => true, auto_diag => true});
+  my $csv = Text::CSV_XS->new({binary => builtin::true, auto_diag => builtin::true});
   open(my $F, '<:encoding(utf8)', $filename) or die($!);
   my @col_map = @{$csv->getline($F)};
   while (my $row = $csv->getline($F)) {
@@ -27,10 +28,10 @@ sub run ($self, @args) {
     my $v = \%r;
 
     my $act_type = $self->app->model('ActivityType')->find({description => $v->{activity_type}});
-    my $type = $self->app->model('EventType')->find({description => $v->{event_type}});
-    my $uom = $self->app->model('UnitOfMeasure')->find({abbreviation => $v->{distance_l}});
+    my $type     = $self->app->model('EventType')->find({description => $v->{event_type}});
+    my $uom      = $self->app->model('UnitOfMeasure')->find({abbreviation => $v->{distance_l}});
     my $distance = $self->app->model('Distance')->find_or_create({value => $v->{distance_v}, uom => $uom->id});
-    my $address = $self->app->model('Address')->find_address(%r);
+    my $address  = $self->app->model('Address')->find_address(%r);
 
     my $event = $self->app->model('Event')->create(
       {
@@ -46,10 +47,10 @@ sub run ($self, @args) {
       {
         event               => $event,
         user_id             => $v->{user_id},
-        fee                 => $v->{fee} eq '' ? $NULL : $v->{fee},
-        fundraising_minimum => $v->{fr_min} eq '' ? $NULL : $v->{fr_min},
+        fee                 => $v->{fee} eq ''    ? undef : $v->{fee},
+        fundraising_minimum => $v->{fr_min} eq '' ? undef : $v->{fr_min},
         registered          => $v->{registered},
-        bib_no => $v->{bib_no} || $NULL
+        bib_no              => $v->{bib_no} || undef
       }
     );
 
@@ -61,7 +62,7 @@ sub run ($self, @args) {
           event_reference_type => $ert,
           referenced_name      => $v->{event_name},
           ref_num              => $v->{reference_id},
-          sub_ref_num          => $v->{reference_sub_id} || $NULL
+          sub_ref_num          => $v->{reference_sub_id} || undef
         }
       );
     }

@@ -1,7 +1,7 @@
 package Moove::Controller::Role::ModelEncoding::Default;
-use Role::Tiny;
+use v5.36;
 
-use experimental qw(signatures);
+use Role::Tiny;
 
 sub encode_model_address ($self, $address) {
   my %r = $self->encode_simple_model($address)->%*;

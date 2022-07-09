@@ -1,11 +1,9 @@
 package Moove::Model::ResultSet::Person;
-use strict;
-use warnings;
+use v5.36;
 
 use base qw(DBIx::Class::ResultSet);
-use String::Util qw(trim);
 
-use experimental qw(signatures postderef);
+use String::Util qw(trim);
 
 sub find_or_create_donor ($self, $first_name, $last_name) {
   my ($person) = $self->search(

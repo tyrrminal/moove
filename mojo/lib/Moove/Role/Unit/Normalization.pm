@@ -1,7 +1,7 @@
 package Moove::Role::Unit::Normalization;
-use Role::Tiny;
+use v5.36;
 
-use experimental qw(signatures postderef);
+use Role::Tiny;
 
 sub normalize_times ($self, $p) {
   foreach (qw(net_time gross_time pace)) {

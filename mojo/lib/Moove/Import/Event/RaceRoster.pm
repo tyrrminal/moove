@@ -1,6 +1,5 @@
 package Moove::Import::Event::RaceRoster;
-use strict;
-use warnings;
+use v5.36
 
 use Moose;
 
@@ -9,9 +8,7 @@ use Readonly;
 
 use CardioTracker::Import::Helper::Rectification qw(normalize_times);
 
-use DCS::Constants qw(:boolean :existence);
-
-use experimental qw(signatures postderef);
+use experimental qw(builtin);
 
 Readonly::Scalar my $RESULTS_PAGE => 'https://results.raceroster.com/en-US/results/%s';
 Readonly::Scalar my $RESULTS_URL  => 'https://results.raceroster.com/api/v1/sub-events/%s/locale/en-US/results-column-data';
@@ -24,28 +21,28 @@ Readonly::Hash my %QUERY_PARAMS => (
 has 'event_id' => (
   is       => 'ro',
   isa      => 'Str',
-  required => $TRUE
+  required => builtin::true
 );
 
 has 'race_id' => (
   is      => 'ro',
   isa     => 'Str|Undef',
-  default => $NULL
+  default => undef
 );
 
 has '_url' => (
   is       => 'ro',
   isa      => 'Mojo::URL',
-  init_arg => $NULL,
-  lazy     => $TRUE,
+  init_arg => undef,
+  lazy     => builtin::true,
   builder  => '_build_url'
 );
 
 has 'result_data' => (
   is       => 'ro',
   isa      => 'HashRef',
-  init_arg => $NULL,
-  lazy     => $TRUE,
+  init_arg => undef,
+  lazy     => builtin::true,
   builder  => '_build_result_data'
 );
 
@@ -53,8 +50,8 @@ has 'result_columns' => (
   traits   => ['Array'],
   is       => 'ro',
   isa      => 'ArrayRef[Str]',
-  init_arg => $NULL,
-  lazy     => $TRUE,
+  init_arg => undef,
+  lazy     => builtin::true,
   builder  => '_build_result_columns',
   handles  => {
     'col_count' => 'count'
@@ -65,7 +62,7 @@ has '_extractors' => (
   traits   => ['Hash'],
   is       => 'ro',
   isa      => 'HashRef[CodeRef]',
-  init_arg => $NULL,
+  init_arg => undef,
   default  => sub {
     {
       overall_place   => sub ($v) {(overall_place => $v->[1]->{place}, overall_count => $v->[1]->{count})},

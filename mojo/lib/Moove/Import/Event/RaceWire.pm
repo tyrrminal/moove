@@ -1,16 +1,17 @@
 package Moove::Import::Event::RaceWire;
-use Modern::Perl;
+use v5.36;
 use Moose;
 
 use Role::Tiny::With;
 with 'Moove::Role::Unit::Normalization';
 
-use boolean;
 use Readonly;
 use DateTime::Format::Strptime;
 use Lingua::EN::Titlecase;
 
-use DCS::Constants qw(:existence :symbols);
+use DCS::Constants qw(:symbols);
+
+use experimental qw(builtin);
 
 Readonly::Scalar my $metadata_url    => 'https://my.racewire.com/results/';
 Readonly::Scalar my $results_url     => 'https://my.racewire.com/results/%d/%d';
@@ -19,7 +20,7 @@ Readonly::Scalar my $results_api_url => 'https://racewireapi.global.ssl.fastly.n
 has 'event_id' => (
   is       => 'ro',
   isa      => 'Str',
-  required => true
+  required => builtin::true
 );
 
 has 'race_id' => (
@@ -31,7 +32,7 @@ has 'key_map' => (
   traits   => ['Hash'],
   is       => 'ro',
   isa      => 'HashRef[Str]',
-  init_arg => $NULL,
+  init_arg => undef,
   default  => sub {
     {
       'ResultId'       => '',
@@ -133,7 +134,7 @@ sub _fix_names {
   my $p = shift;
 
   my @suffixes = qw(Jr Jr. Sr Sr. II III IV V);    #racewire puts these in last_name when they should be in first_name
-  my $tc = Lingua::EN::Titlecase->new(word_punctuation => "[.]");
+  my $tc       = Lingua::EN::Titlecase->new(word_punctuation => "[.]");
 
   $p->{first_name} = $tc->title($p->{first_name});
   $p->{last_name}  = $tc->title($p->{last_name});

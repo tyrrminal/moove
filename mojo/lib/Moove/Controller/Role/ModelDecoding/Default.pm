@@ -1,7 +1,7 @@
 package Moove::Controller::Role::ModelDecoding::Default;
-use Role::Tiny;
+use v5.36;
 
-use experimental qw(signatures);
+use Role::Tiny;
 
 sub decode_model ($self, $model) {
   return $model;

@@ -1,7 +1,7 @@
 package Moove::Controller::Role::ModelEncoding::Registration::EventActivity;
-use Role::Tiny;
+use v5.36;
 
-use experimental qw(signatures postderef);
+use Role::Tiny;
 
 sub encode_model_eventactivity ($self, $entity) {
   return {

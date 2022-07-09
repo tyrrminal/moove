@@ -1,15 +1,17 @@
 package Moove::Command::post_activities_fixes;
-use Mojo::Base 'Mojolicious::Command', -signatures;
+use v5.36;
+
+use Mojo::Base 'Mojolicious::Command';
 
 use DateTime;
-use DCS::Constants qw(:existence);
 use Data::Dumper;
 
-use boolean;
 use DateTime::Format::Duration;
 
 use Moove::Model::Result::Result;
 use Moove::Import::Helper::TextBalancedFix;
+
+use experimnental qw(builtin);
 
 has 'description' => 'Quick test functionality';
 has 'usage'       => <<"USAGE";
@@ -22,7 +24,7 @@ sub run ($self, @args) {
   foreach my $u ($self->app->model('User')->all) {
     my @activities = $self->app->model('Activity')->for_user($u)->ordered->all;
 
-    my $fmt = DateTime::Format::Duration->new(pattern => '%T', normalize => true);
+    my $fmt = DateTime::Format::Duration->new(pattern => '%T', normalize => builtin::true);
 
     my $prev;
     my $limit = DateTime::Duration->new(minutes => 15);
@@ -42,7 +44,7 @@ sub run ($self, @args) {
           ? ($act->result->heart_rate * $act->result->net_time->in_units('minutes')
             + $prev->result->heart_rate * $prev->result->net_time->in_units('minutes'))
           / ($act->result->net_time->in_units('minutes') + $prev->result->net_time->in_units('minutes'))
-          : $NULL;
+          : undef;
         my $t = $act->result->net_time + $prev->result->net_time;
         my $r = $self->app->model('Result')->create(
           {
@@ -60,7 +62,7 @@ sub run ($self, @args) {
             start_time    => $prev->start_time,
             distance      => $d,
             result        => $r,
-            event_id      => $NULL,
+            event_id      => undef,
             note          => join("\n\n", $prev->note, $act->note),
           }
         );

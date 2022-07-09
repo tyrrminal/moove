@@ -1,12 +1,11 @@
 package Moove::Command::post_import_fixes;
-use Mojo::Base 'Mojolicious::Command', -signatures;
+use v5.36;
+
+use Mojo::Base 'Mojolicious::Command';
 
 use DateTime;
 
 use Moove::Import::Helper::TextBalancedFix;
-
-use DCS::Constants qw(:existence);
-use Data::Dumper;
 
 has 'description' => 'Address import deficiencies';
 has 'usage'       => <<"USAGE";
@@ -27,10 +26,10 @@ sub run ($self, @args) {
 sub fix_addresss {
   my $self = shift;
 
-  my %other_fields = map {$_ => $NULL} qw(street1 street2 zip phone country);
+  my %other_fields = map {$_ => undef} qw(street1 street2 zip phone country);
   foreach (
-    ['Mansfield'  => 'Mansfield',  $NULL => 'MA'],
-    ['New London' => 'New London', $NULL => 'CT'],
+    ['Mansfield'  => 'Mansfield',  undef => 'MA'],
+    ['New London' => 'New London', undef => 'CT'],
     ['Pemroke'    => 'Pembroke',   'MA'  => 'MA'],
     ['Westofrd'   => 'Westford',   'MA'  => 'MA']
     )
@@ -77,7 +76,7 @@ sub fix_gender_groups {
     foreach my $g (@genders) {
       say "creating result groups for " . $e->name . "/" . $g->description;
       $e->create_gender_result_group($g)
-        unless ($e->event_result_groups->search({gender_id => $g->id, division_id => $NULL})->count);
+        unless ($e->event_result_groups->search({gender_id => $g->id, division_id => undef})->count);
     }
   }
 }

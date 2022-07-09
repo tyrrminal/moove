@@ -1,10 +1,7 @@
 package Moove::Model::ResultSet::CumulativeTotal;
-use strict;
-use warnings;
+use v5.36;
 
 use base qw(DBIx::Class::ResultSet);
-
-use experimental qw(signatures postderef);
 
 sub overall_results ($self, $user_id) {
   return $self->search(

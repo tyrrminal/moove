@@ -380,30 +380,27 @@ __PACKAGE__->many_to_many(
   "user_goal_fulfillment",
 );
 #>>>
-use experimental qw(signatures postderef);
+use v5.36;
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-04-02 11:05:00
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:XepyF36wGpkaKYaOa3/Gqg
-
-
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-09 12:32:18
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:uAeO+EoBhRY6mjqkRNqs3w
 use List::Util qw(max);
 
 use Class::Method::Modifiers;
 
-sub last_updated_at($self) {
+sub last_updated_at ($self) {
   return $self->updated_at // $self->created_at;
 }
 
-sub result($self) {
+sub result ($self) {
   return $self->activity_result;
 }
 
-sub start_time($self) {
+sub start_time ($self) {
   return $self->activity_result->start_time;
 }
 
-sub description($self) {
+sub description ($self) {
   return sprintf('%s %s %s', $self->start_time->strftime('%F'), $self->distance->description, $self->activity_type->description);
 }
 
@@ -414,15 +411,15 @@ around 'note' => sub ($orig, $self) {
   return $v;
 };
 
-sub is_outdoor_activity($self) {
+sub is_outdoor_activity ($self) {
   return $self->activity_type->description ne 'Treadmill';
 }
 
-sub is_running_activity($self) {
+sub is_running_activity ($self) {
   return $self->activity_type->description eq 'Run' || $self->activity_type->description eq 'Treadmill';
 }
 
-sub is_cycling_activity($self) {
+sub is_cycling_activity ($self) {
   return $self->activity_type->description eq 'Ride';
 }
 
@@ -440,7 +437,7 @@ sub first_activity_point($self) {
   )->first;
 }
 
-sub last_activity_point($self) {
+sub last_activity_point ($self) {
   return $self->activity_result->activity_points->search(
     {},
     {

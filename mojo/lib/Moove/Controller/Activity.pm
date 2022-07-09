@@ -1,4 +1,6 @@
 package Moove::Controller::Activity;
+use v5.36;
+
 use Mojo::Base 'DCS::Base::API::Model::Controller';
 
 use Role::Tiny::With;
@@ -6,17 +8,15 @@ with 'DCS::Base::Role::Rest::Collection', 'DCS::Base::Role::Rest::Entity';
 with 'Moove::Controller::Role::ModelEncoding::Activity';
 with 'Moove::Role::Import::Activity';
 
-use boolean;
 use Module::Util qw(module_path);
-use List::Util qw(sum min max);
+use List::Util   qw(sum min max);
 use DCS::DateTime::Extras;
 use Syntax::Keyword::Try;
+use Mojo::Exception qw(raise);
 
 use HTTP::Status qw(:constants);
 
-use experimental qw(signatures postderef switch);
-
-no strict 'refs';
+use experimental qw(builtin);
 
 sub decode_model ($self, $data) { }
 
@@ -40,7 +40,7 @@ sub resultset ($self, %args) {
     }
   );
 
-  if ($self->validation->param('combine') // $args{combine} // true) {
+  if ($self->validation->param('combine') // $args{combine} // builtin::true) {
     $rs = $rs->whole;
   } else {
     $rs = $rs->uncombined;
@@ -81,7 +81,7 @@ sub summary ($self) {
   try {
     my $unit = $self->model('UnitOfMeasure')->search({normal_unit_id => undef, abbreviation => 'mi'})->first;
     my $ars  = $self->resultset()->completed->ordered;
-    my $ers  = $self->resultset(combine => false)->has_event;
+    my $ers  = $self->resultset(combine => builtin::false)->has_event;
 
     my $start = $self->parse_api_date($self->validation->param('start')) // ($ars->all)[0]->activity_result->start_time;
     my $end   = DateTime->now(time_zone => 'local');
@@ -148,7 +148,7 @@ sub slice ($self) {
   }
   my $activity_type = $self->model_find(ActivityType => $self->validation->param('activityTypeID'));
   my $period        = $self->validation->param('period');
-  my $showEmpty     = $self->validation->param('includeEmpty') // false;
+  my $showEmpty     = $self->validation->param('includeEmpty') // builtin::false;
 
   my $activities = $self->resultset->whole->ordered;
   my $start      = $self->parse_api_date($self->validation->param('start'))
@@ -178,7 +178,11 @@ sub slice ($self) {
       my @distances =
         map {$_->activity_result->distance->normalized_value}
         grep {$_->activity_type->base_activity_type->has_distance} @period_activities;
-      $slice->{distance} = {map {$_ => &$_(@distances) // 0} qw(sum max min)};
+      $slice->{distance} = {
+        sum => sum(@distances) // 0,
+        max => max(@distances) // 0,
+        min => min(@distances) // 0,
+      };
     }
   }
 
@@ -187,67 +191,62 @@ sub slice ($self) {
 
 sub periods_in_range ($period, $start, $end) {
   my @p;
-  given ($period) {
-    when ('all') {@p = ({start => $start, end => $end, t => {}})}
-    when ('year') {
-      my $o = $start->clone->truncate(to => 'year');
-      push(
-        @p, {
-          t     => {year => $o->year},
-          start => max($start, $o->clone),
-          end   => min($end, $o->add(years => 1)->clone)
-        }
-        )
-        while ($o < $end);
-    }
-    when ('quarter') {
-      my $o = $start->clone->truncate(to => 'quarter');
-      push(
-        @p, {
-          t => {
-            year    => $o->year,
-            quarter => $o->quarter,
-          },
-          start => max($start, $o->clone),
-          end   => min($end, $o->add(months => 3)->clone)
-        }
-        )
-        while ($o < $end);
-    }
-    when ('month') {
-      my $o = $start->clone->truncate(to => 'month');
-      $o->subtract(months => 1)
-        unless ($o->day_of_week == 7);    # back up a month unless the week starts on Sunday
-      push(
-        @p, {
-          t => {
-            year    => $o->year,
-            quarter => $o->quarter,
-            month   => $o->month,
-          },
-          start => max($start, $o->clone),
-          end   => min($end, $o->add(months => 1)->clone)
-        }
-        )
-        while ($o < $end);
-    }
-    when ('week') {
-      my $o = $start->clone->truncate(to => 'local_week');
-      push(
-        @p, {
-          t => {
-            year        => $o->year,
-            quarter     => $o->quarter,
-            month       => $o->month,
-            weekOfMonth => $o->week_of_month,
-            weekOfYear  => $o->clone->add(days => 1)->week_number,
-          },
-          start => max($start, $o->clone),
-          end   => min($end, $o->add(weeks => 1)->clone)
-        }
-        )
-        while ($o < $end);
-    }
+  if    ($period eq 'all') {@p = ({start => $start, end => $end, t => {}})}
+  elsif ($period eq 'year') {
+    my $o = $start->clone->truncate(to => 'year');
+    push(
+      @p, {
+        t     => {year => $o->year},
+        start => max($start, $o->clone),
+        end   => min($end, $o->add(years => 1)->clone)
+      }
+      )
+      while ($o < $end);
+  } elsif ($period eq 'quarter') {
+    my $o = $start->clone->truncate(to => 'quarter');
+    push(
+      @p, {
+        t => {
+          year    => $o->year,
+          quarter => $o->quarter,
+        },
+        start => max($start, $o->clone),
+        end   => min($end, $o->add(months => 3)->clone)
+      }
+      )
+      while ($o < $end);
+  } elsif ($period eq 'month') {
+    my $o = $start->clone->truncate(to => 'month');
+    $o->subtract(months => 1)
+      unless ($o->day_of_week == 7);    # back up a month unless the week starts on Sunday
+    push(
+      @p, {
+        t => {
+          year    => $o->year,
+          quarter => $o->quarter,
+          month   => $o->month,
+        },
+        start => max($start, $o->clone),
+        end   => min($end, $o->add(months => 1)->clone)
+      }
+      )
+      while ($o < $end);
+  } elsif ($period eq 'week') {
+    my $o = $start->clone->truncate(to => 'local_week');
+    push(
+      @p, {
+        t => {
+          year        => $o->year,
+          quarter     => $o->quarter,
+          month       => $o->month,
+          weekOfMonth => $o->week_of_month,
+          weekOfYear  => $o->clone->add(days => 1)->week_number,
+        },
+        start => max($start, $o->clone),
+        end   => min($end, $o->add(weeks => 1)->clone)
+      }
+      )
+      while ($o < $end);
   }
   return @p;
 }
@@ -275,12 +274,10 @@ sub import ($self) {
 }
 
 sub _days_in_period ($period, $period_start) {
-  given ($period) {
-    when ('year')  {return $period_start->year_length}
-    when ('month') {return $period_start->month_length}
-    when ('week')  {return 7;}
-    default        {return 1;}
-  }
+  return $period_start->year_length  if ($period eq 'year');
+  return $period_start->month_length if ($period eq 'month');
+  return 7                           if ($period eq 'week');
+  return 1;
 }
 
 1;

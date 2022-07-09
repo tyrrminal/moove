@@ -1,7 +1,7 @@
 package Moove::Controller::Role::ModelDecoding::User;
-use Role::Tiny;
+use v5.36;
 
-use experimental qw(signatures);
+use Role::Tiny;
 
 sub decode_model_person ($self, $person) {
   $person->{first_name} = delete($person->{firstname});

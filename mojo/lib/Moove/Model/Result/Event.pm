@@ -244,13 +244,13 @@ Composing rels: L</event_series_events> -> event_group
 
 __PACKAGE__->many_to_many("event_groups", "event_series_events", "event_group");
 #>>>
-use experimental qw(signatures postderef);
+use v5.36;
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2021-04-02 11:05:01
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:2yxu82xSamlqm5ds//4MVQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-09 12:32:18
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:V/ZnmmFn0tLT4+AMQhTaHQ
 
 use DCS::DateTime::Extras;
-use DCS::Constants qw(:existence :symbols);
+use DCS::Constants qw(:symbols);
 
 sub address ($self) {
   return $self->event_group->address;
@@ -266,7 +266,7 @@ sub update_missing_group_counts ($self) {
 sub add_missing_gender_groups ($self) {
   foreach my $g ($self->result_source->schema->resultset('Gender')->all) {
     $self->create_gender_result_group($g)
-      unless ($self->event_result_groups->search({gender_id => $g->id, division_id => $NULL})->count);
+      unless ($self->event_result_groups->search({gender_id => $g->id, division_id => undef})->count);
   }
 }
 
@@ -294,7 +294,7 @@ sub create_gender_result_group ($self, $gender) {
     {
       event       => $self,
       gender      => $gender,
-      division_id => $NULL,
+      division_id => undef,
       count       => $rs_r->count
     }
   );

@@ -1,14 +1,9 @@
 package Moove::Model::ResultSet::EventPlacementPartition;
-use strict;
-use warnings;
+use v5.36;
 
 use base qw(DBIx::Class::ResultSet);
 
-use DCS::Constants qw(:existence);
-
-use experimental qw(signatures postderef);
-
-sub for_event($self, $event) {
+sub for_event ($self, $event) {
   return $self->search(
     {
       event_id => $event->id
@@ -16,8 +11,8 @@ sub for_event($self, $event) {
   );
 }
 
-sub missing_count($self) {
-  return $self->search({count => {'=', $NULL}});
+sub missing_count ($self) {
+  return $self->search({count => {'=', undef}});
 }
 
 1;

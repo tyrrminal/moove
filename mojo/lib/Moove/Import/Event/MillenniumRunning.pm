@@ -1,58 +1,60 @@
 package Moove::Import::Event::MillenniumRunning;
-use Modern::Perl;
+use v5.36;
+
 use Moose;
 
 use Role::Tiny::With;
 with 'Moove::Role::Unit::Normalization';
 
-use boolean;
 use DateTime::Format::Strptime;
 use Lingua::EN::Titlecase;
 use List::MoreUtils qw(uniq);
 
 use Moove::Import::Helper::CityService;
 
-use DCS::Constants qw(:existence :symbols);
+use DCS::Constants qw(:symbols);
+
+use experimnental qw(builtin);
 
 has 'event_id' => (
   is       => 'ro',
   isa      => 'Str',
-  required => true
+  required => builtin::true
 );
 
 has 'race_id' => (
   is      => 'ro',
   isa     => 'Undef',
-  default => $NULL
+  default => undef
 );
 
 has 'base_url' => (
   is       => 'ro',
   isa      => 'Str',
-  init_arg => $NULL,
+  init_arg => undef,
   default  => 'http://www.millenniumrunning.com/'
 );
 
 has '_url' => (
   is       => 'ro',
   isa      => 'Mojo::URL',
-  init_arg => $NULL,
-  lazy     => true,
+  init_arg => undef,
+  lazy     => builtin::true,
   builder  => '_build_url'
 );
 
 has 'results_page' => (
   is       => 'ro',
   isa      => 'Mojo::Message::Response',
-  init_arg => $NULL,
-  lazy     => true,
+  init_arg => undef,
+  lazy     => builtin::true,
   builder  => '_build_results_page'
 );
 
 has '_event_state' => (
   is       => 'rw',
   isa      => 'Str',
-  init_arg => $NULL
+  init_arg => undef
 );
 
 has 'key_map' => (
@@ -180,7 +182,7 @@ sub _fix_names {
   my $tc    = Lingua::EN::Titlecase->new();
   my $name  = delete($v->{name});
   my @parts = split(/\s+/, $name);
-  $v->{last_name} = $tc->title(pop(@parts));
+  $v->{last_name}  = $tc->title(pop(@parts));
   $v->{first_name} = $tc->title(join($SPACE, @parts));
 }
 
@@ -200,12 +202,7 @@ sub _fix_address {
       #
     } elsif (@states == 1) {
       $v->{state} = $states[0];
-    } elsif (
-      grep {
-        $_ eq $state
-      } @states
-      )
-    {
+    } elsif (grep {$_ eq $state} @states) {
       $v->{state} = $state;
     } else {
       #

@@ -1,21 +1,19 @@
 package Moove::Model::ResultSet::User;
-use strict;
-use warnings;
+use v5.36;
 
 use base qw(DBIx::Class::ResultSet);
 
-use boolean;
 use DCS::Constants qw(:symbols);
 
-use experimental qw(signatures postderef);
+use experimental qw(builtin);
 
-sub guest($self) {
+sub guest ($self) {
   return $self->new_result({id => 0, username => 'guest', person => {id => 0, firstname => 'guest', lastname => 'user'}});
 }
 
 sub is_friends_with ($self, $user) {
   # TODO: implement friends capabilities
-  return false;
+  return builtin::false;
 }
 
 sub find_user ($self, $user_id) {

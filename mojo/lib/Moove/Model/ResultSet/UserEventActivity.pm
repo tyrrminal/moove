@@ -1,12 +1,9 @@
 package Moove::Model::ResultSet::UserEventActivity;
-use strict;
-use warnings;
+use v5.36;
 
 use base qw(DBIx::Class::ResultSet);
 
 use DateTime::Format::MySQL;
-
-use experimental qw(signatures postderef);
 
 sub on_or_before ($self, $date) {
   return $self->search(

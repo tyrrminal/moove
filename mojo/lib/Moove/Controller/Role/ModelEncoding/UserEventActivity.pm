@@ -1,11 +1,10 @@
 package Moove::Controller::Role::ModelEncoding::UserEventActivity;
-use Role::Tiny;
+use v5.36;
 
+use Role::Tiny;
 with 'Moove::Controller::Role::ModelEncoding::Donation';
 
 use List::Util qw(sum);
-
-use experimental qw(signatures postderef);
 
 sub encode_model_usereventactivity ($self, $entity) {
   my $reg         = $entity->event_registration;

@@ -1,13 +1,8 @@
 package Moove::Model::ResultSet::Donation;
-use strict;
-use warnings;
+use v5.36;
 
 use base qw(DBIx::Class::ResultSet);
 use List::Util qw(sum);
-
-use DCS::Constants qw(:existence);
-
-use experimental qw(signatures postderef);
 
 sub for_events_for_user ($self, $user) {
   return $self->search(

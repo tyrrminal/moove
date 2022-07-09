@@ -1,9 +1,9 @@
 package Moove::Controller::Role::ModelEncoding::ExternalDataSource;
+use v5.36;
+
 use Role::Tiny;
 
 use DCS::Constants qw(:semantics);
-
-use experimental qw(signatures);
 
 sub encode_model_externaldatasource ($self, $entity) {
   return {
