@@ -404,8 +404,8 @@ sub description ($self) {
   return sprintf('%s %s %s', $self->start_time->strftime('%F'), $self->distance->description, $self->activity_type->description);
 }
 
-around 'note' => sub ($orig, $self) {
-  my $v = $self->$orig(@_[2 .. $#_]) // '';
+around 'note' => sub ($orig, $self, @args) {
+  my $v = $self->$orig(@args) // '';
   $v =~ s/\s*$//m;
   $v =~ s/^\s*//m;
   return $v;
