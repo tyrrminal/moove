@@ -261,4 +261,87 @@ sub url ($self) {
   return $urls[0];
 }
 
+sub add_participant ($self, $p) {
+  my $schema = $self->result_source->schema;
+  my ($user, $person, $activity, $result);
+  my $reg_no = $p->{bib_no};
+  if ($reg_no =~ /\D/) {
+    print STDERR "Truncating $reg_no\n";
+    $reg_no =~ s/\D//g;
+  }
+
+  my $reg =
+    $schema->resultset('EventRegistration')->find_or_create({event_activity_id => $self->id, registration_number => $p->{bib_no}});
+  if (my $uea = $reg->user_event_activities->first) {
+    $user   = $uea->user;
+    $person = $user->person;
+
+    $activity = $uea->activity;
+    unless (defined($activity)) {
+      my $workout = $user->create_related(
+        'Workout', {
+          date => DateTime::Format::MySQL->format_date($self->scheduled_start),
+          name => $self->description,
+        }
+      );
+      $activity = $workout->create_related(
+        'Activity', {
+          activity_type_id   => $self->event_type->activity_type->id,
+          visibility_type_id => $self->visibility_type_id
+        }
+      );
+      $uea->update({activity_id => $activity->id});
+    }
+    if ($result = $activity->activity_result) {
+      $result->update(
+        {
+          net_time => $p->{net_time},
+          pace     => $p->{pace},
+        }
+      );
+    }
+  } else {
+    $person =
+      $schema->resultset('Person')->get_person(map {$_ => $p->{$_}} qw(first_name last_name gender age));
+  }
+  unless (defined($result)) {
+    $result = $schema->resultset('ActivityResult')->create(
+      {
+        start_time => $self->scheduled_start,
+        duration   => $p->{gross_time},
+        pace       => $p->{pace},
+        net_time   => $p->{net_time}
+      }
+    );
+    if ($activity) {
+      $activity->update({activity_result_id => $result->id});
+    }
+  }
+
+  my $address = $schema->resultset('Address')->get_address(city => $p->{city}, state => $p->{state}, country => $p->{country});
+  my $gender  = $schema->resultset('Gender')->find({abbreviation => $p->{gender}});
+  my $division =
+    $p->{division} ? $schema->resultset('Division')->find_or_create({name => $p->{division}}) : undef;
+  $p->{age} = undef unless (looks_like_number($p->{age}));
+
+  my $participant = $schema->resultset('EventParticipant')->create(
+    {
+      result      => $result,
+      bib_no      => $reg_no,
+      division_id => defined($division) ? $division->id : undef,
+      age         => $p->{age},
+      person      => $person,
+      gender_id   => defined($gender) ? $gender->id : undef,
+      address     => $address
+    }
+  );
+
+  my %partitions = $schema->resultset('EventPlacementPartition')->get_partitions($self, $gender, $division);
+  $participant->add_placement($partitions{overall},  $p->{overall_place});
+  $participant->add_placement($partitions{gender},   $p->{gender_place});
+  $participant->add_placement($partitions{division}, $p->{div_place});
+
+  return $participant;
+}
+
 1;
