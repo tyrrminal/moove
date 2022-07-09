@@ -279,6 +279,24 @@ sub import ($self) {
   return $self->render(openapi => \@activities);
 }
 
+sub merge ($self) {
+  return unless ($self->openapi->valid_input);
+
+  try {
+    my @to_merge;
+    foreach ($self->req->json->@*) {
+      my $activity = $self->model('Activity')->search({'me.id' => $_->{id}})->writable_by($self->current_user)->first
+        or return $self->render_not_found('Activity');
+      push(@to_merge, $activity);
+    }
+
+    my $activity = $self->model('Activity')->merge(@to_merge);
+    return $self->render(openapi => $self->encode_model($activity));
+  } catch ($e) {
+    return $self->render_error(HTTP_BAD_REQUEST, $e)
+  }
+}
+
 sub _days_in_period ($period, $period_start) {
   return $period_start->year_length  if ($period eq 'year');
   return $period_start->month_length if ($period eq 'month');
