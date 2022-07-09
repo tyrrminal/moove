@@ -219,4 +219,81 @@ sub total_distance ($self) {
   return sum(map {$_->activity_result->distance->normalized_value} $self->all) // 0;
 }
 
+
+sub merge ($self, @activities) {
+  die("At least two activities are required for merging") unless (@activities >= 2);
+  my @merge = sort {$a->start_time <=> $b->start_time} @activities;
+
+  my $activity_type = $merge[0]->activity_type;
+  my $start_time    = $merge[0]->start_time;
+
+  for (my $i = 0 ; $i <= $#merge ; $i++) {
+    die("Merged Activities must be in the same workout\n")
+      unless ($merge[0]->workout_id == $merge[$i]->workout_id);
+    die("Merged Activities must be of the same type\n")
+      unless ($activity_type->id == $merge[$i]->activity_type_id);
+    die("Cannot merge already-merged activities\n")
+      if ($merge[$i]->whole_activity);
+  }
+  die("Merged Activities must occur within one day of each other\n")
+    if ($start_time->delta_days($merge[-1]->start_time)->delta_days > 1);
+
+  my $a_data = {
+    activity_type_id   => $activity_type->id,
+    note               => join($NEWLINE x 2, map {$_->note} grep {$_->note} @merge),
+    workout_id         => $merge[0]->workout_id,
+    group_num          => min(map {$_->group_num} @merge),
+    set_num            => min(map {$_->set_num} @merge),
+    visibility_type_id => max(map {$_->visibility_type_id} @merge),
+    created_at         => DateTime::Format::MySQL->format_datetime(min(map {$_->created_at} @merge)),
+    updated_at         => DateTime::Format::MySQL->format_datetime(DateTime->now),
+  };
+  my $ar_data = {
+    start_time  => $start_time,
+    duration    => $merge[-1]->end_time - $merge[0]->start_time,
+    net_time    => DateTime::Duration->new(hours => 0, minutes => 0, seconds => 0),
+    temperature => $self->average_temperature(@merge),
+    heart_rate  => $self->average_hr(@merge),
+  };
+
+  my @merge_ar = grep {defined} map {$_->activity_result} @merge;
+  my %units    = map  {$_->distance->unit_of_measure_id => 1} @merge_ar;
+  $ar_data->{net_time} = reduce {$ar_data->{net_time->seconds}} @merge_ar;
+  foreach my $ar (@merge_ar) {
+    $ar_data->{net_time} = $ar_data->{net_time}->add($ar->net_time);
+  }
+  my $u = $self->result_source->schema->resultset('UnitOfMeasure')->find((keys(%units))[0]);
+
+  my $d_data = {};
+  if (keys(%units) > 1) {
+    $ar_data->{distance}->{unit_of_measure_id} = $u->normalized_unit;
+    $ar_data->{distance}->{value} =
+      sum(map {$_->distance->normalized_value} grep {defined} map {$_->activity_result} @merge);
+  } else {
+    $ar_data->{distance}->{unit_of_measure_id} = $u;
+    $ar_data->{distance}->{value} =
+      sum(map {$_->distance->value} grep {defined} map {$_->activity_result} @merge);
+  }
+  $ar_data->{map_visibility_type_id} = max(map {$_->map_visibility_type_id} @merge_ar);
+
+  use Data::Printer;
+  p $ar_data;
+  return {};
+
+  my $activity;
+  $self->result_source->schema->txn_do(
+    sub {
+      $activity = $self->create({$a_data->%*, activity_result => $ar_data});
+      foreach (@merge) {
+        $_->update({whole_activity_id => $activity->id});
+      }
+      foreach (@merge_ar) {
+        foreach my $p ($_->activity_points) {
+          $activity->add_to_activity_points({$p->timestamp, $p->location});
+        }
+      }
+    }
+  );
+  return $activity;
+}
 1;
