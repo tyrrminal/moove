@@ -19,6 +19,11 @@ sub prior_import ($self, $id, $importer) {
   );
 }
 
+sub writable_by ($self, $user) {
+  # TODO: Add admin pass here
+  return $self->for_user($user);
+}
+
 sub for_user ($self, $user) {
   my $userID = defined($user) ? $user->id : -1;
   return $self->search(
