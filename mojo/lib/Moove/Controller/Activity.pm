@@ -84,14 +84,19 @@ sub summary ($self) {
     my $ers  = $self->resultset(combine => builtin::false)->has_event;
 
     my $start = $self->parse_api_date($self->validation->param('start')) // ($ars->all)[0]->activity_result->start_time;
-    my $end   = DateTime->now(time_zone => 'local');
+    my $end   = DateTime->now(time_zone => 'local')->truncate(to => 'day')->add(days => 1);
 
     my @activity_types;
     my $period = $self->validation->param('period');
     if (defined($period)) {
       my $offset = $period eq 'week' ? 1 : 0;
-      $end = min($start->clone->add(days => $offset)->truncate(to => $period)->add("${period}s" => 1)->subtract(days => $offset),
-        DateTime->today->add(days => 1));
+      my $period_end =
+        $start->clone->add(days => $offset)->truncate(to => $period)->add("${period}s" => 1)->subtract(days => $offset);
+      if ($start > DateTime->now) {
+        $end = $period_end;
+      } else {
+        $end = min($period_end, DateTime->today(time_zone => 'local')->add(days => 1));
+      }
       $ars = $ars->before_date($end);
       $ers = $ers->before_date($end);
 
@@ -119,7 +124,8 @@ sub summary ($self) {
     return $self->render(
       openapi => {
         period => {
-          daysElapsed => $end->subtract(days => $end > DateTime->today ? 1 : 0)->delta_days($start)->delta_days,
+          daysElapsed => min($end, DateTime->today(time_zone => 'local'))->delta_days($start)->delta_days,
+          # daysElapsed => min(0, DateTime->today(time_zone => 'local')->delta_days($start)->delta_days),
           defined($period) ? (daysTotal => _days_in_period($period, $start)) : (),
           years => $end->yearfrac($start),
         },
