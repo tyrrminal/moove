@@ -5,6 +5,14 @@ use base qw(DBIx::Class::ResultSet);
 
 use String::Util qw(trim);
 
+sub get_person ($self, %attrs) {
+  if (scalar(grep {defined} values(%attrs))) {
+    return $self->create({firstname => $attrs{first_name}, lastname => $attrs{last_name}});
+  } else {
+    return $self->find_or_create(firstname => 'Unknown', lastname => 'Person');
+  }
+}
+
 sub find_or_create_donor ($self, $first_name, $last_name) {
   my ($person) = $self->search(
     {
