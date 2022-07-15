@@ -14,7 +14,7 @@ use Moove::Import::Helper::CityService;
 
 use DCS::Constants qw(:symbols);
 
-use experimnental qw(builtin);
+use experimental qw(builtin);
 
 has 'event_id' => (
   is       => 'ro',
