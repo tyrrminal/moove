@@ -1,12 +1,11 @@
 package Moove::Import::Event::RaceRoster;
-use v5.36
+use v5.36;
 
 use Moose;
+with 'Moove::Role::Unit::Normalization';
 
 use DateTime::Format::Strptime;
 use Readonly;
-
-use CardioTracker::Import::Helper::Rectification qw(normalize_times);
 
 use experimental qw(builtin);
 
