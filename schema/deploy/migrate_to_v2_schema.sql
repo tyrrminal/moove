@@ -760,28 +760,6 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `UserGoalFulfillmentActivity`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `UserGoalFulfillmentActivity` (
-  `user_goal_fulfillment_id` INT UNSIGNED NOT NULL,
-  `activity_id` INT UNSIGNED NOT NULL,
-  PRIMARY KEY (`user_goal_fulfillment_id`, `activity_id`),
-  INDEX `fk_UserGoalFulfillmentActivity_Activity1_idx` (`activity_id` ASC),
-  INDEX `fk_UserGoalFulfillmentActivity_UserGoalFulfillment1_idx` (`user_goal_fulfillment_id` ASC),
-  CONSTRAINT `fk_UserGoalFulfillmentActivity_UserGoalFulfillment1`
-    FOREIGN KEY (`user_goal_fulfillment_id`)
-    REFERENCES `UserGoalFulfillment` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_UserGoalFulfillmentActivity_Activity1`
-    FOREIGN KEY (`activity_id`)
-    REFERENCES `Activity` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
 -- Table `VisibilityType`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `VisibilityType` (
