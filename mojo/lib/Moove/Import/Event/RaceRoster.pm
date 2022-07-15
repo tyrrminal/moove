@@ -2,6 +2,8 @@ package Moove::Import::Event::RaceRoster;
 use v5.36;
 
 use Moose;
+
+use Role::Tiny::With;
 with 'Moove::Role::Unit::Normalization';
 
 use DateTime::Format::Strptime;
