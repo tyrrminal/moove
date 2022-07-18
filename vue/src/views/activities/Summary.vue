@@ -1,5 +1,5 @@
 <template>
-  <b-container class="mt-4">
+  <b-container class="mt-4 mb-2">
     <b-row>
       <b-col v-for="(s, i) in sections" :key="i" cols="3">
         <Summary :period="s" />

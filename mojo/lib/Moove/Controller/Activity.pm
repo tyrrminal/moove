@@ -77,54 +77,47 @@ sub custom_sort_for_column ($self, $col_name) {
 
 sub summary ($self) {
   return unless ($self->openapi->valid_input);
+  my $today  = DateTime->today(time_zone => 'local');
+  my $period = $self->validation->param('period');
 
   try {
     my $unit = $self->model('UnitOfMeasure')->search({normal_unit_id => undef, abbreviation => 'mi'})->first;
-    my $ars  = $self->resultset()->completed->ordered;
-    my $ers  = $self->resultset(combine => builtin::false)->has_event;
 
-    my $start = $self->parse_api_date($self->validation->param('start')) // ($ars->all)[0]->activity_result->start_time;
-    my $end   = DateTime->now(time_zone => 'local')->truncate(to => 'day')->add(days => 1);
+    my @activities = $self->resultset->completed->ordered->all;
 
-    my @activity_types;
-    my $period = $self->validation->param('period');
-    if (defined($period)) {
-      my $offset = $period eq 'week' ? 1 : 0;
-      my $period_end =
-        $start->clone->add(days => $offset)->truncate(to => $period)->add("${period}s" => 1)->subtract(days => $offset);
-      if ($start > DateTime->now) {
-        $end = $period_end;
-      } else {
-        $end = min($period_end, DateTime->today(time_zone => 'local')->add(days => 1));
+    my $start = $self->parse_api_date($self->validation->param('start'))
+      // @activities > 0 ? $activities[0]->activity_result->start_time->truncate(to => 'day') : $today;
+    my $end = $self->_end_of_period($start, $period) // $today;
+    $end->add(days => 1) if ($start == $end);
+
+    my $ars = $self->resultset()->before_date($end)->completed->ordered;
+    my $ers = $self->resultset(combine => builtin::false)->before_date($end)->has_event;
+    my $una = $self->effective_user->user_nominal_activities->search({year => defined($period) ? $start->year : undef});
+
+    my @activity_summaries;
+    foreach ($self->app->model('ActivityType')->all) {
+      my $sl      = $ars->activity_type($_);
+      my $nominal = $una->search({activity_type_id => $_->id})->first;
+      my %nom;
+      if (defined($nominal)) {
+        my $pd = $nominal->per_day;
+        %nom = (nominal => {(map {$_ => $pd->{$_} * $nominal->days_in_range_between_dates($start, $end)} keys($pd->%*))});
       }
-      $ars = $ars->before_date($end);
-      $ers = $ers->before_date($end);
-
-      my $una = $self->effective_user->user_nominal_activities->search({year => defined($period) ? $start->year : undef});
-      foreach ($self->app->model('ActivityType')->all) {
-        my $sl      = $ars->activity_type($_);
-        my $nominal = $una->search({activity_type_id => $_->id})->first;
-        my %nom;
-        if (defined($nominal)) {
-          my $pd = $nominal->per_day;
-          %nom = (nominal => {(map {$_ => $pd->{$_} * $nominal->days_in_range_between_dates($start, $end)} keys($pd->%*))});
+      push(
+        @activity_summaries, {
+          activityTypeID => $_->id,
+          distance       => $sl->total_distance,
+          unitID         => $unit->id,
+          %nom
         }
-        push(
-          @activity_types, {
-            activityTypeID => $_->id,
-            distance       => $sl->total_distance,
-            unitID         => $unit->id,
-            %nom
-          }
-          )
-          if ($sl->count || defined($nominal));
-      }
+        )
+        if ($sl->count || defined($nominal));
     }
 
     return $self->render(
       openapi => {
         period => {
-          daysElapsed => min($end, DateTime->today(time_zone => 'local'))->delta_days($start)->delta_days,
+          daysElapsed => min($end, $today)->delta_days($start)->delta_days,
           # daysElapsed => min(0, DateTime->today(time_zone => 'local')->delta_days($start)->delta_days),
           defined($period) ? (daysTotal => _days_in_period($period, $start)) : (),
           years => $end->yearfrac($start),
@@ -136,7 +129,7 @@ sub summary ($self) {
             unitID         => $unit->id,
             eventDistance  => $ers->total_distance,
           },
-          @activity_types
+          @activity_summaries
         ]
       }
     );
@@ -295,6 +288,17 @@ sub merge ($self) {
   } catch ($e) {
     return $self->render_error(HTTP_BAD_REQUEST, $e)
   }
+}
+
+sub _end_of_period ($self, $start, $period) {
+  return undef if (!defined($period));
+
+  my $tomorrow = DateTime->today(time_zone => 'local')->add(days => 1);
+  my $offset   = $period eq 'week' ? 1 : 0;
+  my $end =
+    $start->clone->add(days => $offset)->truncate(to => $period)->add("${period}s" => 1)->subtract(days => $offset);
+  return $end if ($start > DateTime->now(time_zone => 'local'));
+  return min($end, $tomorrow);
 }
 
 sub _days_in_period ($period, $period_start) {
