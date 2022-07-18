@@ -86,7 +86,7 @@ sub summary ($self) {
     my @activities = $self->resultset->completed->ordered->all;
 
     my $start = $self->parse_api_date($self->validation->param('start'))
-      // @activities > 0 ? $activities[0]->activity_result->start_time->truncate(to => 'day') : $today;
+      // (@activities > 0 ? $activities[0]->activity_result->start_time->truncate(to => 'day') : $today);
     my $end = $self->_end_of_period($start, $period) // $today;
     $end->add(days => 1) if ($start == $end);
 
