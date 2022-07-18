@@ -8,6 +8,9 @@ use DateTime::Format::Duration;
 use DateTime::Format::MySQL;
 use List::Util qw(sum max min reduce);
 
+use builtin      qw(true false);
+use experimental qw(builtin);
+
 use DCS::Constants qw(:symbols);
 
 sub prior_import ($self, $id, $importer) {
@@ -138,7 +141,7 @@ sub outdoor ($self) {
 }
 
 sub year ($self, $year) {
-  return $self->after_date("$year->01-01")->before_date("$year-12-31");
+  return $self->after_date("$year->01-01")->before_date("$year-12-31", true);
 }
 
 sub completed ($self) {
@@ -163,22 +166,26 @@ sub ordered ($self, $direction = '-asc') {
   );
 }
 
-sub after_date ($self, $date) {
-  my $d = ref($date) ? DateTime::Format::MySQL->format_datetime($date) : $date;
+sub after_date ($self, $date, $inclusive = true) {
+  return $self unless (defined($date));
+  my $d  = ref($date) ? DateTime::Format::MySQL->format_datetime($date) : $date;
+  my $op = $inclusive ? '>='                                            : '>';
   return $self->search(
     {
-      'workout.date' => {'>=' => $d}
+      'workout.date' => {$op => $d}
     }, {
       join => 'workout'
     }
   );
 }
 
-sub before_date ($self, $date) {
-  my $d = ref($date) ? DateTime::Format::MySQL->format_datetime($date) : $date;
+sub before_date ($self, $date, $inclusive = false) {
+  return $self unless (defined($date));
+  my $d  = ref($date) ? DateTime::Format::MySQL->format_datetime($date) : $date;
+  my $op = $inclusive ? '<='                                            : '<';
   return $self->search(
     {
-      'workout.date' => {'<=' => $d}
+      'workout.date' => {$op => $d}
     }, {
       join => 'workout'
     }
