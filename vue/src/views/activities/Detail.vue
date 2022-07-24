@@ -1,6 +1,6 @@
 <template>
   <b-container>
-    <div>Activity...</div>
+    <div>{{ entity }}</div>
   </b-container>
 </template>
 
@@ -17,7 +17,7 @@ export default {
   },
   methods: {
     getData: function () {
-      this.$http.get("activitry");
+      this.$http.get(["activities", this.id].join("/")).then(resp => this.entity = resp.data);
     },
   },
 };
