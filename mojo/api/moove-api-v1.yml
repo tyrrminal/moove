@@ -155,8 +155,8 @@ paths:
             schema:
               $ref: "#/components/schemas/Activity"
       responses:
-        200:
-          description: OK
+        201:
+          description: Created
           content:
             application/json:
               schema:
@@ -472,8 +472,8 @@ paths:
                   type: string
                   format: binary
       responses:
-        200:
-          description: OK
+        201:
+          description: Created
           content:
             application/json:
               schema:
@@ -692,8 +692,8 @@ paths:
             schema:
               $ref: "#/components/schemas/Goal"
       responses:
-        200:
-          description: OK
+        201:
+          description: Created
           content:
             application/json:
               schema:
@@ -782,8 +782,8 @@ paths:
             schema:
               $ref: "#/components/schemas/User"
       responses:
-        200:
-          description: OK
+        201:
+          description: Created
           content:
             application/json:
               schema:
@@ -870,8 +870,8 @@ paths:
             schema:
               $ref: "#/components/schemas/Workout"
       responses:
-        200:
-          description: OK
+        201:
+          description: Created
           content:
             application/json:
               schema:
