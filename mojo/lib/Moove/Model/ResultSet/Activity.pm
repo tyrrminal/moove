@@ -228,7 +228,7 @@ sub max_distance ($self, $d) {
 }
 
 sub total_distance ($self) {
-  return sum(map {$_->activity_result->distance->normalized_value} $self->all) // 0;
+  return sum(map {$_->distance->normalized_value} $self->related_resultset('activity_result')->with_distance->all) // 0;
 }
 
 
