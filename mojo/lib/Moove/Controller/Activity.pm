@@ -21,11 +21,10 @@ use experimental qw(builtin);
 sub decode_model ($self, $data) { }
 
 sub effective_user ($self) {
-  my $user = $self->current_user;
   if (my $username = $self->validation->param('username')) {
-    $user = $self->model('User')->find({username => $username});
+    if (my $user = $self->model('User')->find({username => $username})) {return $user}
   }
-  return $user;
+  return $self->current_user;
 }
 
 sub resultset ($self, %args) {
