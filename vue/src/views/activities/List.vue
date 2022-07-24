@@ -17,14 +17,14 @@
       </b-col>
     </b-row>
     <b-table
-      id="activitiesListTable"
+      id="roundedRowTable"
+      tbody-tr-class="roundedRow"
       class="mt-2"
       borderless
       :items="getData"
       :fields="columns"
       :per-page.sync="page.length"
       :current-page.sync="page.current"
-      tbody-tr-class="activityRow"
     >
       <template #table-busy>
         <div class="text-center">
@@ -245,7 +245,7 @@ export default {
         if (this.watchInternal)
           if (Object.keys(this.$route.query).length)
             this.$router.push({ query: {} });
-        this.$root.$emit("bv::refresh::table", "activitiesListTable");
+        this.$root.$emit("bv::refresh::table", "roundedRowTable");
       },
     },
   },
@@ -253,34 +253,5 @@ export default {
 </script>
 
 <style>
-table#activitiesListTable {
-  border-collapse: separate;
-  border-spacing: 0 0.5em;
-}
-table#activitiesListTable tr.activityRow > td {
-  background-color: #f8f9fa;
-  border-top: 1px #b2c3cf solid;
-  border-bottom: 1px #b2c3cf solid;
-  font-weight: 600;
-}
-table#activitiesListTable tr.activityRow > td:first-child {
-  border-left: 1px #b2c3cf solid;
-  border-top-left-radius: 8px;
-  border-bottom-left-radius: 8px;
-}
-table#activitiesListTable tr.activityRow > td:last-child {
-  border-right: 1px #b2c3cf solid;
-  border-top-right-radius: 8px;
-  border-bottom-right-radius: 8px;
-}
-table#activitiesListTable .activityLink {
-  color: inherit;
-}
-table#activitiesListTable .activityRow:hover td {
-  background-color: #ececec;
-}
-table#activitiesListTable .activityRow:hover .activityLink {
-  color: inherit;
-  text-decoration: underline;
-}
+
 </style>
