@@ -1563,9 +1563,24 @@ components:
             $ref: "#/components/schemas/User"
     Workout:
       type: object
+      additionalProperties: false
+      required:
+        - user
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"
+        user:
+          $ref: "#/components/schemas/User"
+          readOnly: true
+        date:
+          type: string
+          format: date
+        name:
+          type: string
+        activities:
+          type: array
+          items:
+            $ref: "#/components/schemas/Activity"
     PaginatedWorkouts:
       type: object
       additionalProperties: false
