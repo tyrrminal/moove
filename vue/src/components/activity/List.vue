@@ -41,7 +41,8 @@
         {{ data.item.repetitions }}
       </template>
     </b-table>
-    <b-pagination v-if="page.length" v-model="page.current" :per-page="page.length" :total-rows="total" />
+    <DPagination v-if="page.length" :per-page="page.length" :current-page="page.current" :total-rows="total.rows"
+      :total-results="total.results" />
   </div>
 </template>
 
@@ -49,14 +50,23 @@
 const { DateTime } = require("luxon");
 import { mapGetters } from "vuex";
 
+import DPagination from "@/components/DetailedPagination";
+
 export default {
   name: "ActivitiesListComponent",
+  components: {
+    DPagination
+  },
   data: function () {
     return {
       visibleRows: [],
     }
   },
   props: {
+    tableId: {
+      type: String,
+      default: null
+    },
     items: {
       type: [Array, String, Function],
       required: true
@@ -64,6 +74,10 @@ export default {
     page: {
       type: Object,
       default: () => ({ length: 0, current: 1 })
+    },
+    total: {
+      type: Object,
+      default: () => ({ rows: 0, results: 0 })
     }
   },
   filters: {
@@ -90,7 +104,8 @@ export default {
       return DateTime.fromISO(d).toLocaleString(DateTime.DATETIME_FULL);
     },
     loadData: function (ctx, callback) {
-      let cb = function (items) { this.visibleRows = items; callback(items); };
+      let self = this;
+      let cb = function (items) { self.visibleRows = items; callback(items); };
       if (this.items instanceof Function) {
         this.items(ctx, cb);
       } else if (this.items instanceof Array) {
@@ -109,7 +124,6 @@ export default {
     }),
     columns: function () {
       let types = [...new Set(this.visibleRows.map(r => r.activityTypeID))].map(t => this.getActivityType(t));
-      console.log(types);
       let resultCols = {
         hasDistance: 'distance',
         hasDuration: 'time',
