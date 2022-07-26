@@ -91,7 +91,7 @@ let router = new Router({
           path: "/user/:username/activities",
           name: "activities",
           component: ActivityList,
-          props: true,
+          props: (route) => ({ start: route.query.start, end: route.query.end, activityTypeID: route.query.activityTypeID }),
         },
         {
           path: "new",
