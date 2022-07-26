@@ -1,113 +1,48 @@
 <template>
   <b-container class="mt-2">
-    <b-row>
-      <b-col cols="3">
-        <b-datepicker v-model="internal.range.start" reset-button />
-      </b-col>
-      <b-col cols="1" class="text-center">
-        <b-icon icon="arrow-right" class="mx-2" />
-      </b-col>
-      <b-col cols="3">
-        <b-datepicker v-model="internal.range.end" reset-button />
-      </b-col>
-      <b-col cols="1" offset="4">
-        <b-button variant="secondary" v-b-modal.filters class="float-right"
-          >Filters</b-button
-        >
-      </b-col>
-    </b-row>
-    <b-table
-      id="roundedRowTable"
-      tbody-tr-class="roundedRow"
-      class="mt-2"
-      borderless
-      :items="getData"
-      :fields="columns"
-      :per-page.sync="page.length"
-      :current-page.sync="page.current"
-    >
-      <template #table-busy>
-        <div class="text-center">
-          <b-spinner variant="secondary" type="grow" />
-        </div>
-      </template>
-      <template #cell(activityTypeID)="data"
-        ><b-link
-          :to="{ name: 'activity', params: { id: data.item.id } }"
-          class="activityLink"
-          >{{ dayPart(data.item.startTime) }}
-          {{ getActivityType(data.value).labels.base }}</b-link
-        ></template
-      >
-      <template #cell(startTime)="data">
-        <span v-b-tooltip.hover :title="formatDate(data.value)">
-          {{ data.value | luxon }}
-        </span>
-      </template>
-      <template #cell(time)="data">
-        {{ data.item.netTime }}
-      </template>
-      <template #cell(distance)="data">
-        <template v-if="data.value">
-          {{ data.value.value | number("0.00") }}
-          {{ getUnitOfMeasure(data.value.unitOfMeasureID).abbreviation }}
-        </template>
-      </template>
-      <template #cell(pace)="data">
-        <template v-if="data.value">
-          {{ data.value.value | trimTime
-          }}{{ getUnitOfMeasure(data.value.unitOfMeasureID).abbreviation }}
-        </template>
-      </template>
-      <template #cell(speed)="data">
-        <template v-if="data.value">
-          {{ data.value.value | number("0.0") }}
-          {{ getUnitOfMeasure(data.value.unitOfMeasureID).abbreviation }}
-        </template>
-      </template>
-    </b-table>
-    <b-pagination
-      v-model="page.current"
-      :per-page="page.length"
-      :total-rows="total"
-    />
+    <b-button variant="secondary" v-b-modal.filters class="float-right">Filters</b-button>
+    <b-datepicker v-model="internal.start" reset-button class="col-3 mr-2" />
+    <b-datepicker v-model="internal.end" reset-button class="col-3" />
+
+    <ActivityList tableId="activityListTable" :items="getData" :page="page" :total="total" />
 
     <b-modal id="filters">
-      <b-checkbox v-model="internal.whole"
-        >Combine Partial Activities</b-checkbox
-      >
+      <b-checkbox v-model="internal.whole">Combine Partial Activities</b-checkbox>
     </b-modal>
   </b-container>
 </template>
 
 <script>
-const { DateTime } = require("luxon");
 import { mapGetters } from "vuex";
+
+import ActivityList from "@/components/activity/List";
 
 export default {
   name: "ActivitiesList",
+  components: {
+    ActivityList
+  },
   data() {
     return {
-      watchInternal: false,
-      activityType: null,
-      total: 0,
+      total: {
+        rows: 0,
+        results: 0,
+      },
       page: {
         length: 10,
         current: 1,
       },
       internal: {
         activityTypeID: null,
-        range: {
-          start: null,
-          end: null,
-        },
+        start: null,
+        end: null,
         whole: true,
       },
     };
   },
   props: {
     activityTypeID: {
-      type: Number,
+      type: [String, Number],
     },
     start: {
       type: String,
@@ -117,27 +52,12 @@ export default {
     },
   },
   mounted() {
-    this.internal.activityTypeID =
-      this.$route.query.activityTypeID || this.activityTypeID;
-    this.internal.range.start = this.$route.query.start || this.start;
-    this.internal.range.end = this.$route.query.end || this.end;
-
-    if (this.internal.start != null) this.sort["order.dir"] = "asc";
-    if (this.internal.end != null) this.sort["order.dir"] = "desc";
-
-    this.$nextTick(function () {
-      this.watchInternal = true;
-    });
-  },
-  filters: {
-    trimTime: function (t) {
-      if (t == null) return t;
-      return t.replace(/^[0:]*/, "");
-    },
+    this.internal.activityTypeID = this.activityTypeID;
+    this.internal.start = this.start;
+    this.internal.end = this.end;
   },
   methods: {
     getData: function (ctx, callback) {
-      let self = this;
       this.$http
         .get(["activities"].join("/"), {
           params: {
@@ -149,19 +69,10 @@ export default {
           },
         })
         .then((resp) => {
+          this.total.rows = resp.data.pagination.counts.filter;
+          this.total.results = resp.data.pagination.counts.total;
           callback(resp.data.elements);
-          self.total = resp.data.pagination.counts.filter;
         });
-    },
-    dayPart: function (d) {
-      let dt = DateTime.fromISO(d);
-      if (dt.hour > 22 || dt.hour < 5) return "Night";
-      else if (dt.hour >= 5 && dt.hour < 12) return "Morning";
-      else if (dt.hour >= 12 && dt.hour < 18) return "Afternoon";
-      else return "Evening";
-    },
-    formatDate: function (d) {
-      return DateTime.fromISO(d).toLocaleString(DateTime.DATETIME_FULL);
     },
   },
   computed: {
@@ -173,67 +84,14 @@ export default {
     ...mapGetters("auth", {
       currentUser: "currentUser",
     }),
-    dateRange: function () {
-      return this.internal.range;
-    },
-    columns: function () {
-      let r = [
-        {
-          key: "startTime",
-          sortable: true,
-          label: "Date",
-        },
-        {
-          key: "activityTypeID",
-          sortable: true,
-          label: "Activity",
-        },
-      ];
-      let a = this.getActivityType(this.internal.activityTypeID);
-      if (a == null) {
-        r.push({
-          key: "activityType",
-          sortable: true,
-          label: "Type",
-        });
-      }
-      if (a == null || a.hasDistance) {
-        r.push({
-          key: "distance",
-          sortable: true,
-        });
-      }
-      if (a == null || a.hasDuration) {
-        r.push({
-          key: "time",
-          sortable: true,
-        });
-      }
-      if (a == null || a.hasPace) {
-        r.push({
-          key: "pace",
-          sortable: true,
-        });
-      }
-      if (a == null || a.hasSpeed) {
-        r.push({
-          key: "speed",
-          sortable: true,
-        });
-      }
-      return r;
-    },
     queryParams: function () {
       let r = {
         ...this.sort,
         combine: this.internal.whole,
         "page.length": 0,
       };
-      ["activityTypeID"].forEach((k) => {
-        if (this.internal[k] != null) r[k] = this.internal[k];
-      });
-      ["start", "end"].forEach((k) => {
-        if (this.internal.range[k]) r[k] = this.internal.range[k];
+      ["activityTypeID", "start", "end"].forEach((k) => {
+        if (this.internal[k]) r[k] = this.internal[k];
       });
       return r;
     },
@@ -245,7 +103,7 @@ export default {
         if (this.watchInternal)
           if (Object.keys(this.$route.query).length)
             this.$router.push({ query: {} });
-        this.$root.$emit("bv::refresh::table", "roundedRowTable");
+        this.$root.$emit("bv::refresh::table", "activityListTable");
       },
     },
   },
@@ -253,5 +111,4 @@ export default {
 </script>
 
 <style>
-
 </style>

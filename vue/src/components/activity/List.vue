@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-table id="roundedRowTable" tbody-tr-class="roundedRow" class="mt-2" borderless :items="loadData"
+    <b-table :id="tableId" class="rounded-row mt-2" tbody-tr-class="rounded-row" borderless :items="loadData"
       :fields="columns" :per-page.sync="page.length" :current-page.sync="page.current">
       <template #table-busy>
         <div class="text-center">

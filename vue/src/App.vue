@@ -30,33 +30,39 @@ export default {
 </script>
 
 <style>
-table#roundedRowTable {
+table.rounded-row {
   border-collapse: separate;
   border-spacing: 0 0.5em;
 }
-table#roundedRowTable tr.roundedRow > td {
+
+table.rounded-row tr.rounded-row>td {
   background-color: #f8f9fa;
   border-top: 1px #b2c3cf solid;
   border-bottom: 1px #b2c3cf solid;
   font-weight: 600;
 }
-table#roundedRowTable tr.roundedRow > td:first-child {
+
+table.rounded-row tr.rounded-row>td:first-child {
   border-left: 1px #b2c3cf solid;
   border-top-left-radius: 8px;
   border-bottom-left-radius: 8px;
 }
-table#roundedRowTable tr.roundedRow > td:last-child {
+
+table.rounded-row tr.rounded-row>td:last-child {
   border-right: 1px #b2c3cf solid;
   border-top-right-radius: 8px;
   border-bottom-right-radius: 8px;
 }
-table#roundedRowTable .activityLink {
+
+table.rounded-row .activityLink {
   color: inherit;
 }
-table#roundedRowTable .roundedRow:hover td {
+
+table.rounded-row .roundedRow:hover td {
   background-color: #ececec;
 }
-table#roundedRowTable .roundedRow:hover .activityLink {
+
+table.rounded-row .roundedRow:hover .activityLink {
   color: inherit;
   text-decoration: underline;
 }

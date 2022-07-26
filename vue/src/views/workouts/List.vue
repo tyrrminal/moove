@@ -1,6 +1,6 @@
 <template>
   <b-container>
-    <b-table id="roundedRowTable" tbody-tr-class="roundedRow" class="mt-2" borderless :items="getData" :fields="columns"
+    <b-table tbody-tr-class="rounded-row" class="rounded-row mt-2" borderless :items="getData" :fields="columns"
       :per-page.sync="page.length" :current-page.sync="page.current" :sort-by.sync="sort.by"
       :sort-desc.sync="sort.desc">
       <template #cell(name)="data">
