@@ -1693,6 +1693,8 @@ components:
           type: number
           minimum: 1
           nullable: true
+        type:
+          type: string
     UnitValue:
       type: object
       additionalProperties: false
