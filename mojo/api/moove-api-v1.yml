@@ -1138,6 +1138,75 @@ components:
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"
+        workoutID:
+          $ref: "#/components/schemas/DatabaseID"
+        activityTypeID:
+          $ref: "#/components/schemas/DatabaseID"
+        group:
+          type: integer
+        wholeActivityID:
+          $ref: "#/components/schemas/DatabaseID"
+          nullable: true
+        externalDataSource:
+          $ref: "#/components/schemas/DatabaseID"
+          nullable: true
+        externalIdentifier:
+          type: string
+          nullable: true
+        visibilityTypeID:
+          $ref: "#/components/schemas/DatabaseID"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+        sets:
+          type: array
+          items:
+            $ref: "#/components/schemas/ActivitySet"
+    ActivitySet:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+        note:
+          type: string
+        set:
+          type: integer
+        startTime:
+          type: string
+          format: date-time
+        weight:
+          type: number
+          nullable: true
+        heartRate:
+          type: integer
+          nullable: true
+        temperature:
+          type: number
+          nullable: true
+        distance:
+          $ref: "#/components/schemas/UnitValue"
+        duration:
+          type: string
+          format: time
+          nullable: true
+        netTime:
+          type: string
+          format: time
+          nullable: true
+        speed:
+          $ref: "#/components/schemas/UnitValue"
+        pace:
+          $ref: "#/components/schemas/UnitValue"
+        repetitions:
+          type: integer
+        mapVisibilityTypeID:
+          $ref: "#/components/schemas/DatabaseID"
+          nullable: true
     ActivitySummary:
       type: object
       additionalProperties: true
