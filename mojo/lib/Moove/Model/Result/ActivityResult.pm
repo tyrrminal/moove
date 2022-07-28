@@ -278,7 +278,7 @@ use v5.36;
 __PACKAGE__->belongs_to(
   "normalized_distance",
   "Moove::Model::Result::DistanceNormalized",
-  { id => "distance_id" },
+  {id => "distance_id"},
   {
     is_deferrable => 1,
     join_type     => "LEFT",
@@ -287,5 +287,8 @@ __PACKAGE__->belongs_to(
   },
 );
 
+sub has_map ($self) {
+  return $self->activity_points->count > 0;
+}
 
 1;

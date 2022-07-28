@@ -35,6 +35,7 @@ sub encode_model_result ($self, $type, $entity) {
     weight      => $entity->weight,
     heartRate   => $entity->heart_rate,
     temperature => $entity->temperature,
+    hasMap      => $entity->has_map,
   };
   if ($base->has_distance) {
     $r->{distance} = $self->encode_value_with_units($entity->distance->value, $entity->distance->unit_of_measure);
