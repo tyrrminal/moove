@@ -39,6 +39,10 @@ import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap-vue/dist/bootstrap-vue.css";
 import "bootstrap/dist/js/bootstrap.min.js";
 
+import vSelect from 'vue-select';
+Vue.component('v-select', vSelect);
+import 'vue-select/dist/vue-select.css';
+
 import OhVueIcon from "oh-vue-icons";
 import {
   GiRun, GiWalk, GiWeightLiftingUp, GiBodyBalance, CoSwimming, CoRowing, CoBike
