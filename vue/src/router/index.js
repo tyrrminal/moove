@@ -97,7 +97,7 @@ let router = new Router({
           path: "new",
           name: "create-activity",
           component: ActivityEdit,
-          props: false
+          props: true
         },
         {
           path: "edit/:id",
