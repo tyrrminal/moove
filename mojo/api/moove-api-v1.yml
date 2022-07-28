@@ -1689,6 +1689,8 @@ components:
         normalizationFactor:
           type: number
           minimum: 0
+        inverted:
+          type: boolean
         normalUnitID:
           type: number
           minimum: 1

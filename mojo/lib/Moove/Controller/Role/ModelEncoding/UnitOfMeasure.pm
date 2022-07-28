@@ -11,6 +11,7 @@ sub encode_model_unitofmeasure ($self, $entity) {
     normalizationFactor => $entity->normalization_factor,
     normalUnitID        => $entity->normal_unit_id,
     type                => $entity->unit_of_measure_type->description,
+    inverted            => $entity->inverted
   };
 }
 
