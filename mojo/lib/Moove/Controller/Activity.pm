@@ -37,7 +37,7 @@ sub resultset ($self, %args) {
         {activity_type => ['base_activity_type', 'activity_context']}
       ]
     }
-  );
+  )->grouped;
 
   if ($self->validation->param('combine') // $args{combine} // builtin::true) {
     $rs = $rs->whole;

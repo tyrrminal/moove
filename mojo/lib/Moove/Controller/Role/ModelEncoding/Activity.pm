@@ -6,18 +6,25 @@ use Role::Tiny;
 sub encode_model_activity ($self, $entity) {
   return {
     id                 => $entity->id,
+    workoutID          => $entity->workout->id,
     activityTypeID     => $entity->activity_type_id,
-    note               => $entity->note,
     group              => $entity->group_num,
-    set                => $entity->set_num,
     wholeActivityID    => $entity->whole_activity_id,
     externalDataSource => $entity->external_data_source_id,
     externalIdentifier => $entity->external_identifier,
     visibilityTypeID   => $entity->visibility_type_id,
     createdAt          => $self->encode_datetime($entity->created_at),
     updatedAt          => $self->encode_datetime($entity->updated_at),
-    $self->encode_model_result($entity->activity_type, $entity->activity_result)->%*,
+    sets               => [map { $self->encode_model_activity_set($_) } $entity->sets],
   };
+}
+
+sub encode_model_activity_set($self, $entity) {
+  return {
+    note               => $entity->note,
+    set                => $entity->set_num,
+    $self->encode_model_result($entity->activity_type, $entity->activity_result)->%*,
+  }
 }
 
 sub encode_model_result ($self, $type, $entity) {

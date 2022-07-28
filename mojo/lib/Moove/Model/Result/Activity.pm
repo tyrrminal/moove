@@ -455,4 +455,13 @@ sub last_activity_point ($self) {
   )->first;
 }
 
+sub sets ($self) {
+  return $self->workout->activities->search(
+    {
+      activity_type_id => $self->activity_type_id,
+      group_num        => $self->group_num,
+    }
+  )->all;
+}
+
 1;

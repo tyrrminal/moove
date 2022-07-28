@@ -10,7 +10,7 @@ sub encode_model_workout ($self, $entity) {
     date       => $self->encode_date($entity->date),
     name       => $entity->name,
     user       => $self->encode_model($entity->user),
-    activities => $self->encode_model([$entity->activities->all]),
+    activities => $self->encode_model([$entity->activities->grouped->all]),
   };
 }
 
