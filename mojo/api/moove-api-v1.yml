@@ -1631,7 +1631,9 @@ components:
         id:
           $ref: "#/components/schemas/DatabaseID"
         value:
-          type: number
+          anyOf:
+            - type: number
+            - type: string
         unitOfMeasureID:
           type: integer
     VisibilityType:
