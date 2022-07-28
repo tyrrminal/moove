@@ -8,3 +8,4 @@ add_friendships 2021-01-10T16:01:13Z root <root@8227d671b6dd> # add table for us
 differentiate_pace_and_speed 2021-02-04T15:18:04Z root <root@8cca9a39a429> # track separately activities for which speed and pace are applicable
 add_normal_distance_view 2021-02-16T03:34:30Z root <root@74d87bac2c73> # for sorting purposes create a view to pre-normalize distances
 add_user_nominal_activity 2021-04-06T20:07:35Z root <root@74d87bac2c73> # store ongoing periodic user goals
+unit_of_measure_type 2022-07-28T14:32:34Z root <root@47a4f036b1d4> # add types like distance/rate/time to categories units of measure
