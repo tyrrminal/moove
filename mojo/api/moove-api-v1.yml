@@ -1134,7 +1134,11 @@ components:
           type: object
     Activity:
       type: object
-      additionalProperties: true
+      allOf:
+        - $ref: "#/components/schemas/ActivityDetails"
+        - $ref: "#/components/schemas/ActivitySet"
+    ActivityDetails:
+      type: object
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"
@@ -1168,7 +1172,6 @@ components:
             $ref: "#/components/schemas/ActivitySet"
     ActivitySet:
       type: object
-      additionalProperties: false
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"

@@ -1,4 +1,4 @@
-package Moove::Controller::Role::ModelEncoding::Activity;
+package Moove::Controller::Role::ModelEncoding::UserEventActivity::Activity;
 use v5.36;
 
 use Role::Tiny;
@@ -16,14 +16,8 @@ sub encode_model_activity ($self, $entity) {
     visibilityTypeID   => $entity->visibility_type_id,
     createdAt          => $self->encode_datetime($entity->created_at),
     updatedAt          => $self->encode_datetime($entity->updated_at),
-    sets               => [map {$self->encode_model_activity_set($_)} $entity->sets],
-  };
-}
-
-sub encode_model_activity_set ($self, $entity) {
-  return {
-    note => $entity->note,
-    set  => $entity->set_num,
+    note               => $entity->note,
+    set                => $entity->set_num,
     $self->encode_model_result($entity->activity_type, $entity->activity_result)->%*,
   };
 }
