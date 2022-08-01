@@ -100,3 +100,7 @@ test("Minutes to time value passes", () => {
 test("Time to Hours to Minutes to time", () => {
   expect(minutesToHms(hmsToHours("01:04:05") * 60)).toBe("01:04:05");
 })
+
+test("Time to Minutes with rounding", () => {
+  expect(minutesToHms(3.995956216505895)).toBe("00:04:00");
+})
