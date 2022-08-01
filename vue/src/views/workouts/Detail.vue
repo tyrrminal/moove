@@ -1,7 +1,7 @@
 <template>
   <b-container class="mt-3">
     <div v-if="workout">
-      <h4 class="float-right">{{ workout.date | luxon }}</h4>
+      <h4 class="float-right">{{ workout.date | luxon(dtSettings) }}</h4>
       <h3>{{ workout.name }}</h3>
 
       <b-card no-body>
@@ -31,6 +31,7 @@ export default {
     return {
       id: this.$attrs.id,
       workout: null,
+      dtSettings: { input: { zone: 'local' } }
     };
   },
   mounted() {
