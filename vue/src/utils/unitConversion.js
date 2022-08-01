@@ -1,3 +1,5 @@
+import { DateTime } from 'luxon';
+
 const MIN_PER_HOUR = 60;
 const SEC_PER_MIN = 60;
 
@@ -20,10 +22,7 @@ export function hmsToHours(t) {
 };
 
 export function minutesToHms(min) {
-  let h = Math.floor(min / 60);
-  let m = Math.floor((min - h * 60));
-  let s = Math.round((min - h * 60 - m) * 60);
-  return [h, m, s].map(x => String(x).padStart(2, '0')).join(':');
+  return DateTime.now().startOf('day').plus({ minutes: Math.round(SEC_PER_MIN * min) / SEC_PER_MIN }).toFormat('HH:mm:ss')
 };
 
 export function paceToSpeed(p) {
