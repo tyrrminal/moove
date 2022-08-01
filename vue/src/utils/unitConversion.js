@@ -25,17 +25,8 @@ export function minutesToHms(min) {
   return DateTime.now().startOf('day').plus({ minutes: Math.round(SEC_PER_MIN * min) / SEC_PER_MIN }).toFormat('HH:mm:ss')
 };
 
-export function paceToSpeed(p) {
-  let multipliers = [0, 1, 60, 60, 24];
-  let bits = p.split(':').reverse();
-  let m = 1;
-  return (multipliers[2] * multipliers[3]) / bits.reduce((a, c) => { return a + multipliers[m++] * c }, 0)
-};
-
-export function activitySpeed(a) {
-  if (a) {
-    if (a.speed) return a.speed.value;
-    if (a.pace) return paceToSpeed(a.pace.value);
-  }
+export function activityRate(a) {
+  if (a && a.speed) return a.speed;
+  if (a && a.pace) return { unitOfMeasureID: a.pace.unitOfMeasureID, value: hmsToHours(a.pace.value) * MIN_PER_HOUR }
   return null;
 }
