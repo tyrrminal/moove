@@ -1,3 +1,6 @@
+const MIN_PER_HOUR = 60;
+const SEC_PER_MIN = 60;
+
 export function convertUnitValue(uv, sUnit, tUnit = null) {
   if (tUnit != null && tUnit.id == uv.unitOfMeasureID) return uv;
   let n = uv;
@@ -13,7 +16,7 @@ export function convertUnitValue(uv, sUnit, tUnit = null) {
 
 export function hmsToHours(t) {
   let [h, m, s] = t.split(":").map(i => Number(i));
-  return h + (m / 60) + (s / (60 * 60));
+  return h + (m + s / SEC_PER_MIN) / MIN_PER_HOUR;
 };
 
 export function minutesToHms(min) {
