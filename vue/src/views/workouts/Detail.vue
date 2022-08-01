@@ -9,8 +9,8 @@
           Activities
         </template>
         <b-card-body>
-          <ActivityList v-if="workout.activities.length > 0" :items="workout.activities" />
-          <b-link :to="{ name: 'edit-activity' }">
+          <ActivityList v-if="workout.activities.length > 0" :items="workout.activities" :editor="true" />
+          <b-link :to="{ name: 'create-activity', params: { workoutID: workout.id } }">
             <b-icon icon="plus" class="mr-1" />Add an Activity
           </b-link>
         </b-card-body>
