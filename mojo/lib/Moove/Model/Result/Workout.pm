@@ -171,6 +171,14 @@ use v5.36;
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-09 12:32:18
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:fD0OJcPpWLoeJmd8XZyjPQ
 
+use List::Util qw(max);
 
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
+sub next_group_num ($self) {
+  return (max(map {$_->group_num} $self->activities->all) // 0) + 1;
+}
+
+sub next_set_num ($self, $group_num) {
+  return (max(map {$_->set_num} $self->activities->search({group_num => $group_num})->all) // 0) + 1;
+}
+
 1;
