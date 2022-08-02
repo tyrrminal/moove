@@ -227,6 +227,7 @@ export default {
       if (!this.activityType.hasSpeed) delete (activity.speed);
       if (!this.activityType.hasPace) delete (activity.pace);
       if (!this.activityType.hasMap) delete (activity.mapVisibilityTypeID);
+      ["temperature", "weight", "heartRate"].forEach(l => { if (activity[l] === "") delete (activity[l]) });
       this.$http.post("activities", activity)
         .then(resp => {
           this.$router.push({ name: 'activity', params: { id: resp.data.id } })
