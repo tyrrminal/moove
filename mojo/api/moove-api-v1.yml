@@ -1148,6 +1148,7 @@ components:
           $ref: "#/components/schemas/DatabaseID"
         group:
           type: integer
+          nullable: true
         wholeActivityID:
           $ref: "#/components/schemas/DatabaseID"
           nullable: true
@@ -1179,6 +1180,7 @@ components:
           type: string
         set:
           type: integer
+          nullable: true
         startTime:
           type: string
           format: date-time
