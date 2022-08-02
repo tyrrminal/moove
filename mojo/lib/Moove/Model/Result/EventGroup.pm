@@ -144,9 +144,16 @@ use v5.36;
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-08-02 10:06:54
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:C2kGkq20lYzZq644kFkWnw
 
-sub series_user_event_activities ($self) {
-  return $self->related_resultset('event_series_events')->related_resultset('event')->related_resultset('event_activities')
-    ->related_resultset('event_registrations')->related_resultset('user_event_activities');
+sub user_event_activities ($self) {
+  my $rs;
+  if (defined($self->year)) {
+    $rs = $self->event_series_events->related_resultset('event');
+  } else {
+    $rs = $self->events_2s;
+  }
+
+  return $rs->related_resultset('event_activities')->related_resultset('event_registrations')
+    ->related_resultset('user_event_activities');
 }
 
 1;

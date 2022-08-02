@@ -32,7 +32,7 @@ sub encode_model_eventgroup ($self, $entity) {
     name   => $entity->name,
     year   => $entity->year,
     url    => $entity->url,
-    events => $self->encode_model([$entity->series_user_event_activities->for_user($user)->visible_to($self->current_user)->all])
+    events => $self->encode_model([$entity->user_event_activities->for_user($user)->visible_to($self->current_user)->all])
   };
 }
 
