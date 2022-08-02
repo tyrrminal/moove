@@ -214,9 +214,23 @@ use v5.36;
 
 use DCS::Constants qw(:symbols);
 
-sub description($self) {
+sub description ($self) {
   return join($SPACE, $self->activity_context->description, $self->base_activity_type->description) if ($self->activity_context);
   return $self->base_activity_type->description;
+}
+
+sub valid_fields ($self) {
+  my $b = $self->base_activity_type;
+  my $c = $self->activity_context;
+
+  my @f = qw(id start_time weight heart_rate temperature);
+  push(@f, qw(repetitions))            if ($b->has_repeats);
+  push(@f, qw(distance_id))            if ($b->has_distance);
+  push(@f, qw(duration net_time))      if ($b->has_duration);
+  push(@f, qw(pace))                   if ($b->has_pace);
+  push(@f, qw(speed))                  if ($b->has_speed);
+  push(@f, qw(map_visibility_type_id)) if ($c->has_map);
+  return @f;
 }
 
 1;
