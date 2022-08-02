@@ -9,6 +9,7 @@ with 'Moove::Controller::Role::ModelEncoding::Activity';
 with 'Moove::Role::Import::Activity';
 with 'Moove::Role::Unit::Conversion';
 
+use DateTime::Format::ISO8601;
 use Module::Util qw(module_path);
 use List::Util   qw(sum min max);
 use DCS::DateTime::Extras;
@@ -38,8 +39,9 @@ sub decode_model ($self, $data) {
       $d->{distance_id} = undef;
     }
   }
-  $d->{pace} = $self->normalized_pace($d->{pace}) if(defined($d->{pace}));
-  $d->{speed} = $self->normalized_speed($d->{speed}) if(defined($d->{speed}));
+  $d->{pace}       = $self->normalized_pace($d->{pace})   if (defined($d->{pace}));
+  $d->{speed}      = $self->normalized_speed($d->{speed}) if (defined($d->{speed}));
+  $d->{start_time} = DateTime::Format::ISO8601->parse_datetime($d->{start_time})->strftime('%FT%T');
 
   #<<< no tidy because it can't handle for-list syntax properly yet
   foreach my ($field, $key) ((group => "group_num", set => "set_num")) {
