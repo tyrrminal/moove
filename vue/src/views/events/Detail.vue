@@ -37,32 +37,9 @@
                 }}</b-link>
               </b-form-group>
               <b-form-group label="Related Events" v-if="relatedEvents.length">
-                <div v-for="s in relatedEvents" :key="s.id">
-                  <b-button size="sm" :disabled="s.prev == null" variant="none" class="mr-1" :to="
-                    s.prev
-                      ? { name: 'event', params: { id: s.prev.id } }
-                      : null
-                  ">
-                    <b-icon variant="primary" icon="caret-left-fill" />
-                  </b-button>
-                  <b-link :to="{
-                    name: 'event-group',
-                    params: {
-                      id: s.id,
-                      username: userEventActivity.user.username,
-                    },
-                  }"><span v-if="s.year">{{ s.year }} </span>{{ s.name }}</b-link>
-                  <b-button size="sm" variant="outline-primary" class="ml-2" v-if="s.next == null" :to="{
-                    name: 'create-event',
-                    params: { event, eventGroup, eventActivity },
-                  }">
-                    <b-icon icon="plus" :scale="1.5" />
-                  </b-button>
-                  <b-button size="sm" v-else variant="none" class="ml-1"
-                    :to="{ name: 'event', params: { id: s.next.id } }">
-                    <b-icon variant="primary" icon="caret-right-fill" />
-                  </b-button>
-                </div>
+                <RelatedEventNav v-for="s in relatedEvents" :key="s.id"
+                  :series="{ ...s, username: userEventActivity.user.username }" :next="s.next" :prev="s.prev"
+                  :create-event-params="{ event, eventGroup, eventActivity }" />
               </b-form-group>
             </b-jumbotron>
           </b-col>
@@ -109,38 +86,7 @@
         </b-jumbotron>
         <b-row>
           <b-col cols="4">
-            <b-jumbotron class="event-details py-2" border-variant="secondary">
-              <h4>
-                <b-link :to="{ name: 'activity', params: { id: activity.id } }">{{
-                    at(activity.activityTypeID).description
-                }}
-                </b-link>
-              </h4>
-              <b-form-group label="Actual Start Time">
-                {{
-                    activity.startTime
-                    | luxon({ input: { zone: "local" }, output: "f" })
-                }}
-              </b-form-group>
-              <b-form-group label="Measured Distance">
-                {{ fillUnits(activity.distance) | formatDistance }}
-              </b-form-group>
-              <b-form-group label="Total Time" v-if="activity.duration">
-                {{ activity.duration }}
-              </b-form-group>
-              <b-form-group label="Net Time" v-if="activity.netTime && activity.duration != activity.netTime">
-                {{ activity.netTime }}
-              </b-form-group>
-              <b-form-group label="Avg. Pace" v-if="activity.pace">
-                {{ fillUnits(activity.pace) | formatDistance }}
-              </b-form-group>
-              <b-form-group label="Avg. Speed" v-if="activity.speed">
-                {{ fillUnits(activity.speed) | formatDistance }}
-              </b-form-group>
-              <b-form-group label="Temperature" v-if="activity.temperature">
-                {{ activity.temperature }}° F
-              </b-form-group>
-            </b-jumbotron>
+            <ActivityCard :activity="activity" />
           </b-col>
 
           <b-col cols="8">
@@ -244,6 +190,8 @@ import UnitConversion from "@/mixins/UnitConversion.js";
 import { DateTime } from "luxon";
 import Countdown from "vuejs-countdown";
 import AddDonation from "@/components/event/fundraising/AddDonation.vue";
+import ActivityCard from "@/components/activity/cards/Result";
+import RelatedEventNav from "@/components/event/RelatedEventNav";
 
 export default {
   name: "EventDetail",
@@ -256,6 +204,8 @@ export default {
   components: {
     Countdown,
     AddDonation,
+    ActivityCard,
+    RelatedEventNav
   },
   data: function () {
     return {
