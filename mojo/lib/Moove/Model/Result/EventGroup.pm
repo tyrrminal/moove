@@ -144,6 +144,9 @@ use v5.36;
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-08-02 10:06:54
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:C2kGkq20lYzZq644kFkWnw
 
+sub series_user_event_activities ($self) {
+  return $self->related_resultset('event_series_events')->related_resultset('event')->related_resultset('event_activities')
+    ->related_resultset('event_registrations')->related_resultset('user_event_activities');
+}
 
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;
