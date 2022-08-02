@@ -110,6 +110,13 @@ sub custom_sort_for_column ($self, $col_name) {
   return undef;
 }
 
+sub insert_record ($self, $data) {
+  my $workout = $self->model('Workout')->find($data->{workout_id});
+  $data->{group_num} = $workout->next_group_num                   if (!defined($data->{group_num}));
+  $data->{set_num}   = $workout->next_set_num($data->{group_num}) if (!defined($data->{set_num}));
+  return $self->SUPER::insert_record($data);
+}
+
 sub summary ($self) {
   return unless ($self->openapi->valid_input);
   my $today  = DateTime->today(time_zone => 'local');
