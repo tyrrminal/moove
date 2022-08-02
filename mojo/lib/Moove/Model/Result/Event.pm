@@ -234,20 +234,20 @@ __PACKAGE__->belongs_to(
   },
 );
 
-=head2 event_groups
+=head2 event_series
 
 Type: many_to_many
 
-Composing rels: L</event_series_events> -> event_group
+Composing rels: L</event_series_events> -> event_series
 
 =cut
 
-__PACKAGE__->many_to_many("event_groups", "event_series_events", "event_group");
+__PACKAGE__->many_to_many("event_series", "event_series_events", "event_series");
 #>>>
 use v5.36;
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-09 12:32:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:V/ZnmmFn0tLT4+AMQhTaHQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-08-02 10:06:54
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:dxZzTINoF7nRQPgCpt+KEw
 
 use DCS::DateTime::Extras;
 use DCS::Constants qw(:symbols);

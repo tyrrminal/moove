@@ -110,7 +110,7 @@ Related object: L<Moove::Model::Result::EventSeriesEvent>
 __PACKAGE__->has_many(
   "event_series_events",
   "Moove::Model::Result::EventSeriesEvent",
-  { "foreign.event_group_id" => "self.id" },
+  { "foreign.event_series_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
@@ -141,8 +141,8 @@ __PACKAGE__->many_to_many("events", "event_series_events", "event");
 #>>>
 use v5.36;
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-09 12:32:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Vboj/MPZrJkeu84eun2VRw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-08-02 10:06:54
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:C2kGkq20lYzZq644kFkWnw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
