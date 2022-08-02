@@ -226,7 +226,8 @@ sub valid_fields ($self) {
   my @f = qw(id start_time weight heart_rate temperature);
   push(@f, qw(repetitions))            if ($b->has_repeats);
   push(@f, qw(distance_id))            if ($b->has_distance);
-  push(@f, qw(duration net_time))      if ($b->has_duration);
+  push(@f, qw(duration))               if ($b->has_duration);
+  push(@f, qw(net_time))               if ($b->has_duration && $b->has_distance);
   push(@f, qw(pace))                   if ($b->has_pace);
   push(@f, qw(speed))                  if ($b->has_speed);
   push(@f, qw(map_visibility_type_id)) if ($c->has_map);

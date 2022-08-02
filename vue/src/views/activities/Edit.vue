@@ -222,7 +222,8 @@ export default {
       let activity = cloneDeep(this.edit);
       if (!this.activityType.hasDistance) delete (activity.distance);
       if (!this.activityType.hasRepeats) delete (activity.repetitions);
-      if (!this.activityType.hasDuration) { delete (activity.netTime); delete (activity.duration); }
+      if (!this.activityType.hasDuration || !this.activityType.distance) { delete (activity.netTime); }
+      if (!this.activityType.hasDuration) { delete (activity.duration); }
       if (!this.activityType.hasSpeed) delete (activity.speed);
       if (!this.activityType.hasPace) delete (activity.pace);
       if (!this.activityType.hasMap) delete (activity.mapVisibilityTypeID);
