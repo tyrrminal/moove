@@ -12,12 +12,14 @@
         }}</b-link>
       </template>
       <template #cell(startTime)="data">
-        <span v-b-tooltip.hover :title="formatDate(data.value)">
-          {{ data.value | luxon }}
+        <span v-b-tooltip.hover :title="formatDate(data.item.sets[0].startTime)">
+          {{ data.item.sets[0].startTime | luxon }}
         </span>
       </template>
       <template #cell(time)="data">
-        {{ data.item.netTime || data.item.duration }}
+        <div v-for="(s, i) in data.item.sets" :key="i">
+          {{ (s.netTime == '00:00:00' ? null : s.netTime) || s.duration }}<br />
+        </div>
       </template>
       <template #cell(distance)="data">
         <template v-if="data.value">
@@ -38,7 +40,20 @@
         </template>
       </template>
       <template #cell(reps)="data">
-        {{ data.item.repetitions }}
+        <div v-for="(s, i) in data.item.sets" :key="i">
+          {{ s.repetitions }}<br />
+        </div>
+      </template>
+      <template #cell(weight)="data">
+        <div v-for="(s, i) in data.item.sets" :key="i">
+          {{ s.weight }}{{ s.weight == null ? '' : ' lbs' }}<br />
+        </div>
+      </template>
+      <template #cell(addSet)="data">
+        <b-link @click="addSet(data.item)"
+          :to="{ name: 'create-activity', params: { workoutID: data.item.workoutID, activityTypeID: data.item.activityTypeID, group: data.item.group } }">
+          <b-icon icon="plus" />Set
+        </b-link>
       </template>
     </b-table>
     <DPagination v-if="page.length" :per-page="page.length" :current-page="page.current" :total-rows="total.rows"
@@ -78,6 +93,10 @@ export default {
     total: {
       type: Object,
       default: () => ({ rows: 0, results: 0 })
+    },
+    editor: {
+      type: Boolean,
+      default: false
     }
   },
   filters: {
@@ -105,12 +124,20 @@ export default {
     },
     loadData: function (ctx, callback) {
       let self = this;
-      let cb = function (items) { self.visibleRows = items; callback(items); };
+      let cb = function (items) {
+        self.visibleRows = items.map(r => {
+          return { ...r, ...r.sets[0] }
+        });
+        callback(self.visibleRows);
+      };
       if (this.items instanceof Function) {
         this.items(ctx, cb);
       } else if (this.items instanceof Array) {
-        this.visibleRows = this.items; callback(this.items)
+        cb(this.items);
       }
+    },
+    addSet: function (activity) {
+
     }
   },
   computed: {
@@ -124,13 +151,12 @@ export default {
     }),
     columns: function () {
       let types = [...new Set(this.visibleRows.map(r => r.activityTypeID))].map(t => this.getActivityType(t));
-      let resultCols = {
-        hasDistance: 'distance',
-        hasDuration: 'time',
-        hasPace: 'pace',
-        hasSpeed: 'speed',
-        hasRepeats: 'reps'
-      };
+      let resultCols = new Map();
+      resultCols.set('hasRepeats', 'reps');
+      resultCols.set('hasDistance', 'distance');
+      resultCols.set('hasDuration', 'time');
+      resultCols.set('hasPace', 'pace');
+      resultCols.set('hasSpeed', 'speed');
 
       let r = [
         {
@@ -144,20 +170,36 @@ export default {
           label: "Activity",
         },
       ];
-      if (types.length > 1) {
+      // if (types.length > 1) {
+      if (false) {
         r.push({
           key: "activityType",
           sortable: true,
           label: "Type",
         });
       }
-      for (let k in resultCols) {
+      for (var [k, v] of resultCols) {
         if (types.some(t => t[k] == true)) {
           r.push({
-            key: resultCols[k],
+            key: v,
             sortable: true
           })
         }
+      }
+      ["weight"].forEach(k => {
+        if (this.visibleRows.some(row => row.sets.some(s => s[k] != null))) {
+          r.push({
+            key: k,
+            sortable: true
+          })
+        }
+      })
+      if (this.editor) {
+        r.push({
+          label: '',
+          key: 'addSet',
+          sortable: false
+        })
       }
       return r;
     },
