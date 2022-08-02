@@ -6,7 +6,7 @@ use Role::Tiny::With;
 
 with 'DCS::Base::Role::Rest::Get';
 with 'Moove::Controller::Role::ModelEncoding::UserEventActivity',
-  'Moove::Controller::Role::ModelEncoding::Activity',
+  'Moove::Controller::Role::ModelEncoding::UserEventActivity::Activity',
   'Moove::Controller::Role::ModelEncoding::ActivityType',
   'Moove::Controller::Role::ModelEncoding::EventPlacement',
   'Moove::Controller::Role::ModelEncoding::EventType',
