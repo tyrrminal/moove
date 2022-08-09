@@ -22,6 +22,7 @@ sub encode_model_activity ($self, $entity) {
 
 sub encode_model_activity_set ($self, $entity) {
   return {
+    id   => $entity->id,
     note => $entity->note,
     set  => $entity->set_num,
     $self->encode_model_result($entity->activity_type, $entity->activity_result)->%*,
