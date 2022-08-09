@@ -171,6 +171,7 @@ use v5.36;
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-09 12:32:18
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:fD0OJcPpWLoeJmd8XZyjPQ
 
+use Class::Method::Modifiers;
 use List::Util qw(max);
 
 sub next_group_num ($self) {
@@ -180,5 +181,12 @@ sub next_group_num ($self) {
 sub next_set_num ($self, $group_num) {
   return (max(map {$_->set_num} $self->activities->search({group_num => $group_num})->all) // 0) + 1;
 }
+
+around 'delete' => sub ($orig, $self, @params) {
+  my $results = $self->activities->related_resultset('activity_result');
+  $self->activities->delete();
+  $results->delete();
+  $orig->($self, @params);
+};
 
 1;
