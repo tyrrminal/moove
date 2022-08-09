@@ -1653,6 +1653,9 @@ components:
           format: date
         name:
           type: string
+        adjustActivityDates:
+          type: boolean
+          writeOnly: true
         activities:
           type: array
           items:

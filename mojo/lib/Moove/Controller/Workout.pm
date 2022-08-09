@@ -37,7 +37,18 @@ sub insert_record ($self, $data) {
 
 sub update_record ($self, $entity, $data) {
   DCS::Base::Exception::Authorization->raise() unless ($entity->user->id == $self->current_user->id);
-  $self->SUPER::update_record($entity, $data);
+  my $adjust = delete($data->{adjust_activity_dates});
+  my $r      = $self->SUPER::update_record($entity, $data);
+  if ($adjust) {
+    $entity->discard_changes;
+    foreach my $result ($entity->activities->completed->related_resultset('activity_result')->all) {
+      if (my $st = $result->start_time) {
+        $st->set(year => $entity->date->year, month => $entity->date->month, day => $entity->date->day);
+        $result->update({start_time => $st});
+      }
+    }
+  }
+  return $r;
 }
 
 sub delete_record ($self, $entity) {
