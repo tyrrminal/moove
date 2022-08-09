@@ -206,13 +206,17 @@ export default {
     }
   },
   mounted: function () {
-    this.$http.get(["workouts", this.workoutID || this.activity.workoutID].join("/")).then(resp => {
+    if (this.activity != null) {
+      this.edit = cloneDeep(this.activity);
+      this.workoutID = this.edit.workoutID;
+      this.activityTypeID = this.edit.activityTypeID;
+      this.group = this.edit.group;
+    }
+    this.$http.get(["workouts", this.workoutID].join("/")).then(resp => {
       this.workout = resp.data;
       let d = DateTime.fromISO(this.workout.date);
       this.edit.startTime = DateTime.fromISO(this.edit.startTime).set({ year: d.year, month: d.month, day: d.day }).toISO();
     });
-    if (this.activity != null)
-      this.edit = cloneDeep(this.activity)
   },
   methods: {
     uomForType: function (t) {
