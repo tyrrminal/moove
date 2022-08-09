@@ -132,7 +132,7 @@
         </b-col>
         <b-col class="text-right">
           <b-alert class="text-left" :show="error != null" variant="warning">{{ error }}</b-alert>
-          <b-button variant="secondary" class="mr-2" :to="{ name: 'workout', params: { id: workoutID } }">Cancel
+          <b-button variant="secondary" class="mr-2" @click="$router.back()">Cancel
           </b-button>
           <b-button variant="success" :disabled="!validated" @click="save">Save</b-button>
         </b-col>
