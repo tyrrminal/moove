@@ -108,10 +108,11 @@ export default {
   methods: {
     dayPart: function (d) {
       let dt = DateTime.fromISO(d);
-      if (dt.hour > 22 || dt.hour < 5) return "Night";
-      else if (dt.hour >= 5 && dt.hour < 12) return "Morning";
-      else if (dt.hour >= 12 && dt.hour < 18) return "Afternoon";
-      else return "Evening";
+      if (dt.hour >= 5 && dt.hour < 10) return "Morning";
+      else if (dt.hour >= 10 && dt.hour < 14) return 'Midday';
+      else if (dt.hour >= 14 && dt.hour < 18) return "Afternoon";
+      else if (dt.hour >= 18 && dt.hour < 22) return 'Evening';
+      else return "Night";
     },
     activityName: function (a) {
       let at = this.getActivityType(a.activityTypeID);
