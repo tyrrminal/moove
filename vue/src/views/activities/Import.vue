@@ -92,7 +92,7 @@ export default {
           headers: { "Content-Type": "multipart/form-data" },
         })
         .then((resp) => {
-          let uploaded = resp.data;
+          let uploaded = resp.data.map(a => ({ ...a, ...a.sets[0] }));
           uploaded.sort((a, b) => a.startTime.localeCompare(b.startTime));
           this.uploaded.push(...uploaded);
         });
