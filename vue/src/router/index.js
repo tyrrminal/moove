@@ -9,10 +9,12 @@ import User from "@/views/User.vue";
 import Workouts from "@/views/workouts/Base.vue";
 import WorkoutList from "@/views/workouts/List.vue";
 import Workout from "@/views/workouts/Detail.vue";
+import WorkoutEdit from "@/views/workouts/Edit.vue";
 
 import Activities from "@/views/activities/Base.vue";
 import Activity from "@/views/activities/Detail.vue";
 import ActivityList from "@/views/activities/List.vue";
+import ActivityEdit from "@/views/activities/Edit.vue";
 import ActivitySlice from "@/views/activities/Slice.vue";
 import ActivitySummary from "@/views/activities/Summary.vue";
 import ActivityImport from "@/views/activities/Import.vue";
@@ -62,6 +64,18 @@ let router = new Router({
           component: WorkoutList,
         },
         {
+          path: "new",
+          name: "create-workout",
+          component: WorkoutEdit,
+          props: false
+        },
+        {
+          path: '/edit/:id',
+          name: 'edit-workout',
+          component: WorkoutEdit,
+          props: true,
+        },
+        {
           path: ":id",
           name: "workout",
           component: Workout,
@@ -77,7 +91,19 @@ let router = new Router({
           path: "/user/:username/activities",
           name: "activities",
           component: ActivityList,
-          props: true,
+          props: (route) => ({ start: route.query.start, end: route.query.end, activityTypeID: route.query.activityTypeID }),
+        },
+        {
+          path: "new",
+          name: "create-activity",
+          component: ActivityEdit,
+          props: true
+        },
+        {
+          path: "edit/:id",
+          name: "edit-activity",
+          component: ActivityEdit,
+          props: true
         },
         {
           path: "/user/:username/activities/summary",
@@ -130,7 +156,7 @@ let router = new Router({
           props: true
         },
         {
-          path: "edit",
+          path: "edit/:id",
           name: "edit-event",
           component: EventEdit,
           props: true

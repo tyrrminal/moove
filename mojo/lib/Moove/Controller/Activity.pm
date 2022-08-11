@@ -7,25 +7,62 @@ use Role::Tiny::With;
 with 'DCS::Base::Role::Rest::Collection', 'DCS::Base::Role::Rest::Entity';
 with 'Moove::Controller::Role::ModelEncoding::Activity';
 with 'Moove::Role::Import::Activity';
+with 'Moove::Role::Unit::Conversion';
 
+use DateTime::Format::ISO8601;
 use Module::Util qw(module_path);
 use List::Util   qw(sum min max);
 use DCS::DateTime::Extras;
 use Syntax::Keyword::Try;
 use Mojo::Exception qw(raise);
 
+use syntax 'junction';
+
+use DCS::Util::NameConversion qw(convert_hash_keys camel_to_snake);
+
 use HTTP::Status qw(:constants);
 
-use experimental qw(builtin);
+use experimental qw(builtin for_list);
+use Data::Printer;
 
-sub decode_model ($self, $data) { }
+sub decode_model ($self, $data) {
+  my $d  = {convert_hash_keys($data->%*, \&camel_to_snake)};
+  my $at = $self->model('ActivityType')->find($d->{activity_type_id});
+  return undef unless ($at);
+
+  if (exists($d->{distance})) {
+    if (defined($d->{distance})) {
+      my $distance = $self->model('Distance')->find_or_create_in_units($d->{distance}->{value},
+        $self->model('UnitOfMeasure')->find($d->{distance}->{unit_of_measure_id}));
+      $d->{distance_id} = $distance->id;
+    } else {
+      $d->{distance_id} = undef;
+    }
+  }
+  $d->{pace}       = $self->normalized_pace($d->{pace})   if (defined($d->{pace}));
+  $d->{speed}      = $self->normalized_speed($d->{speed}) if (defined($d->{speed}));
+  $d->{start_time} = DateTime::Format::ISO8601->parse_datetime($d->{start_time})->strftime('%FT%T');
+
+  #<<< no tidy because it can't handle for-list syntax properly yet
+  foreach my ($field, $key) ((group => "group_num", set => "set_num")) {
+    $d->{$key} = $d->{$field} if (exists($d->{$field}));
+  }
+  my $activity = selective_field_extract($d, [qw(id activity_type_id workout_id group_num set_num note visibility_type_id)]);
+  $activity->{activity_result} = selective_field_extract($d, [$at->valid_fields]);
+  #>>>
+
+  return $activity;
+}
+
+sub selective_field_extract ($hash, $fields) {
+  return {map {exists($hash->{$_}) ? ($_ => $hash->{$_}) : ()} $fields->@*};
+}
 
 sub effective_user ($self) {
-  my $user = $self->current_user;
   if (my $username = $self->validation->param('username')) {
-    $user = $self->model('User')->find({username => $username});
+    if (my $user = $self->model('User')->find({username => $username})) {return $user}
   }
-  return $user;
+  return $self->current_user;
 }
 
 sub resultset ($self, %args) {
@@ -38,7 +75,7 @@ sub resultset ($self, %args) {
         {activity_type => ['base_activity_type', 'activity_context']}
       ]
     }
-  );
+  )->grouped;
 
   if ($self->validation->param('combine') // $args{combine} // builtin::true) {
     $rs = $rs->whole;
@@ -73,6 +110,13 @@ sub custom_sort_for_column ($self, $col_name) {
   return 'activity_result.speed'      if ($col_name eq 'speed');
   return 'activity_result.start_time' if ($col_name eq 'startTime');
   return undef;
+}
+
+sub insert_record ($self, $data) {
+  my $workout = $self->model('Workout')->find($data->{workout_id});
+  $data->{group_num} = $workout->next_group_num                   if (!defined($data->{group_num}));
+  $data->{set_num}   = $workout->next_set_num($data->{group_num}) if (!defined($data->{set_num}));
+  return $self->SUPER::insert_record($data);
 }
 
 sub summary ($self) {

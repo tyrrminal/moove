@@ -13,6 +13,14 @@ use experimental qw(builtin);
 
 use DCS::Constants qw(:symbols);
 
+sub grouped ($self) {
+  return $self->search(
+    undef, {
+      group_by => [qw(workout_id activity_type_id group_num)],
+    }
+  );
+}
+
 sub prior_import ($self, $id, $importer) {
   return $self->search(
     {

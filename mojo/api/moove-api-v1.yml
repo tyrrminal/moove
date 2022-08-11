@@ -155,8 +155,8 @@ paths:
             schema:
               $ref: "#/components/schemas/Activity"
       responses:
-        200:
-          description: OK
+        201:
+          description: Created
           content:
             application/json:
               schema:
@@ -472,8 +472,8 @@ paths:
                   type: string
                   format: binary
       responses:
-        200:
-          description: OK
+        201:
+          description: Created
           content:
             application/json:
               schema:
@@ -692,8 +692,8 @@ paths:
             schema:
               $ref: "#/components/schemas/Goal"
       responses:
-        200:
-          description: OK
+        201:
+          description: Created
           content:
             application/json:
               schema:
@@ -782,8 +782,8 @@ paths:
             schema:
               $ref: "#/components/schemas/User"
       responses:
-        200:
-          description: OK
+        201:
+          description: Created
           content:
             application/json:
               schema:
@@ -870,8 +870,8 @@ paths:
             schema:
               $ref: "#/components/schemas/Workout"
       responses:
-        200:
-          description: OK
+        201:
+          description: Created
           content:
             application/json:
               schema:
@@ -1134,10 +1134,86 @@ components:
           type: object
     Activity:
       type: object
-      additionalProperties: true
+      allOf:
+        - $ref: "#/components/schemas/ActivityDetails"
+        - $ref: "#/components/schemas/ActivitySet"
+    ActivityDetails:
+      type: object
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"
+        workoutID:
+          $ref: "#/components/schemas/DatabaseID"
+        activityTypeID:
+          $ref: "#/components/schemas/DatabaseID"
+        group:
+          type: integer
+          nullable: true
+        wholeActivityID:
+          $ref: "#/components/schemas/DatabaseID"
+          nullable: true
+        externalDataSource:
+          $ref: "#/components/schemas/DatabaseID"
+          nullable: true
+        externalIdentifier:
+          type: string
+          nullable: true
+        visibilityTypeID:
+          $ref: "#/components/schemas/DatabaseID"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+        sets:
+          type: array
+          items:
+            $ref: "#/components/schemas/ActivitySet"
+    ActivitySet:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+        note:
+          type: string
+        set:
+          type: integer
+          nullable: true
+        startTime:
+          type: string
+          format: date-time
+        weight:
+          type: number
+          nullable: true
+        heartRate:
+          type: integer
+          nullable: true
+        temperature:
+          type: number
+          nullable: true
+        distance:
+          $ref: "#/components/schemas/UnitValue"
+        duration:
+          type: string
+          format: time
+          nullable: true
+        netTime:
+          type: string
+          format: time
+          nullable: true
+        speed:
+          $ref: "#/components/schemas/UnitValue"
+        pace:
+          $ref: "#/components/schemas/UnitValue"
+        repetitions:
+          type: integer
+        hasMap:
+          type: boolean
+        mapVisibilityTypeID:
+          $ref: "#/components/schemas/DatabaseID"
+          nullable: true
     ActivitySummary:
       type: object
       additionalProperties: true
@@ -1563,9 +1639,27 @@ components:
             $ref: "#/components/schemas/User"
     Workout:
       type: object
+      additionalProperties: false
+      required:
+        - user
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"
+        user:
+          $ref: "#/components/schemas/User"
+          readOnly: true
+        date:
+          type: string
+          format: date
+        name:
+          type: string
+        adjustActivityDates:
+          type: boolean
+          writeOnly: true
+        activities:
+          type: array
+          items:
+            $ref: "#/components/schemas/Activity"
     PaginatedWorkouts:
       type: object
       additionalProperties: false
@@ -1605,10 +1699,14 @@ components:
         normalizationFactor:
           type: number
           minimum: 0
+        inverted:
+          type: boolean
         normalUnitID:
           type: number
           minimum: 1
           nullable: true
+        type:
+          type: string
     UnitValue:
       type: object
       additionalProperties: false
@@ -1616,7 +1714,9 @@ components:
         id:
           $ref: "#/components/schemas/DatabaseID"
         value:
-          type: number
+          anyOf:
+            - type: number
+            - type: string
         unitOfMeasureID:
           type: integer
     VisibilityType:
