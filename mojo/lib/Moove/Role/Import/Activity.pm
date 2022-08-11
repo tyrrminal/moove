@@ -14,6 +14,7 @@ use experimental qw(builtin);
 sub import_activity ($self, $activity, $user, $workout = undef) {
   my $has_map       = defined($activity->{activity_points});
   my $activity_type = $self->model('ActivityType')->lookup($activity->{type}, $has_map);
+  die("No such activity type: '" . $activity->{type} . "' with " . ($has_map ? '' : 'no ') . "map\n") if (!defined($activity_type));
 
   my $data_source;
   if ($activity->{importer}) {

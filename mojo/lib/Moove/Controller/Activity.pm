@@ -119,6 +119,10 @@ sub insert_record ($self, $data) {
   return $self->SUPER::insert_record($data);
 }
 
+sub update_record ($self, $entity, $data) {
+  return $self->SUPER::update_record($data);
+}
+
 sub summary ($self) {
   return unless ($self->openapi->valid_input);
   my $today  = DateTime->today(time_zone => 'local');
@@ -296,24 +300,30 @@ sub periods_in_range ($period, $start, $end) {
 
 sub import ($self) {
   return unless ($self->openapi->valid_input);
-  my @activities = ();
+  my $activities = [];
 
-  my $asset = $self->param('file')->asset;
-  my $ds    = $self->model_find(ExternalDataSource => $self->param('externalDataSourceID'))
-    or $self->render_not_found('ExternalDataSource');
+  try {
+    my $asset = $self->param('file')->asset;
+    my $ds    = $self->model_find(ExternalDataSource => $self->param('externalDataSourceID'))
+      or $self->render_not_found('ExternalDataSource');
 
-  my $import_class = $ds->import_class;
-  require(module_path($import_class));
-  my $importer = $import_class->new();
+    my $import_class = $ds->import_class;
+    require(module_path($import_class));
+    my $importer = $import_class->new();
 
-  foreach my $activity ($importer->get_activities($asset)) {
-    my ($activity, $is_existing) = $self->import_activity($activity, $self->current_user);
-    $activity = $self->encode_model($activity);
-    $activity->{isNew} = !$is_existing;
-    push(@activities, $activity);
+    foreach my $activity ($importer->get_activities($asset)) {
+      my ($activity, $is_existing) = $self->import_activity($activity, $self->current_user);
+      push(
+        $activities->@*, {
+          $self->encode_model($activity)->%*, isNew => !$is_existing,
+        }
+      );
+    }
+
+    return $self->render(openapi => $activities);
+  } catch ($e) {
+    return $self->render_error(HTTP_BAD_REQUEST, $e)
   }
-
-  return $self->render(openapi => \@activities);
 }
 
 sub merge ($self) {
