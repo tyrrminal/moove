@@ -101,6 +101,7 @@ sub import_activity ($self, $activity, $user, $workout = undef) {
       );
     }
   }
+  $act->discard_changes;
 
   return ($act, false);
 }
