@@ -120,7 +120,12 @@ sub insert_record ($self, $data) {
 }
 
 sub update_record ($self, $entity, $data) {
-  return $self->SUPER::update_record($data);
+  foreach (qw(group_num set_num id workout_id)) {
+    delete($data->{$_});
+  }
+  delete($data->{activity_result}->{id});
+  $entity->activity_result->update(delete($data->{activity_result}));
+  return $self->SUPER::update_record($entity, $data);
 }
 
 sub summary ($self) {
