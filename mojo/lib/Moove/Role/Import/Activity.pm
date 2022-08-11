@@ -9,6 +9,7 @@ use DateTime;
 use DateTime::Format::MySQL;
 use DBIx::Class::InflateColumn::Time;
 
+use builtin      qw(true false);
 use experimental qw(builtin);
 
 sub import_activity ($self, $activity, $user, $workout = undef) {
@@ -20,7 +21,7 @@ sub import_activity ($self, $activity, $user, $workout = undef) {
   if ($activity->{importer}) {
     $data_source = $self->app->model('ExternalDataSource')->find({name => $activity->{importer}});
     if (my $existing = $self->app->model('Activity')->prior_import($activity->{activity_id}, $data_source)->first) {
-      return ($existing, builtin::true);
+      return ($existing, true);
     }
   }
 
@@ -101,7 +102,7 @@ sub import_activity ($self, $activity, $user, $workout = undef) {
     }
   }
 
-  return $act;
+  return ($act, false);
 }
 
 sub find_matching_event_result ($self, $activity, $activity_type, $user) {
