@@ -14,6 +14,7 @@ use Geo::Gpx;
 
 use DCS::Constants qw(:symbols);
 
+use builtin      qw(true false);
 use experimental qw(builtin);
 
 # Activity Id,Date,Type,Route Name,Distance (mi),Duration,Average Pace,Average Speed (mph),Calories Burned,
@@ -71,7 +72,7 @@ sub get_activities ($self, $asset) {
   my $zip = $asset->slurp();
   unzip(\$zip => \my $activities, Name => 'cardioActivities.csv');
 
-  my $csv = Text::CSV_XS->new({binary => builtin::true, auto_diag => builtin::true});
+  my $csv = Text::CSV_XS->new({binary => true, auto_diag => true});
   my $p   = DateTime::Format::Strptime->new(
     pattern   => '%F %T',
     locale    => 'en_US',
@@ -99,7 +100,7 @@ sub get_activities ($self, $asset) {
 
 sub _calculate_gross_time ($self, $zip, $v) {
   unzip(\$zip => \my $data, Name => $v->{gpx});
-  my $gpx = Geo::Gpx->new(xml => $data, use_datetime => builtin::true);
+  my $gpx = Geo::Gpx->new(xml => $data, use_datetime => true);
 
   my @segments = map {@{$_->{segments}}} @{$gpx->tracks};
   my $f_p      = $segments[0]->{points}->[0];
@@ -110,7 +111,7 @@ sub _calculate_gross_time ($self, $zip, $v) {
 
 sub _add_points ($self, $zip, $v) {
   unzip(\$zip => \my $data, Name => $v->{gpx});
-  my $gpx = Geo::Gpx->new(xml => $data, use_datetime => builtin::true);
+  my $gpx = Geo::Gpx->new(xml => $data, use_datetime => true);
 
   $v->{activity_points} = [map {@{$_->{points}}} map {@{$_->{segments}}} @{$gpx->tracks}];
 }
