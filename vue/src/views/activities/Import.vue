@@ -84,7 +84,6 @@ export default {
           this.uploaded.push(...uploaded);
         })
         .catch(err => {
-          console.log(err);
           this.errors = [];
           err.response.data.errors.forEach(e => this.errors.push(e.message))
         });
