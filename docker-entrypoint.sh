@@ -27,6 +27,10 @@ case "$1" in
     echo "Starting server in production mode"
     exec hypnotoad -f script/moove
     ;;
+  minion)
+    echo "starting minion worker"
+    exec script/moove_minion minion worker "${@:2}"
+    ;;
   dbmigration)
     echo "Deploying database migrations"
     exec script/moove migrate_schema
