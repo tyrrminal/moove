@@ -24,7 +24,6 @@ use HTTP::Status   qw(:constants);
 use DCS::Constants qw(:symbols);
 
 use experimental qw(builtin for_list);
-use Data::Printer;
 
 sub decode_model ($self, $data) {
   my $d  = {convert_hash_keys($data->%*, \&camel_to_snake)};
