@@ -128,6 +128,11 @@ sub update_record ($self, $entity, $data) {
   return $self->SUPER::update_record($entity, $data);
 }
 
+sub delete_record ($self, $entity) {
+  $entity->activities->update({whole_activity_id => undef});
+  return $self->SUPER::delete_record($entity);
+}
+
 sub summary ($self) {
   return unless ($self->openapi->valid_input);
   my $today  = DateTime->today(time_zone => 'local');
