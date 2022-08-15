@@ -304,15 +304,6 @@ sub merge ($self, @activities) {
     sub {
       $activity = $self->create($data);
       $_->update({whole_activity_id => $activity->id}) foreach (@merge);
-      foreach (map {$_->activity_points->all} @merge_results) {
-        $activity->activity_result->add_to_activity_points(
-          {
-            location_id        => $_->location_id,
-            timestamp          => $_->timestamp,
-            activity_result_id => $activity->activity_result->id,
-          }
-        );
-      }
     }
   );
   return $activity;

@@ -20,7 +20,8 @@ use syntax 'junction';
 
 use DCS::Util::NameConversion qw(convert_hash_keys camel_to_snake);
 
-use HTTP::Status qw(:constants);
+use HTTP::Status   qw(:constants);
+use DCS::Constants qw(:symbols);
 
 use experimental qw(builtin for_list);
 use Data::Printer;
@@ -348,6 +349,7 @@ sub merge ($self) {
     }
 
     my $activity = $self->model('Activity')->merge(@to_merge);
+    $self->app->minion->enqueue(copy_activity_points => [$activity->id, join($COMMA, map {$_->id} @to_merge)]);
     return $self->render(openapi => $self->encode_model($activity));
   } catch ($e) {
     return $self->render_error(HTTP_BAD_REQUEST, $e)
