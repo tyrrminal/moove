@@ -295,10 +295,6 @@ sub merge ($self, @activities) {
   $data->{activity_result}->{map_visibility_type_id} = $self->merge_map_visibility_types(@merge_results)
     if ($activity_type->activity_context->has_map);
 
-  # use Data::Printer;
-  # p $data->{activity_result};
-  # return {};
-
   my $activity;
   $self->result_source->schema->txn_do(
     sub {
