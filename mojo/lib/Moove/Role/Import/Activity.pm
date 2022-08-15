@@ -83,24 +83,6 @@ sub import_activity ($self, $activity, $user, $workout = undef) {
       external_identifier     => $activity->{activity_id},
     }
   );
-
-  if ($activity_type->activity_context->has_map) {
-    foreach my $ap ($activity->{activity_points}->@*) {
-      my $loc = $self->app->model('Location')->create(
-        {
-          latitude  => $ap->{lat},
-          longitude => $ap->{lon}
-        }
-      );
-      $self->app->model('ActivityPoint')->create(
-        {
-          activity_result => $result,
-          location        => $loc,
-          timestamp       => $ap->{time}
-        }
-      );
-    }
-  }
   $act->discard_changes;
 
   return ($act, false);
