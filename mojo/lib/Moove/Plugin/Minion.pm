@@ -12,6 +12,7 @@ sub register ($self, $app, $args) {
     }
   );
 
+  $app->plugin('Moove::Task::ActivityPoint');
 }
 
 1;
