@@ -46,7 +46,7 @@
         <b-form-group label="Address" label-cols="1">
           <b-input-group>
             <b-input :disabled="true" :value="
-                $options.filters.formatAddress(newEvent.event.address || {})
+              $options.filters.formatAddress(newEvent.event.address || {})
             " />
             <template #append>
               <b-button variant="warning" @click="makeNewAddress">Change</b-button>
@@ -135,8 +135,8 @@
     <b-button @click="saveEvent" class="mb-4 float-right" variant="primary">Save</b-button>
 
     <b-modal id="changeAddress" title="Edit Address" @cancel="newAddress = null" @ok="
-        newEvent.event.address = newAddress;
-        newAddress = null;
+  newEvent.event.address = newAddress;
+newAddress = null;
     ">
       <template v-if="newAddress">
         <b-form-group label="Street (1)" label-cols="2">
@@ -228,15 +228,18 @@ export default {
     },
     saveEvent: function () {
       this.$http.post("events", this.apiRecord).then((resp) => {
+        let promises = [];
         this.newEvent.eventActivities.forEach((a) => {
-          this.$http.post(["events", resp.data.id, "activities"].join("/"), {
+          let p = this.$http.post(["events", resp.data.id, "activities"].join("/"), {
             scheduledStart: [a.date, a.time].join("T"),
             name: a.name,
             eventType: { id: a.eventType.id },
             distance: a.distance,
             externalIdentifier: a.externalIdentifier,
           });
+          promises.push(p);
         });
+        Promise.all(promises).then(results => this.$router.push({ name: "event", params: { id: resp.data.id } }))
       });
     },
   },
