@@ -20,9 +20,13 @@ sub decode_model ($self, $data) {
   if (exists($data->{event_group}->{id})) {
     $data->{event_group_id} = $data->{event_group}->{id};
     delete($data->{event_group});
+  } else {
+    $data->{event_group}->{name} = $data->{name};
+    $data->{event_group}->{url}  = $data->{url};
   }
   delete($data->{external_identifier}) unless ($data->{external_identifier});
   delete($data->{url})                 unless ($data->{url});
+
   return $data;
 }
 
