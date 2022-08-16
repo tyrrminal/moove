@@ -9,6 +9,7 @@ with 'Moove::Controller::Role::ModelEncoding::Activity';
 with 'Moove::Role::Import::Activity';
 with 'Moove::Role::Unit::Conversion';
 
+use Data::UUID;
 use DateTime::Format::ISO8601;
 use Module::Util qw(module_path);
 use List::Util   qw(sum min max);
@@ -20,10 +21,10 @@ use syntax 'junction';
 
 use DCS::Util::NameConversion qw(convert_hash_keys camel_to_snake);
 
-use HTTP::Status qw(:constants);
+use HTTP::Status   qw(:constants);
+use DCS::Constants qw(:symbols);
 
 use experimental qw(builtin for_list);
-use Data::Printer;
 
 sub decode_model ($self, $data) {
   my $d  = {convert_hash_keys($data->%*, \&camel_to_snake)};
@@ -117,6 +118,20 @@ sub insert_record ($self, $data) {
   $data->{group_num} = $workout->next_group_num                   if (!defined($data->{group_num}));
   $data->{set_num}   = $workout->next_set_num($data->{group_num}) if (!defined($data->{set_num}));
   return $self->SUPER::insert_record($data);
+}
+
+sub update_record ($self, $entity, $data) {
+  foreach (qw(group_num set_num id workout_id)) {
+    delete($data->{$_});
+  }
+  delete($data->{activity_result}->{id});
+  $entity->activity_result->update(delete($data->{activity_result}));
+  return $self->SUPER::update_record($entity, $data);
+}
+
+sub delete_record ($self, $entity) {
+  $entity->activities->update({whole_activity_id => undef});
+  return $self->SUPER::delete_record($entity);
 }
 
 sub summary ($self) {
@@ -296,24 +311,38 @@ sub periods_in_range ($period, $start, $end) {
 
 sub import ($self) {
   return unless ($self->openapi->valid_input);
-  my @activities = ();
+  my $activities = [];
 
-  my $asset = $self->param('file')->asset;
-  my $ds    = $self->model_find(ExternalDataSource => $self->param('externalDataSourceID'))
-    or $self->render_not_found('ExternalDataSource');
+  try {
+    my $asset = $self->param('file')->asset->to_file;
+    my $ug    = Data::UUID->new;
+    $asset->move_to(File::Spec->join($self->app->conf->paths->tmp, $ug->to_string($ug->create)));
 
-  my $import_class = $ds->import_class;
-  require(module_path($import_class));
-  my $importer = $import_class->new();
+    my $ds = $self->model_find(ExternalDataSource => $self->param('externalDataSourceID'))
+      or $self->render_not_found('ExternalDataSource');
 
-  foreach my $activity ($importer->get_activities($asset)) {
-    my ($activity, $is_existing) = $self->import_activity($activity, $self->current_user);
-    $activity = $self->encode_model($activity);
-    $activity->{isNew} = !$is_existing;
-    push(@activities, $activity);
+    my $import_class = $ds->import_class;
+    require(module_path($import_class));
+    my $importer = $import_class->new(file => $asset->path);
+
+    foreach my $id ($importer->get_activities()) {
+      my $data = $importer->get_activity_data($id);
+      my ($activity, $is_existing) = $self->import_activity($data, $self->current_user);
+      push($activities->@*, {$self->encode_model($activity)->%*, isNew => !$is_existing});
+
+      if (!$is_existing && $activity->activity_type->activity_context->has_map) {
+        my $job_id = $self->app->minion->enqueue(
+          import_activity_points => [$import_class, $asset->path, $data->{activity_id}, $activity->activity_result_id]);
+        $self->app->minion->result_p($job_id)->then(sub ($info) {$self->_cleanup_files($asset->path)});
+      }
+    }
+
+    $self->_cleanup_files($asset->path);
+
+    return $self->render(openapi => $activities);
+  } catch ($e) {
+    return $self->render_error(HTTP_BAD_REQUEST, $e)
   }
-
-  return $self->render(openapi => \@activities);
 }
 
 sub merge ($self) {
@@ -328,10 +357,20 @@ sub merge ($self) {
     }
 
     my $activity = $self->model('Activity')->merge(@to_merge);
+    $self->app->minion->enqueue(copy_activity_points => [$activity->id, join($COMMA, map {$_->id} @to_merge)]);
     return $self->render(openapi => $self->encode_model($activity));
   } catch ($e) {
     return $self->render_error(HTTP_BAD_REQUEST, $e)
   }
+}
+
+sub _cleanup_files ($self, $path) {
+  return unless (-e $path);
+  my $jobs = $self->app->minion->jobs({tasks => ['import_activity_points'], states => [qw(active inactive)]});
+  while (my $info = $jobs->next) {
+    return if ($info->{args}->[1] eq $path);
+  }
+  unlink($path);
 }
 
 sub _end_of_period ($self, $start, $period) {

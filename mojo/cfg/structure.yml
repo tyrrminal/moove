@@ -35,6 +35,16 @@ db:
       isa: Str
       description: the sqitch database user's password
 
+paths:
+  var:
+    isa: Str
+    description: peristent var directory for the application
+    default: "/data/var"
+  tmp:
+    isa: Str
+    description: temporary file storage location
+    default: "/tmp"
+
 auth:
   ldap:
     host:

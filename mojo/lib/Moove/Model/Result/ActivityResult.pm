@@ -291,4 +291,8 @@ sub has_map ($self) {
   return $self->activity_points->count > 0;
 }
 
+sub end_time ($self) {
+  return $self->start_time + ($self->duration // $self->net_time);
+}
+
 1;

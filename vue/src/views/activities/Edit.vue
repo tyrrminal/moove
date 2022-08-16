@@ -157,9 +157,9 @@ export default {
     return {
       error: null,
       edit: {
-        workoutID: this.workoutID,
-        activityTypeID: this.activityTypeID,
-        group: this.group,
+        workoutID: this._workoutID,
+        activityTypeID: this._activityTypeID,
+        group: this._group,
         visibilityTypeID: 3,
         startTime: DateTime.now().toISO(),
         pace: {
@@ -184,7 +184,12 @@ export default {
         note: ''
       },
       workout: null,
-      dtSettings: { input: { zone: 'local' } }
+      dtSettings: { input: { zone: 'local' } },
+      context: {
+        workoutID: null,
+        activityTypeID: null,
+        group: null
+      }
     }
   },
   props: {
@@ -208,11 +213,8 @@ export default {
   mounted: function () {
     if (this.activity != null) {
       this.edit = cloneDeep(this.activity);
-      this.workoutID = this.edit.workoutID;
-      this.activityTypeID = this.edit.activityTypeID;
-      this.group = this.edit.group;
     }
-    this.$http.get(["workouts", this.workoutID].join("/")).then(resp => {
+    this.$http.get(["workouts", this._workoutID].join("/")).then(resp => {
       this.workout = resp.data;
       let d = DateTime.fromISO(this.workout.date);
       this.edit.startTime = DateTime.fromISO(this.edit.startTime).set({ year: d.year, month: d.month, day: d.day }).toISO();
@@ -232,10 +234,14 @@ export default {
       if (!this.activityType.hasPace) delete (activity.pace);
       if (!this.activityType.hasMap) delete (activity.mapVisibilityTypeID);
       ["temperature", "weight", "heartRate"].forEach(l => { if (activity[l] === "") delete (activity[l]) });
-      this.$http.post("activities", activity)
-        .then(resp => {
-          this.$router.push({ name: 'activity', params: { id: resp.data.id } })
-        })
+      let p;
+      if (this.activity != null)
+        p = this.$http.patch(["activities", this.activity.id].join("/"), activity);
+      else
+        p = this.$http.post("activities", activity);
+      p.then(resp => {
+        this.$router.push({ name: 'activity', params: { id: resp.data.id } })
+      })
         .catch(err => this.error = err.response.data.errors[0].message)
     },
     recalculateDistance: function () {
@@ -265,6 +271,15 @@ export default {
   },
   computed: {
     ...mapGetters('meta', ['getActivityTypes', 'getVisibilityTypes', 'getUnitOfMeasure']),
+    _workoutID: function () {
+      return this.workoutID ?? this.edit.workoutID
+    },
+    _activityTypeID: function () {
+      return this.activityTypeID ?? this.edit.activityTypeID
+    },
+    _group: function () {
+      return this.group ?? this.edit.group
+    },
     normalizedDistance: function () {
       return convertUnitValue(this.edit.distance.value, this.getUnitOfMeasure(this.edit.distance.unitOfMeasureID)); // Normalize distance to miles
     },

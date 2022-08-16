@@ -13,4 +13,9 @@ sub normalize_times ($self, $p) {
   }
 }
 
+sub normalize_time ($self, $v) {
+  return $v if (!defined($v) || $v =~ /:\d{2}:/);
+  return "0:$v";
+}
+
 1;
