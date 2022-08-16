@@ -129,10 +129,34 @@ let router = new Router({
     },
     {
       path: "/events",
+      component: GEvents,
+      children: [
+        {
+          path: "add",
+          name: "create-event",
+          component: EventAdd,
+          props: true
+        },
+        {
+          path: ":id",
+          name: 'event-detail',
+          component: EventDetail,
+          props: true,
+        },
+        {
+          path: "edit/:id",
+          name: "edit-event",
+          component: EventEdit,
+          props: true
+        }
+      ]
+    },
+    {
+      path: "/user/events",
       component: Events,
       children: [
         {
-          path: "/user/:username/events",
+          path: ":username",
           name: 'events',
           component: EventList,
           props: true
@@ -144,21 +168,15 @@ let router = new Router({
           props: true
         },
         {
+          path: ":id/edit",
+          name: "edit-registration",
+          component: EditRegistration,
+          props: true
+        },
+        {
           path: "series/:id",
           name: "event-group",
           component: EventGroup,
-          props: true
-        },
-        {
-          path: "add",
-          name: "create-event",
-          component: EventAdd,
-          props: true
-        },
-        {
-          path: "edit/:id",
-          name: "edit-event",
-          component: EventEdit,
           props: true
         }
       ]
