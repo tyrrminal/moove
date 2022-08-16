@@ -30,7 +30,7 @@ sub encode_model_result ($self, $type, $entity) {
       $self->model('UnitOfMeasure')->find({abbreviation => '/mi'}));
   }
   if ($base->has_repeats) {
-    $r->{repetitions} = $entity->repetitions;
+    $r->{repetitions} = $entity->repetitions // 1;
   }
   if ($context->has_map) {
     $r->{mapVisibilityTypeID} = $entity->map_visibility_type_id;
