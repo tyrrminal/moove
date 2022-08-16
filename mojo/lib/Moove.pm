@@ -1,4 +1,4 @@
-package Moove v2.0.2;
+package Moove v2.1.0;
 use v5.36;
 
 use Mojo::Base 'Mojolicious';
@@ -13,6 +13,8 @@ sub startup ($self) {
     persistentlog => undef,
     datastore     => {load_schema_options => {components => [@DEFAULT_DBIX_COMPONENTS, qw(InflateColumn::Time)]}},
   );
+  $self->plugin('Moove::Plugin::Minion');
+  $self->plugin('Minion::Admin');
 }
 
 1;

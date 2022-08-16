@@ -15,7 +15,7 @@ export default {
   computed: {
     menu: function () {
       return [
-        { text: "Create", icon: "plus", to: { name: "createWorkout" } },
+        { text: "Create", icon: "plus", to: { name: "create-workout" } },
         {
           text: "Calendar",
           icon: "calendar2-date",

@@ -51,7 +51,7 @@ __PACKAGE__->table("EventSeriesEvent");
   is_foreign_key: 1
   is_nullable: 0
 
-=head2 event_group_id
+=head2 event_series_id
 
   data_type: 'integer'
   extra: {unsigned => 1}
@@ -68,7 +68,7 @@ __PACKAGE__->add_columns(
     is_foreign_key => 1,
     is_nullable => 0,
   },
-  "event_group_id",
+  "event_series_id",
   {
     data_type => "integer",
     extra => { unsigned => 1 },
@@ -83,13 +83,13 @@ __PACKAGE__->add_columns(
 
 =item * L</event_id>
 
-=item * L</event_group_id>
+=item * L</event_series_id>
 
 =back
 
 =cut
 
-__PACKAGE__->set_primary_key("event_id", "event_group_id");
+__PACKAGE__->set_primary_key("event_id", "event_series_id");
 
 =head1 RELATIONS
 
@@ -108,7 +108,7 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 event_group
+=head2 event_series
 
 Type: belongs_to
 
@@ -117,16 +117,16 @@ Related object: L<Moove::Model::Result::EventGroup>
 =cut
 
 __PACKAGE__->belongs_to(
-  "event_group",
+  "event_series",
   "Moove::Model::Result::EventGroup",
-  { id => "event_group_id" },
+  { id => "event_series_id" },
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 #>>>
 use v5.36;
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-09 12:32:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:zx/pfEoQLml9pEUwd4wNzw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-08-02 10:06:54
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:avXpbiKiyjz1rhd3cC0SOA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

@@ -1,55 +1,42 @@
 <template>
-  <b-card title="Activity" class="activity">
-    <b-list-group flush>
-      <b-list-group-item
-        ><label>Actual distance</label>:
-        {{ activity.distance | formatDistance }}</b-list-group-item
-      >
-      <b-list-group-item
-        ><label><template v-if="hasStoppedTime">Moving </template>Time</label>:
-        {{ activity.result.netTime }}</b-list-group-item
-      >
-      <b-list-group-item v-if="activity.result.duration && hasStoppedTime"
-        ><label>Total Time</label>:
-        {{ activity.result.duration }}</b-list-group-item
-      >
-      <b-list-group-item v-if="activity.activityType.description === 'Run'"
-        ><label>Pace</label>: {{ activity.result.pace }}</b-list-group-item
-      >
-      <b-list-group-item v-else
-        ><label>Speed</label>:
-        {{ activity.result.speed | formatDistance }}</b-list-group-item
-      >
-      <b-list-group-item v-if="activity.temperature"
-        ><label>Temperature</label>:
-        {{ activity.temperature }}&deg;F</b-list-group-item
-      >
-    </b-list-group>
-  </b-card>
+  <b-jumbotron class="event-details py-2" border-variant="secondary">
+    <h4>
+      <span v-if="noLinkToActivity">{{ getActivityType(activity.activityTypeID).description }}</span>
+      <b-link v-else :to="{ name: 'activity', params: { id: activity.id } }">{{
+          getActivityType(activity.activityTypeID).description
+      }}
+      </b-link>
+    </h4>
+    <ActivityResultSingle v-if="activity.sets.length == 1" :activity="activity" />
+    <ActivityResultMulti v-else :activity="activity" />
+  </b-jumbotron>
 </template>
 
 <script>
-import EventFilters from "@/mixins/events/Filters.js";
+import { mapGetters } from 'vuex';
+import ActivityResultSingle from "@/components/activity/cards/Result/Single";
+import ActivityResultMulti from "@/components/activity/cards/Result/Multiple";
 
 export default {
-  mixins: [EventFilters],
+  components: {
+    ActivityResultSingle,
+    ActivityResultMulti
+  },
   props: {
-    activity: Object,
+    activity: {
+      type: Object,
+      required: true
+    },
+    noLinkToActivity: {
+      type: Boolean,
+      default: false
+    }
   },
   computed: {
-    hasStoppedTime: function () {
-      return this.activity.result.duration != this.activity.result.netTime;
-    },
-  },
+    ...mapGetters("meta", ["getActivityType"]),
+  }
 };
 </script>
 
 <style scoped>
-.activity .list-group-item {
-  text-align: left;
-}
-.activity label {
-  width: 8rem;
-  text-align: right;
-}
 </style>

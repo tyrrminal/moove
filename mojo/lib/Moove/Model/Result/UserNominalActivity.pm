@@ -171,12 +171,6 @@ use v5.36;
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ha97sKhVVZO3ll0DEvEKvw
 use Mojo::JSON qw(decode_json);
 
-use Data::Printer {
-  filters => {
-    'DateTime' => sub {$_[0]->ymd},
-  }
-};
-
 sub days_in_range_between_dates ($self, $start, $end = undef) {
   my $year = $self->year;
   die('Start date is required') unless (defined($start) && ref($start) eq 'DateTime');

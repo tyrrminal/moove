@@ -9,17 +9,19 @@ use DateTime;
 use DateTime::Format::MySQL;
 use DBIx::Class::InflateColumn::Time;
 
+use builtin      qw(true false);
 use experimental qw(builtin);
 
 sub import_activity ($self, $activity, $user, $workout = undef) {
   my $has_map       = defined($activity->{activity_points});
   my $activity_type = $self->model('ActivityType')->lookup($activity->{type}, $has_map);
+  die("No such activity type: '" . $activity->{type} . "' with " . ($has_map ? '' : 'no ') . "map\n") if (!defined($activity_type));
 
   my $data_source;
   if ($activity->{importer}) {
     $data_source = $self->app->model('ExternalDataSource')->find({name => $activity->{importer}});
     if (my $existing = $self->app->model('Activity')->prior_import($activity->{activity_id}, $data_source)->first) {
-      return ($existing, builtin::true);
+      return ($existing, true);
     }
   }
 
@@ -81,26 +83,9 @@ sub import_activity ($self, $activity, $user, $workout = undef) {
       external_identifier     => $activity->{activity_id},
     }
   );
+  $act->discard_changes;
 
-  if ($activity_type->activity_context->has_map) {
-    foreach my $ap ($activity->{activity_points}->@*) {
-      my $loc = $self->app->model('Location')->create(
-        {
-          latitude  => $ap->{lat},
-          longitude => $ap->{lon}
-        }
-      );
-      $self->app->model('ActivityPoint')->create(
-        {
-          activity_result => $result,
-          location        => $loc,
-          timestamp       => $ap->{time}
-        }
-      );
-    }
-  }
-
-  return $act;
+  return ($act, false);
 }
 
 sub find_matching_event_result ($self, $activity, $activity_type, $user) {

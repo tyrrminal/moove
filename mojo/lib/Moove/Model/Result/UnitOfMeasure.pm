@@ -84,6 +84,13 @@ __PACKAGE__->table("UnitOfMeasure");
   is_foreign_key: 1
   is_nullable: 1
 
+=head2 unit_of_measure_type_id
+
+  data_type: 'integer'
+  extra: {unsigned => 1}
+  is_foreign_key: 1
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -113,6 +120,13 @@ __PACKAGE__->add_columns(
     is_nullable => 0,
   },
   "normal_unit_id",
+  {
+    data_type => "integer",
+    extra => { unsigned => 1 },
+    is_foreign_key => 1,
+    is_nullable => 1,
+  },
+  "unit_of_measure_type_id",
   {
     data_type => "integer",
     extra => { unsigned => 1 },
@@ -196,6 +210,26 @@ __PACKAGE__->belongs_to(
   },
 );
 
+=head2 unit_of_measure_type
+
+Type: belongs_to
+
+Related object: L<Moove::Model::Result::UnitOfMeasureType>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "unit_of_measure_type",
+  "Moove::Model::Result::UnitOfMeasureType",
+  { id => "unit_of_measure_type_id" },
+  {
+    is_deferrable => 1,
+    join_type     => "LEFT",
+    on_delete     => "RESTRICT",
+    on_update     => "RESTRICT",
+  },
+);
+
 =head2 units_of_measure
 
 Type: has_many
@@ -213,8 +247,8 @@ __PACKAGE__->has_many(
 #>>>
 use v5.36;
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-09 12:32:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:oDuWZm7q6ixIj4W8lH2B+g
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-28 10:53:38
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:4kS2iRjhF5lhC03yKaBuZQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

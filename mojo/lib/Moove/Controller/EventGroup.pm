@@ -6,7 +6,7 @@ use Role::Tiny::With;
 
 with 'DCS::Base::Role::Rest::Get';
 with 'Moove::Controller::Role::ModelEncoding::UserEventActivity',
-  'Moove::Controller::Role::ModelEncoding::Activity',
+  'Moove::Controller::Role::ModelEncoding::UserEventActivity::Activity',
   'Moove::Controller::Role::ModelEncoding::ActivityType',
   'Moove::Controller::Role::ModelEncoding::EventPlacement',
   'Moove::Controller::Role::ModelEncoding::EventType',
@@ -27,15 +27,12 @@ sub encode_model_eventgroup ($self, $entity) {
     $user = $self->model('User')->find({username => $username});
   }
 
-  my @events = $entity->events_2s->search_related('event_activities')->search_related('event_registrations')
-    ->search_related('user_event_activities')->for_user($user)->visible_to($self->current_user)->all;
-
   return {
     id     => $entity->id,
     name   => $entity->name,
     year   => $entity->year,
     url    => $entity->url,
-    events => $self->encode_model([@events])
+    events => $self->encode_model([$entity->user_event_activities->for_user($user)->visible_to($self->current_user)->all])
   };
 }
 
