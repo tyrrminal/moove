@@ -36,7 +36,7 @@ case "$1" in
     exec script/moove migrate_schema
     ;;
   *)
-    echo "Usage: $0 [devserver|prodserver|dbmigration|shell|lsp]"
+    echo "Usage: $0 [devserver|prodserver|dbmigration|minion|shell|lsp]"
     exit 1
 esac
 
