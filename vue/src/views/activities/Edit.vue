@@ -226,6 +226,7 @@ export default {
     },
     save: function () {
       let activity = cloneDeep(this.edit);
+      activity.workoutID = this.workout.id;
       if (!this.activityType.hasDistance) delete (activity.distance);
       if (!this.activityType.hasRepeats) delete (activity.repetitions);
       if (!this.activityType.hasDuration || !this.activityType.distance) { delete (activity.netTime); }
