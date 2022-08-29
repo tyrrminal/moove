@@ -56,7 +56,8 @@
         </b-link>
       </template>
     </b-table>
-    <DPagination v-if="page.length" :per-page="page.length" :current-page="page.current" :total-rows="total.rows"
+    <DPagination v-if="page.length" :per-page="page.length" :current-page="page.current"
+      @update:currentPage="updateCurrentPage" @update:perPage="updatePerPage" :total-rows="total.rows"
       :total-results="total.results" />
   </div>
 </template>
@@ -139,6 +140,12 @@ export default {
     },
     addSet: function (activity) {
 
+    },
+    updatePerPage: function (newValue) {
+      this.$emit("update:perPage", newValue);
+    },
+    updateCurrentPage: function (newValue) {
+      this.$emit("update:currentPage", newValue);
     }
   },
   computed: {
