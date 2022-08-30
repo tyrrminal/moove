@@ -9,25 +9,17 @@
         <b-link :to="{ name: 'goals' }">&#171; All Goals</b-link>
       </h5>
 
-      <h3>{{ goal.name }}</h3>
+      <h3>{{  goal.name  }}</h3>
       <b-list-group>
-        <b-list-group-item
-          v-for="g in goal.fulfillments"
-          :key="g.date"
-          class="py-1"
-        >
+        <b-list-group-item v-for="g in goal.fulfillments" :key="g.date" class="py-1">
           <div class="d-flex">
-            <label class="col-sm-2">{{ g.date | moment("M/D/YY") }}</label>
-            <span class="col-sm-2">{{ g.description }}</span>
+            <label class="col-sm-2">{{  g.date | luxon({ output: "date_short" })  }}</label>
+            <span class="col-sm-2">{{  g.description  }}</span>
             <span class="flex-fill">
-              <b-link
-                v-if="g.activities[0].event"
-                :to="{
-                  name: 'event',
-                  params: { id: g.activities[0].event.id, user: effectiveUser },
-                }"
-                >{{ g.activities[0].event.name }}</b-link
-              >
+              <b-link v-if="g.activities[0].event" :to="{
+                name: 'event',
+                params: { id: g.activities[0].event.id, user: effectiveUser },
+              }">{{  g.activities[0].event.name  }}</b-link>
             </span>
           </div>
         </b-list-group-item>
@@ -73,7 +65,6 @@ export default {
   },
   computed: {
     effectiveUser: function () {
-      if (this.$route.params.user) return this.$route.params.user;
       return this.$store.getters["auth/currentUser"].username;
     },
     goalId: function () {
