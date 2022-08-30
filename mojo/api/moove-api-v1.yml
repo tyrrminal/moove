@@ -418,10 +418,21 @@ paths:
                 $ref: "#/components/schemas/EventActivity"
       tags:
         - Event
-  /events/{eventID}/activities/{eventActivityID}:
+  /events/activities/{eventActivityID}:
     parameters:
-      - $ref: "#/components/parameters/EventID"
       - $ref: "#/components/parameters/EventActivityID"
+    get:
+      summary: Get an Event Activity details
+      x-mojo-to: EventActivity#get
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventActivity"
+      tags:
+        - Event
     patch:
       summary: Update an Event Activity
       x-mojo-to: EventActivity#update
@@ -453,9 +464,8 @@ paths:
                 type: string
       tags:
         - Event
-  /events/{eventID}/activities/{eventActivityID}/results:
+  /events/activities/{eventActivityID}/results:
     parameters:
-      - $ref: "#/components/parameters/EventID"
       - $ref: "#/components/parameters/EventActivityID"
     post:
       summary: Import event results from a file or the web
