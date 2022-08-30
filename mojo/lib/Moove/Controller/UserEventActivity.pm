@@ -33,6 +33,13 @@ sub resultset ($self) {
   if (my $group_id = $self->validation->param('eventGroupID')) {
     $rs = $rs->in_group($group_id);
   }
+  if (my $event_activity_id = $self->validation->param('eventActivityID')) {
+    $rs = $rs->search(
+      {
+        event_activity_id => $event_activity_id
+      }
+    );
+  }
 
   return $rs;
 }
