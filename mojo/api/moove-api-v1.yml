@@ -1475,14 +1475,14 @@ components:
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"
-        fee:
+        registrationFee:
           type: number
           nullable: true
         activity:
           $ref: "#/components/schemas/Activity"
         eventActivity:
           $ref: "#/components/schemas/EventActivity"
-        registeredDate:
+        dateRegistered:
           type: string
           format: date
           nullable: true
