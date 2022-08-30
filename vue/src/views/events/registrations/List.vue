@@ -3,18 +3,11 @@
     <h2>Events</h2>
     <b-row>
       <b-col cols="3">
-        <b-checkbox v-model="filters.completed" size="small" switch
-          >Hide Incomplete Events</b-checkbox
-        >
+        <b-checkbox v-model="filters.completed" size="small" switch>Hide Incomplete Events</b-checkbox>
       </b-col>
       <b-col offset="6" cols="2">
-        <b-form-radio-group
-          buttons
-          button-variant="outline-primary"
-          class="mb-2"
-          :options="view.options"
-          v-model="view.type"
-        />
+        <b-form-radio-group buttons button-variant="outline-primary" class="mb-2" :options="view.options"
+          v-model="view.type" />
       </b-col>
     </b-row>
 
@@ -62,7 +55,6 @@ export default {
   props: {
     username: {
       type: String,
-      required: true,
     },
   },
   mounted: function () {
