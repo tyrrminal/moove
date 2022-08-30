@@ -63,6 +63,8 @@ has 'key_map' => (
 sub url {
   my $self = shift;
 
+  return undef unless (defined($results_url) && defined($self->event_id) && defined($self->race_id));
+
   return sprintf($results_url, $self->event_id, $self->race_id);
 }
 
