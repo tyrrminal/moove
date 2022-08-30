@@ -4,7 +4,8 @@
     <b-datepicker v-model="internal.start" reset-button class="col-3 mr-2" />
     <b-datepicker v-model="internal.end" reset-button class="col-3" />
 
-    <ActivityList tableId="activityListTable" :items="getData" :page="page" :total="total" />
+    <ActivityList tableId="activityListTable" :items="getData" :page.sync="page" :total="total"
+      @update:currentPage="updateCurrentPage" @update:perPage="updatePerPage" />
 
     <b-modal id="filters">
       <b-checkbox v-model="internal.whole">Combine Partial Activities</b-checkbox>
@@ -74,6 +75,12 @@ export default {
           callback(resp.data.elements);
         });
     },
+    updatePerPage: function (newValue) {
+      this.page.length = newValue
+    },
+    updateCurrentPage: function (newValue) {
+      this.page.current = newValue;
+    }
   },
   computed: {
     ...mapGetters("meta", {

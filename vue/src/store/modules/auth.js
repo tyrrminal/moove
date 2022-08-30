@@ -1,5 +1,4 @@
-import Vue from "vue";
-Vue.use(require('vue-moment'));
+import { DateTime } from "luxon";
 
 import axios from '@/services/axios';
 
@@ -15,7 +14,7 @@ const state = {
 const getters = {
   currentUser: state => state.user,
   status: state => state.status,
-  expiration: state => Vue.moment(state.expiration),
+  expiration: state => DateTime.fromISO(state.expiration),
 
   isLoggedIn: state => state.user.id > 0,
   isAdmin: state => state.roles.includes('admin')

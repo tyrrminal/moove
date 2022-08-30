@@ -21,7 +21,6 @@ export default {
           icon: "calendar2-date",
           to: {
             name: "calendar",
-            params: { username: this.username },
           },
         },
       ];
