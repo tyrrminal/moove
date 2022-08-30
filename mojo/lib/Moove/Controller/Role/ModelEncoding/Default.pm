@@ -19,9 +19,8 @@ sub encode_model_cumulativetotal ($self, $total) {
 
 sub encode_model_distance ($self, $distance) {
   return {
-    value  => $distance->value,
-    unitID => $distance->unit_of_measure->id,
-    label  => $distance->unit_of_measure->abbreviation
+    value           => $distance->value,
+    unitOfMeasureID => $distance->unit_of_measure->id,
   };
 }
 

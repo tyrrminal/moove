@@ -4,8 +4,9 @@ use v5.36;
 use Mojo::Base 'DCS::Base::API::Model::Controller';
 use Role::Tiny::With;
 
-with 'DCS::Base::Role::Rest::Collection',             'DCS::Base::Role::Rest::Entity';
-with 'Moove::Controller::Role::ModelEncoding::Event', 'Moove::Controller::Role::ModelEncoding::EventActivity';
+with 'DCS::Base::Role::Rest::Collection', 'DCS::Base::Role::Rest::Entity';
+with 'Moove::Controller::Role::ModelEncoding::Event', 'Moove::Controller::Role::ModelEncoding::EventActivity',
+  'Moove::Controller::Role::ModelEncoding::Distance';
 with 'Moove::Controller::Role::ModelEncoding::Default';
 
 use DCS::Util::NameConversion qw(camel_to_snake convert_hash_keys);
