@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Router from "vue-router";
-import store from "@/store";
+Vue.use(Router);
+
 import Home from "@/views/Home.vue";
 import Login from "@/components/auth/Login.vue";
 
@@ -31,9 +32,6 @@ import GoalList from "@/views/goals/List.vue";
 import Goal from "@/views/goals/Detail.vue";
 
 import ErrorNotFound from "@/error/NotFound.vue";
-
-Vue.use(Router);
-Vue.use(require("vue-moment"));
 
 let router = new Router({
   mode: "history",
@@ -204,23 +202,6 @@ let router = new Router({
       component: ErrorNotFound
     }
   ]
-});
-
-router.beforeEach((to, from, next) => {
-  let exp = store.getters["auth/expiration"];
-  if (exp.diff(Vue.moment()) < 0) {
-    store.dispatch("auth/logout").then(() => next());
-  }
-
-  if (store.getters["auth/status"] === "")
-    store.dispatch("auth/check").then(() => next());
-  else next();
-});
-
-router.beforeEach((to, from, next) => {
-  if (!store.getters["meta/isLoaded"])
-    store.dispatch("meta/initialize");
-  next();
 });
 
 export default router;

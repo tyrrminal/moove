@@ -13,6 +13,8 @@
 <script>
 import NavBar from "@/components/NavBar.vue";
 import Unauthorized from "@/components/auth/Unauthorized.vue";
+import { DateTime } from "luxon";
+
 export default {
   components: {
     NavBar,
@@ -26,6 +28,20 @@ export default {
       return true;
     },
   },
+  mounted: function () {
+    let r = this.$router;
+    let exp = DateTime.fromISO(this.$store.getters["auth/expiration"]);
+    if (exp.diffNow(["seconds"]).seconds < 0) {
+      this.$store.dispatch("auth/logout").then(() => r.push({ name: "home" }));
+    }
+
+    if (this.$store.getters["auth/status"] === "") {
+      this.$store.dispatch("auth/check");
+    }
+
+    if (!this.$store.getters["meta/isLoaded"])
+      this.$store.dispatch("meta/initialize");
+  }
 };
 </script>
 
