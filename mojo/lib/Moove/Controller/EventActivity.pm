@@ -4,11 +4,17 @@ use v5.36;
 use Mojo::Base 'DCS::Base::API::Model::Controller';
 use Role::Tiny::With;
 
-with 'DCS::Base::Role::Rest::Create', 'DCS::Base::Role::Rest::Update', 'DCS::Base::Role::Rest::Delete';
-with 'Moove::Controller::Role::ModelEncoding::Event', 'Moove::Controller::Role::ModelEncoding::EventActivity';
+with 'DCS::Base::Role::Rest::Get', 'DCS::Base::Role::Rest::Create', 'DCS::Base::Role::Rest::Update',
+  'DCS::Base::Role::Rest::Delete';
+with 'Moove::Controller::Role::ModelEncoding::Registration::Event',
+  'Moove::Controller::Role::ModelEncoding::Registration::EventActivity';
 with 'Moove::Controller::Role::ModelEncoding::Default';
 
 use DCS::Util::NameConversion qw(camel_to_snake convert_hash_keys);
+
+sub encode_model_eventtype ($self, $entity) {
+  return {id => $entity->id};
+}
 
 sub resultset ($self) {
   my $rs = $self->SUPER::resultset();

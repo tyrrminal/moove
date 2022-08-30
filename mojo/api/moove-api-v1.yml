@@ -415,13 +415,24 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Event"
+                $ref: "#/components/schemas/EventActivity"
       tags:
         - Event
-  /events/{eventID}/activities/{eventActivityID}:
+  /events/activities/{eventActivityID}:
     parameters:
-      - $ref: "#/components/parameters/EventID"
       - $ref: "#/components/parameters/EventActivityID"
+    get:
+      summary: Get an Event Activity details
+      x-mojo-to: EventActivity#get
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventActivity"
+      tags:
+        - Event
     patch:
       summary: Update an Event Activity
       x-mojo-to: EventActivity#update
@@ -453,9 +464,8 @@ paths:
                 type: string
       tags:
         - Event
-  /events/{eventID}/activities/{eventActivityID}/results:
+  /events/activities/{eventActivityID}/results:
     parameters:
-      - $ref: "#/components/parameters/EventID"
       - $ref: "#/components/parameters/EventActivityID"
     post:
       summary: Import event results from a file or the web
@@ -549,6 +559,7 @@ paths:
         - $ref: "#/components/parameters/SearchEnddate"
         - $ref: "#/components/parameters/SearchActivityType"
         - $ref: "#/components/parameters/SearchUsername"
+        - $ref: "#/components/parameters/SearchEventActivityID"
       responses:
         200:
           description: OK
@@ -571,9 +582,9 @@ paths:
         201:
           description: Registered
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: "#/components/schemas/EventRegistration"
       tags:
         - Event
   /user/events/{userEventActivityID}:
@@ -953,6 +964,13 @@ components:
       name: eventActivityID
       description: The ID number of the event
       required: true
+      schema:
+        $ref: "#/components/schemas/DatabaseID"
+    SearchEventActivityID:
+      in: query
+      name: eventActivityID
+      description: The ID number of the event
+      required: false
       schema:
         $ref: "#/components/schemas/DatabaseID"
     EventGroupID:
@@ -1457,14 +1475,14 @@ components:
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"
-        fee:
+        registrationFee:
           type: number
           nullable: true
         activity:
           $ref: "#/components/schemas/Activity"
         eventActivity:
           $ref: "#/components/schemas/EventActivity"
-        registeredDate:
+        dateRegistered:
           type: string
           format: date
           nullable: true

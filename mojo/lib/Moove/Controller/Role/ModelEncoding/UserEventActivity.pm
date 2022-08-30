@@ -16,8 +16,8 @@ sub encode_model_usereventactivity ($self, $entity) {
     id                 => $entity->id,
     eventActivity      => $self->encode_model($ea),
     registrationNumber => $reg->registration_number,
-    fee                => $entity->registration_fee,
-    registeredDate     => $self->encode_date($entity->date_registered),
+    registrationFee    => $entity->registration_fee,
+    dateRegistered     => $self->encode_date($entity->date_registered),
     visibilityTypeID   => $entity->visibility_type_id,
     user               => $self->encode_model($entity->user),
   };

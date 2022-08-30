@@ -4,8 +4,9 @@ use v5.36;
 use Mojo::Base 'DCS::Base::API::Model::Controller';
 use Role::Tiny::With;
 
-with 'DCS::Base::Role::Rest::Collection',             'DCS::Base::Role::Rest::Entity';
-with 'Moove::Controller::Role::ModelEncoding::Event', 'Moove::Controller::Role::ModelEncoding::EventActivity';
+with 'DCS::Base::Role::Rest::Collection', 'DCS::Base::Role::Rest::Entity';
+with 'Moove::Controller::Role::ModelEncoding::Event', 'Moove::Controller::Role::ModelEncoding::EventActivity',
+  'Moove::Controller::Role::ModelEncoding::Distance';
 with 'Moove::Controller::Role::ModelEncoding::Default';
 
 use DCS::Util::NameConversion qw(camel_to_snake convert_hash_keys);
@@ -20,9 +21,13 @@ sub decode_model ($self, $data) {
   if (exists($data->{event_group}->{id})) {
     $data->{event_group_id} = $data->{event_group}->{id};
     delete($data->{event_group});
+  } else {
+    $data->{event_group}->{name} = $data->{name};
+    $data->{event_group}->{url}  = $data->{url};
   }
   delete($data->{external_identifier}) unless ($data->{external_identifier});
   delete($data->{url})                 unless ($data->{url});
+
   return $data;
 }
 

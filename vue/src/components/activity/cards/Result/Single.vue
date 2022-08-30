@@ -4,7 +4,7 @@
       <template #button-content>
         <b-icon icon="gear" />
       </template>
-      <b-dropdown-item :to="{ name: 'edit-activity', params: { activity: { ...activity, ...activity.sets[0] } } }">
+      <b-dropdown-item :to="{ name: 'edit-activity', params: { activity: editableActivity } }">
         <b-icon icon="pencil" class="mr-1" />Edit
       </b-dropdown-item>
       <b-dropdown-item @click="deleteActivity">
@@ -71,11 +71,16 @@ export default {
   },
   computed: {
     result: function () {
-      return this.activity.sets[0]
+      return this.activity.sets ? this.activity.sets[0] : this.activity
     },
     hasStoppedTime: function () {
       return this.result.duration != this.result.netTime;
     },
+    editableActivity: function () {
+      if (this.activity.sets)
+        return { ...this.activity, ...this.activity.sets[0] }
+      return this.activity;
+    }
   },
 }
 </script>

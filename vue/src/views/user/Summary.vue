@@ -8,15 +8,12 @@
       <b-row>
         <b-col sm="12" class="text-center">
           <h3>
-            {{ user.person.firstname }}
-            <template
-              v-if="
-                user.person.firstname.toLowerCase() !==
-                user.username.toLowerCase()
-              "
-              >"{{ user.username }}"</template
-            >
-            {{ user.person.lastname }}
+            {{  user.person.firstname  }}
+            <template v-if="
+              user.person.firstname.toLowerCase() !==
+              user.username.toLowerCase()
+            ">"{{  user.username  }}"</template>
+            {{  user.person.lastname  }}
           </h3>
         </b-col>
       </b-row>
@@ -25,8 +22,8 @@
         <b-col sm="10" class="text-center">
           <span class="text-muted">Lifetime:</span>
           <span v-for="t in totals.length" :key="totals[t - 1].activityType.id">
-            {{ totals[t - 1].activityType.description }}
-            {{ totals[t - 1].distance | formatDistance }}
+            {{  totals[t - 1].activityType.description  }}
+            {{  totals[t - 1].distance | formatDistance  }}
             <span v-if="t < totals.length" class="text-muted">/</span>
           </span>
         </b-col>
@@ -41,8 +38,8 @@
           <b-list-group>
             <b-list-group-item v-for="a in activities" :key="a.id">
               <timeago :datetime="a.startTime"></timeago>
-              &mdash; {{ a.distance | formatDistance }}
-              {{ a.activityType.description }}
+              &mdash; {{  a.distance | formatDistance  }}
+              {{  a.activityType.description  }}
             </b-list-group-item>
           </b-list-group>
         </b-col>
@@ -50,17 +47,10 @@
         <b-col sm="4">
           <h4>Events</h4>
           <h5>Most Recent</h5>
-          <EventDetails
-            v-if="events.previous"
-            :event="events.previous.event"
-            :isPublic="events.previous.registration.isPublic"
-          />
+          <EventDetails v-if="events.previous" :event="events.previous.event"
+            :isPublic="events.previous.registration.isPublic" />
           <h5>Next</h5>
-          <EventDetails
-            v-if="events.next"
-            :event="events.next.event"
-            :isPublic="events.next.registration.isPublic"
-          />
+          <EventDetails v-if="events.next" :event="events.next.event" :isPublic="events.next.registration.isPublic" />
         </b-col>
 
         <b-col sm="4">
@@ -109,7 +99,7 @@ export default {
   mounted: function () {
     let self = this;
     this.$http
-      .get("user/" + self.effectiveUser + "/summary")
+      .get(["activities", "summary"].join("/"))
       .then((response) => {
         self.user = response.data.user;
         self.activities = response.data.recentActivities;
@@ -121,10 +111,9 @@ export default {
   },
   computed: {
     title: function () {
-      return `${this.applicationName} / ${effectiveUser}`;
+      return `${this.applicationName} / ${this.effectiveUser}`;
     },
     effectiveUser: function () {
-      if (this.$route.params.user) return this.$route.params.user;
       return this.$store.getters["auth/currentUser"].username;
     },
     prs: function () {

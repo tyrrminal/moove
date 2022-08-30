@@ -7,7 +7,7 @@
       }}
       </b-link>
     </h4>
-    <ActivityResultSingle v-if="activity.sets.length == 1" :activity="activity" />
+    <ActivityResultSingle v-if="sets.length == 1" :activity="activity" />
     <ActivityResultMulti v-else :activity="activity" />
   </b-jumbotron>
 </template>
@@ -34,6 +34,10 @@ export default {
   },
   computed: {
     ...mapGetters("meta", ["getActivityType"]),
+    sets: function () {
+      if (this.activity.sets) return this.activity.sets;
+      else return [this.activity]
+    }
   }
 };
 </script>

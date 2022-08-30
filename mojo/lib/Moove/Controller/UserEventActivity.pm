@@ -13,7 +13,12 @@ with 'Moove::Controller::Role::ModelEncoding::UserEventActivity',
   'Moove::Controller::Role::ModelEncoding::Registration::Event',
   'Moove::Controller::Role::ModelEncoding::Registration::EventActivity';
 
+use DCS::Util::NameConversion qw(camel_to_snake convert_hash_keys);
+
 sub decode_model ($self, $data) {
+  $data = {convert_hash_keys($data->%*, \&camel_to_snake)};
+  $data->{fundraising_requirement} = $data->{fundraising}->{minimum}
+    if (exists($data->{fundraising}));
   return $data;
 }
 
@@ -33,6 +38,13 @@ sub resultset ($self) {
   if (my $group_id = $self->validation->param('eventGroupID')) {
     $rs = $rs->in_group($group_id);
   }
+  if (my $event_activity_id = $self->validation->param('eventActivityID')) {
+    $rs = $rs->search(
+      {
+        event_activity_id => $event_activity_id
+      }
+    );
+  }
 
   return $rs;
 }
@@ -50,6 +62,30 @@ sub unfiltered_resultset ($self) {
     $user = $self->model('User')->find({username => $username});
   }
   return $rs->for_user($user);
+}
+
+sub insert_record ($self, $data) {
+  my $registration = {
+    event_activity_id   => delete($data->{event_activity_id}),
+    registration_number => delete($data->{registration_number}),
+  };
+  my $er = $self->model('EventRegistration')->create($registration);
+  $data->{event_registration_id} = $er->id;
+  $data->{user_id}               = $self->current_user->id;
+  $self->SUPER::insert_record($data);
+}
+
+sub update_record ($self, $entity, $data) {
+  delete($data->{event_activity_id});
+  my $registration = {registration_number => delete($data->{registration_number}),};
+  $entity->event_registration->update($registration);
+  $self->SUPER::update_record($entity, $data);
+}
+
+sub delete_record ($self, $entity) {
+  my $er = $entity->event_registration;
+  $self->SUPER::delete_record($entity);
+  $er->delete();
 }
 
 1;

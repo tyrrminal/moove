@@ -13,7 +13,18 @@ Vue.use(Meta);
 
 // Luxon (Date formatting)
 import VueLuxon from "vue-luxon"
-Vue.use(VueLuxon);
+Vue.use(VueLuxon, {
+  templates: {
+    server: {
+      zone: "local"
+    },
+    client: {
+      zone: 'local'
+    }
+  },
+  input: "server",
+  output: "client"
+});
 
 //String Formatting
 import VuePluralize from 'vue-pluralize';

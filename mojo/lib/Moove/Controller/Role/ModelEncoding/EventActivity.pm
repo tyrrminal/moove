@@ -3,10 +3,6 @@ use v5.36;
 
 use Role::Tiny;
 
-sub encode_model_distance ($self, $d) {
-  return {id => $d->id};
-}
-
 sub encode_model_eventtype ($self, $entity) {
   return {id => $entity->id};
 }
