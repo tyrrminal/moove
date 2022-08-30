@@ -2,16 +2,16 @@
   <div>
     <b-navbar toggleable="lg" type="dark" variant="secondary">
       <b-navbar-brand :to="{ name: 'home' }">{{
-        applicationName
-      }}</b-navbar-brand>
+         applicationName 
+        }}</b-navbar-brand>
 
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
       <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav v-if="isLoggedIn">
           <b-nav-item v-for="i in mainMenu" :key="i.name" :to="i.to">{{
-            i.name
-          }}</b-nav-item>
+             i.name 
+            }}</b-nav-item>
         </b-navbar-nav>
       </b-collapse>
 
@@ -19,12 +19,9 @@
         <b-nav-item-dropdown v-if="isLoggedIn" right id="nav-user-dropdown">
           <!-- Using 'button-content' slot -->
           <template slot="button-content">
-            <em>{{ username }}</em>
+            <em>{{  username  }}</em>
           </template>
-          <b-dropdown-item
-            :to="{ name: 'user', params: { username: username } }"
-            >Profile</b-dropdown-item
-          >
+          <b-dropdown-item :to="{ name: 'user', params: { username: username } }">Profile</b-dropdown-item>
           <b-dropdown-item @click="logout">Sign Out</b-dropdown-item>
         </b-nav-item-dropdown>
         <b-nav-item v-else :to="{ name: 'login' }">Sign In</b-nav-item>
@@ -43,19 +40,19 @@ export default {
       return [
         {
           name: "Workouts",
-          to: { name: "workouts", params: { username: this.username } },
+          to: { name: "workouts" },
         },
         {
           name: "Activities",
-          to: { name: "activities", params: { username: this.username } },
+          to: { name: "activities" },
         },
         {
           name: "Events",
-          to: { name: "events", params: { username: this.username } },
+          to: { name: "registrations" },
         },
         //        {
         //          name: "Goals",
-        //          to: { name: "goals", params: { username: this.username } },
+        //          to: { name: "goals" },
         //        },
       ];
     },
