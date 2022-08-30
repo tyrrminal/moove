@@ -582,9 +582,9 @@ paths:
         201:
           description: Registered
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: "#/components/schemas/EventRegistration"
       tags:
         - Event
   /user/events/{userEventActivityID}:
@@ -964,6 +964,13 @@ components:
       name: eventActivityID
       description: The ID number of the event
       required: true
+      schema:
+        $ref: "#/components/schemas/DatabaseID"
+    SearchEventActivityID:
+      in: query
+      name: eventActivityID
+      description: The ID number of the event
+      required: false
       schema:
         $ref: "#/components/schemas/DatabaseID"
     EventGroupID:
