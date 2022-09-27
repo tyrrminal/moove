@@ -482,8 +482,8 @@ paths:
                   type: string
                   format: binary
       responses:
-        201:
-          description: Created
+        200:
+          description: Imported
           content:
             application/json:
               schema:
