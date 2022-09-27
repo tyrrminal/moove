@@ -1,13 +1,11 @@
 package Moove::Import::Event::IResultsLive;
 use v5.36;
-
 use Moose;
 
 use DateTime::Format::Strptime;
+use Moove::Util::Unit::Normalization qw(normalize_times);
 
-use Role::Tiny::With;
-with 'Moove::Role::Unit::Normalization';
-
+use builtin      qw(true);
 use experimental qw(builtin);
 
 has 'race_id' => (
@@ -19,7 +17,7 @@ has 'race_id' => (
 has 'event_id' => (
   is       => 'ro',
   isa      => 'Str',
-  required => builtin::true
+  required => true
 );
 
 has 'base_url' => (
@@ -33,7 +31,7 @@ has '_url' => (
   is       => 'ro',
   isa      => 'Mojo::URL',
   init_arg => undef,
-  lazy     => builtin::true,
+  lazy     => true,
   builder  => '_build_url'
 );
 

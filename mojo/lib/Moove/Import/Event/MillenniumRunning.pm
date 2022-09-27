@@ -1,25 +1,23 @@
 package Moove::Import::Event::MillenniumRunning;
 use v5.36;
-
 use Moose;
-
-use Role::Tiny::With;
-with 'Moove::Role::Unit::Normalization';
 
 use DateTime::Format::Strptime;
 use Lingua::EN::Titlecase;
 use List::MoreUtils qw(uniq);
 
 use Moove::Import::Helper::CityService;
+use Moove::Util::Unit::Normalization qw(normalize_times);
 
 use DCS::Constants qw(:symbols);
 
+use builtin      qw(true);
 use experimental qw(builtin);
 
 has 'event_id' => (
   is       => 'ro',
   isa      => 'Str',
-  required => builtin::true
+  required => true
 );
 
 has 'race_id' => (
@@ -39,7 +37,7 @@ has '_url' => (
   is       => 'ro',
   isa      => 'Mojo::URL',
   init_arg => undef,
-  lazy     => builtin::true,
+  lazy     => true,
   builder  => '_build_url'
 );
 
@@ -47,7 +45,7 @@ has 'results_page' => (
   is       => 'ro',
   isa      => 'Mojo::Message::Response',
   init_arg => undef,
-  lazy     => builtin::true,
+  lazy     => true,
   builder  => '_build_results_page'
 );
 
