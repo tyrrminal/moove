@@ -63,8 +63,9 @@ sub import_activity ($self, $activity, $user, $workout = undef) {
   if ($activity_type->base_activity_type->has_repeats) {
     $result_params->{repetitions} = $activity->{repetitions};
   }
-  my $result;
-  if ($result = $self->find_matching_event_result($activity, $activity_type, $user)) {
+  my $uea    = $self->find_matching_user_event_activity($activity, $activity_type, $user);
+  my $result = defined($uea) ? $uea->event_result : undef;
+  if (defined($result)) {
     $result->update($result_params);
   } else {
     $result = $self->app->model('ActivityResult')->create($result_params);
@@ -83,14 +84,15 @@ sub import_activity ($self, $activity, $user, $workout = undef) {
     }
   );
   $act->discard_changes;
+  $uea->update({activity_id => $act->id}) if (defined($uea));
 
   return ($act, false);
 }
 
-sub find_matching_event_result ($self, $activity, $activity_type, $user) {
+sub find_matching_user_event_activity ($self, $activity, $activity_type, $user) {
   my $between = [map {DateTime::Format::MySQL->format_datetime($activity->{date}->clone->add(minutes => $_))} (-30, 5)];
 
-  my $uea = $self->app->model('UserEventActivity')->search(
+  return $self->app->model('UserEventActivity')->search(
     {
       'me.user_id'                     => $user->id,
       'event_type.activity_type_id'    => $activity_type->id,
@@ -99,11 +101,6 @@ sub find_matching_event_result ($self, $activity, $activity_type, $user) {
       join => {event_registration => {event_activity => 'event_type'}}
     }
   )->first;
-  return undef unless (defined($uea));
-
-  my $p = $uea->event_registration->event_participants->first;
-  return undef unless (defined($p));
-  return $uea->event_registration->event_participants->first->event_result;
 }
 
 1;
