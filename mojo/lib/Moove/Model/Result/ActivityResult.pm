@@ -295,4 +295,8 @@ sub end_time ($self) {
   return $self->start_time + ($self->duration // $self->net_time);
 }
 
+sub recalculate_pace ($self) {
+
+}
+
 1;
