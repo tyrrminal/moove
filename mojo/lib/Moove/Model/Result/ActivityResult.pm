@@ -273,8 +273,8 @@ use v5.36;
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-09 12:32:18
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:QdGQ6mqQKDjDNcX33jS2yA
 
+use Moove::Util::Unit::Conversion qw(minutes_to_time time_to_minutes unit_conversion);
 
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->belongs_to(
   "normalized_distance",
   "Moove::Model::Result::DistanceNormalized",
@@ -296,7 +296,16 @@ sub end_time ($self) {
 }
 
 sub recalculate_pace ($self) {
+  my $u = $self->result_source->schema->resultset('UnitOfMeasure');
 
+  my $hours = time_to_minutes($self->net_time // $self->duration) / 60;
+  my $miles = unit_conversion(value => $self->distance->value, from => $self->distance->unit_of_measure);
+
+  my $speed = $miles / $hours;
+  my $pace  = minutes_to_time(
+    unit_conversion(value => $speed, from => $u->find({abbreviation => 'mph'}), to => $u->find({abbreviation => '/mi'})));
+
+  $self->update({pace => $pace});
 }
 
 1;
