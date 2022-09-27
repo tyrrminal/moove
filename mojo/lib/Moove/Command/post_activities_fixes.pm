@@ -11,6 +11,7 @@ use DateTime::Format::Duration;
 use Moove::Model::Result::Result;
 use Moove::Import::Helper::TextBalancedFix;
 
+use builtin       qw(true);
 use experimnental qw(builtin);
 
 has 'description' => 'Quick test functionality';
@@ -24,7 +25,7 @@ sub run ($self, @args) {
   foreach my $u ($self->app->model('User')->all) {
     my @activities = $self->app->model('Activity')->for_user($u)->ordered->all;
 
-    my $fmt = DateTime::Format::Duration->new(pattern => '%T', normalize => builtin::true);
+    my $fmt = DateTime::Format::Duration->new(pattern => '%T', normalize => true);
 
     my $prev;
     my $limit = DateTime::Duration->new(minutes => 15);
