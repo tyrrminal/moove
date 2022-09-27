@@ -103,7 +103,9 @@ sub find_matching_event_result ($self, $activity, $activity_type, $user) {
   )->first;
   return undef unless (defined($uea));
 
-  return $uea->event_registration->event_participants->first->activity_result;
+  my $p = $uea->event_registration->event_participants->first;
+  return undef unless (defined($p));
+  return $uea->event_registration->event_participants->first->event_result;
 }
 
 1;
