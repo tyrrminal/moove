@@ -5,7 +5,8 @@ use Role::Tiny;
 
 use DateTime::Duration;
 use DateTime::Format::Duration;
-use List::Util qw(sum min);
+use List::Util                    qw(sum min);
+use Moove::Util::Unit::Conversion qw(unit_conversion);
 
 sub _avg_val ($key, @results) {
   return undef unless (grep {defined($_->{$key})} @results);
@@ -40,7 +41,7 @@ sub merge_distances ($self, @results) {
   my $u     = (values(%units))[0];
   $u = $u->normalized_unit if ((keys(%units) > 1));
   my $value =
-    sum(map {$self->unit_conversion(value => $_->distance->value, from => $_->distance->unit_of_measure, to => $u)} @results);
+    sum(map {unit_conversion(value => $_->distance->value, from => $_->distance->unit_of_measure, to => $u)} @results);
   return {
     unit_of_measure => $u,
     value           => $value
@@ -49,8 +50,7 @@ sub merge_distances ($self, @results) {
 
 sub merge_paces ($self, @results) {
   my $pace_unit = $self->model('UnitOfMeasure')->find({abbreviation => '/mi'});
-  return $self->minutes_to_time(
-    $self->unit_conversion($self->merge_speeds(@results), from => $pace_unit->normal_unit, to => $pace_unit));
+  return $self->minutes_to_time(unit_conversion($self->merge_speeds(@results), from => $pace_unit->normal_unit, to => $pace_unit));
 }
 
 sub merge_speeds ($self, @results) {
@@ -58,7 +58,7 @@ sub merge_speeds ($self, @results) {
 
   my $time     = $self->merge_net_times(@results) // $self->merge_durations(@results);
   my $distance = $self->merge_distances(@results);
-  my $nv       = $self->unit_conversion(value => $distance->{value}, from => $distance->{unit_of_measure});
+  my $nv       = unit_conversion(value => $distance->{value}, from => $distance->{unit_of_measure});
   return $nv / ($to_sec->format_duration($time) / (60 * 60));
 }
 
