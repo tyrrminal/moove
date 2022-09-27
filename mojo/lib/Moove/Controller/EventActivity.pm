@@ -42,7 +42,15 @@ sub import_results ($self) {
 }
 
 sub delete_results ($self) {
-  return $self->render(openapi => {});
+  return unless ($self->openapi->valid_input);
+
+  my $event_activity = $self->entity;
+  $event_activity->event_placement_partitions->related_resultset('event_placements')->delete();
+  $event_activity->event_placement_partitions->delete();
+  $event_activity->event_registrations->related_resultset('event_participants')->delete();
+  $event_activity->event_registrations->without_user_activity->delete();
+
+  return $self->render_no_content;
 }
 
 sub decode_model ($self, $data) {
