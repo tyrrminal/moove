@@ -243,6 +243,7 @@ use v5.36;
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 use Module::Util qw(module_path);
+use Scalar::Util qw(looks_like_number);
 
 use DCS::Constants qw(:symbols);
 
@@ -342,6 +343,13 @@ sub add_participant ($self, $p) {
   $participant->add_placement($partitions{division}, $p->{div_place});
 
   return $participant;
+}
+
+sub update_missing_result_paces ($self) {
+  my $rs = $self->event_registrations->related_resultset('event_participants')->related_resultset('event_result')->needs_pace;
+  while (my $r = $rs->next) {
+    $r->recalculate_pace;
+  }
 }
 
 1;
