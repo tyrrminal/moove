@@ -3,12 +3,10 @@ use v5.36;
 
 use Role::Tiny;
 
-with 'Moove::Role::Unit::Conversion';
-
 use DateTime;
 use DateTime::Format::MySQL;
 use DBIx::Class::InflateColumn::Time;
-use Moove::Util::Unit::Conversion qw(unit_conversion);
+use Moove::Util::Unit::Conversion qw(unit_conversion time_to_minutes);
 
 use builtin      qw(true false);
 use experimental qw(builtin);
@@ -58,7 +56,7 @@ sub import_activity ($self, $activity, $user, $workout = undef) {
       ? $activity->{pace}
       : unit_conversion(value => $activity->{speed}, from => $speed_units, to => $pace_units);
     $result_params->{speed} = $activity_type->base_activity_type->has_speed ? $activity->{speed} : unit_conversion(
-      value => $self->time_to_minutes(DBIx::Class::InflateColumn::Time::_inflate($activity->{pace})),
+      value => time_to_minutes(DBIx::Class::InflateColumn::Time::_inflate($activity->{pace})),
       from  => $pace_units
     );
   }

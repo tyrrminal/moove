@@ -6,7 +6,7 @@ use Role::Tiny;
 use DateTime::Duration;
 use DateTime::Format::Duration;
 use List::Util                    qw(sum min);
-use Moove::Util::Unit::Conversion qw(unit_conversion);
+use Moove::Util::Unit::Conversion qw(unit_conversion minutes_to_time);
 
 sub _avg_val ($key, @results) {
   return undef unless (grep {defined($_->{$key})} @results);
@@ -50,7 +50,7 @@ sub merge_distances ($self, @results) {
 
 sub merge_paces ($self, @results) {
   my $pace_unit = $self->model('UnitOfMeasure')->find({abbreviation => '/mi'});
-  return $self->minutes_to_time(unit_conversion($self->merge_speeds(@results), from => $pace_unit->normal_unit, to => $pace_unit));
+  return minutes_to_time(unit_conversion($self->merge_speeds(@results), from => $pace_unit->normal_unit, to => $pace_unit));
 }
 
 sub merge_speeds ($self, @results) {
