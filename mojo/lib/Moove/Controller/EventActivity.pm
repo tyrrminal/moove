@@ -10,6 +10,8 @@ with 'Moove::Controller::Role::ModelEncoding::Registration::Event',
   'Moove::Controller::Role::ModelEncoding::Registration::EventActivity';
 with 'Moove::Controller::Role::ModelEncoding::Default';
 
+use Mojo::Util qw(class_to_path);
+
 use DCS::Util::NameConversion qw(camel_to_snake convert_hash_keys);
 
 sub encode_model_eventtype ($self, $entity) {
@@ -22,7 +24,21 @@ sub resultset ($self) {
 }
 
 sub import_results ($self) {
-  return $self->render(openapi => {});
+  return unless ($self->openapi->valid_input);
+
+  my $event_activity = $self->entity;
+  my $event          = $event_activity->event;
+  my $class          = $event->external_data_source->import_class;
+  require(class_to_path($class));
+  my $importer = $class->new(event_id => $event->external_identifier, race_id => $event_activity->external_identifier);
+
+  $event_activity->update({entrants => $importer->total_entrants});
+  foreach my $p ($importer->results->@*) {
+    $event_activity->add_participant($p);
+  }
+  $event_activity->update_missing_result_paces;
+
+  return $self->render(openapi => $self->encode_model($event_activity->event));
 }
 
 sub delete_results ($self) {
