@@ -327,13 +327,16 @@ sub add_participant ($self, $p) {
 
   my $participant = $schema->resultset('EventParticipant')->create(
     {
-      result      => $result,
-      bib_no      => $reg_no,
-      division_id => defined($division) ? $division->id : undef,
-      age         => $p->{age},
-      person      => $person,
-      gender_id   => defined($gender) ? $gender->id : undef,
-      address     => $address
+      event_registration => {
+        event_activity_id   => $self->id,
+        registration_number => $reg_no,
+      },
+      event_result => $result,
+      age          => $p->{age},
+      person_id    => $person->id,
+      address_id   => $address->id,
+      gender_id    => defined($gender)   ? $gender->id   : undef,
+      division_id  => defined($division) ? $division->id : undef,
     }
   );
 
