@@ -43,7 +43,7 @@ sub unit_conversion (%params) {
   return $v / $to->normalization_factor;
 }
 
-sub time_to_minutes ($self, $duration) {
+sub time_to_minutes ($duration) {
   if (!ref($duration)) {
     my ($h, $m, $s) = split($COLON, $duration);
     $duration = DateTime::Duration->new(hours => $h, minutes => $m, seconds => $s);
@@ -55,7 +55,7 @@ sub time_to_minutes ($self, $duration) {
   return $minutes;
 }
 
-sub minutes_to_time ($self, $num) {
+sub minutes_to_time ($num) {
   return DateTime->today()->add(minutes => int($num * $SEC_PER_MIN + 0.5) / $SEC_PER_MIN)->strftime('%T');
 }
 
