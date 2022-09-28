@@ -18,12 +18,16 @@ export default {
         : d.value.toString().replace(/^[0:]*/, "");
       return v + " " + d.units.abbreviation;
     },
-    formatDistanceTrim: (d) =>
-      numeral(d.value)
-        .format("0,0.00")
-        .replace(/[.]?0+$/, "") +
-      " " +
-      d.units.abbreviation,
+    formatDistanceTrim: (d) => {
+      if (d == null || d.units == null) return "";
+      return (
+        numeral(d.value)
+          .format("0,0.00")
+          .replace(/[.]?0+$/, "") +
+        " " +
+        d.units.abbreviation
+      );
+    },
 
     formatAddress: (a) => {
       let str = "";
