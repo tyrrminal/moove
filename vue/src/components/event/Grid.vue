@@ -129,9 +129,7 @@
       {{ data.value | currency }}
     </template>
     <template v-slot:cell(speed)="data"
-      ><span v-if="data.item.activity">{{
-        fillUnits(eventVelocity(data.item)) | formatDistance
-      }}</span>
+      >{{ fillUnits(eventVelocity(data.item)) | formatDistance }}
     </template>
     <template v-slot:cell(distance)="data">{{
       fillUnits(data.item.eventActivity.distance) | formatDistanceTrim
@@ -380,10 +378,13 @@ export default {
       return a - b;
     },
     eventVelocity: function (e) {
-      if (e.hasOwnProperty("activity")) {
+      if (Object.hasOwn(e, "eventResult")) {
+        return e.eventResult.pace || e.eventResult.speed;
+      }
+      if (Object.hasOwn(e, "activity")) {
         return e.activity.pace || e.activity.speed;
       }
-      return "";
+      return null;
     },
     eventNameClass: function (e) {
       if (e.visibilityTypeID == 1) return ["text-danger"];
