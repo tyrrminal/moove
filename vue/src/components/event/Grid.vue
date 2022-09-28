@@ -134,11 +134,7 @@
       }}</span>
     </template>
     <template v-slot:cell(distance)="data">{{
-      fillUnits(
-        data.item.activity != null
-          ? data.item.activity.distance
-          : data.item.eventActivity.distance
-      ) | formatDistance
+      fillUnits(data.item.eventActivity.distance) | formatDistanceTrim
     }}</template>
 
     <template v-slot:cell(place)="data"
