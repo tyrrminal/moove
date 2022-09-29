@@ -22,7 +22,7 @@
         <b-row>
           <b-col cols="6">
             <b-jumbotron class="py-2 event-details" border-variant="primary">
-              <b-form-group label="What">
+              <b-form-group v-if="eventActivity" label="What">
                 {{ Number.parseFloat(eventActivity.distance.value) }}
                 {{ uom(eventActivity.distance.unitOfMeasureID).abbreviation }}
                 {{ eventActivity.eventType.description }}
@@ -122,7 +122,15 @@
             <ActivityCard :activity="activity" />
           </b-col>
 
-          <b-col cols="8">
+          <b-col v-if="eventResult" cols="4">
+            <ActivityCard
+              :activity="eventResultActivity"
+              :linkToActivity="false"
+              :editable="false"
+            />
+          </b-col>
+
+          <b-col>
             <div v-for="(p, i) in orderedPlacements" :key="i">
               <h5>{{ p.description }}: {{ p.place }} / {{ p.of }}</h5>
               <b-progress height="2rem" class="my-2">
@@ -307,6 +315,7 @@ export default {
       userEventActivity: null,
       fundraising: null,
       activity: null,
+      eventResult: null,
 
       person: null,
       donorFields: [{ key: "date" }, { key: "event" }, { key: "amount" }],
@@ -337,6 +346,11 @@ export default {
           this.relatedEvents.forEach((s) => self.getGroupNav(s));
           self.activity = self.userEventActivity.activity;
           delete self.userEventActivity.activity;
+          self.eventResult = {
+            ...self.userEventActivity.eventResult,
+            activityType: self.eventActivity.eventType.activityType,
+          };
+          delete self.userEventActivity.eventResult;
           self.fundraising = self.userEventActivity.fundraising;
           delete self.userEventActivity.fundraising;
           self.nav = self.userEventActivity.nav;
@@ -436,7 +450,8 @@ export default {
       return [...this.userEventActivity.placements].sort((a, b) => b.of - a.of);
     },
     donors: function () {
-      if (this.fundraising.donations == null) return null;
+      if (this.fundraising == null || this.fundraising.donations == null)
+        return null;
       let donors = [];
       this.fundraising.donations.forEach((d) => {
         let p = donors.find((x) => x.id == d.person.id);
@@ -455,6 +470,9 @@ export default {
         [this.person.firstname, this.person.lastname].join(" "),
         base,
       ].join("'s ");
+    },
+    eventResultActivity: function () {
+      return this.eventResult;
     },
   },
 };
