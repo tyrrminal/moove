@@ -1,6 +1,6 @@
 <template>
   <b-jumbotron class="event-details py-2" border-variant="secondary">
-    <h4>
+    <h4 v-if="isLoaded">
       <b-link
         v-if="linkToActivity"
         :to="{ name: 'activity', params: { id: activity.id } }"
@@ -46,7 +46,7 @@ export default {
     },
   },
   computed: {
-    ...mapGetters("meta", ["getActivityType"]),
+    ...mapGetters("meta", ["isLoaded", "getActivityType"]),
     cardTitle: function () {
       if (this.title != null) return this.title;
       return this.activityType.description;
