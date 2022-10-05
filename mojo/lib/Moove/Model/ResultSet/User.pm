@@ -5,6 +5,7 @@ use base qw(DBIx::Class::ResultSet);
 
 use DCS::Constants qw(:symbols);
 
+use builtin      qw(false);
 use experimental qw(builtin);
 
 sub guest ($self) {
@@ -13,7 +14,7 @@ sub guest ($self) {
 
 sub is_friends_with ($self, $user) {
   # TODO: implement friends capabilities
-  return builtin::false;
+  return false;
 }
 
 sub find_user ($self, $user_id) {

@@ -1,46 +1,70 @@
 <template>
   <b-jumbotron class="event-details py-2" border-variant="secondary">
-    <h4>
-      <span v-if="noLinkToActivity">{{ getActivityType(activity.activityTypeID).description }}</span>
-      <b-link v-else :to="{ name: 'activity', params: { id: activity.id } }">{{
-          getActivityType(activity.activityTypeID).description
-      }}
+    <h4 v-if="isLoaded">
+      <b-link
+        v-if="linkToActivity"
+        :to="{ name: 'activity', params: { id: activity.id } }"
+        >{{ cardTitle }}
       </b-link>
+      <span v-else>{{ cardTitle }}</span>
     </h4>
-    <ActivityResultSingle v-if="sets.length == 1" :activity="activity" />
-    <ActivityResultMulti v-else :activity="activity" />
+    <ActivityResultSingle
+      v-if="singleActivity"
+      :activity="activity"
+      :editable="editable"
+    />
+    <ActivityResultMulti v-else :activity="activity" :editable="editable" />
   </b-jumbotron>
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapGetters } from "vuex";
 import ActivityResultSingle from "@/components/activity/cards/Result/Single";
 import ActivityResultMulti from "@/components/activity/cards/Result/Multiple";
 
 export default {
   components: {
     ActivityResultSingle,
-    ActivityResultMulti
+    ActivityResultMulti,
   },
   props: {
+    title: {
+      type: String,
+      default: null,
+    },
     activity: {
       type: Object,
-      required: true
+      required: true,
     },
-    noLinkToActivity: {
+    linkToActivity: {
       type: Boolean,
-      default: false
-    }
+      default: true,
+    },
+    editable: {
+      type: Boolean,
+      default: true,
+    },
   },
   computed: {
-    ...mapGetters("meta", ["getActivityType"]),
+    ...mapGetters("meta", ["isLoaded", "getActivityType"]),
+    cardTitle: function () {
+      if (this.title != null) return this.title;
+      return this.activityType.description;
+    },
     sets: function () {
       if (this.activity.sets) return this.activity.sets;
-      else return [this.activity]
-    }
-  }
+      else return [this.activity];
+    },
+    singleActivity: function () {
+      return this.sets.length == 1;
+    },
+    activityType: function () {
+      return this.getActivityType(
+        this.activity.activityTypeID || this.activity.activityType.id
+      );
+    },
+  },
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

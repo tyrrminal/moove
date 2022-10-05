@@ -21,7 +21,9 @@ sub encode_model_usereventactivity ($self, $entity) {
     visibilityTypeID   => $entity->visibility_type_id,
     user               => $self->encode_model($entity->user),
   };
-  $r->{activity}   = $self->encode_model($entity->activity) if (defined($entity->activity));
+  $r->{activity}    = $self->encode_model($entity->activity) if (defined($entity->activity));
+  $r->{eventResult} = $self->encode_model_result($ea->event_type->activity_type, $participant->event_result)
+    if ($participant && $participant->event_result);
   $r->{placements} = $self->encode_model([$participant->event_placements->all])
     if (defined($participant) && $participant->event_placements->count);
   if (my $fr = $self->encode_model_usereventactivity_fundraising($entity)) {

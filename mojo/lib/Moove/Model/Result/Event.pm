@@ -256,61 +256,6 @@ sub address ($self) {
   return $self->event_group->address;
 }
 
-sub update_missing_group_counts ($self) {
-  my $rs = $self->result_source->schema->resultset('EventResultGroup')->for_event($self)->missing_count;
-  while (my $g = $rs->next) {
-    $g->update_count;
-  }
-}
-
-sub add_missing_gender_groups ($self) {
-  foreach my $g ($self->result_source->schema->resultset('Gender')->all) {
-    $self->create_gender_result_group($g)
-      unless ($self->event_result_groups->search({gender_id => $g->id, division_id => undef})->count);
-  }
-}
-
-sub update_missing_result_paces ($self) {
-  my $rs = $self->result_source->schema->resultset('Result')->for_event($self)->needs_pace;
-  while (my $r = $rs->next) {
-    $r->update_pace;
-  }
-}
-
-sub create_gender_result_group ($self, $gender) {
-  my $schema = $self->result_source->schema;
-
-  my $rs_r = $schema->resultset('Result')->search(
-    {
-      'participants.gender_id' => $gender->id,
-      'event.id'               => $self->id
-    }, {
-      join     => ['participants', {activities => 'event'}],
-      order_by => {-asc => 'net_time'}
-    }
-  );
-
-  my $group = $schema->resultset('EventResultGroup')->create(
-    {
-      event       => $self,
-      gender      => $gender,
-      division_id => undef,
-      count       => $rs_r->count
-    }
-  );
-
-  my $i = 1;
-  while (my $r = $rs_r->next) {
-    $schema->resultset('EventResult')->create(
-      {
-        result             => $r,
-        place              => $i++,
-        event_result_group => $group
-      }
-    );
-  }
-}
-
 sub description ($self) {
   my $year = $self->scheduled_start->year;
   my $name = $self->event_group->name;

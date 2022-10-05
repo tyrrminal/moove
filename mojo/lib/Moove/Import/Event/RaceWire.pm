@@ -2,25 +2,23 @@ package Moove::Import::Event::RaceWire;
 use v5.36;
 use Moose;
 
-use Role::Tiny::With;
-with 'Moove::Role::Unit::Normalization';
-
 use Readonly;
 use DateTime::Format::Strptime;
 use Lingua::EN::Titlecase;
+use Moove::Util::Unit::Normalization qw(normalize_times);
 
 use DCS::Constants qw(:symbols);
 
+use builtin      qw(true);
 use experimental qw(builtin);
 
-Readonly::Scalar my $metadata_url    => 'https://my.racewire.com/results/';
 Readonly::Scalar my $results_url     => 'https://my.racewire.com/results/%d/%d';
 Readonly::Scalar my $results_api_url => 'https://racewireapi.global.ssl.fastly.net/raceevent_results/';
 
 has 'event_id' => (
   is       => 'ro',
   isa      => 'Str',
-  required => builtin::true
+  required => true
 );
 
 has 'race_id' => (
@@ -60,70 +58,35 @@ has 'key_map' => (
   }
 );
 
-sub url {
-  my $self = shift;
+has 'results' => (
+  is       => 'ro',
+  isa      => 'ArrayRef[HashRef]',
+  init_arg => undef,
+  lazy     => true,
+  builder  => '_build_results',
+  traits   => ['Array'],
+  handles  => {
+    total_entrants => 'count'
+  }
+);
 
-  return undef unless (defined($results_url) && defined($self->event_id) && defined($self->race_id));
-
-  return sprintf($results_url, $self->event_id, $self->race_id);
-}
-
-sub get_metadata {
-  my $self = shift;
-
-  my $p = DateTime::Format::Strptime->new(
-    pattern   => '%b %d %Y',
-    locale    => 'en_US',
-    time_zone => 'America/New_York'
-  );
-
-  my $md = Mojo::URL->new($metadata_url . join('/', grep {defined} ($self->event_id, $self->race_id)));
-
-  my $ua  = Mojo::UserAgent->new();
-  my $res = $ua->get($md)->result;
-
-  my $title = $res->dom->find('#BodyPlaceHolder_raceTitle > a')->[0]->text;
-  my $date  = $res->dom->find('#BodyPlaceHolder_raceDate')->[0]->text;
-  my $city  = $res->dom->find('#BodyPlaceHolder_raceCity')->[0]->text;
-  my $state = $res->dom->find('#BodyPlaceHolder_raceState')->[0]->text;
-
-  my $dt = $p->parse_datetime($date);
-  my $tc = Lingua::EN::Titlecase->new($city);
-
-  return {
-    title   => $title,
-    address => sprintf("%s, %s", $tc, uc($state)),
-    date    => $dt
-  };
-}
-
-sub find_and_update_event {
-  my $self = shift;
-  my ($model) = @_;
-
-  my $info = $self->get_metadata();
-
-  my ($event) = $model->find_event($info->{date}->year, $info->{title});
-  die sprintf("Event '%s' (%d) not found\n", $info->{title}, $info->{date}->year) unless (defined($event));
-
-  return $event;
-}
-
-sub fetch_results {
-  my $self = shift;
-
+sub _build_results ($self) {
   my $results = Mojo::URL->new($results_api_url . join('/', grep {defined} ($self->event_id, $self->race_id)));
   my $ua      = Mojo::UserAgent->new();
   my $res     = $ua->get($results => {Accept => 'application/json'})->result->json;
 
   my $keys = [map {$self->get_key($_)} @{$res->{"Index"}}];
 
-  return map {_build_participant_hash($keys, $_)} @{$res->{"Data"}};
+  return [map {_build_participant_hash($keys, $_)} @{$res->{"Data"}}];
 }
 
-sub _build_participant_hash {
-  my ($keys, $values) = @_;
+sub url ($self) {
+  return undef unless (defined($results_url) && defined($self->event_id) && defined($self->race_id));
 
+  return sprintf($results_url, $self->event_id, $self->race_id);
+}
+
+sub _build_participant_hash ($keys, $values) {
   my %p;
   @p{@$keys} = @$values;    #merge arrays
   delete($p{$EMPTY});       #remove unused components
@@ -132,9 +95,7 @@ sub _build_participant_hash {
   return {%p};
 }
 
-sub _fix_names {
-  my $p = shift;
-
+sub _fix_names ($p) {
   my @suffixes = qw(Jr Jr. Sr Sr. II III IV V);    #racewire puts these in last_name when they should be in first_name
   my $tc       = Lingua::EN::Titlecase->new(word_punctuation => "[.]");
 
@@ -148,7 +109,5 @@ sub _fix_names {
     }
   }
 }
-
-
 
 1;

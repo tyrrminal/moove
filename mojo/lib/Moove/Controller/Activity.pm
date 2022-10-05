@@ -24,6 +24,7 @@ use DCS::Util::NameConversion qw(convert_hash_keys camel_to_snake);
 use HTTP::Status   qw(:constants);
 use DCS::Constants qw(:symbols);
 
+use builtin      qw(true false);
 use experimental qw(builtin for_list);
 
 sub decode_model ($self, $data) {
@@ -78,7 +79,7 @@ sub resultset ($self, %args) {
     }
   )->grouped;
 
-  if ($self->validation->param('combine') // $args{combine} // builtin::true) {
+  if ($self->validation->param('combine') // $args{combine} // true) {
     $rs = $rs->whole;
   } else {
     $rs = $rs->uncombined;
@@ -150,7 +151,7 @@ sub summary ($self) {
     $end->add(days => 1) if ($start == $end);
 
     my $ars = $self->resultset()->before_date($end)->completed->ordered;
-    my $ers = $self->resultset(combine => builtin::false)->before_date($end)->has_event;
+    my $ers = $self->resultset(combine => false)->before_date($end)->has_event;
     my $una = $self->effective_user->user_nominal_activities->search({year => defined($period) ? $start->year : undef});
 
     my @activity_summaries;
@@ -206,7 +207,7 @@ sub slice ($self) {
   }
   my $activity_type = $self->model_find(ActivityType => $self->validation->param('activityTypeID'));
   my $period        = $self->validation->param('period');
-  my $showEmpty     = $self->validation->param('includeEmpty') // builtin::false;
+  my $showEmpty     = $self->validation->param('includeEmpty') // false;
 
   my $activities = $self->resultset->whole->ordered;
   my $start      = $self->parse_api_date($self->validation->param('start'))

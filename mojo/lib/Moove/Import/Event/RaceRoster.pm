@@ -1,14 +1,12 @@
 package Moove::Import::Event::RaceRoster;
 use v5.36;
-
 use Moose;
-
-use Role::Tiny::With;
-with 'Moove::Role::Unit::Normalization';
 
 use DateTime::Format::Strptime;
 use Readonly;
+use Moove::Util::Unit::Normalization;
 
+use builtin      qw(true);
 use experimental qw(builtin);
 
 Readonly::Scalar my $RESULTS_PAGE => 'https://results.raceroster.com/en-US/results/%s';
@@ -22,7 +20,7 @@ Readonly::Hash my %QUERY_PARAMS => (
 has 'event_id' => (
   is       => 'ro',
   isa      => 'Str',
-  required => builtin::true
+  required => true
 );
 
 has 'race_id' => (
@@ -35,7 +33,7 @@ has '_url' => (
   is       => 'ro',
   isa      => 'Mojo::URL',
   init_arg => undef,
-  lazy     => builtin::true,
+  lazy     => true,
   builder  => '_build_url'
 );
 
@@ -43,7 +41,7 @@ has 'result_data' => (
   is       => 'ro',
   isa      => 'HashRef',
   init_arg => undef,
-  lazy     => builtin::true,
+  lazy     => true,
   builder  => '_build_result_data'
 );
 
@@ -52,7 +50,7 @@ has 'result_columns' => (
   is       => 'ro',
   isa      => 'ArrayRef[Str]',
   init_arg => undef,
-  lazy     => builtin::true,
+  lazy     => true,
   builder  => '_build_result_columns',
   handles  => {
     'col_count' => 'count'

@@ -1,16 +1,13 @@
 package Moove::Import::Activity::RunKeeper;
 use v5.36;
-
 use Moose;
-
-use Role::Tiny::With;
-with 'Moove::Role::Unit::Normalization';
 
 use File::Spec;
 use DateTime::Format::Strptime;
 use IO::Uncompress::Unzip qw(unzip);
 use Text::CSV_XS;
 use Geo::Gpx;
+use Moove::Util::Unit::Normalization qw(normalize_time);
 
 use DCS::Constants qw(:symbols);
 
@@ -113,7 +110,7 @@ sub get_activity_data ($self, $activity_id) {
   my ($activity) = grep {$activity_id eq $_->{activity_id}} $self->activity_data->@*;
 
   if ($activity->{notes} && $activity->{notes} =~ /(\d+(?:\.\d+)?) degrees/) {$activity->{temperature} = $1;}
-  foreach (qw(net_time gross_time pace)) {$activity->{$_} = $self->normalize_time($activity->{$_})}
+  foreach (qw(net_time gross_time pace)) {$activity->{$_} = normalize_time($activity->{$_})}
   $activity->{gross_time}      = $self->_get_gross_time($activity);
   $activity->{activity_points} = [] if ($activity->{gpx});
 

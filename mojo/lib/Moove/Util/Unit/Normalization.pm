@@ -1,9 +1,11 @@
-package Moove::Role::Unit::Normalization;
+package Moove::Util::Unit::Normalization;
 use v5.36;
 
-use Role::Tiny;
+use parent 'Exporter';
 
-sub normalize_times ($self, $p) {
+our @EXPORT_OK = qw(normalize_time normalize_times);
+
+sub normalize_times ($p) {
   foreach (qw(net_time gross_time pace)) {
     if (defined($p->{$_})) {
       unless ($p->{$_} =~ /:\d{2}:/) {    # force times to be h:mm:ss if they're just mm:ss
@@ -13,7 +15,7 @@ sub normalize_times ($self, $p) {
   }
 }
 
-sub normalize_time ($self, $v) {
+sub normalize_time ($v) {
   return $v if (!defined($v) || $v =~ /:\d{2}:/);
   return "0:$v";
 }
