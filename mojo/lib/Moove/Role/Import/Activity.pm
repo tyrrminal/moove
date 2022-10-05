@@ -64,12 +64,7 @@ sub import_activity ($self, $activity, $user, $workout = undef) {
     $result_params->{repetitions} = $activity->{repetitions};
   }
   my $uea    = $self->find_matching_user_event_activity($activity, $activity_type, $user);
-  my $result = defined($uea) ? $uea->event_result : undef;
-  if (defined($result)) {
-    $result->update($result_params);
-  } else {
-    $result = $self->app->model('ActivityResult')->create($result_params);
-  }
+  my $result = $self->app->model('ActivityResult')->create($result_params);
 
   my $act = $self->app->model('Activity')->create(
     {
