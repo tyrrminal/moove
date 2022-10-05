@@ -22,10 +22,8 @@
         <b-row>
           <b-col cols="6">
             <b-jumbotron class="py-2 event-details" border-variant="primary">
-              <b-form-group v-if="eventActivity" label="What">
-                {{ Number.parseFloat(eventActivity.distance.value) }}
-                {{ uom(eventActivity.distance.unitOfMeasureID).abbreviation }}
-                {{ eventActivity.eventType.description }}
+              <b-form-group v-if="eventActivity" label="What"
+                >{{ eventActivityDescription }}
               </b-form-group>
               <b-form-group label="When">
                 <b-icon icon="calendar" class="mr-1" />{{
@@ -132,6 +130,20 @@
           </b-col>
 
           <b-col>
+            <div v-if="canDoResultsFunctions" class="mb-4">
+              <b-button
+                v-if="hasResults"
+                block
+                variant="danger"
+                @click="deleteResults"
+              >
+                <b-icon icon="trash" class="mr-2" />Delete Results</b-button
+              >
+              <b-button v-else block variant="success" @click="importResults">
+                <b-icon icon="upload" class="mr-1" />Import Results</b-button
+              >
+            </div>
+
             <div v-for="(p, i) in orderedPlacements" :key="i">
               <h5>{{ p.description }}: {{ p.place }} / {{ p.of }}</h5>
               <b-progress height="2rem" class="my-2">
@@ -146,7 +158,7 @@
               </b-progress>
             </div>
 
-            <div class="text-center mt-4">
+            <div v-if="eventActivity.importable" class="text-center mt-4">
               <b-link
                 v-if="eventActivity.resultsURL"
                 :href="eventActivity.resultsURL"
@@ -283,6 +295,7 @@ import Countdown from "vuejs-countdown";
 import AddDonation from "@/components/event/fundraising/AddDonation.vue";
 import ActivityCard from "@/components/activity/cards/Result";
 import RelatedEventNav from "@/components/event/RelatedEventNav";
+import { unitValue } from "@/utils/unitValue";
 
 export default {
   name: "EventDetail",
@@ -352,6 +365,7 @@ export default {
               ...self.userEventActivity.eventResult,
               activityType: self.eventActivity.eventType.activityType,
             };
+          else self.eventResult = null;
           delete self.userEventActivity.eventResult;
           self.fundraising = self.userEventActivity.fundraising;
           delete self.userEventActivity.fundraising;
@@ -410,6 +424,31 @@ export default {
       if (i > 0) c.push("separated-progress");
       return c;
     },
+    importResults: function () {
+      this.$http
+        .post(
+          ["events", "activities", this.eventActivity.id, "results"].join("/")
+        )
+        .then((resp) => this.init());
+    },
+    deleteResults: function () {
+      let self = this;
+      this.$bvModal
+        .msgBoxConfirm(
+          "Are you sure you want to delete all imported results for this Event Activity?"
+        )
+        .then((value) => {
+          if (!value) return;
+          self.$http
+            .delete(
+              ["events", "activities", this.eventActivity.id, "results"].join(
+                "/"
+              ),
+              { headers: { Accept: "text/plain" } }
+            )
+            .then((resp) => self.init());
+        });
+    },
   },
   mounted() {
     this.init();
@@ -423,11 +462,25 @@ export default {
     },
   },
   computed: {
+    ...mapGetters("auth", { isAdmin: "isAdmin" }),
     ...mapGetters("meta", { uom: "getUnitOfMeasure", at: "getActivityType" }),
     title: function () {
       if (this.event)
         return `${this.applicationName} / Event / ${this.event.year} ${this.event.name}`;
       else return this.applicationName;
+    },
+    canDoResultsFunctions: function () {
+      if (!this.isAdmin) return false;
+      return this.eventActivity.importable;
+    },
+    hasResults: function () {
+      return !!this.eventResult;
+    },
+    eventActivityDescription: function () {
+      return [
+        unitValue(this.eventActivity.distance).description,
+        this.eventActivity.eventType.description,
+      ].join(" ");
     },
     relatedEvents: function () {
       return [this.eventGroup, ...this.eventSeries].filter((s) => s != null);
