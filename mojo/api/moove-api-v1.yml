@@ -1425,6 +1425,8 @@ components:
         entrants:
           type: integer
           nullable: true
+        importable:
+          type: boolean
         event:
           $ref: "#/components/schemas/Event"
         eventType:
