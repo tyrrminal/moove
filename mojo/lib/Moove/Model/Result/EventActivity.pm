@@ -243,6 +243,7 @@ use v5.36;
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 use Module::Util qw(module_path);
+use Scalar::Util qw(looks_like_number);
 
 use DCS::Constants qw(:symbols);
 
@@ -263,7 +264,7 @@ sub url ($self) {
 
 sub add_participant ($self, $p) {
   my $schema = $self->result_source->schema;
-  my ($user, $person, $activity, $result);
+
   my $reg_no = $p->{bib_no};
   if ($reg_no =~ /\D/) {
     print STDERR "Truncating $reg_no\n";
@@ -272,51 +273,17 @@ sub add_participant ($self, $p) {
 
   my $reg =
     $schema->resultset('EventRegistration')->find_or_create({event_activity_id => $self->id, registration_number => $p->{bib_no}});
-  if (my $uea = $reg->user_event_activities->first) {
-    $user   = $uea->user;
-    $person = $user->person;
-
-    $activity = $uea->activity;
-    unless (defined($activity)) {
-      my $workout = $user->create_related(
-        'Workout', {
-          date => DateTime::Format::MySQL->format_date($self->scheduled_start),
-          name => $self->description,
-        }
-      );
-      $activity = $workout->create_related(
-        'Activity', {
-          activity_type_id   => $self->event_type->activity_type->id,
-          visibility_type_id => $self->visibility_type_id
-        }
-      );
-      $uea->update({activity_id => $activity->id});
+  my $person =
+    $schema->resultset('Person')->get_person(map {$_ => $p->{$_}} qw(first_name last_name gender age));
+  my $result = $schema->resultset('ActivityResult')->create(
+    {
+      start_time  => $self->scheduled_start,
+      distance_id => $self->distance->id,
+      duration    => $p->{gross_time},
+      pace        => $p->{pace},
+      net_time    => $p->{net_time}
     }
-    if ($result = $activity->activity_result) {
-      $result->update(
-        {
-          net_time => $p->{net_time},
-          pace     => $p->{pace},
-        }
-      );
-    }
-  } else {
-    $person =
-      $schema->resultset('Person')->get_person(map {$_ => $p->{$_}} qw(first_name last_name gender age));
-  }
-  unless (defined($result)) {
-    $result = $schema->resultset('ActivityResult')->create(
-      {
-        start_time => $self->scheduled_start,
-        duration   => $p->{gross_time},
-        pace       => $p->{pace},
-        net_time   => $p->{net_time}
-      }
-    );
-    if ($activity) {
-      $activity->update({activity_result_id => $result->id});
-    }
-  }
+  );
 
   my $address = $schema->resultset('Address')->get_address(city => $p->{city}, state => $p->{state}, country => $p->{country});
   my $gender  = $schema->resultset('Gender')->find({abbreviation => $p->{gender}});
@@ -326,13 +293,16 @@ sub add_participant ($self, $p) {
 
   my $participant = $schema->resultset('EventParticipant')->create(
     {
-      result      => $result,
-      bib_no      => $reg_no,
-      division_id => defined($division) ? $division->id : undef,
-      age         => $p->{age},
-      person      => $person,
-      gender_id   => defined($gender) ? $gender->id : undef,
-      address     => $address
+      event_registration => {
+        event_activity_id   => $self->id,
+        registration_number => $reg_no,
+      },
+      event_result => $result,
+      age          => $p->{age},
+      person_id    => $person->id,
+      address_id   => $address->id,
+      gender_id    => defined($gender)   ? $gender->id   : undef,
+      division_id  => defined($division) ? $division->id : undef,
     }
   );
 
@@ -342,6 +312,15 @@ sub add_participant ($self, $p) {
   $participant->add_placement($partitions{division}, $p->{div_place});
 
   return $participant;
+}
+
+sub update_missing_result_paces ($self) {
+  return unless ($self->event_type->activity_type->base_activity_type->has_pace);
+  my $rs =
+    $self->event_registrations->related_resultset('event_participants')->related_resultset('event_result')->search({pace => undef});
+  while (my $r = $rs->next) {
+    $r->recalculate_pace;
+  }
 }
 
 1;

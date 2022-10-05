@@ -482,8 +482,8 @@ paths:
                   type: string
                   format: binary
       responses:
-        201:
-          description: Created
+        200:
+          description: Imported
           content:
             application/json:
               schema:
@@ -1425,6 +1425,8 @@ components:
         entrants:
           type: integer
           nullable: true
+        importable:
+          type: boolean
         event:
           $ref: "#/components/schemas/Event"
         eventType:
@@ -1479,6 +1481,8 @@ components:
           type: number
           nullable: true
         activity:
+          $ref: "#/components/schemas/Activity"
+        eventResult:
           $ref: "#/components/schemas/Activity"
         eventActivity:
           $ref: "#/components/schemas/EventActivity"

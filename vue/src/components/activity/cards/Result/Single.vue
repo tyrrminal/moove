@@ -1,10 +1,12 @@
 <template>
   <div>
-    <b-dropdown class="float-right" variant="outline-secondary">
+    <b-dropdown v-if="editable" class="float-right" variant="outline-secondary">
       <template #button-content>
         <b-icon icon="gear" />
       </template>
-      <b-dropdown-item :to="{ name: 'edit-activity', params: { activity: editableActivity } }">
+      <b-dropdown-item
+        :to="{ name: 'edit-activity', params: { activity: editableActivity } }"
+      >
         <b-icon icon="pencil" class="mr-1" />Edit
       </b-dropdown-item>
       <b-dropdown-item @click="deleteActivity">
@@ -12,10 +14,7 @@
       </b-dropdown-item>
     </b-dropdown>
     <b-form-group label="Start Time">
-      {{
-          result.startTime
-          | luxon({ input: { zone: "local" }, output: "f" })
-      }}
+      {{ result.startTime | luxon({ input: { zone: "local" }, output: "f" }) }}
     </b-form-group>
     <b-form-group label="Distance" v-if="result.distance">
       {{ fillUnits(result.distance) | formatDistance }}
@@ -23,7 +22,10 @@
     <b-form-group label="Total Time" v-if="result.duration">
       {{ result.duration }}
     </b-form-group>
-    <b-form-group label="Net Time" v-if="result.netTime && result.duration != result.netTime">
+    <b-form-group
+      label="Net Time"
+      v-if="result.netTime && result.duration != result.netTime"
+    >
       {{ result.netTime }}
     </b-form-group>
     <b-form-group label="Average Pace" v-if="result.pace">
@@ -56,33 +58,45 @@ export default {
   props: {
     activity: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
+    editable: {
+      type: Boolean,
+      default: true,
+    },
   },
   methods: {
     deleteActivity: function () {
-      this.$bvModal.msgBoxConfirm("This activity will be permamently deleted.", { okButton: 'Delete', okVariant: "danger" }).then(value => {
-        if (value) {
-          this.$http.delete(["activities", this.activity.id].join("/"), { headers: { Accept: "text/plain" } })
-            .then(resp => this.$router.push({ name: 'activities' }));
-        }
-      })
-    }
+      this.$bvModal
+        .msgBoxConfirm("This activity will be permamently deleted.", {
+          okButton: "Delete",
+          okVariant: "danger",
+        })
+        .then((value) => {
+          if (value) {
+            this.$http
+              .delete(["activities", this.activity.id].join("/"), {
+                headers: { Accept: "text/plain" },
+              })
+              .then((resp) => this.$router.push({ name: "activities" }));
+          }
+        });
+    },
   },
   computed: {
     result: function () {
-      return this.activity.sets ? this.activity.sets[0] : this.activity
+      return this.activity.sets ? this.activity.sets[0] : this.activity;
     },
     hasStoppedTime: function () {
       return this.result.duration != this.result.netTime;
     },
     editableActivity: function () {
       if (this.activity.sets)
-        return { ...this.activity, ...this.activity.sets[0] }
+        return { ...this.activity, ...this.activity.sets[0] };
       return this.activity;
-    }
+    },
   },
-}
+};
 </script>
 
 <style scoped>

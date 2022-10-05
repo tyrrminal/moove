@@ -293,7 +293,7 @@ sub add_placement ($self, $group, $place) {
   return unless (defined($group));
   return unless (defined($place));
 
-  return $self->add_event_placement(
+  return $self->add_to_event_placements(
     {
       event_placement_partition => $group,
       place                     => $place,

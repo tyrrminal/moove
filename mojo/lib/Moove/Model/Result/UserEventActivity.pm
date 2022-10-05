@@ -252,4 +252,11 @@ sub name ($self) {
     $self->event_registration->event_activity->name);
 }
 
+sub event_result ($self) {
+  if (my $p = $self->event_registration->event_participants->first) {
+    return $p->event_result;
+  }
+  return undef;
+}
+
 1;

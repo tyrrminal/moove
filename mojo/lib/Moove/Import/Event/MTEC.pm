@@ -1,17 +1,15 @@
 package Moove::Import::Event::MTEC;
 use v5.36;
-
 use Moose;
-
-use Role::Tiny::With;
-with 'Moove::Role::Unit::Normalization';
 
 use Readonly;
 use Scalar::Util qw(looks_like_number);
 use Data::Dumper;
+use Moove::Util::Unit::Normalization qw(normalize_times);
 
 use DCS::Constants qw(:symbols);
 
+use builtin      qw(true);
 use experimental qw(builtin);
 
 Readonly::Scalar my $metadata_url => 'https://www.mtecresults.com/race/show/%s/';
@@ -20,7 +18,7 @@ Readonly::Scalar my $results_url  => 'http://farm.mtecresults.com/race/show/%s';
 has 'event_id' => (
   is       => 'ro',
   isa      => 'Str',
-  required => builtin::true
+  required => true
 );
 
 has 'race_id' => (

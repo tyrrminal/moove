@@ -2,7 +2,6 @@ package Moove::Model::ResultSet::Activity;
 use v5.36;
 
 use Role::Tiny::With;
-with 'Moove::Role::Unit::Conversion';
 with 'Moove::Role::Merge::Activity', 'Moove::Role::Merge::ActivityResult';
 
 use base qw(DBIx::Class::ResultSet);

@@ -5,6 +5,7 @@ use Role::Tiny;
 
 use Mojo::JSON;
 
+use builtin      qw(true false);
 use experimental qw(builtin);
 
 sub encode_model_activitytype ($self, $entity) {
@@ -25,7 +26,7 @@ sub encode_model_activitytype ($self, $entity) {
 }
 
 sub encode_boolean ($self, $value) {
-  return $value ? builtin::true : builtin::false;
+  return $value ? true : false;
 }
 
 1;

@@ -3,11 +3,10 @@ use v5.36;
 
 use Role::Tiny;
 
-with 'Moove::Role::Unit::Conversion';
-
 use DateTime;
 use DateTime::Format::MySQL;
 use DBIx::Class::InflateColumn::Time;
+use Moove::Util::Unit::Conversion qw(unit_conversion time_to_minutes);
 
 use builtin      qw(true false);
 use experimental qw(builtin);
@@ -55,21 +54,17 @@ sub import_activity ($self, $activity, $user, $workout = undef) {
     $result_params->{pace} =
         $activity_type->base_activity_type->has_pace
       ? $activity->{pace}
-      : $self->unit_conversion(value => $activity->{speed}, from => $speed_units, to => $pace_units);
-    $result_params->{speed} = $activity_type->base_activity_type->has_speed ? $activity->{speed} : $self->unit_conversion(
-      value => $self->time_to_minutes(DBIx::Class::InflateColumn::Time::_inflate($activity->{pace})),
+      : unit_conversion(value => $activity->{speed}, from => $speed_units, to => $pace_units);
+    $result_params->{speed} = $activity_type->base_activity_type->has_speed ? $activity->{speed} : unit_conversion(
+      value => time_to_minutes(DBIx::Class::InflateColumn::Time::_inflate($activity->{pace})),
       from  => $pace_units
     );
   }
   if ($activity_type->base_activity_type->has_repeats) {
     $result_params->{repetitions} = $activity->{repetitions};
   }
-  my $result;
-  if ($result = $self->find_matching_event_result($activity, $activity_type, $user)) {
-    $result->update($result_params);
-  } else {
-    $result = $self->app->model('ActivityResult')->create($result_params);
-  }
+  my $uea    = $self->find_matching_user_event_activity($activity, $activity_type, $user);
+  my $result = $self->app->model('ActivityResult')->create($result_params);
 
   my $act = $self->app->model('Activity')->create(
     {
@@ -84,14 +79,15 @@ sub import_activity ($self, $activity, $user, $workout = undef) {
     }
   );
   $act->discard_changes;
+  $uea->update({activity_id => $act->id}) if (defined($uea));
 
   return ($act, false);
 }
 
-sub find_matching_event_result ($self, $activity, $activity_type, $user) {
+sub find_matching_user_event_activity ($self, $activity, $activity_type, $user) {
   my $between = [map {DateTime::Format::MySQL->format_datetime($activity->{date}->clone->add(minutes => $_))} (-30, 5)];
 
-  my $uea = $self->app->model('UserEventActivity')->search(
+  return $self->app->model('UserEventActivity')->search(
     {
       'me.user_id'                     => $user->id,
       'event_type.activity_type_id'    => $activity_type->id,
@@ -100,9 +96,6 @@ sub find_matching_event_result ($self, $activity, $activity_type, $user) {
       join => {event_registration => {event_activity => 'event_type'}}
     }
   )->first;
-  return undef unless (defined($uea));
-
-  return $uea->event_registration->event_participants->first->activity_result;
 }
 
 1;

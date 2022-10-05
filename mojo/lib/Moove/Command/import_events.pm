@@ -7,6 +7,7 @@ use Mojo::Util 'getopt';
 
 use Text::CSV_XS;
 
+use builtin      qw(true);
 use experimental qw(builtin);
 
 has 'description' => 'Import a list of events';
@@ -19,7 +20,7 @@ USAGE
 sub run ($self, @args) {
   getopt(\@args, 'file:s' => \my $filename);
 
-  my $csv = Text::CSV_XS->new({binary => builtin::true, auto_diag => builtin::true});
+  my $csv = Text::CSV_XS->new({binary => true, auto_diag => true});
   open(my $F, '<:encoding(utf8)', $filename) or die($!);
   my @col_map = @{$csv->getline($F)};
   while (my $row = $csv->getline($F)) {
