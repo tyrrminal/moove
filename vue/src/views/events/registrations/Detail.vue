@@ -109,7 +109,7 @@
       </b-card-body>
     </b-card>
 
-    <b-card no-body class="mb-3">
+    <b-card no-body class="mb-3" v-if="activity || eventResult">
       <b-card-header>
         <h3>Results</h3>
       </b-card-header>
