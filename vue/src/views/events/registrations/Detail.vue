@@ -127,6 +127,7 @@
               :activity="eventResultActivity"
               :linkToActivity="false"
               :editable="false"
+              title="Event Result"
             />
           </b-col>
 
@@ -347,10 +348,10 @@ export default {
           self.activity = self.userEventActivity.activity;
           delete self.userEventActivity.activity;
           if (self.userEventActivity.eventResult)
-          self.eventResult = {
-            ...self.userEventActivity.eventResult,
-            activityType: self.eventActivity.eventType.activityType,
-          };
+            self.eventResult = {
+              ...self.userEventActivity.eventResult,
+              activityType: self.eventActivity.eventType.activityType,
+            };
           delete self.userEventActivity.eventResult;
           self.fundraising = self.userEventActivity.fundraising;
           delete self.userEventActivity.fundraising;
