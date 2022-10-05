@@ -4,9 +4,9 @@
       <b-link
         v-if="linkToActivity"
         :to="{ name: 'activity', params: { id: activity.id } }"
-        >{{ activityType.description }}
+        >{{ cardTitle }}
       </b-link>
-      <span v-else>{{ activityType.description }}</span>
+      <span v-else>{{ cardTitle }}</span>
     </h4>
     <ActivityResultSingle
       v-if="singleActivity"
@@ -28,6 +28,10 @@ export default {
     ActivityResultMulti,
   },
   props: {
+    title: {
+      type: String,
+      default: null,
+    },
     activity: {
       type: Object,
       required: true,
@@ -43,6 +47,10 @@ export default {
   },
   computed: {
     ...mapGetters("meta", ["getActivityType"]),
+    cardTitle: function () {
+      if (this.title != null) return this.title;
+      return this.activityType.description;
+    },
     sets: function () {
       if (this.activity.sets) return this.activity.sets;
       else return [this.activity];
