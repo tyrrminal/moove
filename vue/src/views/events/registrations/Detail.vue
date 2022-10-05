@@ -346,6 +346,7 @@ export default {
           this.relatedEvents.forEach((s) => self.getGroupNav(s));
           self.activity = self.userEventActivity.activity;
           delete self.userEventActivity.activity;
+          if (self.userEventActivity.eventResult)
           self.eventResult = {
             ...self.userEventActivity.eventResult,
             activityType: self.eventActivity.eventType.activityType,
