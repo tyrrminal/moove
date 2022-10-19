@@ -13,8 +13,10 @@ use DCS::Constants qw(:symbols);
 use builtin      qw(true);
 use experimental qw(builtin);
 
+use Moove::Import::Event::Constants qw(:event);
+
 Readonly::Scalar my $metadata_url => 'https://www.mtecresults.com/race/show/%s/';
-Readonly::Scalar my $results_url  => 'http://farm.mtecresults.com/race/show/%s';
+Readonly::Scalar my $results_url  => 'https://www.mtecresults.com/race/show/%s';
 
 has 'event_id' => (
   is       => 'ro',
@@ -52,18 +54,6 @@ has 'key_map' => (
   }
 );
 
-has 'results' => (
-  is       => 'ro',
-  isa      => 'ArrayRef[HashRef]',
-  init_arg => undef,
-  lazy     => true,
-  builder  => '_build_results',
-  traits   => ['Array'],
-  handles  => {
-    total_entrants => 'count'
-  }
-);
-
 sub url ($self) {
   return sprintf($metadata_url, $self->event_id);
 }
@@ -76,13 +66,13 @@ sub _build_results ($self) {
   my $res = $ua->get($url)->result;
 
   my @results;
-  my @col_map = map {$self->get_key($_->text)} @{$res->dom->find('.runnersearch th')->to_array};
+  my @col_map = map {$self->get_key($_->text)} @{$res->dom->find('.runnersearch-header-cell')->to_array};
   while () {
     my $n = 0;
-    $res->dom->find('.runnersearch tbody > tr')->each(
+    $res->dom->find('.runnersearch-row')->each(
       sub {
         my %record;
-        my @values = map {_trim($_->text)} @{$_->find('td > a')->to_array()};
+        my @values = map {_trim($_->text)} @{$_->find('.runnersearch-cell > a')->to_array()};
         @record{@col_map} = @values;
         _fix_name(\%record);
         normalize_times(\%record);
@@ -129,6 +119,9 @@ sub _fix_name ($v) {
   }
   $v->{first_name} = join($SPACE, @parts) || undef;
   $v->{first_name} .= $SPACE . $s if (defined($v->{first_name}) && defined($s));
+
+  $v->{first_name} = $DEFAULT_FIRST_NAME unless (defined($v->{first_name}));
+  $v->{last_name}  = $DEFAULT_LAST_NAME  unless (defined($v->{last_name}));
 }
 
 sub _fix_address ($v) {
