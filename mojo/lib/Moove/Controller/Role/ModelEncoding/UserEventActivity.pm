@@ -65,7 +65,7 @@ sub encode_model_usereventactivity_fundraising ($self, $entity) {
   if (defined($entity->fundraising_requirement)) {
     $r = {
       minimum  => $entity->fundraising_requirement,
-      received => sum(map {$_->amount} $entity->donations->all),
+      received => sum(0,map {$_->amount} $entity->donations->all),
     };
     if ($entity->user->id == $self->current_user->id) {
       $r->{donations} = $self->encode_model([$entity->donations->all]);
