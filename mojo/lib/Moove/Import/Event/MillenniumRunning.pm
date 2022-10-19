@@ -79,9 +79,19 @@ has 'key_map' => (
   }
 );
 
-sub _build_results_page {
-  my $self = shift;
+has 'results' => (
+  is       => 'ro',
+  isa      => 'ArrayRef[HashRef]',
+  init_arg => undef,
+  lazy     => true,
+  builder  => '_build_results',
+  traits   => ['Array'],
+  handles  => {
+    total_entrants => 'count'
+  }
+);
 
+sub _build_results_page ($self) {
   my $pre = $self->_url;
   my $ua  = Mojo::UserAgent->new();
   my $res = $ua->get($pre)->result;
@@ -92,61 +102,16 @@ sub _build_results_page {
   return $pre;
 }
 
-sub _build_url {
-  my $self = shift;
-
+sub _build_url ($self) {
   return Mojo::URL->new($self->base_url . join('/', grep {defined} ($self->race_id // 'x', $self->event_id)));
 }
 
-sub url {
-  return shift->_url->to_string;
+sub url ($self) {
+  return $self->_url->to_string;
 }
 
-sub fetch_metadata {
-  my $self = shift;
-  my $eid  = $self->event_id;
-
-  my $p = DateTime::Format::Strptime->new(
-    pattern   => '%m/%d/%Y',
-    locale    => 'en_US',
-    time_zone => 'America/New_York'
-  );
-
+sub _build_results ($self) {
   my $res = $self->results_page;
-
-  my ($address, $dt);
-  my $md = $res->dom->find('div.header > h3')->[0]->text;
-  $md =~ s|<br\s*/?>||;
-  my ($title, $loc_date) = split($/, $md);
-  $title =~ s/\x{2019}/'/g;
-  if ($loc_date =~ m|(\w+, \w{2}) (\d{2}/\d{2}/\d{4})|) {
-    $address = $1;
-    $dt      = $p->parse_datetime($2);
-  }
-
-  return {
-    title   => $title,
-    address => $address,
-    date    => $dt
-  };
-}
-
-sub find_and_update_event {
-  my $self = shift;
-  my ($model) = @_;
-
-  my $info = $self->fetch_metadata();
-  my ($event) = $model->find_event($info->{date}->year, $info->{title});
-  die "Event '" . $info->{title} . "' not found\n" unless (defined($event));
-
-  $self->_event_state($event->address->state);
-
-  return $event;
-}
-
-sub fetch_results {
-  my $self = shift;
-  my $res  = $self->results_page;
 
   my $cs = Moove::Import::Helper::CityService->new();
 
@@ -165,19 +130,17 @@ sub fetch_results {
     }
   );
 
-  return @results;
+  return [@results];
 }
 
-sub _fix_div_place {
-  my $v               = shift;
+sub _fix_div_place ($v) {
   my $div_place_count = delete($v->{div_place_count});
   my ($p, $c) = split(m|/|, $div_place_count);
   $v->{div_place} = $p;
   $v->{div_count} = $p;
 }
 
-sub _fix_names {
-  my $v     = shift;
+sub _fix_names ($v) {
   my $tc    = Lingua::EN::Titlecase->new();
   my $name  = delete($v->{name});
   my @parts = split(/\s+/, $name);
@@ -185,8 +148,7 @@ sub _fix_names {
   $v->{first_name} = $tc->title(join($SPACE, @parts));
 }
 
-sub _fix_address {
-  my ($v, $cs, $state) = @_;
+sub _fix_address ($v, $cs, $state) {
   my $tc = Lingua::EN::Titlecase->new();
 
   if ($v->{city} =~ /(\s+)([A-Z]{2})$/) {

@@ -38,6 +38,18 @@ has '_url' => (
   builder  => '_build_url'
 );
 
+has 'results' => (
+  is       => 'ro',
+  isa      => 'ArrayRef[HashRef]',
+  init_arg => undef,
+  lazy     => true,
+  builder  => '_build_results',
+  traits   => ['Array'],
+  handles  => {
+    total_entrants => 'count'
+  }
+);
+
 has 'result_data' => (
   is       => 'ro',
   isa      => 'HashRef',
@@ -124,8 +136,8 @@ sub find_and_update_event ($self, $rs) {
   return $event;
 }
 
-sub fetch_results ($self) {
-  return map {$self->make_participant($_)} $self->result_data->{results}->{data}->@*;
+sub _build_results ($self) {
+  return [map {$self->make_participant($_)} $self->result_data->{results}->{data}->@*];
 }
 
 sub make_participant ($self, $d) {
