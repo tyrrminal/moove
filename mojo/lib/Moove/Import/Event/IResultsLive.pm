@@ -52,18 +52,6 @@ has 'key_map' => (
   }
 );
 
-has 'results' => (
-  is       => 'ro',
-  isa      => 'ArrayRef[HashRef]',
-  init_arg => undef,
-  lazy     => true,
-  builder  => '_build_results',
-  traits   => ['Array'],
-  handles  => {
-    total_entrants => 'count'
-  }
-);
-
 sub _build_url ($self) {
   my $md = Mojo::URL->new($self->base_url);
   return $md->query(op => 'overall', eid => $self->event_id, racename => $self->race_id);

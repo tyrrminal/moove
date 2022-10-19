@@ -59,18 +59,6 @@ has 'key_map' => (
   }
 );
 
-has 'results' => (
-  is       => 'ro',
-  isa      => 'ArrayRef[HashRef]',
-  init_arg => undef,
-  lazy     => true,
-  builder  => '_build_results',
-  traits   => ['Array'],
-  handles  => {
-    total_entrants => 'count'
-  }
-);
-
 sub _build_results ($self) {
   my $results = Mojo::URL->new($results_api_url . join('/', grep {defined} ($self->event_id, $self->race_id)));
   my $ua      = Mojo::UserAgent->new();

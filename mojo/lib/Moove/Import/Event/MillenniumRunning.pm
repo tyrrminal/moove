@@ -79,18 +79,6 @@ has 'key_map' => (
   }
 );
 
-has 'results' => (
-  is       => 'ro',
-  isa      => 'ArrayRef[HashRef]',
-  init_arg => undef,
-  lazy     => true,
-  builder  => '_build_results',
-  traits   => ['Array'],
-  handles  => {
-    total_entrants => 'count'
-  }
-);
-
 sub _build_results_page ($self) {
   my $pre = $self->_url;
   my $ua  = Mojo::UserAgent->new();
