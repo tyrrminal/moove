@@ -17,8 +17,10 @@ use DCS::Util::NameConversion qw(camel_to_snake convert_hash_keys);
 
 sub decode_model ($self, $data) {
   $data = {convert_hash_keys($data->%*, \&camel_to_snake)};
-  $data->{fundraising_requirement} = $data->{fundraising}->{minimum}
-    if (exists($data->{fundraising}));
+  if (exists($data->{fundraising})) {
+    $data->{fundraising_requirement} = $data->{fundraising}->{minimum};
+    delete($data->{fundraising});
+  }
   return $data;
 }
 
