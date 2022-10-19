@@ -151,7 +151,7 @@ sub _fix_address ($v, $cs, $state) {
       #
     } elsif (@states == 1) {
       $v->{state} = $states[0];
-    } elsif (grep {$_ eq $state} @states) {
+    } elsif (defined($state) && grep {$_ eq $state} @states) {
       $v->{state} = $state;
     } else {
       #
