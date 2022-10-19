@@ -106,25 +106,6 @@ sub url ($self) {
   return sprintf($RESULTS_PAGE, $self->race_id);
 }
 
-sub find_and_update_event ($self, $rs) {
-  my $event = $rs->search(
-    {
-      ref_num     => $self->event_id,
-      description => 'RaceRoster'
-    }, {
-      join => {event_references => 'event_reference_type'}
-    }
-  )->first;
-
-  $event->update(
-    {
-      entrants => $self->result_data->{results}->{quantity}
-    }
-  );
-
-  return $event;
-}
-
 sub _build_results ($self) {
   return [map {$self->make_participant($_)} $self->result_data->{results}->{data}->@*];
 }
