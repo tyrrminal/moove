@@ -106,7 +106,7 @@ export default {
         id: null,
         eventActivityID: null,
         visibilityTypeID: 3,
-        dateRegistered: DateTime.local().toISO(),
+        dateRegistered: DateTime.local().toISODate(),
         registrationFee: 0,
         fundraising: { minimum: null },
       },
