@@ -1,6 +1,7 @@
 package Moove::Import::Event::MillenniumRunning;
 use v5.36;
 use Moose;
+with 'Moove::Import::Event::Base';
 
 use DateTime::Format::Strptime;
 use Lingua::EN::Titlecase;

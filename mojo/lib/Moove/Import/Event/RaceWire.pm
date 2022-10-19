@@ -1,6 +1,7 @@
 package Moove::Import::Event::RaceWire;
 use v5.36;
 use Moose;
+with 'Moove::Import::Event::Base';
 
 use Readonly;
 use DateTime::Format::Strptime;

@@ -1,6 +1,7 @@
 package Moove::Import::Event::MTEC;
 use v5.36;
 use Moose;
+with 'Moove::Import::Event::Base';
 
 use Readonly;
 use Scalar::Util qw(looks_like_number);

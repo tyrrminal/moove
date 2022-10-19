@@ -1,6 +1,7 @@
 package Moove::Import::Event::RaceRoster;
 use v5.36;
 use Moose;
+with 'Moove::Import::Event::Base';
 
 use DateTime::Format::Strptime;
 use Readonly;
