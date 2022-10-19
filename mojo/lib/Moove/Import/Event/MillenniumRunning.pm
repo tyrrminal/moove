@@ -85,7 +85,7 @@ sub _build_results_page ($self) {
   my $res = $ua->get($pre)->result;
 
   unless ($res->body) {
-    return $ua->get($res->headers->address)->result;
+    return $ua->get($res->headers->location)->result;
   }
   return $pre;
 }
