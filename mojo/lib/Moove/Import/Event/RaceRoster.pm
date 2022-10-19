@@ -6,9 +6,10 @@ with 'Moove::Import::Event::Base';
 use DateTime::Format::Strptime;
 use Readonly;
 use Moove::Util::Unit::Normalization;
+use Mojo::JSON qw(encode_json);
 
 use builtin      qw(true);
-use experimental qw(builtin);
+use experimental qw(builtin try);
 
 Readonly::Scalar my $RESULTS_PAGE => 'https://results.raceroster.com/en-US/results/%s';
 Readonly::Scalar my $RESULTS_URL  => 'https://results.raceroster.com/api/v1/sub-events/%s/locale/en-US/results-column-data';
@@ -131,7 +132,13 @@ sub _build_results ($self) {
 sub make_participant ($self, $d) {
   my $p = {};
   for (my $i = 0 ; $i < $self->col_count ; $i++) {
-    my %v = $self->extractor($self->result_columns->[$i])->($d->[$i + 1]);
+    my %v;
+    try {
+      %v = $self->extractor($self->result_columns->[$i])->($d->[$i + 1]);
+    } catch ($e) {
+      chomp($e);
+      say STDERR "Extraction error occurred in colum $i: '$e' on '" . encode_json($d) . "'";
+    }
     $p = {$p->%*, %v};
   }
   return $p;
