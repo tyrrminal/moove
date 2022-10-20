@@ -323,4 +323,8 @@ sub update_missing_result_paces ($self) {
   }
 }
 
+sub qualified_external_identifier ($self) {
+  return join($UNDERSCORE, grep {defined} ($self->event->external_identifier, $self->external_identifier));
+}
+
 1;
