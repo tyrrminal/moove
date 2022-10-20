@@ -50,8 +50,12 @@
             </b-jumbotron>
           </b-col>
           <b-col>
-            <b-jumbotron class="py-2 event-details" border-variant="info">
-              <b-form-group label="Related Events" v-if="relatedEvents.length">
+            <b-jumbotron
+              class="py-2 event-details"
+              border-variant="info"
+              v-if="relatedEvents.length"
+            >
+              <b-form-group label="Related Events">
                 <RelatedEventNav
                   v-for="s in relatedEvents"
                   :key="s.id"
