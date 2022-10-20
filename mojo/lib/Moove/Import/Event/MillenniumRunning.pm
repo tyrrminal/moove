@@ -114,7 +114,7 @@ sub _build_results ($self) {
       normalize_times(\%record);
       _fix_div_place(\%record);
       _fix_address(\%record, $cs, $self->_event_state);
-      $record{bib_no} = 'B' . $record{overall_place};
+      $self->fix_bib_numbers(\%record);
       push(@results, {%record});
     }
   );
@@ -158,7 +158,12 @@ sub _fix_address ($v, $cs, $state) {
       #
     }
   }
+}
 
+sub fix_bib_numbers ($self, $v) {
+  if (!defined($v->{bib_no})) {
+    $v->{bib_no} = 'B' . $v->{overall_place};
+  }
 }
 
 1;
