@@ -1,6 +1,7 @@
 package Moove::Import::Event::IResultsLive;
 use v5.36;
 use Moose;
+with 'Moove::Import::Event::Base';
 
 use DateTime::Format::Strptime;
 use Moove::Util::Unit::Normalization qw(normalize_times);
@@ -51,75 +52,16 @@ has 'key_map' => (
   }
 );
 
-sub _build_url {
-  my $self = shift;
-
+sub _build_url ($self) {
   my $md = Mojo::URL->new($self->base_url);
   return $md->query(op => 'overall', eid => $self->event_id, racename => $self->race_id);
 }
 
-sub url {
-  return shift->_url->to_string;
+sub url ($self) {
+  return $self->_url->to_string;
 }
 
-sub fetch_metadata {
-  my $self = shift;
-  my $eid  = $self->event_id;
-
-  my $p = DateTime::Format::Strptime->new(
-    pattern   => '%a %b %d, %Y',
-    locale    => 'en_US',
-    time_zone => 'America/New_York'
-  );
-
-  my $md = Mojo::URL->new($self->base_url);
-  $md->query(op => 'summary', eid => $eid);
-
-  my $ua  = Mojo::UserAgent->new();
-  my $res = $ua->get($md)->result;
-
-  my $title_c = $res->dom->find('div.container > h1');
-  my $title   = $title_c->[0]->text;
-
-  my ($date, $address) = @{$res->dom->find('em')->map('text')->to_array()};
-  my $dt = $p->parse_datetime($date);
-
-  my $races_c  = $res->dom->find('div.row')->[1];
-  my $races    = $races_c->find('td:nth-child(1)')->map('text')->to_array();
-  my $entrants = $races_c->find('td:nth-child(2)')->map('text')->to_array();
-  my %races;
-  @races{@$races} = @$entrants;
-
-  return {
-    title   => $title,
-    address => $address,
-    date    => $dt,
-    races   => \%races
-  };
-}
-
-sub find_and_update_event {
-  my $self = shift;
-  my ($model) = @_;
-
-  my $info  = $self->fetch_metadata();
-  my @races = keys(%{$info->{races}});
-  if (@races == 1) {
-    $self->_set_race_id($races[0]);
-  } elsif (!defined($info->{races}->{$self->race_id})) {
-    die "Race identifier '" . $self->race_id . "' not found\n";
-  }
-  my ($event) = $model->find_event($info->{date}->year, $info->{title});
-  die "Event '" . $info->{title} . "' not found\n" unless (defined($event));
-
-  $event->entrants($info->{races}->{$self->race_id});
-  $event->update;
-  return $event;
-}
-
-sub fetch_results {
-  my $self = shift;
-
+sub _build_results ($self) {
   my $ua  = Mojo::UserAgent->new();
   my $res = $ua->get($self->_url)->result;
 
@@ -161,7 +103,7 @@ sub fetch_results {
     $res = $ua->get($results)->result;
   }
 
-  return @results;
+  return [@results];
 }
 
 1;

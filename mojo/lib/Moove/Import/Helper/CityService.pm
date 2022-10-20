@@ -10,7 +10,7 @@ Readonly::Scalar my $GIT_API_BASE   => q{https://api.github.com/};
 Readonly::Scalar my $GIT_USER_GISTS => q{users/%s/gists};
 Readonly::Scalar my $GIT_GIST       => q{gists/%s};
 
-Readonly::Scalar my $CITYLIST_AUTHOR   => 'objcow';
+Readonly::Scalar my $CITYLIST_AUTHOR   => 'tyrrminal';
 Readonly::Scalar my $CITYLIST_FILENAME => 'usaCities.json';
 
 Readonly::Scalar my $STATELIST_AUTHOR   => 'mshafrir';

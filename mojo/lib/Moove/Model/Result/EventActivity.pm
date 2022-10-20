@@ -266,9 +266,9 @@ sub add_participant ($self, $p) {
   my $schema = $self->result_source->schema;
 
   my $reg_no = $p->{bib_no};
-  if ($reg_no =~ /\D/) {
+  if ($reg_no =~ /\W/) {
     print STDERR "Truncating $reg_no\n";
-    $reg_no =~ s/\D//g;
+    $reg_no =~ s/\W//g;
   }
 
   my $reg =
@@ -321,6 +321,10 @@ sub update_missing_result_paces ($self) {
   while (my $r = $rs->next) {
     $r->recalculate_pace;
   }
+}
+
+sub qualified_external_identifier ($self) {
+  return join($UNDERSCORE, grep {defined} ($self->event->external_identifier, $self->external_identifier));
 }
 
 1;

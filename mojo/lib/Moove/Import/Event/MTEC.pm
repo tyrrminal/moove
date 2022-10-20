@@ -1,6 +1,7 @@
 package Moove::Import::Event::MTEC;
 use v5.36;
 use Moose;
+with 'Moove::Import::Event::Base';
 
 use Readonly;
 use Scalar::Util qw(looks_like_number);
@@ -12,8 +13,10 @@ use DCS::Constants qw(:symbols);
 use builtin      qw(true);
 use experimental qw(builtin);
 
+use Moove::Import::Event::Constants qw(:event);
+
 Readonly::Scalar my $metadata_url => 'https://www.mtecresults.com/race/show/%s/';
-Readonly::Scalar my $results_url  => 'http://farm.mtecresults.com/race/show/%s';
+Readonly::Scalar my $results_url  => 'https://www.mtecresults.com/race/show/%s';
 
 has 'event_id' => (
   is       => 'ro',
@@ -51,51 +54,11 @@ has 'key_map' => (
   }
 );
 
-sub url {
-  my $self = shift;
-
+sub url ($self) {
   return sprintf($metadata_url, $self->event_id);
 }
 
-sub fetch_metadata {
-  my $self = shift;
-
-  my $p = DateTime::Format::Strptime->new(
-    pattern   => '%m/%d/%Y',
-    locale    => 'en_US',
-    time_zone => 'America/New_York'
-  );
-
-  my $ua  = Mojo::UserAgent->new();
-  my $res = $ua->get($self->url)->result;
-
-  my $title = _trim($res->dom->find('.breadcrumb li > a')->[0]->text);
-
-  my $info = _trim($res->dom->find('.raceinfobox div')->[1]->text);
-  my ($address, $date) = split(/\s*\n\s*/, $info);
-  my $dt = $p->parse_datetime($date);
-  return {
-    title   => $title,
-    address => $address,
-    date    => $dt
-  };
-}
-
-sub find_and_update_event {
-  my $self = shift;
-  my ($model) = @_;
-
-  my $info = $self->fetch_metadata;
-
-  my ($event) = $model->find_event($info->{date}->year, $info->{title});
-  die sprintf("Event '%s' (%d) not found\n", $info->{title}, $info->{date}->year) unless (defined($event));
-
-  return $event;
-}
-
-sub fetch_results {
-  my $self = shift;
-
+sub _build_results ($self) {
   my $url = Mojo::URL->new(sprintf($results_url, $self->event_id));
   $url->query(overall => 'yes', perPage => 500, offset => 0);
 
@@ -103,13 +66,13 @@ sub fetch_results {
   my $res = $ua->get($url)->result;
 
   my @results;
-  my @col_map = map {$self->get_key($_->text)} @{$res->dom->find('.runnersearch th')->to_array};
+  my @col_map = map {$self->get_key($_->text)} @{$res->dom->find('.runnersearch-header-cell')->to_array};
   while () {
     my $n = 0;
-    $res->dom->find('.runnersearch tbody > tr')->each(
+    $res->dom->find('.runnersearch-row')->each(
       sub {
         my %record;
-        my @values = map {_trim($_->text)} @{$_->find('td > a')->to_array()};
+        my @values = map {_trim($_->text)} @{$_->find('.runnersearch-cell > a')->to_array()};
         @record{@col_map} = @values;
         _fix_name(\%record);
         normalize_times(\%record);
@@ -126,18 +89,16 @@ sub fetch_results {
     $res = $ua->get($url)->result;
   }
 
-  return @results;
+  return [@results];
 }
 
-sub _trim {
-  my ($str) = @_;
+sub _trim ($str) {
   $str =~ s/^\s*//;
   $str =~ s/\s*$//;
   return $str;
 }
 
-sub _fix_name {
-  my ($v)      = @_;
+sub _fix_name ($v) {
   my @prefixes = qw(del St St. Van De Von O);
   my @suffixes = qw(Jr Jr. Sr Sr. II II. III IV V);
   my $s;
@@ -158,28 +119,26 @@ sub _fix_name {
   }
   $v->{first_name} = join($SPACE, @parts) || undef;
   $v->{first_name} .= $SPACE . $s if (defined($v->{first_name}) && defined($s));
+
+  $v->{first_name} = $DEFAULT_FIRST_NAME unless (defined($v->{first_name}));
+  $v->{last_name}  = $DEFAULT_LAST_NAME  unless (defined($v->{last_name}));
 }
 
-sub _fix_address {
-  my ($v) = @_;
+sub _fix_address ($v) {
   $v->{country} = delete($v->{city}) unless (defined($v->{state}));
 }
 
-sub _fix_place {
-  my ($v) = @_;
+sub _fix_place ($v) {
   ($v->{overall_place}, $v->{overall_count}) = split(m| / |, delete($v->{overall_place_count}));
   ($v->{gender_place},  $v->{gender_count})  = split(m| / |, delete($v->{gender_place_count}));
   ($v->{div_place},     $v->{div_count})     = split(m| / |, delete($v->{div_place_count}));
 }
 
-sub _fix_age {
-  my ($v) = @_;
+sub _fix_age ($v) {
   $v->{age} = undef unless (looks_like_number($v->{age}));
 }
 
-sub _fix_division {
-  my ($v) = @_;
-
+sub _fix_division ($v) {
   my @div_age_start = (0, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, '+');
   if (defined($v->{age}) && $v->{age} && defined($v->{gender}) && $v->{gender}) {
     my ($s, $i);
