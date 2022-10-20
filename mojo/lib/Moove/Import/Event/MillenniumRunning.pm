@@ -1,6 +1,7 @@
 package Moove::Import::Event::MillenniumRunning;
 use v5.36;
 use Moose;
+with 'Moove::Import::Event::Base';
 
 use DateTime::Format::Strptime;
 use Lingua::EN::Titlecase;
@@ -78,74 +79,27 @@ has 'key_map' => (
   }
 );
 
-sub _build_results_page {
-  my $self = shift;
-
+sub _build_results_page ($self) {
   my $pre = $self->_url;
   my $ua  = Mojo::UserAgent->new();
   my $res = $ua->get($pre)->result;
 
   unless ($res->body) {
-    return $ua->get($res->headers->address)->result;
+    return $ua->get($res->headers->location)->result;
   }
   return $pre;
 }
 
-sub _build_url {
-  my $self = shift;
-
+sub _build_url ($self) {
   return Mojo::URL->new($self->base_url . join('/', grep {defined} ($self->race_id // 'x', $self->event_id)));
 }
 
-sub url {
-  return shift->_url->to_string;
+sub url ($self) {
+  return $self->_url->to_string;
 }
 
-sub fetch_metadata {
-  my $self = shift;
-  my $eid  = $self->event_id;
-
-  my $p = DateTime::Format::Strptime->new(
-    pattern   => '%m/%d/%Y',
-    locale    => 'en_US',
-    time_zone => 'America/New_York'
-  );
-
+sub _build_results ($self) {
   my $res = $self->results_page;
-
-  my ($address, $dt);
-  my $md = $res->dom->find('div.header > h3')->[0]->text;
-  $md =~ s|<br\s*/?>||;
-  my ($title, $loc_date) = split($/, $md);
-  $title =~ s/\x{2019}/'/g;
-  if ($loc_date =~ m|(\w+, \w{2}) (\d{2}/\d{2}/\d{4})|) {
-    $address = $1;
-    $dt      = $p->parse_datetime($2);
-  }
-
-  return {
-    title   => $title,
-    address => $address,
-    date    => $dt
-  };
-}
-
-sub find_and_update_event {
-  my $self = shift;
-  my ($model) = @_;
-
-  my $info = $self->fetch_metadata();
-  my ($event) = $model->find_event($info->{date}->year, $info->{title});
-  die "Event '" . $info->{title} . "' not found\n" unless (defined($event));
-
-  $self->_event_state($event->address->state);
-
-  return $event;
-}
-
-sub fetch_results {
-  my $self = shift;
-  my $res  = $self->results_page;
 
   my $cs = Moove::Import::Helper::CityService->new();
 
@@ -160,23 +114,22 @@ sub fetch_results {
       normalize_times(\%record);
       _fix_div_place(\%record);
       _fix_address(\%record, $cs, $self->_event_state);
+      $self->fix_bib_numbers(\%record);
       push(@results, {%record});
     }
   );
 
-  return @results;
+  return [@results];
 }
 
-sub _fix_div_place {
-  my $v               = shift;
+sub _fix_div_place ($v) {
   my $div_place_count = delete($v->{div_place_count});
   my ($p, $c) = split(m|/|, $div_place_count);
   $v->{div_place} = $p;
   $v->{div_count} = $p;
 }
 
-sub _fix_names {
-  my $v     = shift;
+sub _fix_names ($v) {
   my $tc    = Lingua::EN::Titlecase->new();
   my $name  = delete($v->{name});
   my @parts = split(/\s+/, $name);
@@ -184,8 +137,7 @@ sub _fix_names {
   $v->{first_name} = $tc->title(join($SPACE, @parts));
 }
 
-sub _fix_address {
-  my ($v, $cs, $state) = @_;
+sub _fix_address ($v, $cs, $state) {
   my $tc = Lingua::EN::Titlecase->new();
 
   if ($v->{city} =~ /(\s+)([A-Z]{2})$/) {
@@ -200,13 +152,18 @@ sub _fix_address {
       #
     } elsif (@states == 1) {
       $v->{state} = $states[0];
-    } elsif (grep {$_ eq $state} @states) {
+    } elsif (defined($state) && grep {$_ eq $state} @states) {
       $v->{state} = $state;
     } else {
       #
     }
   }
+}
 
+sub fix_bib_numbers ($self, $v) {
+  if (!defined($v->{bib_no})) {
+    $v->{bib_no} = 'B' . $v->{overall_place};
+  }
 }
 
 1;

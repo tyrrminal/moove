@@ -1,13 +1,15 @@
 package Moove::Import::Event::RaceRoster;
 use v5.36;
 use Moose;
+with 'Moove::Import::Event::Base';
 
 use DateTime::Format::Strptime;
 use Readonly;
 use Moove::Util::Unit::Normalization;
+use Mojo::JSON qw(encode_json);
 
 use builtin      qw(true);
-use experimental qw(builtin);
+use experimental qw(builtin try);
 
 Readonly::Scalar my $RESULTS_PAGE => 'https://results.raceroster.com/en-US/results/%s';
 Readonly::Scalar my $RESULTS_URL  => 'https://results.raceroster.com/api/v1/sub-events/%s/locale/en-US/results-column-data';
@@ -65,9 +67,9 @@ has '_extractors' => (
   default  => sub {
     {
       overall_place   => sub ($v) {(overall_place => $v->[1]->{place}, overall_count => $v->[1]->{count})},
-      gun_time        => sub ($v) {(gross_time    => $v->[0])},
-      chip_time       => sub ($v) {(net_time      => $v->[0])},
-      overall_pace    => sub ($v) {(pace          => $v->[1]->{pace})},
+      gun_time        => sub ($v) {(gross_time    => _fix_time($v->[0]))},
+      chip_time       => sub ($v) {(net_time      => _fix_time($v->[0]))},
+      overall_pace    => sub ($v) {(pace          => _fix_time($v->[1]->{pace}))},
       name            => sub ($v) {my @n = split(/\s+/, $v->[1]); return (first_name => $n[0], last_name => $n[1])},
       age             => sub ($v) {(age          => $v->[0])},
       gender          => sub ($v) {(gender       => $v->[1]->{character})},
@@ -104,36 +106,30 @@ sub url ($self) {
   return sprintf($RESULTS_PAGE, $self->race_id);
 }
 
-sub find_and_update_event ($self, $rs) {
-  my $event = $rs->search(
-    {
-      ref_num     => $self->event_id,
-      description => 'RaceRoster'
-    }, {
-      join => {event_references => 'event_reference_type'}
-    }
-  )->first;
-
-  $event->update(
-    {
-      entrants => $self->result_data->{results}->{quantity}
-    }
-  );
-
-  return $event;
-}
-
-sub fetch_results ($self) {
-  return map {$self->make_participant($_)} $self->result_data->{results}->{data}->@*;
+sub _build_results ($self) {
+  return [map {$self->make_participant($_)} $self->result_data->{results}->{data}->@*];
 }
 
 sub make_participant ($self, $d) {
   my $p = {};
   for (my $i = 0 ; $i < $self->col_count ; $i++) {
-    my %v = $self->extractor($self->result_columns->[$i])->($d->[$i + 1]);
+    my %v;
+    try {
+      %v = $self->extractor($self->result_columns->[$i])->($d->[$i + 1]);
+    } catch ($e) {
+      chomp($e);
+      say STDERR "Extraction error occurred in colum $i: '$e' on '" . encode_json($d) . "'";
+    }
     $p = {$p->%*, %v};
   }
   return $p;
+}
+
+sub _fix_time ($t) {
+  return $t if (!defined($t) || $t eq "");
+  my $count = $t =~ tr/://;
+  return "00:$t" if ($count == 1);
+  return $t;
 }
 
 1;

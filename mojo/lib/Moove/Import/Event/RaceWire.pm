@@ -1,6 +1,7 @@
 package Moove::Import::Event::RaceWire;
 use v5.36;
 use Moose;
+with 'Moove::Import::Event::Base';
 
 use Readonly;
 use DateTime::Format::Strptime;
@@ -55,18 +56,6 @@ has 'key_map' => (
   },
   handles => {
     get_key => 'get'
-  }
-);
-
-has 'results' => (
-  is       => 'ro',
-  isa      => 'ArrayRef[HashRef]',
-  init_arg => undef,
-  lazy     => true,
-  builder  => '_build_results',
-  traits   => ['Array'],
-  handles  => {
-    total_entrants => 'count'
   }
 );
 
