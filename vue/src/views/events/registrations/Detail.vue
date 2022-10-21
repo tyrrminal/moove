@@ -135,6 +135,16 @@
 
           <b-col>
             <div v-if="canDoResultsFunctions" class="mb-4">
+              <template v-if="isLoading">
+                <b-progress-bar
+                  label="Importing Results..."
+                  animated
+                  variant="success"
+                  :value="100"
+                  :max="100"
+                />
+              </template>
+              <template v-else>
               <b-button
                 v-if="hasResults"
                 block
@@ -146,6 +156,7 @@
               <b-button v-else block variant="success" @click="importResults">
                 <b-icon icon="upload" class="mr-1" />Import Results</b-button
               >
+              </template>
             </div>
 
             <div v-for="(p, i) in orderedPlacements" :key="i">
@@ -317,6 +328,7 @@ export default {
   },
   data: function () {
     return {
+      isLoading: true,
       navLinks: [
         { id: "prev", icon: "chevron-left" },
         { id: "next", icon: "chevron-right" },
@@ -352,6 +364,7 @@ export default {
       this.$http
         .get(["user", "events", this.id].join("/"))
         .then((response) => {
+          this.isLoading = false;
           self.userEventActivity = response.data;
           self.eventActivity = self.userEventActivity.eventActivity;
           delete self.userEventActivity.eventActivity;
@@ -429,6 +442,7 @@ export default {
       return c;
     },
     importResults: function () {
+      this.isLoading = true;
       this.$http
         .post(
           ["events", "activities", this.eventActivity.id, "results"].join("/")
