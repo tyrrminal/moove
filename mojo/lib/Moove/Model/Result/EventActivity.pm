@@ -262,6 +262,13 @@ sub url ($self) {
   return $urls[0];
 }
 
+sub delete_results ($self) {
+  $self->event_placement_partitions->related_resultset('event_placements')->delete();
+  $self->event_placement_partitions->delete();
+  $self->event_registrations->related_resultset('event_participants')->delete();
+  $self->event_registrations->without_user_activity->delete();
+}
+
 sub add_participant ($self, $p) {
   my $schema = $self->result_source->schema;
 
