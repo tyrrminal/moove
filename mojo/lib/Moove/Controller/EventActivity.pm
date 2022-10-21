@@ -36,6 +36,7 @@ sub import_results ($self) {
   my $edc_overrides = $self->app->conf->import_overrides->event_results->{$edc->name};
   my $overrides     = $edc_overrides ? $edc_overrides->{$event_activity->qualified_external_identifier} : {};
 
+  $event_activity->delete_results();
   $event_activity->update({entrants => $importer->total_entrants});
   foreach my $p ($importer->results->@*) {
     $self->process_overrides($overrides, $p);
