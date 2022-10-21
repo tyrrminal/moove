@@ -298,7 +298,9 @@ sub end_time ($self) {
 sub recalculate_pace ($self) {
   my $u = $self->result_source->schema->resultset('UnitOfMeasure');
 
-  my $hours = time_to_minutes($self->net_time // $self->duration) / 60;
+  my $t = $self->net_time // $self->duration;
+  return unless (defined($t));
+  my $hours = time_to_minutes($t) / 60;
   my $miles = unit_conversion(value => $self->distance->value, from => $self->distance->unit_of_measure);
 
   my $speed = $miles / $hours;

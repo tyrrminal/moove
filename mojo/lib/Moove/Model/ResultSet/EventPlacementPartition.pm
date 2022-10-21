@@ -26,4 +26,8 @@ sub missing_count ($self) {
   return $self->search({count => {'=', undef}});
 }
 
+sub overall ($self) {
+  return $self->search({gender_id => undef, division_id => undef})->first;
+}
+
 1;

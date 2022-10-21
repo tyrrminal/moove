@@ -262,6 +262,13 @@ sub url ($self) {
   return $urls[0];
 }
 
+sub delete_results ($self) {
+  $self->event_placement_partitions->related_resultset('event_placements')->delete();
+  $self->event_placement_partitions->delete();
+  $self->event_registrations->related_resultset('event_participants')->delete();
+  $self->event_registrations->without_user_activity->delete();
+}
+
 sub add_participant ($self, $p) {
   my $schema = $self->result_source->schema;
 
@@ -308,8 +315,8 @@ sub add_participant ($self, $p) {
 
   my %partitions = $schema->resultset('EventPlacementPartition')->get_partitions($self, $gender, $division);
   $participant->add_placement($partitions{overall},  $p->{overall_place});
-  $participant->add_placement($partitions{gender},   $p->{gender_place});
-  $participant->add_placement($partitions{division}, $p->{div_place});
+  $participant->add_placement($partitions{gender},   $p->{gender_place}) if ($p->{gender_place});
+  $participant->add_placement($partitions{division}, $p->{div_place})    if ($p->{div_place});
 
   return $participant;
 }
@@ -320,6 +327,23 @@ sub update_missing_result_paces ($self) {
     $self->event_registrations->related_resultset('event_participants')->related_resultset('event_result')->search({pace => undef});
   while (my $r = $rs->next) {
     $r->recalculate_pace;
+  }
+}
+
+sub add_placements_for_gender ($self, $gender) {
+  my $partition = $self->event_placement_partitions->search({division_id => undef, gender_id => $gender->id})->first;
+  return if ($partition->event_placements->count > 0);
+  my $participants = $self->event_placement_partitions->overall->event_placements->ordered->related_resultset('event_participant')
+    ->search({gender_id => $gender->id});
+  my $n = 1;
+  while (my $participant = $participants->next) {
+    $partition->add_to_event_placements(
+      {
+        place                        => $n++,
+        event_participant_id         => $participant->id,
+        event_placement_partition_id => $partition->id,
+      }
+    );
   }
 }
 

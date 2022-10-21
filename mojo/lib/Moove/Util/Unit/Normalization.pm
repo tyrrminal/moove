@@ -8,8 +8,11 @@ our @EXPORT_OK = qw(normalize_time normalize_times);
 sub normalize_times ($p) {
   foreach (qw(net_time gross_time pace)) {
     if (defined($p->{$_})) {
-      unless ($p->{$_} =~ /:\d{2}:/) {    # force times to be h:mm:ss if they're just mm:ss
+      my $count = $p->{$_} =~ tr/://;
+      if ($count == 1) {
         $p->{$_} = "0:" . $p->{$_};
+      } elsif ($count != 2) {
+        $p->{$_} = undef;
       }
     }
   }

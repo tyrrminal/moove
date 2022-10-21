@@ -44,6 +44,7 @@ sub unit_conversion (%params) {
 }
 
 sub time_to_minutes ($duration) {
+  return undef unless (defined($duration));
   if (!ref($duration)) {
     my ($h, $m, $s) = split($COLON, $duration);
     $duration = DateTime::Duration->new(hours => $h, minutes => $m, seconds => $s);
@@ -56,6 +57,7 @@ sub time_to_minutes ($duration) {
 }
 
 sub minutes_to_time ($num) {
+  return undef unless (defined($num));
   return DateTime->today()->add(minutes => int($num * $SEC_PER_MIN + 0.5) / $SEC_PER_MIN)->strftime('%T');
 }
 
