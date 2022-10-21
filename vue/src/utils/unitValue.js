@@ -10,10 +10,10 @@ export function unitValue(f, s) {
   }
 
   let uom = store.getters["meta/getUnitOfMeasure"](f.unitOfMeasureID);
-  if (!uom) return { ...f, description: "" };
+  if (!uom) return { ...f, abbreviation: "" };
 
   return {
     ...f,
-    description: [Number.parseFloat(f.value), uom.description].join(" "),
+    description: [Number.parseFloat(f.value), uom.abbreviation].join(" "),
   };
 }
