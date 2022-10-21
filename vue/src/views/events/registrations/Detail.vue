@@ -145,17 +145,19 @@
                 />
               </template>
               <template v-else>
-              <b-button
-                v-if="hasResults"
-                block
-                variant="danger"
-                @click="deleteResults"
-              >
-                <b-icon icon="trash" class="mr-2" />Delete Results</b-button
-              >
-              <b-button v-else block variant="success" @click="importResults">
-                <b-icon icon="upload" class="mr-1" />Import Results</b-button
-              >
+                <b-button
+                  v-if="hasResults"
+                  block
+                  variant="warning"
+                  @click="reimportResults"
+                  size="sm"
+                >
+                  <b-icon icon="arrow-repeat" class="mr-2" />Re-import
+                  Results</b-button
+                >
+                <b-button v-else block variant="success" @click="importResults">
+                  <b-icon icon="upload" class="mr-1" />Import Results</b-button
+                >
               </template>
             </div>
 
@@ -449,22 +451,17 @@ export default {
         )
         .then((resp) => this.init());
     },
-    deleteResults: function () {
+    reimportResults: function () {
       let self = this;
       this.$bvModal
         .msgBoxConfirm(
-          "Are you sure you want to delete all imported results for this Event Activity?"
+          "All existing results will be deleted, before re-importing from the remote source. Proceed?"
         )
         .then((value) => {
           if (!value) return;
-          self.$http
-            .delete(
-              ["events", "activities", this.eventActivity.id, "results"].join(
-                "/"
-              ),
-              { headers: { Accept: "text/plain" } }
-            )
-            .then((resp) => self.init());
+          self.eventResult = null;
+          if (self.userEventActivity) self.userEventActivity.placements = null;
+          self.importResults();
         });
     },
   },
