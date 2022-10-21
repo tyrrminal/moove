@@ -5,8 +5,8 @@ with 'Moove::Import::Event::Base';
 
 use DateTime::Format::Strptime;
 use Readonly;
-use Moove::Util::Unit::Normalization;
-use Mojo::JSON qw(encode_json);
+use Moove::Util::Unit::Normalization qw(normalize_times);
+use Mojo::JSON                       qw(encode_json);
 
 use builtin      qw(true);
 use experimental qw(builtin try);
@@ -67,9 +67,9 @@ has '_extractors' => (
   default  => sub {
     {
       overall_place   => sub ($v) {(overall_place => $v->[1]->{place}, overall_count => $v->[1]->{count})},
-      gun_time        => sub ($v) {(gross_time    => _fix_time($v->[0]))},
-      chip_time       => sub ($v) {(net_time      => _fix_time($v->[0]))},
-      overall_pace    => sub ($v) {(pace          => _fix_time($v->[1]->{pace}))},
+      gun_time        => sub ($v) {(gross_time    => $v->[0])},
+      chip_time       => sub ($v) {(net_time      => $v->[0])},
+      overall_pace    => sub ($v) {(pace          => $v->[1]->{pace})},
       name            => sub ($v) {my @n = split(/\s+/, $v->[1]); return (first_name => $n[0], last_name => $n[1])},
       age             => sub ($v) {(age          => $v->[0])},
       gender          => sub ($v) {(gender       => $v->[1]->{character})},
@@ -122,14 +122,8 @@ sub make_participant ($self, $d) {
     }
     $p = {$p->%*, %v};
   }
+  normalize_times($p);
   return $p;
-}
-
-sub _fix_time ($t) {
-  return $t if (!defined($t) || $t eq "");
-  my $count = $t =~ tr/://;
-  return "00:$t" if ($count == 1);
-  return $t;
 }
 
 1;

@@ -163,9 +163,14 @@
       ></template
     >
     <template v-slot:cell(pctGender)="data"
-      ><span v-if="data.item.placements && data.item.placements.gender">{{
-        data.item.placements.gender.percentile | percent(1)
-      }}</span></template
+      ><span
+        v-if="
+          data.item.placements &&
+          data.item.placements.gender &&
+          data.item.placements.gender.percentile != null
+        "
+        >{{ data.item.placements.gender.percentile | percent(1) }}</span
+      ></template
     >
     <template v-slot:cell(placeDivision)="data"
       ><span v-if="data.item.placements && data.item.placements.division"
@@ -179,10 +184,13 @@
       ></template
     >
     <template v-slot:cell(pctDivision)="data"
-      ><span v-if="data.item.placements && data.item.placements.division"
-        ><span v-if="data.item.placements.division.percentile != null">{{
-          data.item.placements.division.percentile | percent(1)
-        }}</span></span
+      ><span
+        v-if="
+          data.item.placements &&
+          data.item.placements.division &&
+          data.item.placements.division.percentile != null
+        "
+        >{{ data.item.placements.division.percentile | percent(1) }}</span
       ></template
     >
 
@@ -333,8 +341,8 @@ export default {
       }
       if (key == "speed") {
         t = "num";
-        let ar = activityRate(a.activity);
-        let br = activityRate(b.activity);
+        let ar = activityRate(a.eventResult || a.activity);
+        let br = activityRate(b.eventResult || b.activity);
         a =
           ar == null
             ? 0
