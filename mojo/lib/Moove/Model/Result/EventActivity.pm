@@ -308,8 +308,8 @@ sub add_participant ($self, $p) {
 
   my %partitions = $schema->resultset('EventPlacementPartition')->get_partitions($self, $gender, $division);
   $participant->add_placement($partitions{overall},  $p->{overall_place});
-  $participant->add_placement($partitions{gender},   $p->{gender_place});
-  $participant->add_placement($partitions{division}, $p->{div_place});
+  $participant->add_placement($partitions{gender},   $p->{gender_place}) if ($p->{gender_place});
+  $participant->add_placement($partitions{division}, $p->{div_place})    if ($p->{div_place});
 
   return $participant;
 }
