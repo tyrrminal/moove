@@ -333,8 +333,8 @@ export default {
       }
       if (key == "speed") {
         t = "num";
-        let ar = activityRate(a.activity);
-        let br = activityRate(b.activity);
+        let ar = activityRate(a.eventResult || a.activity);
+        let br = activityRate(b.eventResult || b.activity);
         a =
           ar == null
             ? 0
