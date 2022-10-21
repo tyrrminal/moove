@@ -14,6 +14,8 @@ use Mojo::Util qw(class_to_path);
 
 use DCS::Util::NameConversion qw(camel_to_snake convert_hash_keys);
 
+use HTTP::Status qw(:constants);
+
 sub encode_model_eventtype ($self, $entity) {
   return {id => $entity->id};
 }
@@ -33,12 +35,15 @@ sub import_results ($self) {
   require(class_to_path($class));
   my $importer = $class->new(event_id => $event->external_identifier, race_id => $event_activity->external_identifier);
 
+  my @participants = $importer->results->@*;
+  return $self->render_error(HTTP_BAD_REQUEST, "No participant data found") unless (@participants);
+
   my $edc_overrides = $self->app->conf->import_overrides->event_results->{$edc->name};
   my $overrides     = $edc_overrides ? $edc_overrides->{$event_activity->qualified_external_identifier} : {};
 
   $event_activity->delete_results();
   $event_activity->update({entrants => $importer->total_entrants});
-  foreach my $p ($importer->results->@*) {
+  foreach my $p (@participants) {
     $self->process_overrides($overrides, $p);
     $event_activity->add_participant($p);
   }
