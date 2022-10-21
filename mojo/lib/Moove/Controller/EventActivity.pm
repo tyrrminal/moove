@@ -48,6 +48,9 @@ sub import_results ($self) {
     $event_activity->add_participant($p);
   }
   $event_activity->update_missing_result_paces;
+  foreach my $g ($self->model("Gender")->all) {
+    $event_activity->add_placements_for_gender($g);
+  }
 
   return $self->render(openapi => $self->encode_model($event_activity->event));
 }
