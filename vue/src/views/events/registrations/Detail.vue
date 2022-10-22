@@ -175,10 +175,13 @@
               </b-progress>
             </div>
 
-            <div v-if="eventActivity.importable" class="text-center mt-4">
+            <div
+              v-if="eventActivity.results.importable"
+              class="text-center mt-4"
+            >
               <b-link
-                v-if="eventActivity.resultsURL"
-                :href="eventActivity.resultsURL"
+                v-if="eventActivity.results.url"
+                :href="eventActivity.results.url"
                 target="_blank"
                 >Original Results
               </b-link>
@@ -486,7 +489,7 @@ export default {
     },
     canDoResultsFunctions: function () {
       if (!this.isAdmin) return false;
-      return this.eventActivity.importable;
+      return this.eventActivity.results.importable;
     },
     hasResults: function () {
       return !!this.eventResult;

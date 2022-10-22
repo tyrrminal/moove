@@ -11,11 +11,13 @@ sub encode_model_eventactivity ($self, $entity) {
     name           => $entity->name,
     event          => $self->encode_model($entity->event),
     entrants       => $entity->entrants,
-    importable     => defined($entity->event->external_identifier) && $entity->scheduled_start < DateTime->now(),
     scheduledStart => $self->encode_datetime($entity->scheduled_start),
     eventType      => $self->encode_model($entity->event_type),
     distance       => $self->encode_model($entity->distance),
-    resultsURL     => $entity->url,
+    results        => {
+      url        => $entity->url,
+      importable => defined($entity->event->external_identifier) && $entity->scheduled_start < DateTime->now(),
+    }
   };
 }
 

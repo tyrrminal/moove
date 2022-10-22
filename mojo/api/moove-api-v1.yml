@@ -1413,10 +1413,6 @@ components:
         name:
           type: string
           nullable: true
-        resultsURL:
-          type: string
-          format: uri
-          nullable: true
         scheduledStart:
           type: string
           format: date-time
@@ -1425,6 +1421,15 @@ components:
         entrants:
           type: integer
           nullable: true
+        results:
+          type: object
+          properties:
+            url:
+              type: string
+              format: uri
+              nullable: true
+            importable:
+              type: boolean
         importable:
           type: boolean
         event:
