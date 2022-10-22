@@ -1430,8 +1430,9 @@ components:
               nullable: true
             importable:
               type: boolean
-        importable:
-          type: boolean
+            importCompletion:
+              type: number
+              nullable: true
         event:
           $ref: "#/components/schemas/Event"
         eventType:
