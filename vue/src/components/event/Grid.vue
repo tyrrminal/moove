@@ -328,12 +328,12 @@ export default {
       }
       if (key == "distance") {
         t = "num";
-        let aa = a.activity ?? a.eventActivity;
+        let aa = a.eventActivity ?? a.activity;
         a = convertUnitValue(
           aa.distance.value,
           this.getUnitOfMeasure(aa.distance.unitOfMeasureID)
         );
-        let ba = b.activity ?? b.eventActivity;
+        let ba = b.eventActivity ?? b.activity;
         b = convertUnitValue(
           ba.distance.value,
           this.getUnitOfMeasure(ba.distance.unitOfMeasureID)

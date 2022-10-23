@@ -93,7 +93,7 @@ sub _build_url ($self) {
 
 sub _build_result_data ($self) {
   my $ua  = Mojo::UserAgent->new();
-  my $res = $ua->get($self->_url)->result;
+  my $res = $ua->get($self->_url => {Accept => 'application/json'})->result;
 
   return $res->json->{data};
 }
