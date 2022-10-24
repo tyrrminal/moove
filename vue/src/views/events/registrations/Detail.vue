@@ -136,13 +136,16 @@
           <b-col>
             <div v-if="canDoResultsFunctions" class="mb-4">
               <template v-if="isLoading">
-                <b-progress-bar
-                  label="Importing Results..."
-                  animated
-                  variant="success"
-                  :value="100"
-                  :max="100"
-                />
+                <b-progress>
+                  <b-progress-bar
+                    variant="info"
+                    :value="eventActivity.results.importCompletion"
+                    :max="100"
+                    ><span class="font-weight-bold"
+                      >Importing Results&hellip;</span
+                    ></b-progress-bar
+                  >
+                </b-progress>
               </template>
               <template v-else>
                 <b-button
@@ -333,7 +336,7 @@ export default {
   },
   data: function () {
     return {
-      isLoading: true,
+      timer: null,
       navLinks: [
         { id: "prev", icon: "chevron-left" },
         { id: "next", icon: "chevron-right" },
@@ -369,7 +372,6 @@ export default {
       this.$http
         .get(["user", "events", this.id].join("/"))
         .then((response) => {
-          this.isLoading = false;
           self.userEventActivity = response.data;
           self.eventActivity = self.userEventActivity.eventActivity;
           delete self.userEventActivity.eventActivity;
@@ -393,6 +395,10 @@ export default {
           delete self.userEventActivity.fundraising;
           self.nav = self.userEventActivity.nav;
           delete self.userEventActivity.nav;
+          if (self.eventActivity.results.importCompletion == 100) {
+            clearInterval(self.timer);
+            self.timer = null;
+          }
         })
         .catch((err) => (self.error = err.response.data.message));
     },
@@ -447,12 +453,17 @@ export default {
       return c;
     },
     importResults: function () {
-      this.isLoading = true;
+      let self = this;
       this.$http
         .post(
           ["events", "activities", this.eventActivity.id, "results"].join("/")
         )
-        .then((resp) => this.init());
+        .then((resp) => {
+          self.eventActivity.results.importCompletion = 0;
+          self.timer = setInterval(function () {
+            self.init();
+          }, 5000);
+        });
     },
     reimportResults: function () {
       let self = this;
@@ -482,6 +493,12 @@ export default {
   computed: {
     ...mapGetters("auth", { isAdmin: "isAdmin" }),
     ...mapGetters("meta", { uom: "getUnitOfMeasure", at: "getActivityType" }),
+    isLoading: function () {
+      return (
+        this.eventActivity.results.importCompletion != null &&
+        this.eventActivity.results.importCompletion < 100
+      );
+    },
     title: function () {
       if (this.event)
         return `${this.applicationName} / Event / ${this.event.year} ${this.event.name}`;
