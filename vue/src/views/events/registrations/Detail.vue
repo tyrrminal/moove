@@ -164,19 +164,21 @@
               </template>
             </div>
 
-            <div v-if="!isLoading" v-for="(p, i) in orderedPlacements" :key="i">
-              <h5>{{ p.description }}: {{ p.place }} / {{ p.of }}</h5>
-              <b-progress height="2rem" class="my-2">
-                <b-progress-bar
-                  :value="100 - (100 * p.place) / p.of"
-                  :max="100"
-                  :animated="p.place <= 3"
-                  :style="{ fontSize: '1.25rem' }"
-                  :variant="progressClass(1 - p.place / p.of, 2)"
-                  >{{ (1 - p.place / p.of) | percent(1) }}
-                </b-progress-bar>
-              </b-progress>
-            </div>
+            <template v-if="!isLoading">
+              <div v-for="(p, i) in orderedPlacements" :key="i">
+                <h5>{{ p.description }}: {{ p.place }} / {{ p.of }}</h5>
+                <b-progress height="2rem" class="my-2">
+                  <b-progress-bar
+                    :value="100 - (100 * p.place) / p.of"
+                    :max="100"
+                    :animated="p.place <= 3"
+                    :style="{ fontSize: '1.25rem' }"
+                    :variant="progressClass(1 - p.place / p.of, 2)"
+                    >{{ (1 - p.place / p.of) | percent(1) }}
+                  </b-progress-bar>
+                </b-progress>
+              </div>
+            </template>
 
             <div
               v-if="eventActivity.results.importable"
