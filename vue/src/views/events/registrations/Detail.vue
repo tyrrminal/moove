@@ -164,7 +164,7 @@
               </template>
             </div>
 
-            <div v-for="(p, i) in orderedPlacements" :key="i">
+            <div v-if="!isLoading" v-for="(p, i) in orderedPlacements" :key="i">
               <h5>{{ p.description }}: {{ p.place }} / {{ p.of }}</h5>
               <b-progress height="2rem" class="my-2">
                 <b-progress-bar
@@ -336,7 +336,6 @@ export default {
   },
   data: function () {
     return {
-      timer: null,
       navLinks: [
         { id: "prev", icon: "chevron-left" },
         { id: "next", icon: "chevron-right" },
@@ -395,10 +394,12 @@ export default {
           delete self.userEventActivity.fundraising;
           self.nav = self.userEventActivity.nav;
           delete self.userEventActivity.nav;
-          if (self.eventActivity.results.importCompletion == 100) {
-            clearInterval(self.timer);
-            self.timer = null;
-          }
+          if (
+            self.eventActivity.results.importable &&
+            self.eventActivity.results.importCompletion != null &&
+            self.eventActivity.results.importCompletion < 100
+          )
+            self.checkImportStatus();
         })
         .catch((err) => (self.error = err.response.data.message));
     },
@@ -459,10 +460,8 @@ export default {
           ["events", "activities", this.eventActivity.id, "results"].join("/")
         )
         .then((resp) => {
-          self.eventActivity.results.importCompletion = 0;
-          self.timer = setInterval(function () {
-            self.init();
-          }, 5000);
+          self.eventActivity.results.importCompletion = 1;
+          self.checkImportStatus();
         });
     },
     reimportResults: function () {
@@ -473,9 +472,33 @@ export default {
         )
         .then((value) => {
           if (!value) return;
-          self.eventResult = null;
-          if (self.userEventActivity) self.userEventActivity.placements = null;
+          self.$nextTick(() => {
+            self.eventResult = null;
+            if (self.userEventActivity)
+              self.userEventActivity.placements = null;
+          });
           self.importResults();
+        });
+    },
+    checkImportStatus: function () {
+      let self = this;
+      let timeout = function () {
+        return Math.floor(Math.random() * (1500 - 500) + 500);
+      };
+      this.$http
+        .get(
+          ["events", "activities", this.eventActivity.id, "results"].join("/")
+        )
+        .then((resp) => {
+          this.eventActivity.results.importCompletion =
+            resp.data.importCompletion;
+          if (this.eventActivity.results.importCompletion == 100) {
+            this.eventActivity.results.importCompletion = 99.9;
+            this.init();
+          } else
+            setTimeout(function () {
+              self.checkImportStatus();
+            }, timeout());
         });
     },
   },
