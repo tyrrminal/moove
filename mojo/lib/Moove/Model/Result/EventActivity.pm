@@ -262,6 +262,10 @@ sub url ($self) {
   return $urls[0];
 }
 
+sub has_results ($self) {
+  return $self->event_registrations->related_resultset('event_participants')->count > 0;
+}
+
 sub delete_results ($self) {
   $self->event_placement_partitions->related_resultset('event_placements')->delete();
   $self->event_placement_partitions->delete();
