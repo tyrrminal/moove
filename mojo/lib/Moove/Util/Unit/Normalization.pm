@@ -5,13 +5,16 @@ use parent 'Exporter';
 
 our @EXPORT_OK = qw(normalize_time normalize_times);
 
+use DCS::Constants qw(:symbols);
+
 sub normalize_times ($p) {
   foreach (qw(net_time gross_time pace)) {
     if (defined($p->{$_})) {
-      my $count = $p->{$_} =~ tr/://;
-      if ($count == 1) {
-        $p->{$_} = "0:" . $p->{$_};
-      } elsif ($count != 2) {
+      my @nums = split($COLON, $p->{$_});
+      unshift(@nums, 0) if (@nums == 2);
+      if (@nums == 3) {
+        $p->{$_} = join($COLON, map {sprintf('%02d', $_)} @nums);
+      } else {
         $p->{$_} = undef;
       }
     }

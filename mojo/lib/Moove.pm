@@ -1,4 +1,4 @@
-package Moove v2.1.5;
+package Moove v2.1.6;
 use v5.36;
 
 use Mojo::Base 'Mojolicious';

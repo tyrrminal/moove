@@ -136,13 +136,16 @@
           <b-col>
             <div v-if="canDoResultsFunctions" class="mb-4">
               <template v-if="isLoading">
-                <b-progress-bar
-                  label="Importing Results..."
-                  animated
-                  variant="success"
-                  :value="100"
-                  :max="100"
-                />
+                <b-progress>
+                  <b-progress-bar
+                    variant="info"
+                    :value="eventActivity.results.importCompletion"
+                    :max="100"
+                    ><span class="font-weight-bold"
+                      >Importing Results&hellip;</span
+                    ></b-progress-bar
+                  >
+                </b-progress>
               </template>
               <template v-else>
                 <b-button
@@ -161,7 +164,7 @@
               </template>
             </div>
 
-            <div v-for="(p, i) in orderedPlacements" :key="i">
+            <div v-if="!isLoading" v-for="(p, i) in orderedPlacements" :key="i">
               <h5>{{ p.description }}: {{ p.place }} / {{ p.of }}</h5>
               <b-progress height="2rem" class="my-2">
                 <b-progress-bar
@@ -175,10 +178,13 @@
               </b-progress>
             </div>
 
-            <div v-if="eventActivity.importable" class="text-center mt-4">
+            <div
+              v-if="eventActivity.results.importable"
+              class="text-center mt-4"
+            >
               <b-link
-                v-if="eventActivity.resultsURL"
-                :href="eventActivity.resultsURL"
+                v-if="eventActivity.results.url"
+                :href="eventActivity.results.url"
                 target="_blank"
                 >Original Results
               </b-link>
@@ -330,7 +336,6 @@ export default {
   },
   data: function () {
     return {
-      isLoading: true,
       navLinks: [
         { id: "prev", icon: "chevron-left" },
         { id: "next", icon: "chevron-right" },
@@ -366,7 +371,6 @@ export default {
       this.$http
         .get(["user", "events", this.id].join("/"))
         .then((response) => {
-          this.isLoading = false;
           self.userEventActivity = response.data;
           self.eventActivity = self.userEventActivity.eventActivity;
           delete self.userEventActivity.eventActivity;
@@ -390,6 +394,12 @@ export default {
           delete self.userEventActivity.fundraising;
           self.nav = self.userEventActivity.nav;
           delete self.userEventActivity.nav;
+          if (
+            self.eventActivity.results.importable &&
+            self.eventActivity.results.importCompletion != null &&
+            self.eventActivity.results.importCompletion < 100
+          )
+            self.checkImportStatus();
         })
         .catch((err) => (self.error = err.response.data.message));
     },
@@ -444,12 +454,15 @@ export default {
       return c;
     },
     importResults: function () {
-      this.isLoading = true;
+      let self = this;
       this.$http
         .post(
           ["events", "activities", this.eventActivity.id, "results"].join("/")
         )
-        .then((resp) => this.init());
+        .then((resp) => {
+          self.eventActivity.results.importCompletion = 1;
+          self.checkImportStatus();
+        });
     },
     reimportResults: function () {
       let self = this;
@@ -459,9 +472,33 @@ export default {
         )
         .then((value) => {
           if (!value) return;
-          self.eventResult = null;
-          if (self.userEventActivity) self.userEventActivity.placements = null;
+          self.$nextTick(() => {
+            self.eventResult = null;
+            if (self.userEventActivity)
+              self.userEventActivity.placements = null;
+          });
           self.importResults();
+        });
+    },
+    checkImportStatus: function () {
+      let self = this;
+      let timeout = function () {
+        return Math.floor(Math.random() * (1500 - 500) + 500);
+      };
+      this.$http
+        .get(
+          ["events", "activities", this.eventActivity.id, "results"].join("/")
+        )
+        .then((resp) => {
+          this.eventActivity.results.importCompletion =
+            resp.data.importCompletion;
+          if (this.eventActivity.results.importCompletion == 100) {
+            this.eventActivity.results.importCompletion = 99.9;
+            this.init();
+          } else
+            setTimeout(function () {
+              self.checkImportStatus();
+            }, timeout());
         });
     },
   },
@@ -479,6 +516,12 @@ export default {
   computed: {
     ...mapGetters("auth", { isAdmin: "isAdmin" }),
     ...mapGetters("meta", { uom: "getUnitOfMeasure", at: "getActivityType" }),
+    isLoading: function () {
+      return (
+        this.eventActivity.results.importCompletion != null &&
+        this.eventActivity.results.importCompletion < 100
+      );
+    },
     title: function () {
       if (this.event)
         return `${this.applicationName} / Event / ${this.event.year} ${this.event.name}`;
@@ -486,7 +529,7 @@ export default {
     },
     canDoResultsFunctions: function () {
       if (!this.isAdmin) return false;
-      return this.eventActivity.importable;
+      return this.eventActivity.results.importable;
     },
     hasResults: function () {
       return !!this.eventResult;
