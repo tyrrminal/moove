@@ -467,6 +467,21 @@ paths:
   /events/activities/{eventActivityID}/results:
     parameters:
       - $ref: "#/components/parameters/EventActivityID"
+    get:
+      summary: Get status of event result import
+      x-mojo-to: EventActivity#result_import_status
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  importCompletion:
+                    type: number
+      tags:
+        - Event
     post:
       summary: Import event results from a file or the web
       x-mojo-to: EventActivity#import_results

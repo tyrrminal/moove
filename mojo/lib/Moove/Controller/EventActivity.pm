@@ -32,6 +32,12 @@ sub import_results ($self) {
   return $self->render(openapi => $self->encode_model($event_activity->event));
 }
 
+sub result_import_status ($self) {
+  return unless ($self->openapi->valid_input);
+
+  return $self->render(openapi => {importCompletion => $self->get_task_progress($self->entity)});
+}
+
 sub delete_results ($self) {
   return unless ($self->openapi->valid_input);
 
