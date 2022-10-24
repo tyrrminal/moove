@@ -23,7 +23,7 @@ sub encode_model_eventactivity ($self, $entity) {
 }
 
 sub get_task_progress ($self, $event_activity) {
-  my $jobs = $self->app->minion->jobs({states => ['active'], tasks => ['import_event_results']});
+  my $jobs = $self->app->minion->jobs({states => ['inactive', 'active'], tasks => ['import_event_results']});
   while (my $job = $jobs->next) {
     next unless ($job->{args}->[0] == $event_activity->id);
     return $job->{notes}->{progress} // 0;
