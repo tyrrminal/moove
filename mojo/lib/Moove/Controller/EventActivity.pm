@@ -10,8 +10,6 @@ with 'Moove::Controller::Role::ModelEncoding::Registration::Event',
   'Moove::Controller::Role::ModelEncoding::Registration::EventActivity';
 with 'Moove::Controller::Role::ModelEncoding::Default';
 
-use Mojo::Util qw(class_to_path);
-
 use DCS::Util::NameConversion qw(camel_to_snake convert_hash_keys);
 
 use HTTP::Status qw(:constants);
