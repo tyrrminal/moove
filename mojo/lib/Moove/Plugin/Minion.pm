@@ -13,6 +13,7 @@ sub register ($self, $app, $args) {
   );
 
   $app->plugin('Moove::Task::ActivityPoint');
+  $app->plugin('Moove::Task::EventResult');
 }
 
 1;
