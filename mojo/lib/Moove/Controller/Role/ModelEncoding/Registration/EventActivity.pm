@@ -15,10 +15,21 @@ sub encode_model_eventactivity ($self, $entity) {
     eventType      => $self->encode_model($entity->event_type),
     distance       => $self->encode_model($entity->distance),
     results        => {
-      url        => $entity->url,
-      importable => defined($entity->event->external_identifier) && $entity->scheduled_start < DateTime->now(),
+      url              => $entity->url,
+      importable       => defined($entity->event->external_identifier) && $entity->scheduled_start < DateTime->now(),
+      importCompletion => $self->get_task_progress($entity)
     }
   };
+}
+
+sub get_task_progress ($self, $event_activity) {
+  my $jobs = $self->app->minion->jobs({states => ['active'], tasks => ['import_event_results']});
+  while (my $job = $jobs->next) {
+    next unless ($job->{args}->[0] == $event_activity->id);
+    return $job->{notes}->{progress} // 0;
+  }
+  return 100 if ($event_activity->has_results);
+  return undef;
 }
 
 1;
