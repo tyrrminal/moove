@@ -26,8 +26,10 @@ sub encode_model_result ($self, $type, $entity) {
   }
   if ($base->has_pace) {
     $r->{netTime} = $self->encode_time($entity->net_time);
-    $r->{pace}    = $self->encode_value_with_units($self->encode_time($entity->pace),
-      $self->model('UnitOfMeasure')->find({abbreviation => '/mi'}));
+    if (defined($entity->pace)) {
+      $r->{pace} = $self->encode_value_with_units($self->encode_time($entity->pace),
+        $self->model('UnitOfMeasure')->find({abbreviation => '/mi'}));
+    }
   }
   if ($base->has_repeats) {
     $r->{repetitions} = $entity->repetitions // 1;
