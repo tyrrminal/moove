@@ -3,9 +3,10 @@ set -e
 
 include_custom_modules() {
   if [ -n "$PERL_CUSTOM_MODULE_PATH" ]; then
-    DIRS=$(find $PERL_CUSTOM_MODULE_PATH/* -maxdepth 0 -type d)
-    export PERL5LIB="$(echo $DIRS | sed s%$%:%    )${PERL5LIB}"
-    export     PATH="$(echo $DIRS | sed s%$%/bin:%)${PATH}"
+    DIRS=$(find $PERL_CUSTOM_MODULE_PATH/*/lib -maxdepth 0 -type d -printf "%p:" 2> /dev/null || true)
+    export PERL5LIB="${DIRS}${PERL5LIB}"
+    DIRS=$(find $PERL_CUSTOM_MODULE_PATH/*/bin -maxdepth 0 -type d -printf "%p:" 2> /dev/null || true)
+    export PATH="${DIRS}${PATH}"
   fi
 }
 
