@@ -114,12 +114,6 @@ sub get_activity_data ($self, $activity_id) {
   $activity->{gross_time}      = $self->_get_gross_time($activity);
   $activity->{activity_points} = [] if ($activity->{gpx});
 
-  my $csv = Text::CSV_XS->new({binary => true, auto_diag => true});
-  my $p   = DateTime::Format::Strptime->new(
-    pattern   => '%F %T',
-    locale    => 'en_US',
-    time_zone => 'America/New_York'
-  );
   return $activity;
 }
 
