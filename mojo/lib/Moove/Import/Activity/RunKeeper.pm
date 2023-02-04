@@ -111,9 +111,10 @@ sub get_activity_data ($self, $activity_id) {
 
   if ($activity->{notes} && $activity->{notes} =~ /(\d+(?:\.\d+)?) degrees/) {$activity->{temperature} = $1;}
   foreach (qw(net_time gross_time pace)) {$activity->{$_} = normalize_time($activity->{$_})}
-  $activity->{gross_time}      = $self->_get_gross_time($activity);
-  $activity->{activity_points} = [] if ($activity->{gpx});
-
+  if ($activity->{gpx}) {
+    $activity->{gross_time}      = $self->_get_gross_time($activity);
+    $activity->{activity_points} = [];
+  }
   return $activity;
 }
 
