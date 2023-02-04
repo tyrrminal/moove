@@ -400,6 +400,12 @@ sub start_time ($self) {
   return $self->activity_result->start_time;
 }
 
+sub start_date ($self) {
+  return undef unless(defined($self->activity_result));
+  return undef unless(defined($self->activity_result->start_time));
+  return $self->activity_result->start_time->truncate(to => 'day');
+}
+
 sub description ($self) {
   return sprintf('%s %s %s', $self->start_time->strftime('%F'), $self->distance->description, $self->activity_type->description);
 }
