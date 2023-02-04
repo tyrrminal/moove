@@ -111,15 +111,10 @@ sub get_activity_data ($self, $activity_id) {
 
   if ($activity->{notes} && $activity->{notes} =~ /(\d+(?:\.\d+)?) degrees/) {$activity->{temperature} = $1;}
   foreach (qw(net_time gross_time pace)) {$activity->{$_} = normalize_time($activity->{$_})}
-  $activity->{gross_time}      = $self->_get_gross_time($activity);
-  $activity->{activity_points} = [] if ($activity->{gpx});
-
-  my $csv = Text::CSV_XS->new({binary => true, auto_diag => true});
-  my $p   = DateTime::Format::Strptime->new(
-    pattern   => '%F %T',
-    locale    => 'en_US',
-    time_zone => 'America/New_York'
-  );
+  if ($activity->{gpx}) {
+    $activity->{gross_time}      = $self->_get_gross_time($activity);
+    $activity->{activity_points} = [];
+  }
   return $activity;
 }
 

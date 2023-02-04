@@ -23,7 +23,7 @@ export default {
       activity: null,
       workout: null,
 
-      dtSettings: { input: { zone: 'local' } }
+      dtSettings: { input: { zone: 'local' }, output: { format: 'date_med' } }
     };
   },
   mounted() {
@@ -41,4 +41,5 @@ export default {
 </script>
 
 <style>
+
 </style>
