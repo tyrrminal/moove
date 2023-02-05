@@ -3,7 +3,7 @@
     <template v-if="workout">
       <h4 class="float-right">{{ workout.date | luxon(dtSettings) }}</h4>
       <h2>{{ headerLabel }} <b-link :to="{ name: 'workout', params: { id: workout.id } }">{{
-          workout.name
+        workout.name
       }}</b-link>
       </h2>
       <b-form-row>
@@ -229,7 +229,7 @@ export default {
       activity.workoutID = this.workout.id;
       if (!this.activityType.hasDistance) delete (activity.distance);
       if (!this.activityType.hasRepeats) delete (activity.repetitions);
-      if (!this.activityType.hasDuration || !this.activityType.distance) { delete (activity.netTime); }
+      if (!this.activityType.hasDuration || !this.activityType.hasDistance) { delete (activity.netTime); }
       if (!this.activityType.hasDuration) { delete (activity.duration); }
       if (!this.activityType.hasSpeed) delete (activity.speed);
       if (!this.activityType.hasPace) delete (activity.pace);
@@ -339,4 +339,5 @@ export default {
 </script>
 
 <style>
+
 </style>
