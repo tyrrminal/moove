@@ -183,14 +183,14 @@ export default {
         { key: "date", sortable: true },
         { key: "name", sortable: true },
         { key: "type", sortable: true },
+        { key: "distance", sortable: true, show: { performance: true } },
+        { key: "speed", sortable: true, show: { performance: true } },
         {
           key: "registrationFee",
           label: "Fee",
           sortable: true,
           show: { performance: true, fundraising: true },
         },
-        { key: "distance", sortable: true, show: { performance: true } },
-        { key: "speed", sortable: true, show: { performance: true } },
         {
           key: "place",
           sortable: true,
