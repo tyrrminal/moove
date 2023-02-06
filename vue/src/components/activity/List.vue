@@ -9,6 +9,7 @@
         </div>
       </template>
       <template #cell(activityTypeID)="data">
+        <b-icon v-if="activityHasMap(data.item)" icon="pin-map" class="mr-2" />
         <b-link :to="{ name: 'activity', params: { id: data.item.id } }" class="activityLink">{{
           activityName(data.item)
         }}</b-link>
@@ -127,6 +128,10 @@ export default {
       if (at.hasDistance)
         return `${this.dayPart(a.startTime)} ${at.labels.base}`;
       return at.labels.base
+    },
+    activityHasMap: function (a) {
+      let at = this.getActivityType(a.activityTypeID);
+      return at.hasMap;
     },
     formatDate: function (d) {
       return DateTime.fromISO(d).toLocaleString(DateTime.DATETIME_FULL);
