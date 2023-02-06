@@ -98,8 +98,9 @@
     </template>
 
     <template v-slot:cell(index)="data">{{ data.index + 1 }}</template>
+    <template #cell(year)="data">{{ data.item.eventActivity.scheduledStart.substr(0, 4) }}</template>
     <template v-slot:cell(date)="data">{{
-      data.item.eventActivity.scheduledStart | luxon({ output: "short" })
+      data.item.eventActivity.scheduledStart | luxon({ output: { format: "ccc LLL d" } })
     }}</template>
     <template v-slot:cell(type)="data">{{
       data.item.eventActivity.eventType.description
@@ -180,6 +181,7 @@ export default {
     return {
       baseFields: [
         { key: "index", label: "" },
+        { key: "year", sortable: false },
         { key: "date", sortable: true },
         { key: "name", sortable: true },
         { key: "type", sortable: true },
