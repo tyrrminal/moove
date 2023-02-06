@@ -6,7 +6,7 @@
         <b-card-body>
           <b-card-text v-if="text">{{ text }}</b-card-text>
           <b-list-group v-if="items" flush>
-            <b-list-group-item v-for="(i,index) in items" :key="`${name}-${index}`" >{{ i }}</b-list-group-item>
+            <b-list-group-item v-for="(i, index) in items" :key="`${name}-${index}`">{{ i }}</b-list-group-item>
           </b-list-group>
         </b-card-body>
       </b-collapse>
@@ -23,7 +23,7 @@ export default {
     name: String
   },
   filters: {
-    prefaceAngle: function(t) {
+    prefaceAngle: function (t) {
       return '&rsaquo; ' + t;
     }
   }

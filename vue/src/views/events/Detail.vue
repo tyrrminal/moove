@@ -4,23 +4,23 @@
       <b-card-header>
         <div class="float-right">
           <b-icon icon="compass" class="mr-1" />{{
-           event.address | formatAddress 
+            event.address | formatAddress
           }}
         </div>
-        <b-link href="event.url" target="_blank">{{  event.name  }}</b-link> - {{  event.year  }}
+        <b-link href="event.url" target="_blank">{{ event.name }}</b-link> - {{ event.year }}
       </b-card-header>
       <b-card-body>
 
         <legend>Activities</legend>
         <b-table :items="sortedActivities" :fields="activityFields">
           <template #cell(scheduledStart)="data">
-            {{  data.value | luxon({ input: { zone: "local" }, output: "short" })  }}
+            {{ data.value | luxon({ input: { zone: "local" }, output: "short" }) }}
           </template>
           <template #cell(type)="data">
-            {{  getEventType(data.item.eventType.id).description  }}
+            {{ getEventType(data.item.eventType.id).description }}
           </template>
           <template #cell(distance)="data">
-            {{  data.value.value  }} {{  getUnit(data.value.unitOfMeasureID).abbreviation  }}
+            {{ data.value.value }} {{ getUnit(data.value.unitOfMeasureID).abbreviation }}
           </template>
           <template #cell(actions)="data">
             <b-button v-if="registered[data.item.id]" size="sm" class="text-uppercase" variant="primary"

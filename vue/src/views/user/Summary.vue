@@ -8,12 +8,12 @@
       <b-row>
         <b-col sm="12" class="text-center">
           <h3>
-            {{  user.person.firstname  }}
+            {{ user.person.firstname }}
             <template v-if="
               user.person.firstname.toLowerCase() !==
               user.username.toLowerCase()
-            ">"{{  user.username  }}"</template>
-            {{  user.person.lastname  }}
+            ">"{{ user.username }}"</template>
+            {{ user.person.lastname }}
           </h3>
         </b-col>
       </b-row>
@@ -22,8 +22,8 @@
         <b-col sm="10" class="text-center">
           <span class="text-muted">Lifetime:</span>
           <span v-for="t in totals.length" :key="totals[t - 1].activityType.id">
-            {{  totals[t - 1].activityType.description  }}
-            {{  totals[t - 1].distance | formatDistance  }}
+            {{ totals[t - 1].activityType.description }}
+            {{ totals[t - 1].distance | formatDistance }}
             <span v-if="t < totals.length" class="text-muted">/</span>
           </span>
         </b-col>
@@ -38,8 +38,8 @@
           <b-list-group>
             <b-list-group-item v-for="a in activities" :key="a.id">
               <timeago :datetime="a.startTime"></timeago>
-              &mdash; {{  a.distance | formatDistance  }}
-              {{  a.activityType.description  }}
+              &mdash; {{ a.distance | formatDistance }}
+              {{ a.activityType.description }}
             </b-list-group-item>
           </b-list-group>
         </b-col>
@@ -124,4 +124,5 @@ export default {
 </script>
 
 <style>
+
 </style>

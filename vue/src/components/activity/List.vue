@@ -8,7 +8,8 @@
         </div>
       </template>
       <template #cell(activityTypeID)="data">
-        <b-link :to="{ name: 'activity', params: { id: data.item.id } }" class="activityLink">{{ activityName(data.item)
+        <b-link :to="{ name: 'activity', params: { id: data.item.id } }" class="activityLink">{{
+          activityName(data.item)
         }}</b-link>
       </template>
       <template #cell(startTime)="data">
@@ -29,7 +30,8 @@
       </template>
       <template #cell(pace)="data">
         <template v-if="data.value">
-          {{ data.value.value | trimTime
+          {{
+            data.value.value | trimTime
           }}{{ getUnitOfMeasure(data.value.unitOfMeasureID).abbreviation }}
         </template>
       </template>
@@ -216,4 +218,5 @@ export default {
 </script>
 
 <style scoped>
+
 </style>

@@ -8,13 +8,7 @@
       </div>
       <label for="name">Username</label>
       <div>
-        <input
-          id="username"
-          type="text"
-          v-model="username"
-          required
-          autofocus
-        />
+        <input id="username" type="text" v-model="username" required autofocus />
       </div>
       <label for="password">Password</label>
       <div>
@@ -22,12 +16,7 @@
       </div>
       <label for="password">Confirm Password</label>
       <div>
-        <input
-          id="password-confirm"
-          type="password"
-          v-model="passwordConfirmation"
-          required
-        />
+        <input id="password-confirm" type="password" v-model="passwordConfirmation" required />
       </div>
       <div>
         <button type="submit">Register</button>
@@ -63,4 +52,5 @@ export default {
 </script>
 
 <style>
+
 </style>

@@ -1,34 +1,17 @@
 <template>
   <tr>
-    <TreeTableTreeCell
-      :toggleable="hasChildren"
-      :item="item"
-      :depth="item.depth"
-      :column="treeColumn"
-      :options="options"
-      @update-state="updateState"
-    >
+    <TreeTableTreeCell :toggleable="hasChildren" :item="item" :depth="item.depth" :column="treeColumn"
+      :options="options" @update-state="updateState">
       <slot v-for="(_, name) in $slots" :name="name" :slot="name" />
-      <template
-        v-for="(_, name) in $scopedSlots"
-        :slot="name"
-        slot-scope="slotData"
-        ><slot :name="name" v-bind="slotData" /></template
-    ></TreeTableTreeCell>
-    <TreeTableCell
-      v-for="c in remainingColumns"
-      :key="c.key"
-      :column="c"
-      :item="item"
-      :options="options"
-    >
+      <template v-for="(_, name) in $scopedSlots" :slot="name" slot-scope="slotData">
+        <slot :name="name" v-bind="slotData" />
+      </template>
+    </TreeTableTreeCell>
+    <TreeTableCell v-for="c in remainingColumns" :key="c.key" :column="c" :item="item" :options="options">
       <slot v-for="(_, name) in $slots" :name="name" :slot="name" />
-      <template
-        v-for="(_, name) in $scopedSlots"
-        :slot="name"
-        slot-scope="slotData"
-        ><slot :name="name" v-bind="slotData"
-      /></template>
+      <template v-for="(_, name) in $scopedSlots" :slot="name" slot-scope="slotData">
+        <slot :name="name" v-bind="slotData" />
+      </template>
     </TreeTableCell>
   </tr>
 </template>

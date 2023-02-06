@@ -8,13 +8,7 @@
       <hr />
 
       <p>{{ featureBlurb }}</p>
-      <DisclosureCard
-        v-for="f in features"
-        :key="f.name"
-        :title="f.title"
-        :items="f.items"
-        :name="f.name"
-      />
+      <DisclosureCard v-for="f in features" :key="f.name" :title="f.title" :items="f.items" :name="f.name" />
     </b-jumbotron>
   </b-container>
 </template>

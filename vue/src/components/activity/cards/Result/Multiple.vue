@@ -8,12 +8,10 @@
         <template #button-content>
           <b-icon icon="gear" />
         </template>
-        <b-dropdown-item
-          :to="{
-            name: 'edit-activity',
-            params: { activity: { ...activity, ...data.item } },
-          }"
-        >
+        <b-dropdown-item :to="{
+          name: 'edit-activity',
+          params: { activity: { ...activity, ...data.item } },
+        }">
           <b-icon icon="pencil" class="mr-1" />Edit
         </b-dropdown-item>
         <b-dropdown-item @click="deleteSet(data.item.id)">
@@ -88,4 +86,6 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+
+</style>

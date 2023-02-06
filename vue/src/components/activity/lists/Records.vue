@@ -4,8 +4,7 @@
       <label>
         <b-link :to="{ name: 'goal', params: { id: r.id } }">{{
           r.name
-        }}</b-link> </label
-      >:
+        }}</b-link> </label>:
       <span :class="displayClass(r)">{{ r.fulfillments[0].description }}</span>
     </b-list-group-item>
   </b-list-group>
@@ -32,10 +31,12 @@ export default {
 .records .list-group-item {
   text-align: left;
 }
+
 .records label {
   width: 60%;
   text-align: right;
 }
+
 .current {
   font-weight: bold;
 }

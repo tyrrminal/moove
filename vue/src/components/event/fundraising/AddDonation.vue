@@ -1,28 +1,10 @@
 <template>
-  <b-modal
-    id="addDonation"
-    title="Add Donation"
-    @show="onShow"
-    @ok="save"
-    no-close-on-backdrop
-  >
+  <b-modal id="addDonation" title="Add Donation" @show="onShow" @ok="save" no-close-on-backdrop>
     <b-breadcrumb>
-      <b-breadcrumb-item
-        text="Donor"
-        @click="clearDonor"
-        :active="stageDonor"
-      />
-      <b-breadcrumb-item
-        text="Address"
-        @click="clearAddress"
-        :active="stageAddress"
-        v-if="stageAddress || stageAmount"
-      />
-      <b-breadcrumb-item
-        text="Amount"
-        v-if="stageAmount"
-        :active="stageAmount"
-      />
+      <b-breadcrumb-item text="Donor" @click="clearDonor" :active="stageDonor" />
+      <b-breadcrumb-item text="Address" @click="clearAddress" :active="stageAddress"
+        v-if="stageAddress || stageAmount" />
+      <b-breadcrumb-item text="Amount" v-if="stageAmount" :active="stageAmount" />
     </b-breadcrumb>
     <template v-if="stageDonor">
       <b-form inline @submit.prevent="searchDonors">
@@ -32,9 +14,7 @@
         <b-form-group label="Lastname" class="mr-2">
           <b-input v-model="search.lastname" size="sm" />
         </b-form-group>
-        <b-button type="submit" variant="primary" size="sm" class="mt-4"
-          >Search</b-button
-        >
+        <b-button type="submit" variant="primary" size="sm" class="mt-4">Search</b-button>
       </b-form>
       <template v-if="results.donors">
         <hr />
@@ -44,12 +24,7 @@
               <b-select :options="donorSearchResults" v-model="preselect.donor">
               </b-select>
               <template #append>
-                <b-button
-                  @click="selectDonor"
-                  :disabled="preselect.donor == null"
-                  variant="success"
-                  >Select</b-button
-                >
+                <b-button @click="selectDonor" :disabled="preselect.donor == null" variant="success">Select</b-button>
               </template>
             </b-input-group>
           </b-form-group>
@@ -57,14 +32,8 @@
         </template>
         <h4 class="text-center" v-else>No results</h4>
         <b-row align-h="center">
-          <b-button
-            :disabled="!fullName"
-            class="mt-1"
-            size="sm"
-            variant="success"
-            @click="createNewDonor"
-            >Create New</b-button
-          >
+          <b-button :disabled="!fullName" class="mt-1" size="sm" variant="success" @click="createNewDonor">Create
+            New</b-button>
         </b-row>
       </template>
     </template>
@@ -72,20 +41,12 @@
       <b-row>
         <b-col>
           <b-form-group label="Firstname" label-size="sm">
-            <b-input
-              :disabled="true"
-              v-model="selected.person.firstname"
-              size="sm"
-            />
+            <b-input :disabled="true" v-model="selected.person.firstname" size="sm" />
           </b-form-group>
         </b-col>
         <b-col>
           <b-form-group label="Lastname" label-size="sm">
-            <b-input
-              :disabled="true"
-              v-model="selected.person.lastname"
-              size="sm"
-            />
+            <b-input :disabled="true" v-model="selected.person.lastname" size="sm" />
           </b-form-group>
         </b-col>
       </b-row>
@@ -94,12 +55,7 @@
           <b-input-group>
             <b-select :options="donorAddresses" v-model="preselect.address" />
             <template #append>
-              <b-button
-                variant="success"
-                :disabled="preselect.address == null"
-                @click="selectAddress"
-                >Select</b-button
-              >
+              <b-button variant="success" :disabled="preselect.address == null" @click="selectAddress">Select</b-button>
             </template>
           </b-input-group>
         </b-col>
@@ -147,23 +103,15 @@
         </b-col>
       </b-row>
       <b-row align-h="center">
-        <b-button variant="success" @click="createNewAddress" size="sm"
-          >Create New</b-button
-        >
+        <b-button variant="success" @click="createNewAddress" size="sm">Create New</b-button>
       </b-row>
     </template>
     <template v-else-if="stageAmount">
       <b-form-group label="Donor">
-        <b-input
-          :value="`${selected.person.firstname} ${selected.person.lastname}`"
-          :disabled="true"
-        />
+        <b-input :value="`${selected.person.firstname} ${selected.person.lastname}`" :disabled="true" />
       </b-form-group>
       <b-form-group label="Address">
-        <b-input
-          :value="$options.filters.formatAddress(selected.address)"
-          :disabled="true"
-        ></b-input>
+        <b-input :value="$options.filters.formatAddress(selected.address)" :disabled="true"></b-input>
       </b-form-group>
 
       <b-form-group label="Date">
@@ -270,10 +218,10 @@ export default {
         })
         .then(
           (resp) =>
-            (this.results.donors = resp.data.map((x) => ({
-              ...x.person,
-              addresses: x.addresses,
-            })))
+          (this.results.donors = resp.data.map((x) => ({
+            ...x.person,
+            addresses: x.addresses,
+          })))
         );
     },
     clearAddress: function () {
@@ -347,4 +295,5 @@ export default {
 </script>
 
 <style scoped>
+
 </style>
