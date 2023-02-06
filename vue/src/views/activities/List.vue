@@ -1,8 +1,16 @@
 <template>
   <b-container class="mt-2">
-    <b-button variant="secondary" v-b-modal.filters class="float-right">Filters</b-button>
-    <b-datepicker v-model="internal.start" reset-button class="col-3 mr-2" />
-    <b-datepicker v-model="internal.end" reset-button class="col-3" />
+    <b-row>
+      <b-col cols="3">
+        <b-datepicker v-model="internal.start" reset-button />
+      </b-col>
+      <b-col cols="3">
+        <b-datepicker v-model="internal.end" reset-button />
+      </b-col>
+      <b-col offset="4" class="text-right">
+        <b-button variant="secondary" v-b-modal.filters>Filters</b-button>
+      </b-col>
+    </b-row>
 
     <ActivityList tableId="activityListTable" :items="getData" :page.sync="page" :total="total"
       @update:currentPage="updateCurrentPage" @update:perPage="updatePerPage" />
