@@ -184,7 +184,7 @@ export default {
         note: ''
       },
       workout: null,
-      dtSettings: { input: { zone: 'local' } },
+      dtSettings: { input: { zone: 'local' }, output: { format: "date_med" } },
       context: {
         workoutID: null,
         activityTypeID: null,
