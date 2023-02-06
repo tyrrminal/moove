@@ -102,6 +102,11 @@
     <template v-slot:cell(date)="data">{{
       data.item.eventActivity.scheduledStart | luxon({ output: { format: "ccc LLL d" } })
     }}</template>
+    <template #cell(countdown)="data">
+      <span v-if="isInFuture(data.item)">{{
+        relDate(data.item.eventActivity.scheduledStart)
+      }}</span>
+    </template>
     <template v-slot:cell(type)="data">{{
       data.item.eventActivity.eventType.description
     }}</template>
@@ -160,6 +165,7 @@
 </template>
 
 <script>
+import { DateTime } from "luxon";
 import UnitConversion from "@/mixins/UnitConversion.js";
 import { mapGetters } from "vuex";
 import EventFilters from "@/mixins/events/Filters.js";
@@ -183,6 +189,7 @@ export default {
         { key: "index", label: "" },
         { key: "year", sortable: false },
         { key: "date", sortable: true },
+        { key: "countdown", sortable: false, show: { performance: true, fundraising: true } },
         { key: "name", sortable: true },
         { key: "type", sortable: true },
         { key: "distance", sortable: true, show: { performance: true } },
@@ -351,6 +358,16 @@ export default {
       g.percentile = (100 * g.place) / g.of;
       return g;
     },
+    isInFuture: function (e) {
+      return DateTime.fromISO(e.eventActivity.scheduledStart) > DateTime.now();
+    },
+    relDate: function (d) {
+      let dur = DateTime.fromISO(d).startOf('day').diff(DateTime.now().startOf('day'), ["weeks", "days"]);
+      let p = [];
+      if (dur.weeks) p.push(dur.weeks + 'w');
+      if (dur.days) p.push(dur.days + 'd');
+      return p.join(' ');
+    }
   },
   computed: {
     ...mapGetters("meta", ["getUnitOfMeasure", "getUnitsOfMeasure"]),
