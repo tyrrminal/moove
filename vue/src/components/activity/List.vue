@@ -1,7 +1,8 @@
 <template>
   <div>
     <b-table :id="tableId" class="rounded-row mt-2" tbody-tr-class="rounded-row" borderless :items="loadData"
-      :fields="columns" :per-page.sync="page.length" :current-page.sync="page.current">
+      :fields="columns" :per-page.sync="page.length" :current-page.sync="page.current" :sort-by="sort.by"
+      :sort-desc="sort.desc">
       <template #table-busy>
         <div class="text-center">
           <b-spinner variant="secondary" type="grow" />
@@ -78,6 +79,10 @@ export default {
   data: function () {
     return {
       visibleRows: [],
+      sort: {
+        desc: true,
+        by: 'startTime'
+      }
     }
   },
   props: {
