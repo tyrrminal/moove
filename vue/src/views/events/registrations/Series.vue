@@ -3,19 +3,13 @@
     <b-card v-if="group" no-body class="mt-2">
       <b-card-header>
         <h3>
-          Event Series: <span v-if="group.year">{{ group.year }} </span
-          >{{ group.name }}
+          Event Series: <span v-if="group.year">{{ group.year }} </span>{{ group.name }}
         </h3>
       </b-card-header>
 
       <b-card-body>
-        <b-form-radio-group
-          buttons
-          button-variant="outline-primary"
-          class="mb-2"
-          :options="view.options"
-          v-model="view.type"
-        />
+        <b-form-radio-group buttons button-variant="outline-primary" class="mb-2" :options="view.options"
+          v-model="view.type" />
 
         <h4>Events</h4>
         <Grid v-if="group" :events="group.events" :viewType="view.type" />
@@ -77,9 +71,8 @@ export default {
   computed: {
     title: function () {
       if (this.group)
-        return `${this.applicationName} / Event / ${this.group.year || ""} ${
-          this.group.name
-        }`;
+        return `${this.applicationName} / Event / ${this.group.year || ""} ${this.group.name
+          }`;
       else return this.applicationName;
     },
   },
@@ -87,4 +80,5 @@ export default {
 </script>
 
 <style>
+
 </style>

@@ -3,11 +3,12 @@
     <b-row>
       <b-col cols="6" offset="3">
         <div class="mt-3" v-if="event">
-          <h2 class="float-right">{{  event.year  }}</h2>
-          <h2>{{  event.name  }}</h2>
-          <h6 class="float-right">{{  eventActivity.scheduledStart | luxon({ input: { zone: "local" }, output: "short" }) 
-            }}</h6>
-          <h3>{{  eventActivity.name  }}</h3>
+          <h2 class="float-right">{{ event.year }}</h2>
+          <h2>{{ event.name }}</h2>
+          <h6 class="float-right">{{
+            eventActivity.scheduledStart | luxon({ input: { zone: "local" }, output: "short" })
+          }}</h6>
+          <h3>{{ eventActivity.name }}</h3>
         </div>
         <hr />
       </b-col>
@@ -171,4 +172,5 @@ export default {
 </script>
 
 <style>
+
 </style>

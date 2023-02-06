@@ -1,14 +1,6 @@
 <template>
-  <b-table
-    striped
-    small
-    hover
-    :items="events"
-    :fields="fields"
-    :sort-compare="sortCompare"
-    foot-clone
-    no-footer-sorting
-  >
+  <b-table striped small hover :items="events" :fields="fields" :sort-compare="sortCompare" foot-clone
+    no-footer-sorting>
     <template v-slot:table-busy>
       <div class="text-center text-info my-2">
         <b-spinner class="align-middle"></b-spinner>
@@ -28,18 +20,15 @@
     </template>
 
     <template #foot()><span></span></template>
-    <template #foot(date)
-      ><span v-if="viewType == 0 || viewType == 2">Total</span>
-      <span v-else>Best</span></template
-    >
+    <template #foot(date)><span v-if="viewType == 0 || viewType == 2">Total</span>
+      <span v-else>Best</span></template>
     <template #foot(registrationFee)>
       {{
         events.map((e) => e.registrationFee).reduce((a, c) => a + (c || 0), 0)
           | currency
       }}
     </template>
-    <template #foot(distance)
-      ><span v-if="events.length">
+    <template #foot(distance)><span v-if="events.length">
         {{ eventDistance | formatDistance }}
       </span>
     </template>
@@ -91,7 +80,7 @@
     <template #foot(frMinimum)>
       {{
         events
-          .filter((e) => e.fundraising != null)
+            .filter((e) => e.fundraising != null)
           .map((e) => e.fundraising.minimum)
           .reduce((a, c) => a + c, 0) | currency
       }}
@@ -99,7 +88,7 @@
     <template #foot(frReceived)>
       {{
         events
-          .filter((e) => e.fundraising != null)
+            .filter((e) => e.fundraising != null)
           .map((e) => e.fundraising.received)
           .reduce((a, c) => a + c, 0) | currency
       }}
@@ -116,100 +105,56 @@
       data.item.eventActivity.eventType.description
     }}</template>
     <template v-slot:cell(name)="data">
-      <b-link
-        :class="eventNameClass(data.item)"
-        :to="{
-          name: 'registration-detail',
-          params: { id: data.item.id },
-        }"
-        >{{ data.item.eventActivity.event.name }}</b-link
-      >
+      <b-link :class="eventNameClass(data.item)" :to="{
+        name: 'registration-detail',
+        params: { id: data.item.id },
+      }">{{ data.item.eventActivity.event.name }}</b-link>
     </template>
     <template v-slot:cell(registrationFee)="data">
       {{ data.value | currency }}
     </template>
-    <template v-slot:cell(speed)="data"
-      >{{ fillUnits(eventVelocity(data.item)) | formatDistance }}
+    <template v-slot:cell(speed)="data">{{ fillUnits(eventVelocity(data.item)) | formatDistance }}
     </template>
     <template v-slot:cell(distance)="data">{{
       fillUnits(data.item.eventActivity.distance) | formatDistanceTrim
     }}</template>
 
-    <template v-slot:cell(place)="data"
-      ><span v-if="data.item.placements && data.item.placements.overall"
-        >{{ data.item.placements.overall.place
-        }}<span
-          v-if="data.item.placements.overall.of"
-          class="placement-partition-size"
-        >
-          / {{ data.item.placements.overall.of }}</span
-        ></span
-      ></template
-    >
-    <template v-slot:cell(pct)="data"
-      ><span v-if="data.item.placements && data.item.placements.overall">{{
-        data.item.placements.overall.percentile | percent(1)
-      }}</span></template
-    >
-    <template v-slot:cell(placeGender)="data"
-      ><span v-if="data.item.placements && data.item.placements.gender"
-        >{{ data.item.placements.gender.place
-        }}<span
-          v-if="data.item.placements.gender.of"
-          class="placement-partition-size"
-        >
-          / {{ data.item.placements.gender.of }}</span
-        ></span
-      ></template
-    >
-    <template v-slot:cell(pctGender)="data"
-      ><span
-        v-if="
-          data.item.placements &&
-          data.item.placements.gender &&
-          data.item.placements.gender.percentile != null
-        "
-        >{{ data.item.placements.gender.percentile | percent(1) }}</span
-      ></template
-    >
-    <template v-slot:cell(placeDivision)="data"
-      ><span v-if="data.item.placements && data.item.placements.division"
-        >{{ data.item.placements.division.place
-        }}<span
-          v-if="data.item.placements.division.of"
-          class="placement-partition-size"
-        >
-          / {{ data.item.placements.division.of }}</span
-        ></span
-      ></template
-    >
-    <template v-slot:cell(pctDivision)="data"
-      ><span
-        v-if="
-          data.item.placements &&
-          data.item.placements.division &&
-          data.item.placements.division.percentile != null
-        "
-        >{{ data.item.placements.division.percentile | percent(1) }}</span
-      ></template
-    >
+    <template v-slot:cell(place)="data"><span v-if="data.item.placements && data.item.placements.overall">{{
+      data.item.placements.overall.place
+    }}<span v-if="data.item.placements.overall.of" class="placement-partition-size">
+          / {{ data.item.placements.overall.of }}</span></span></template>
+    <template v-slot:cell(pct)="data"><span v-if="data.item.placements && data.item.placements.overall">{{
+      data.item.placements.overall.percentile | percent(1)
+    }}</span></template>
+    <template v-slot:cell(placeGender)="data"><span v-if="data.item.placements && data.item.placements.gender">{{
+      data.item.placements.gender.place
+    }}<span v-if="data.item.placements.gender.of" class="placement-partition-size">
+          / {{ data.item.placements.gender.of }}</span></span></template>
+    <template v-slot:cell(pctGender)="data"><span v-if="
+      data.item.placements &&
+      data.item.placements.gender &&
+      data.item.placements.gender.percentile != null
+    ">{{ data.item.placements.gender.percentile | percent(1) }}</span></template>
+    <template v-slot:cell(placeDivision)="data"><span v-if="data.item.placements && data.item.placements.division">{{
+      data.item.placements.division.place
+    }}<span v-if="data.item.placements.division.of" class="placement-partition-size">
+          / {{ data.item.placements.division.of }}</span></span></template>
+    <template v-slot:cell(pctDivision)="data"><span v-if="
+      data.item.placements &&
+      data.item.placements.division &&
+      data.item.placements.division.percentile != null
+    ">{{ data.item.placements.division.percentile | percent(1) }}</span></template>
 
-    <template v-slot:cell(frMinimum)="data"
-      ><span v-if="data.item.fundraising">{{
-        data.item.fundraising.minimum | currency
-      }}</span></template
-    >
-    <template v-slot:cell(frReceived)="data"
-      ><span v-if="data.item.fundraising">{{
-        data.item.fundraising.received | currency
-      }}</span></template
-    >
-    <template v-slot:cell(frPct)="data"
-      ><span v-if="data.item.fundraising">{{
-        (data.item.fundraising.received / data.item.fundraising.minimum)
-          | percent(1)
-      }}</span></template
-    >
+    <template v-slot:cell(frMinimum)="data"><span v-if="data.item.fundraising">{{
+      data.item.fundraising.minimum | currency
+    }}</span></template>
+    <template v-slot:cell(frReceived)="data"><span v-if="data.item.fundraising">{{
+      data.item.fundraising.received | currency
+    }}</span></template>
+    <template v-slot:cell(frPct)="data"><span v-if="data.item.fundraising">{{
+    (data.item.fundraising.received / data.item.fundraising.minimum)
+      | percent(1)
+    }}</span></template>
   </b-table>
 </template>
 
@@ -347,16 +292,16 @@ export default {
           ar == null
             ? 0
             : convertUnitValue(
-                ar.value,
-                this.getUnitOfMeasure(ar.unitOfMeasureID)
-              );
+              ar.value,
+              this.getUnitOfMeasure(ar.unitOfMeasureID)
+            );
         b =
           br == null
             ? 0
             : convertUnitValue(
-                br.value,
-                this.getUnitOfMeasure(br.unitOfMeasureID)
-              );
+              br.value,
+              this.getUnitOfMeasure(br.unitOfMeasureID)
+            );
       }
       var m;
       if ((m = key.match(/(place|pct)(Division|Gender)?/))) {

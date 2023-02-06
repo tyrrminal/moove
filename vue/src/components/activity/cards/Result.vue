@@ -1,18 +1,11 @@
 <template>
   <b-jumbotron class="event-details py-2" border-variant="secondary">
     <h4 v-if="isLoaded">
-      <b-link
-        v-if="linkToActivity"
-        :to="{ name: 'activity', params: { id: activity.id } }"
-        >{{ cardTitle }}
+      <b-link v-if="linkToActivity" :to="{ name: 'activity', params: { id: activity.id } }">{{ cardTitle }}
       </b-link>
       <span v-else>{{ cardTitle }}</span>
     </h4>
-    <ActivityResultSingle
-      v-if="singleActivity"
-      :activity="activity"
-      :editable="editable"
-    />
+    <ActivityResultSingle v-if="singleActivity" :activity="activity" :editable="editable" />
     <ActivityResultMulti v-else :activity="activity" :editable="editable" />
   </b-jumbotron>
 </template>
@@ -67,4 +60,6 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+
+</style>

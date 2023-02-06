@@ -1,18 +1,9 @@
 <template>
   <td :class="cellClasses">
-    <slot
-      :name="'cell(' + column.key + ')'"
-      v-bind:column="column"
-      v-bind:item="item"
-      v-bind:value="item[column.key]"
-      ><slot
-        name="cell"
-        v-bind:column="column"
-        v-bind:item="item"
-        v-bind:value="item[column.key]"
-        >{{ item[column.key] }}</slot
-      ></slot
-    >
+    <slot :name="'cell(' + column.key + ')'" v-bind:column="column" v-bind:item="item" v-bind:value="item[column.key]">
+      <slot name="cell" v-bind:column="column" v-bind:item="item" v-bind:value="item[column.key]">{{ item[column.key] }}
+      </slot>
+    </slot>
   </td>
 </template>
 

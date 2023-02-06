@@ -4,22 +4,14 @@
     <b-row class="mt-3 mb-3">
       <b-col cols="4">
         <b-button-group>
-          <b-button
-            v-for="l in orderedLevels"
-            :key="l"
-            variant="primary"
-            :pressed.sync="levels[l]"
-            :disabled="lastLevelLeft(l)"
-            >{{ l | capitalize }}</b-button
-          >
+          <b-button v-for="l in orderedLevels" :key="l" variant="primary" :pressed.sync="levels[l]"
+            :disabled="lastLevelLeft(l)">{{ l | capitalize }}</b-button>
         </b-button-group>
       </b-col>
       <b-col cols="3">
         <b-input-group class="ml-2">
           <template #prepend>
-            <b-button variant="primary" :disabled="true"
-              ><b-icon icon="search"></b-icon
-            ></b-button>
+            <b-button variant="primary" :disabled="true"><b-icon icon="search"></b-icon></b-button>
           </template>
           <b-input v-model="search" placeholder="Quick Filter..."></b-input>
         </b-input-group>
@@ -31,53 +23,31 @@
 
     <b-row v-if="unloadedDataElements">
       <b-col cols="12">
-        <b-progress
-          class="mb-3"
-          :animated="true"
-          striped
-          :max="selectedDataElements"
-          :value="selectedDataElements - unloadedDataElements"
-        >
+        <b-progress class="mb-3" :animated="true" striped :max="selectedDataElements"
+          :value="selectedDataElements - unloadedDataElements">
         </b-progress>
       </b-col>
     </b-row>
 
-    <TreeTable
-      :columns="columns"
-      :rows="rows"
-      :initialState="(item, depth) => depth < 1"
-      class="mb-3"
-      table-class="summary"
-      head-class="px-2 text-uppercase border-top border-bottom border-secondary"
-      striped-rows
-      striped-columns
-      sortable
-    >
-      <template #cell(label)="data"
-        ><span class="font-weight-bold">{{ data.value }}</span></template
-      >
+    <TreeTable :columns="columns" :rows="rows" :initialState="(item, depth) => depth < 1" class="mb-3"
+      table-class="summary" head-class="px-2 text-uppercase border-top border-bottom border-secondary" striped-rows
+      striped-columns sortable>
+      <template #cell(label)="data"><span class="font-weight-bold">{{ data.value }}</span></template>
       <template #cell="data">
         <template v-if="data.value == null">-</template>
-        <template
-          v-else-if="data.column.meta != null && data.column.meta.units != null"
-        >
+        <template v-else-if="data.column.meta != null && data.column.meta.units != null">
           {{ data.value | number("0,0.0") }} {{ data.column.meta.units }}
         </template>
-        <template v-else-if="data.column.key.startsWith('count-')"
-          ><b-link
-            :to="{
-              name: 'activities',
-              query: {
-                activityTypeID: data.column.meta.activityTypeID,
-                start: data.item.period.start,
-                end: data.item.period.end,
-              },
-            }"
-            >{{ data.value }}</b-link
-          >
+        <template v-else-if="data.column.key.startsWith('count-')"><b-link :to="{
+          name: 'activities',
+          query: {
+            activityTypeID: data.column.meta.activityTypeID,
+            start: data.item.period.start,
+            end: data.item.period.end,
+          },
+        }">{{ data.value }}</b-link>
         </template>
-        <template v-else>{{ data.value }}</template></template
-      >
+        <template v-else>{{ data.value }}</template></template>
     </TreeTable>
 
     <b-modal id="filters">
@@ -95,21 +65,13 @@
       </b-row>
       <hr />
       <b-form-group label="Activity Types (select up to 3)">
-        <b-button
-          class="mb-2"
-          :variant="
-            selectedActivityTypes.includes(at.id) ? 'primary' : 'secondary'
-          "
-          :disabled="
-            !selectedActivityTypes.includes(at.id) &&
-            selectedActivityTypes.length >= 3
-          "
-          block
-          v-for="at in selectableActivityTypes"
-          :key="at.id"
-          :pressed="selectedActivityTypes.includes(at.id)"
-          @click="toggleActivityType(at.id)"
-        >
+        <b-button class="mb-2" :variant="
+          selectedActivityTypes.includes(at.id) ? 'primary' : 'secondary'
+        " :disabled="
+  !selectedActivityTypes.includes(at.id) &&
+  selectedActivityTypes.length >= 3
+" block v-for="at in selectableActivityTypes" :key="at.id" :pressed="selectedActivityTypes.includes(at.id)"
+          @click="toggleActivityType(at.id)">
           {{ at.description }}
         </b-button>
       </b-form-group>

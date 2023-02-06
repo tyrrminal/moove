@@ -4,9 +4,7 @@
       <template #button-content>
         <b-icon icon="gear" />
       </template>
-      <b-dropdown-item
-        :to="{ name: 'edit-activity', params: { activity: editableActivity } }"
-      >
+      <b-dropdown-item :to="{ name: 'edit-activity', params: { activity: editableActivity } }">
         <b-icon icon="pencil" class="mr-1" />Edit
       </b-dropdown-item>
       <b-dropdown-item @click="deleteActivity">
@@ -22,10 +20,7 @@
     <b-form-group label="Total Time" v-if="result.duration">
       {{ result.duration }}
     </b-form-group>
-    <b-form-group
-      label="Net Time"
-      v-if="result.netTime && result.duration != result.netTime"
-    >
+    <b-form-group label="Net Time" v-if="result.netTime && result.duration != result.netTime">
       {{ result.netTime }}
     </b-form-group>
     <b-form-group label="Average Pace" v-if="result.pace">
