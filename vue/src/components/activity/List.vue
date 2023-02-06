@@ -1,13 +1,15 @@
 <template>
   <div>
-    <b-table :id="tableId" class="rounded-row mt-2" tbody-tr-class="rounded-row" borderless :items="loadData"
-      :fields="columns" :per-page.sync="page.length" :current-page.sync="page.current">
+    <b-table v-if="isLoaded" :id="tableId" class="rounded-row mt-2" tbody-tr-class="rounded-row" borderless
+      :items="loadData" :fields="columns" :per-page.sync="page.length" :current-page.sync="page.current"
+      :sort-by="sort.by" :sort-desc="sort.desc">
       <template #table-busy>
         <div class="text-center">
           <b-spinner variant="secondary" type="grow" />
         </div>
       </template>
       <template #cell(activityTypeID)="data">
+        <b-icon v-if="activityHasMap(data.item)" icon="pin-map" class="mr-2" />
         <b-link :to="{ name: 'activity', params: { id: data.item.id } }" class="activityLink">{{
           activityName(data.item)
         }}</b-link>
@@ -78,6 +80,10 @@ export default {
   data: function () {
     return {
       visibleRows: [],
+      sort: {
+        desc: true,
+        by: 'startTime'
+      }
     }
   },
   props: {
@@ -122,6 +128,10 @@ export default {
       if (at.hasDistance)
         return `${this.dayPart(a.startTime)} ${at.labels.base}`;
       return at.labels.base
+    },
+    activityHasMap: function (a) {
+      let at = this.getActivityType(a.activityTypeID);
+      return at.hasMap;
     },
     formatDate: function (d) {
       return DateTime.fromISO(d).toLocaleString(DateTime.DATETIME_FULL);
