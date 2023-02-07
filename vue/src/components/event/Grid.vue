@@ -1,6 +1,6 @@
 <template>
-  <b-table striped small hover :items="events" :fields="fields" :sort-compare="sortCompare" foot-clone
-    no-footer-sorting>
+  <b-table striped small hover :items="events" :fields="fields" :sort-compare="sortCompare" :foot-clone="showFooter"
+    no-footer-sorting responsive>
     <template v-slot:table-busy>
       <div class="text-center text-info my-2">
         <b-spinner class="align-middle"></b-spinner>
@@ -10,7 +10,7 @@
 
     <template v-slot:thead-top="data" v-if="viewType == 1">
       <b-tr :title="data">
-        <b-th colspan="4">
+        <b-th colspan="5">
           <span class="sr-only">Default Fields</span>
         </b-th>
         <b-th colspan="2" class="text-center">Overall</b-th>
@@ -100,7 +100,7 @@
     <template v-slot:cell(index)="data">{{ data.index + 1 }}</template>
     <template #cell(year)="data">{{ data.item.eventActivity.scheduledStart.substr(0, 4) }}</template>
     <template v-slot:cell(date)="data">{{
-      data.item.eventActivity.scheduledStart | luxon({ output: { format: "ccc LLL d" } })
+      data.item.eventActivity.scheduledStart | luxon({ output: { format: dateFormat } })
     }}</template>
     <template #cell(countdown)="data">
       <span v-if="isInFuture(data.item)">{{
@@ -182,82 +182,10 @@ export default {
       type: Number,
       default: 0,
     },
-  },
-  data: function () {
-    return {
-      baseFields: [
-        { key: "index", label: "" },
-        { key: "year", sortable: false },
-        { key: "date", sortable: true },
-        { key: "countdown", sortable: false, show: { performance: true, fundraising: true } },
-        { key: "name", sortable: true },
-        { key: "type", sortable: true },
-        { key: "distance", sortable: true, show: { performance: true } },
-        { key: "speed", sortable: true, show: { performance: true } },
-        {
-          key: "registrationFee",
-          label: "Fee",
-          sortable: true,
-          show: { performance: true, fundraising: true },
-        },
-        {
-          key: "place",
-          sortable: true,
-          label: "Place",
-          show: { results: true },
-        },
-        { key: "pct", sortable: true, label: "%", show: { results: true } },
-        {
-          key: "placeGender",
-          sortable: true,
-          label: "Place",
-          show: { results: true },
-        },
-        {
-          key: "pctGender",
-          sortable: true,
-          label: "%",
-          show: { results: true },
-        },
-        {
-          key: "placeDivision",
-          sortable: true,
-          label: "Place",
-          show: { results: true },
-        },
-        {
-          key: "pctDivision",
-          sortable: true,
-          label: "%",
-          show: { results: true },
-        },
-        {
-          key: "frMinimum",
-          sortable: true,
-          label: "Minimum",
-          tdClass: "text-right pr-2",
-          thClass: "ncol",
-          show: { fundraising: true },
-        },
-        {
-          key: "frReceived",
-          sortable: true,
-          label: "Recieved",
-          tdClass: "text-right pr-2",
-          thClass: "ncol",
-          show: { fundraising: true },
-        },
-        {
-          key: "frPct",
-          sortable: true,
-          label: "%",
-          tdClass: "text-right pr-2",
-          thClass: "ncol",
-          show: { fundraising: true },
-        },
-        ,
-      ],
-    };
+    dateFormat: {
+      type: String,
+      default: "ccc LLL d"
+    }
   },
   methods: {
     sortCompare: function (a, b, key, sortDesc, formatterFn, options, locale) {
@@ -371,6 +299,9 @@ export default {
   },
   computed: {
     ...mapGetters("meta", ["getUnitOfMeasure", "getUnitsOfMeasure"]),
+    showFooter: function () {
+      return this.events.length > 1;
+    },
     eventDistance: function () {
       let activities = this.events.map((e) => e.activity ?? e.eventActivity);
       let v = activities.reduce(
@@ -397,22 +328,39 @@ export default {
           .reduce((a, c) => a + c, 0) / fr.length
       );
     },
+    eventYears: function () {
+      return [...new Set(this.events.map(e => DateTime.fromISO(e.eventActivity.scheduledStart).year))]
+    },
     fields: function () {
-      let fields = this.baseFields.filter((f) => !f.hasOwnProperty("show"));
-      if (this.viewType == 0) {
-        fields.push(
-          ...this.baseFields.filter((f) => f.show && f.show.performance)
-        );
-      }
-      if (this.viewType == 1) {
-        fields.push(...this.baseFields.filter((f) => f.show && f.show.results));
-      }
-      if (this.viewType == 2) {
-        fields.push(
-          ...this.baseFields.filter((f) => f.show && f.show.fundraising)
-        );
-      }
-      return fields;
+      let baseFields = [
+        { key: "year", sortable: false, predicate: () => this.eventYears.length > 1 },
+        { key: "date", sortable: true },
+        { key: "countdown", sortable: false, predicate: () => Math.min(...this.events.map(e => DateTime.fromISO(e.eventActivity.scheduledStart))) > DateTime.now() },
+        { key: "name", sortable: true },
+        { key: "type", sortable: true },
+        { key: "distance", sortable: true },
+        { key: "speed", sortable: true, predicate: () => this.events.map(e => e.activity).reduce((c, a) => c && a, true) && (this.viewType == 0 || this.viewType == 1) },
+        { key: "registrationFee", label: "Fee", sortable: true, predicate: () => this.viewType == 0 || this.viewType == 2 },
+        { key: "place", sortable: true, label: "Place", predicate: () => this.viewType == 1 },
+        { key: "pct", sortable: true, label: "%", predicate: () => this.viewType == 1 },
+        { key: "placeGender", sortable: true, label: "Place", predicate: () => this.viewType == 1 },
+        { key: "pctGender", sortable: true, label: "%", predicate: () => this.viewType == 1 },
+        { key: "placeDivision", sortable: true, label: "Place", predicate: () => this.viewType == 1 },
+        { key: "pctDivision", sortable: true, label: "%", predicate: () => this.viewType == 1 },
+        {
+          key: "frMinimum", sortable: true, label: "Minimum", predicate: () => this.viewType == 2,
+          tdClass: "text-right pr-2", thClass: "ncol",
+        },
+        {
+          key: "frReceived", sortable: true, label: "Recieved", predicate: () => this.viewType == 2,
+          tdClass: "text-right pr-2", thClass: "ncol",
+        },
+        {
+          key: "frPct", sortable: true, label: "%", predicate: () => this.viewType == 2,
+          tdClass: "text-right pr-2", thClass: "ncol",
+        },
+      ];
+      return baseFields.filter(f => Object.hasOwn(f, 'predicate') ? f.predicate() : true);
     },
   },
 };
