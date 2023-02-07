@@ -1,42 +1,14 @@
 <template>
   <b-card no-body>
-    <b-card-header v-if="period"><b-button size="sm" variant="none" class="mr-1" @click="prevPeriod"><b-icon
-          icon="chevron-left" /></b-button>{{
-            sectionLabel
-          }}<b-button size="sm" variant="none" class="ml-1" @click="nextPeriod"><b-icon
-          icon="chevron-right" /></b-button></b-card-header>
-    <b-card-header v-else>Overall</b-card-header>
+    <b-card-header>{{ sectionLabel }}</b-card-header>
     <b-card-body v-if="loaded">
-      <b-progress v-if="summaryData.period.daysTotal" class="mb-2" :max="summaryData.period.daysTotal"
-        :title="progressTooltip">
+      <b-progress class="mb-2" :max="summaryData.period.daysTotal" :title="progressTooltip">
         <b-progress-bar :value="summaryData.period.daysElapsed">
           {{ progressText }}
         </b-progress-bar>
       </b-progress>
-      <span v-else>{{ summaryData.period.daysElapsed | number("0,0") }} days ~
-        {{ summaryData.period.years | number("0,0.00") }} years</span>
       <b-list-group flush>
-        <b-list-group-item v-for="a in activities" :key="a.activityTypeID || 0">
-          <h5 v-if="a.activityTypeID">
-            {{ activityType(a.activityTypeID).description }}
-          </h5>
-          <h5 v-else>All Activities</h5>
-          <b-progress v-if="a.nominal" height="1.5rem" :max="a.nominal.distance" :title="nominalProgressText(a)">
-            <b-progress-bar :value="a.distance" :variant="nominalProgressVariant(a.distance, a.nominal.distance)">
-              {{ a.distance | number("0,0.00") }}
-              {{ unit(a.unitID).abbreviation }}
-            </b-progress-bar>
-          </b-progress>
-          <span v-else>
-            {{ a.distance | number("0,0.00") }}
-            {{ unit(a.unitID).abbreviation }}
-          </span>
-          <template v-if="a.eventDistance">
-            <h5>Events</h5>
-            {{ a.eventDistance | number("0,0.00") }}
-            {{ unit(a.unitID).abbreviation }}
-          </template>
-        </b-list-group-item>
+        <SummaryElement v-for="a in activities" :key="a.activityTypeID || 0" :activity="a" />
       </b-list-group>
     </b-card-body>
     <b-card-body v-else><b-spinner /></b-card-body>
@@ -44,14 +16,19 @@
 </template>
 
 <script>
-const { DateTime } = require("luxon");
-import { mapGetters } from "vuex";
+import { DateTime } from 'luxon';
+
+import SummaryElement from "@/components/activity/summary/Element";
 
 export default {
+  name: "SummaryPeriod",
+  components: {
+    SummaryElement
+  },
   props: {
     period: {
       type: String,
-      required: false,
+      required: true,
     },
     startDate: {
       type: Object,
@@ -75,10 +52,6 @@ export default {
     this.load();
   },
   computed: {
-    ...mapGetters("meta", {
-      activityType: "getActivityType",
-      unit: "getUnitOfMeasure",
-    }),
     activities: function () {
       return this.summaryData.activities.filter((a) => a.distance > 0);
     },
@@ -98,8 +71,7 @@ export default {
           l = "Overall";
       }
       return l;
-    },
-    progressTooltip: function () {
+    }, progressTooltip: function () {
       return this.$options.filters.percent(
         this.summaryData.period.daysElapsed / this.summaryData.period.daysTotal
       );
@@ -140,20 +112,7 @@ export default {
       f[this.period + "s"] = 1;
       this.date = this.date.plus(f);
     },
-    nominalProgressVariant: function (d, n) {
-      if (d >= n) return "success";
-      if (d >= 0.8 * n) return "warning";
-      return "danger";
-    },
-    nominalProgressText: function (a) {
-      return [
-        this.$options.filters.number(a.nominal.distance, "0,0"),
-        this.unit(a.unitID).abbreviation,
-        ["(", ")"].join(
-          this.$options.filters.percent(a.distance / a.nominal.distance)
-        ),
-      ].join(" ");
-    },
+
   },
   watch: {
     date: function () {
