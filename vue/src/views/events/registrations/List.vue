@@ -1,27 +1,67 @@
 <template>
-  <b-container>
-    <h2>Events</h2>
+  <b-container fluid>
     <b-row>
-      <b-col cols="3">
-        <b-checkbox v-model="filters.completed" size="small" switch>Hide Incomplete Events</b-checkbox>
+      <b-col cols="2" class="bg-sidebar">
+        <div class="sticky-top">
+          <b-skeleton-wrapper :loading="!loaded">
+            <EventSummary :events="events" />
+            <template #loading>
+              <b-skeleton class="mt-3" width="90%"></b-skeleton>
+              <b-skeleton width="50%"></b-skeleton>
+              <b-skeleton width="55%"></b-skeleton>
+              <b-skeleton width="66%"></b-skeleton>
+              <b-skeleton width="70%"></b-skeleton>
+              <b-skeleton class="mb-4" width="80%"></b-skeleton>
+            </template>
+          </b-skeleton-wrapper>
+        </div>
       </b-col>
-      <b-col offset="6" cols="2">
-        <b-form-radio-group buttons button-variant="outline-primary" class="mb-2" :options="view.options"
-          v-model="view.type" />
+      <b-col cols="10" class="mt-2">
+        <b-form-radio-group buttons button-variant="outline-primary" class="float-right" :options="view.options"
+          v-model="view.type" size="sm" />
+        <h2 class="d-inline-block mr-2">Events </h2><b-spinner v-if="!loaded" variant="info" />
+
+        <div v-if="loaded && view.type != 1">
+          <h4>Upcoming</h4>
+          <Grid v-if="upcomingEvents.length" :events="upcomingEvents" :viewType="view.type" />
+          <label v-else>No upcoming events</label>
+          <hr />
+        </div>
+
+        <div>
+          <h4 v-if="upcomingEvents.length || incompleteEvents.length">Completed</h4>
+          <template v-if="viewSplitYears">
+            <div v-for="y in eventYears" :key="grid + y" class="iterated-grid">
+              <h5>{{ y }}</h5>
+              <Grid :events="eventsByYear[y]" :viewType="view.type" />
+            </div>
+          </template>
+          <template v-else>
+            <Grid :events="completedEvents" :viewType="view.type" />
+          </template>
+          <hr v-if="incompleteEvents.length" />
+        </div>
+
+        <div v-if="incompleteEvents.length">
+          <h4>DNS/DNF</h4>
+          <Grid :events="incompleteEvents" :viewType="0" date-format="date_med" />
+        </div>
       </b-col>
     </b-row>
-
-    <Grid :events="filteredEvents" :viewType="view.type" />
   </b-container>
 </template>
 
 <script>
+import { DateTime } from "luxon";
 import Branding from "@/mixins/Branding.js";
 import Events from "@/mixins/events/API.js";
+
+import EventSummary from "@/components/event/Summary.vue";
 import Grid from "@/components/event/Grid.vue";
 
 export default {
   components: {
+    EventSummary,
     Grid,
   },
   mixins: [Branding, Events],
@@ -32,6 +72,7 @@ export default {
   },
   data: function () {
     return {
+      loaded: false,
       events: [],
       params: {
         username: this.username,
@@ -44,10 +85,11 @@ export default {
       },
       view: {
         type: 0,
+        splitYears: true,
         options: [
-          { text: "Performance", value: 0, disabled: false },
-          { text: "Results", value: 1, disabled: false },
-          { text: "Fundraising", value: 2, disabled: false },
+          { text: "Registration", value: 0 },
+          { text: "Results", value: 1 },
+          { text: "Fundraising", value: 2 },
         ],
       },
     };
@@ -79,12 +121,41 @@ export default {
           );
           if (self.events.length < resp.data.pagination.counts.filter)
             self.loadEvents(pageNum + 1);
+          else
+            self.loaded = true
         });
     },
   },
   computed: {
     title: function () {
       return `${this.applicationName} / Events`;
+    },
+    viewSplitYears: function () {
+      return (this.view.type == 0)
+    },
+    eventYears: function () {
+      return Object.keys(this.eventsByYear).sort((a, b) => b - a)
+    },
+    eventsByYear: function () {
+      let years = {};
+      this.completedEvents.forEach(e => {
+        let y = DateTime.fromISO(e.eventActivity.scheduledStart).year
+        if (!years[y]) years[y] = [];
+        years[y].push(e);
+      })
+      return years;
+    },
+    upcomingEvents: function () {
+      return this.filteredEvents.filter(e => DateTime.fromISO(e.eventActivity.scheduledStart) > DateTime.now())
+    },
+    pastEvents: function () {
+      return this.filteredEvents.filter(e => DateTime.fromISO(e.eventActivity.scheduledStart) < DateTime.now())
+    },
+    completedEvents: function () {
+      return this.pastEvents.filter(e => e.activity != null)
+    },
+    incompleteEvents: function () {
+      return this.pastEvents.filter(e => e.activity == null)
     },
     filteredEvents: function () {
       let events = this.events;
@@ -94,7 +165,6 @@ export default {
             e.eventActivity.event.eventType.activityTypeID ===
             this.filters.activityTypeID
         );
-      if (this.filters.completed) events = events.filter((e) => e.activity);
       if (this.view.type == 1) events = events.filter((e) => e.placements);
       if (this.view.type == 2) events = events.filter((e) => e.fundraising);
       return events;
@@ -103,3 +173,16 @@ export default {
 };
 </script>
 
+<style scoped>
+.bg-sidebar {
+  background-color: #bdbdbd
+}
+
+.iterated-grid {
+  padding-top: 0.5rem;
+}
+
+.iterated-grid:nth-child(odd) {
+  background-color: #e4e4e485
+}
+</style>
