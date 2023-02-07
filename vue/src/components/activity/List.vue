@@ -67,7 +67,7 @@
 </template>
 
 <script>
-const { DateTime } = require("luxon");
+import { DateTime } from 'luxon';
 import { mapGetters } from "vuex";
 
 import DPagination from "@/components/DetailedPagination";

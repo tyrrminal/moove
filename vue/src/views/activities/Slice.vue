@@ -81,7 +81,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-const { DateTime } = require("luxon");
+import { DateTime } from 'luxon';
 import TreeTable from "@/components/tree-table/TreeTable";
 
 export default {
