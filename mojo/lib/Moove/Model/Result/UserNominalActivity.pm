@@ -181,7 +181,7 @@ sub days_in_range_between_dates ($self, $start, $end = undef) {
   return 1                                    if ($start->ymd eq $end->ymd);
   die('Start date must come before end date') if ($start > $end);
   die('Start date out of range') unless ($year == $start->year);
-  die('End date out of range')   unless ($year == $end->year);
+  die('End date out of range')   unless (abs($year - $end->year) <= 1);
   $end->add(days => 1) if ($end < DateTime->today);
 
   my $days;
