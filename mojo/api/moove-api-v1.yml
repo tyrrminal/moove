@@ -131,7 +131,7 @@ paths:
         # Query Params
         - $ref: "#/components/parameters/SearchWorkoutID"
         - $ref: "#/components/parameters/SearchUsername"
-        - $ref: "#/components/parameters/SearchActivityType"
+        - $ref: "#/components/parameters/SearchActivityTypes"
         - $ref: "#/components/parameters/SearchStartdate"
         - $ref: "#/components/parameters/SearchEnddate"
         - $ref: "#/components/parameters/SearchWholeActivity"
@@ -573,7 +573,7 @@ paths:
         - $ref: "#/components/parameters/SearchEventname"
         - $ref: "#/components/parameters/SearchStartdate"
         - $ref: "#/components/parameters/SearchEnddate"
-        - $ref: "#/components/parameters/SearchActivityType"
+        - $ref: "#/components/parameters/SearchActivityTypes"
         - $ref: "#/components/parameters/SearchUsername"
         - $ref: "#/components/parameters/SearchEventActivityID"
       responses:
@@ -1043,6 +1043,18 @@ components:
       schema:
         $ref: "#/components/schemas/DatabaseID"
       description: Activity Type to filter on
+    SearchActivityTypes:
+      in: query
+      name: activityTypeID
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          $ref: "#/components/schemas/DatabaseID"
+        minItems: 1
+      description: Activity Types to filter on
     SearchEventname:
       in: query
       name: name
