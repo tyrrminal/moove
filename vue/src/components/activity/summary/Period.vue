@@ -13,6 +13,10 @@
           <SummaryElement v-for="a in activities" :key="a.activityTypeID" :activity="a" />
         </b-list-group>
       </b-card-body>
+      <b-card-body v-else>
+        <h4 class="text-center">No Activities</h4>
+      </b-card-body>
+    </template>
     <b-card-body v-else><b-spinner /></b-card-body>
   </b-card>
 </template>
