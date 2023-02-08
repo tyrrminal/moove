@@ -49,21 +49,10 @@ export default {
       },
     };
   },
-  props: {
-    activityTypeID: {
-      type: [String, Number],
-    },
-    start: {
-      type: String,
-    },
-    end: {
-      type: String,
-    },
-  },
   mounted() {
-    this.internal.activityTypeID = this.activityTypeID;
-    this.internal.start = this.start;
-    this.internal.end = this.end;
+    this.internal.activityTypeID = this.$route.query.activityTypeID;
+    this.internal.start = this.$route.query.start;
+    this.internal.end = this.$route.query.end;
   },
   methods: {
     getData: function (ctx, callback) {
