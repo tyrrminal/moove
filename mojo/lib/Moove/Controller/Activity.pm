@@ -91,9 +91,12 @@ sub resultset ($self, %args) {
     my $workout = $self->model_find(Workout => $workout_id) or return $self->render_not_found('Workout');
     $rs = $rs->in_workout($workout);
   }
-  if (my $activity_type_id = $self->validation->param('activityTypeID')) {
-    my $activity_type = $self->model_find(ActivityType => $activity_type_id) or return $self->render_not_found('ActivityType');
-    $rs = $rs->activity_type($activity_type);
+  if (defined($self->validation->param('activityTypeID'))) {
+    my $activity_type_ids = $self->validation->every_param('activityTypeID');
+    foreach my $activity_type_id ($activity_type_ids->@*) {
+      $self->model_find(ActivityType => $activity_type_id) or return $self->render_not_found('ActivityType');
+    }
+    $rs = $rs->search({activity_type_id => {-in => $activity_type_ids}});
   }
   if (my $start_date = $self->validation->param('start')) {
     $rs = $rs->after_date($start_date);

@@ -40,6 +40,13 @@ sub resultset ($self) {
   if (my $group_id = $self->validation->param('eventGroupID')) {
     $rs = $rs->in_group($group_id);
   }
+  if (defined($self->validation->param('activityTypeID'))) {
+    my $activity_type_ids = $self->validation->every_param('activityTypeID');
+    foreach my $activity_type_id ($activity_type_ids->@*) {
+      $self->model_find(ActivityType => $activity_type_id) or return $self->render_not_found('ActivityType');
+    }
+    $rs = $rs->search({'event_type.activity_type_id' => {-in => $activity_type_ids}},{join => {event_registration => {event_activity => 'event_type'}}});
+  }
   if (my $event_activity_id = $self->validation->param('eventActivityID')) {
     $rs = $rs->search(
       {
