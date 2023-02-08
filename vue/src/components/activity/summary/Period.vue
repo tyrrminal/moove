@@ -10,7 +10,8 @@
       </b-progress>
       <b-card-body class="pt-1" v-if="activities.length">
         <b-list-group flush>
-          <SummaryElement v-for="a in activities" :key="a.activityTypeID" :activity="a" />
+          <SummaryElement v-for="a in activities" :key="a.activityTypeID" :activity="a"
+            :context="{ period: period, start: date }" />
         </b-list-group>
       </b-card-body>
       <b-card-body v-else>
