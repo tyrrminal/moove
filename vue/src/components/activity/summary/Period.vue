@@ -1,16 +1,18 @@
 <template>
   <b-card no-body>
     <b-card-header>{{ sectionLabel }}</b-card-header>
-    <b-card-body v-if="loaded">
-      <b-progress class="mb-2" :max="periodData.period.daysTotal" :title="progressTooltip">
+    <template v-if="loaded">
+      <b-progress v-if="periodIsIncomplete" class="squared-progress" :max="periodData.period.daysTotal"
+        :title="progressTooltip">
         <b-progress-bar :value="periodData.period.daysElapsed">
-          {{ progressText }}
+          {{ progressTooltip }}
         </b-progress-bar>
       </b-progress>
-      <b-list-group flush>
-        <SummaryElement v-for="a in activities" :key="a.activityTypeID || 0" :activity="a" />
-      </b-list-group>
-    </b-card-body>
+      <b-card-body class="pt-1" v-if="activities.length">
+        <b-list-group flush>
+          <SummaryElement v-for="a in activities" :key="a.activityTypeID" :activity="a" />
+        </b-list-group>
+      </b-card-body>
     <b-card-body v-else><b-spinner /></b-card-body>
   </b-card>
 </template>
@@ -49,6 +51,9 @@ export default {
     activities: function () {
       return this.periodData.activities.filter((a) => a.distance > 0);
     },
+    periodIsIncomplete: function () {
+      return this.periodData.period.daysElapsed < this.periodData.period.daysTotal
+    },
     sectionLabel: function () {
       let l;
       switch (this.period) {
@@ -62,6 +67,7 @@ export default {
           l = DateTime.fromISO(this.date).get(this.period);
           break;
       }
+      if (this.loaded) l += ` (${this.progressText})`;
       return l;
     },
     progressTooltip: function () {
@@ -70,19 +76,20 @@ export default {
       );
     },
     progressText: function () {
-      if (
-        this.periodData.period.daysElapsed == this.periodData.period.daysTotal
-      )
+      if (!this.loaded) return "";
+      if (this.periodData.period.daysElapsed == this.periodData.period.daysTotal)
         return `${this.periodData.period.daysTotal} days`;
-      return [
+      return "Day " + [
         this.periodData.period.daysElapsed,
         this.periodData.period.daysTotal,
-      ].join("/");
+      ].join(" of ");
     },
   },
 };
 </script>
 
-<style>
-
+<style scoped>
+.squared-progress {
+  border-radius: 0 !important;
+}
 </style>
