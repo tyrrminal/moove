@@ -26,7 +26,7 @@ export default {
   },
   computed: {
     activities: function () {
-      return this.summaryData.activities.filter((a) => a.distance > 0);
+      return this.summaryData.activities.filter((a) => a.distance > 0).sort((a, b) => b.distance - a.distance);
     },
   }
 }
