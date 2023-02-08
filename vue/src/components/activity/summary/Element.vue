@@ -1,23 +1,26 @@
 <template>
   <b-list-group-item>
-    <h5 v-if="a.activityTypeID">
-      {{ activityType(a.activityTypeID).description }}
-    </h5>
-    <h5 v-else>All Activities</h5>
-    <b-progress v-if="a.nominal" height="1.5rem" :max="a.nominal.distance" :title="nominalProgressText(a)">
-      <b-progress-bar :value="a.distance" :variant="nominalProgressVariant(a.distance, a.nominal.distance)">
+    <template v-if="metaLoaded">
+      <h5 v-if="a.activityTypeID">
+        {{ activityType(a.activityTypeID).description }}
+      </h5>
+      <h5 v-else>All Activities</h5>
+      <b-progress v-if="a.nominal" height="1.5rem" :max="a.nominal.distance" :title="nominalProgressText(a)"
+        class="mb-2">
+        <b-progress-bar :value="a.distance" :variant="nominalProgressVariant(a.distance, a.nominal.distance)">
+          {{ a.distance | number("0,0.00") }}
+          {{ unit(a.unitID).abbreviation }}
+        </b-progress-bar>
+      </b-progress>
+      <span v-else>
         {{ a.distance | number("0,0.00") }}
         {{ unit(a.unitID).abbreviation }}
-      </b-progress-bar>
-    </b-progress>
-    <span v-else>
-      {{ a.distance | number("0,0.00") }}
-      {{ unit(a.unitID).abbreviation }}
-    </span>
-    <template v-if="a.eventDistance">
-      <h5>Events</h5>
-      {{ a.eventDistance | number("0,0.00") }}
-      {{ unit(a.unitID).abbreviation }}
+      </span>
+      <template v-if="a.eventDistance">
+        <h5>Events</h5>
+        {{ a.eventDistance | number("0,0.00") }}
+        {{ unit(a.unitID).abbreviation }}
+      </template>
     </template>
   </b-list-group-item>
 </template>
@@ -35,6 +38,7 @@ export default {
   },
   computed: {
     ...mapGetters("meta", {
+      metaLoaded: "isLoaded",
       activityType: "getActivityType",
       unit: "getUnitOfMeasure",
     }),
