@@ -25,6 +25,7 @@
 import { mapGetters } from "vuex";
 
 import ActivityList from "@/components/activity/List";
+import { DateTime } from "luxon";
 
 export default {
   name: "ActivitiesList",
@@ -79,6 +80,13 @@ export default {
     },
     updateCurrentPage: function (newValue) {
       this.page.current = newValue;
+    },
+    postProcessParam: function (k) {
+      let v = this.internal[k];
+      if (k == 'end') {
+        v = DateTime.fromISO(v).plus({ days: 1 }).toISODate();
+      }
+      return v;
     }
   },
   computed: {
@@ -97,7 +105,7 @@ export default {
         "page.length": 0,
       };
       ["activityTypeID", "start", "end", 'event'].forEach((k) => {
-        if (this.internal[k]) r[k] = this.internal[k];
+        if (this.internal[k]) r[k] = this.postProcessParam(k);
       });
       return r;
     },
