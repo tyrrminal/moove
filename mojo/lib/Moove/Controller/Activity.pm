@@ -157,6 +157,7 @@ sub summary ($self) {
     my @activity_summaries;
     foreach ($self->app->model('ActivityType')->all) {
       my $sl      = $ars->activity_type($_);
+      my $sers = $ers->activity_type($_);
       my $nominal = $una->search({activity_type_id => $_->id})->first;
       my %nom;
       if (defined($nominal)) {
@@ -168,6 +169,7 @@ sub summary ($self) {
           activityTypeID => $_->id,
           distance       => $sl->total_distance,
           unitID         => $unit->id,
+          eventDistance  => $sers->total_distance,
           %nom
         }
         )
