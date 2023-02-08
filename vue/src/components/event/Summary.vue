@@ -1,12 +1,18 @@
 <template>
-  <div class="mt-3">
-    <label>Events (completed/all)</label>
-    <p class="font-weight-bold text-monospace">{{ completedEvents.length }} / {{ events.length }}</p>
-    <label>Total Fees</label>
-    <p class="font-weight-bold text-monospace">{{ totalFees.toFixed(2) | currency }}</p>
-    <label>Total Distance</label>
-    <p class="font-weight-bold text-monospace">{{ totalDistance.toFixed(2) }} miles</p>
-  </div>
+  <b-list-group class="mt-3">
+    <b-list-group-item>
+      <label>Events (completed / all)</label>
+      <div class="font-weight-bold text-monospace">{{ completedEvents.length }} / {{ events.length }}</div>
+    </b-list-group-item>
+    <b-list-group-item>
+      <label>Total Fees</label>
+      <div class="font-weight-bold text-monospace">{{ totalFees.toFixed(2) | currency }}</div>
+    </b-list-group-item>
+    <b-list-group-item>
+      <label>Total Distance</label>
+      <div class="font-weight-bold text-monospace">{{ totalDistance.toFixed(2) }} miles</div>
+    </b-list-group-item>
+  </b-list-group>
 </template>
 
 <script>

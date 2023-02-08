@@ -6,12 +6,12 @@
           <b-skeleton-wrapper :loading="!loaded">
             <EventSummary :events="events" />
             <template #loading>
-              <b-skeleton class="mt-3" width="90%"></b-skeleton>
-              <b-skeleton width="50%"></b-skeleton>
-              <b-skeleton width="55%"></b-skeleton>
-              <b-skeleton width="66%"></b-skeleton>
-              <b-skeleton width="70%"></b-skeleton>
-              <b-skeleton class="mb-4" width="80%"></b-skeleton>
+              <b-list-group class="mt-3 mb-4">
+                <b-list-group-item v-for="(s, i) in [[90, 50], [55, 66], [70, 80]]" :key="i">
+                  <b-skeleton :width="s[0] + '%'" />
+                  <b-skeleton :width="s[1] + '%'" type="input" />
+                </b-list-group-item>
+              </b-list-group>
             </template>
           </b-skeleton-wrapper>
         </div>
