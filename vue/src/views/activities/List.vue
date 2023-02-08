@@ -46,6 +46,7 @@ export default {
         start: null,
         end: null,
         whole: true,
+        event: null,
       },
     };
   },
@@ -53,6 +54,7 @@ export default {
     this.internal.activityTypeID = this.$route.query.activityTypeID;
     this.internal.start = this.$route.query.start;
     this.internal.end = this.$route.query.end;
+    this.internal.event = this.$route.query.event;
   },
   methods: {
     getData: function (ctx, callback) {
@@ -94,7 +96,7 @@ export default {
         combine: this.internal.whole,
         "page.length": 0,
       };
-      ["activityTypeID", "start", "end"].forEach((k) => {
+      ["activityTypeID", "start", "end", 'event'].forEach((k) => {
         if (this.internal[k]) r[k] = this.internal[k];
       });
       return r;
