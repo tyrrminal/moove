@@ -1,13 +1,13 @@
 <template>
   <b-container class="mt-2">
     <b-row>
-      <b-col cols="3">
+      <b-form-group label="From">
         <b-datepicker v-model="internal.start" reset-button />
-      </b-col>
-      <b-col cols="3">
+      </b-form-group>
+      <b-form-group label="To" class="ml-3">
         <b-datepicker v-model="internal.end" reset-button />
-      </b-col>
-      <b-col offset="4" class="text-right">
+      </b-form-group>
+      <b-col class="text-right">
         <b-button variant="secondary" v-b-modal.filters>Filters</b-button>
       </b-col>
     </b-row>
