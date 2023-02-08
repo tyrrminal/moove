@@ -1,32 +1,29 @@
 <template>
   <b-list-group-item>
     <template v-if="metaLoaded">
-      <h5 v-if="a.activityTypeID">
-        {{ activityType(a.activityTypeID).description }}
-      </h5>
-      <h5 v-else>All Activities</h5>
-      <b-progress v-if="a.nominal" height="1.5rem" :max="a.nominal.distance" :title="nominalProgressText(a)"
+      <h5>{{ typeDescription }}</h5>
+
+      <b-progress v-if="activity.nominal" height="0.5rem" :max="activity.nominal.distance" :title="nominalProgressText"
         class="mb-2">
-        <b-progress-bar :value="a.distance" :variant="nominalProgressVariant(a.distance, a.nominal.distance)">
-          {{ a.distance | number("0,0.00") }}
-          {{ unit(a.unitID).abbreviation }}
-        </b-progress-bar>
+        <b-progress-bar :value="activity.distance" :variant="nominalProgressVariant" />
       </b-progress>
-      <span v-else>
-        {{ a.distance | number("0,0.00") }}
-        {{ unit(a.unitID).abbreviation }}
+
+      <b-badge :to="{ name: 'activities', query: qs() }" :variant="nominalProgressVariant">
+        {{ activity.distance | number("0,0.00") }} {{ unit.abbreviation }}
+      </b-badge>
+      <span v-if="activity.eventDistance"> /
+        <b-badge :to="{ name: 'activities', query: qs(true) }" variant="none">
+          {{ activity.eventDistance | number("0,0.00") }} {{ unit.abbreviation }}
+        </b-badge>
       </span>
-      <template v-if="a.eventDistance">
-        <h5>Events</h5>
-        {{ a.eventDistance | number("0,0.00") }}
-        {{ unit(a.unitID).abbreviation }}
-      </template>
+
     </template>
   </b-list-group-item>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
+import { DateTime } from "luxon";
 
 export default {
   name: "SummaryElement",
@@ -34,33 +31,59 @@ export default {
     activity: {
       type: Object,
       required: true
+    },
+    context: {
+      type: Object,
+      required: false
     }
   },
   computed: {
     ...mapGetters("meta", {
       metaLoaded: "isLoaded",
-      activityType: "getActivityType",
-      unit: "getUnitOfMeasure",
+      getActivityType: "getActivityType",
+      getUnitOfMeasure: "getUnitOfMeasure",
     }),
-    a: function () {
-      return this.activity
+    typeDescription: function () {
+      if (this.activity.activityType) return this.activity.activityType.description;
+      return 'All Activities';
+    },
+    activityType: function () {
+      return this.getActivityType(this.activity.activityTypeID)
+    },
+    unit: function () {
+      return this.getUnitOfMeasure(this.activity.unitID)
+    },
+    nominalProgressVariant: function () {
+      if (this.activity.nominal) {
+        let d = this.activity.distance;
+        let n = this.activity.nominal.distance
+        if (d >= n) return "success";
+        if (d >= 0.8 * n) return "warning";
+        return "danger";
+      }
+      return "none"
+    },
+    nominalProgressText: function () {
+      if (this.activity.nominal)
+        return this.$options.filters.percent(this.activity.distance / this.activity.nominal.distance)
+      return "";
     },
   },
   methods: {
-    nominalProgressVariant: function (d, n) {
-      if (d >= n) return "success";
-      if (d >= 0.8 * n) return "warning";
-      return "danger";
-    },
-    nominalProgressText: function (a) {
-      return [
-        this.$options.filters.number(a.nominal.distance, "0,0"),
-        this.unit(a.unitID).abbreviation,
-        ["(", ")"].join(
-          this.$options.filters.percent(a.distance / a.nominal.distance)
-        ),
-      ].join(" ");
-    },
+    qs: function (withEvent) {
+      let q = {};
+      if (withEvent != null)
+        q["event"] = withEvent;
+      if (this.activity.activityTypeID)
+        q["activityTypeID"] = this.activity.activityTypeID
+      if (this.context) {
+        q["start"] = this.context.start;
+        let d = DateTime.fromISO(this.context.start);
+        let r = {}; r[this.context.period] = 1;
+        q["end"] = d.plus(r).minus({ days: 1 }).toISODate();
+      }
+      return q;
+    }
   }
 }
 </script>
