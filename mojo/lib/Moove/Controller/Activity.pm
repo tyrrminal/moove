@@ -101,6 +101,10 @@ sub resultset ($self, %args) {
   if (my $end_date = $self->validation->param('end')) {
     $rs = $rs->before_date($end_date);
   }
+  my $event_filter = $self->validation->param('event');
+  if(defined($event_filter) ) {
+    $rs = $rs->has_event($event_filter);
+  }
 
   return $rs;
 }

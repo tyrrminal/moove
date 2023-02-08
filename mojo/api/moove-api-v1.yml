@@ -134,7 +134,8 @@ paths:
         - $ref: "#/components/parameters/SearchActivityType"
         - $ref: "#/components/parameters/SearchStartdate"
         - $ref: "#/components/parameters/SearchEnddate"
-        - $ref: "#/components/parameters/WholeActivity"
+        - $ref: "#/components/parameters/SearchWholeActivity"
+        - $ref: "#/components/parameters/SearchEventActivity"
       responses:
         200:
           description: OK
@@ -1093,7 +1094,14 @@ components:
       schema:
         $ref: "#/components/schemas/DatabaseID"
       description: Search by Workout ID
-    WholeActivity:
+    SearchEventActivity:
+      in: query
+      name: event
+      required: false
+      schema:
+        type: boolean
+      description: Filter activities to those that are/aren't linked to events
+    SearchWholeActivity:
       in: query
       name: combine
       required: false
