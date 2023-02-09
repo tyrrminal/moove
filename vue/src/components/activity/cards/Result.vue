@@ -3,6 +3,8 @@
     <h4 v-if="isLoaded">
       <b-link v-if="linkToActivity" :to="{ name: 'activity', params: { id: activity.id } }">{{ cardTitle }}
       </b-link>
+      <b-link v-else-if="isEventActivity"
+        :to="{ name: 'registration-detail', params: { id: activity.userEventActivity.id } }">{{ cardTitle }}</b-link>
       <span v-else>{{ cardTitle }}</span>
     </h4>
     <ActivityResultSingle v-if="singleActivity" :activity="activity" :editable="editable" />
@@ -42,7 +44,11 @@ export default {
     ...mapGetters("meta", ["isLoaded", "getActivityType"]),
     cardTitle: function () {
       if (this.title != null) return this.title;
+      if (this.isEventActivity) return this.activity.userEventActivity.name
       return this.activityType.description;
+    },
+    isEventActivity: function () {
+      return this.activity.userEventActivity != null
     },
     sets: function () {
       if (this.activity.sets) return this.activity.sets;
