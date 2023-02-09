@@ -129,6 +129,8 @@ export default {
       else return "Night";
     },
     activityName: function (a) {
+      if (a.userEventActivity != null)
+        return a.userEventActivity.name;
       let at = this.getActivityType(a.activityTypeID);
       if (at.hasDistance)
         return `${this.dayPart(a.startTime)} ${at.labels.base}`;

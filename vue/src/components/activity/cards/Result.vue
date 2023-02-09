@@ -42,7 +42,11 @@ export default {
     ...mapGetters("meta", ["isLoaded", "getActivityType"]),
     cardTitle: function () {
       if (this.title != null) return this.title;
+      if (this.isEventActivity) return this.activity.userEventActivity.name
       return this.activityType.description;
+    },
+    isEventActivity: function () {
+      return this.activity.userEventActivity != null
     },
     sets: function () {
       if (this.activity.sets) return this.activity.sets;
