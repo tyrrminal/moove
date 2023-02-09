@@ -1224,6 +1224,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ActivitySet"
+        userEventActivity:
+          $ref: "#/components/schemas/UserEventActivity"
     ActivitySet:
       type: object
       properties:
@@ -1551,6 +1553,14 @@ components:
           $ref: "#/components/schemas/Fundraising"
         user:
           $ref: "#/components/schemas/User"
+    UserEventActivity:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseID"
+        name:
+          type: string
     PaginatedEventRegistrations:
       type: object
       additionalProperties: false
