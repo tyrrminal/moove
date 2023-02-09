@@ -5,7 +5,7 @@ use Mojo::Base 'DCS::Base::API::Model::Controller';
 
 use Role::Tiny::With;
 with 'DCS::Base::Role::Rest::Collection', 'DCS::Base::Role::Rest::Entity';
-with 'Moove::Controller::Role::ModelEncoding::Activity';
+with 'Moove::Controller::Role::ModelEncoding::Activity', 'Moove::Controller::Role::ModelEncoding::Activity::UserEventActivity';
 with 'Moove::Role::Import::Activity';
 with 'Moove::Role::Unit::Conversion';
 
@@ -91,15 +91,22 @@ sub resultset ($self, %args) {
     my $workout = $self->model_find(Workout => $workout_id) or return $self->render_not_found('Workout');
     $rs = $rs->in_workout($workout);
   }
-  if (my $activity_type_id = $self->validation->param('activityTypeID')) {
-    my $activity_type = $self->model_find(ActivityType => $activity_type_id) or return $self->render_not_found('ActivityType');
-    $rs = $rs->activity_type($activity_type);
+  if (defined($self->validation->param('activityTypeID'))) {
+    my $activity_type_ids = $self->validation->every_param('activityTypeID');
+    foreach my $activity_type_id ($activity_type_ids->@*) {
+      $self->model_find(ActivityType => $activity_type_id) or return $self->render_not_found('ActivityType');
+    }
+    $rs = $rs->search({activity_type_id => {-in => $activity_type_ids}});
   }
   if (my $start_date = $self->validation->param('start')) {
     $rs = $rs->after_date($start_date);
   }
   if (my $end_date = $self->validation->param('end')) {
     $rs = $rs->before_date($end_date);
+  }
+  my $event_filter = $self->validation->param('event');
+  if(defined($event_filter) ) {
+    $rs = $rs->has_event($event_filter);
   }
 
   return $rs;
@@ -157,6 +164,7 @@ sub summary ($self) {
     my @activity_summaries;
     foreach ($self->app->model('ActivityType')->all) {
       my $sl      = $ars->activity_type($_);
+      my $sers = $ers->activity_type($_);
       my $nominal = $una->search({activity_type_id => $_->id})->first;
       my %nom;
       if (defined($nominal)) {
@@ -168,6 +176,7 @@ sub summary ($self) {
           activityTypeID => $_->id,
           distance       => $sl->total_distance,
           unitID         => $unit->id,
+          eventDistance  => $sers->total_distance,
           %nom
         }
         )

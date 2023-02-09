@@ -24,17 +24,18 @@
       <b-row v-for="activity in uploaded.filter((a) => a.isNew)" :key="activity.id">
         <b-col>
           <b-link :to="{ name: 'activity', params: { id: activity.id } }">{{
-              activityType(activity.activityTypeID).description
+            activityType(activity.activityTypeID).description
           }}</b-link>
           on
-          {{ activity.startTime | luxon
+          {{
+            activity.startTime | luxon
           }}<b-badge class="ml-2" variant="success">NEW!</b-badge>
         </b-col>
       </b-row>
       <b-row v-for="activity in uploaded.filter((a) => !a.isNew)" :key="activity.id">
         <b-col class="text-muted">
           <b-link :to="{ name: 'activity', params: { id: activity.id } }">{{
-              activityType(activity.activityTypeID).description
+            activityType(activity.activityTypeID).description
           }}</b-link>
           on
           {{ activity.startTime | luxon }}
@@ -93,4 +94,5 @@ export default {
 </script>
 
 <style scoped>
+
 </style>

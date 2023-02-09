@@ -17,6 +17,7 @@ sub encode_model_activity ($self, $entity) {
     createdAt          => $self->encode_datetime($entity->created_at),
     updatedAt          => $self->encode_datetime($entity->updated_at),
     sets               => [map {$self->encode_model_activity_set($_)} $entity->sets],
+    $entity->is_event_activity ? (userEventActivity => $self->encode_model($entity->user_event_activity)) : (),
   };
 }
 

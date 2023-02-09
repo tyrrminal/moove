@@ -1,8 +1,8 @@
 <template>
   <b-row>
     <b-col>
-      <b-form-select :value="perPage" :options="options" @input="updatePerPage" :size="size" :style="{ maxWidth: '5em' }"
-        class="float-left mr-3"></b-form-select>
+      <b-form-select :value="perPage" :options="options" @input="updatePerPage" :size="size"
+        :style="{ maxWidth: '5em' }" class="float-left mr-3"></b-form-select>
       <b-pagination :value="currentPage" :total-rows="totalRows" :per-page="perPage" @input="updateCurrentPage"
         :size="size">
       </b-pagination>
@@ -67,4 +67,5 @@ export default {
 </script>
 
 <style>
+
 </style>

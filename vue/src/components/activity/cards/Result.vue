@@ -1,18 +1,13 @@
 <template>
   <b-jumbotron class="event-details py-2" border-variant="secondary">
     <h4 v-if="isLoaded">
-      <b-link
-        v-if="linkToActivity"
-        :to="{ name: 'activity', params: { id: activity.id } }"
-        >{{ cardTitle }}
+      <b-link v-if="linkToActivity" :to="{ name: 'activity', params: { id: activity.id } }">{{ cardTitle }}
       </b-link>
+      <b-link v-else-if="isEventActivity"
+        :to="{ name: 'registration-detail', params: { id: activity.userEventActivity.id } }">{{ cardTitle }}</b-link>
       <span v-else>{{ cardTitle }}</span>
     </h4>
-    <ActivityResultSingle
-      v-if="singleActivity"
-      :activity="activity"
-      :editable="editable"
-    />
+    <ActivityResultSingle v-if="singleActivity" :activity="activity" :editable="editable" />
     <ActivityResultMulti v-else :activity="activity" :editable="editable" />
   </b-jumbotron>
 </template>
@@ -49,7 +44,11 @@ export default {
     ...mapGetters("meta", ["isLoaded", "getActivityType"]),
     cardTitle: function () {
       if (this.title != null) return this.title;
+      if (this.isEventActivity) return this.activity.userEventActivity.name
       return this.activityType.description;
+    },
+    isEventActivity: function () {
+      return this.activity.userEventActivity != null
     },
     sets: function () {
       if (this.activity.sets) return this.activity.sets;
@@ -67,4 +66,6 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+
+</style>

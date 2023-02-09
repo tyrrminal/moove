@@ -8,7 +8,7 @@
       </template>
       <template #cell(activities)="data">
         <b-link v-for="a in data.value" :key="a.id" :to="{ name: 'activity', params: { id: a.id } }">{{
-            getActivityType(a.activityTypeID).description
+          getActivityType(a.activityTypeID).description
         }}</b-link>
       </template>
 
@@ -76,4 +76,5 @@ export default {
 </script>
 
 <style scoped>
+
 </style>

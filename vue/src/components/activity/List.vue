@@ -1,14 +1,22 @@
 <template>
   <div>
-    <b-table :id="tableId" class="rounded-row mt-2" tbody-tr-class="rounded-row" borderless :items="loadData"
-      :fields="columns" :per-page.sync="page.length" :current-page.sync="page.current">
+    <b-table v-if="isLoaded" :id="tableId" class="rounded-row mt-2" tbody-tr-class="rounded-row" borderless
+      :items="loadData" :fields="columns" :per-page.sync="page.length" :current-page.sync="page.current"
+      :sort-by="sort.by" :sort-desc="sort.desc" show-empty>
+      <template #empty>
+        <div class="text-center">
+          <h4>No Activities Found</h4>
+        </div>
+      </template>
       <template #table-busy>
         <div class="text-center">
           <b-spinner variant="secondary" type="grow" />
         </div>
       </template>
       <template #cell(activityTypeID)="data">
-        <b-link :to="{ name: 'activity', params: { id: data.item.id } }" class="activityLink">{{ activityName(data.item)
+        <b-icon v-if="activityHasMap(data.item)" icon="pin-map" class="mr-2" />
+        <b-link :to="{ name: 'activity', params: { id: data.item.id } }" class="activityLink">{{
+          activityName(data.item)
         }}</b-link>
       </template>
       <template #cell(startTime)="data">
@@ -29,7 +37,8 @@
       </template>
       <template #cell(pace)="data">
         <template v-if="data.value">
-          {{ data.value.value | trimTime
+          {{
+            data.value.value | trimTime
           }}{{ getUnitOfMeasure(data.value.unitOfMeasureID).abbreviation }}
         </template>
       </template>
@@ -50,7 +59,7 @@
         </div>
       </template>
       <template #cell(addSet)="data">
-        <b-link @click="addSet(data.item)"
+        <b-link
           :to="{ name: 'create-activity', params: { workoutID: data.item.workoutID, activityTypeID: data.item.activityTypeID, group: data.item.group } }">
           <b-icon icon="plus" />Set
         </b-link>
@@ -63,7 +72,7 @@
 </template>
 
 <script>
-const { DateTime } = require("luxon");
+import { DateTime } from 'luxon';
 import { mapGetters } from "vuex";
 
 import DPagination from "@/components/DetailedPagination";
@@ -76,6 +85,10 @@ export default {
   data: function () {
     return {
       visibleRows: [],
+      sort: {
+        desc: true,
+        by: 'startTime'
+      }
     }
   },
   props: {
@@ -116,10 +129,16 @@ export default {
       else return "Night";
     },
     activityName: function (a) {
+      if (a.userEventActivity != null)
+        return a.userEventActivity.name;
       let at = this.getActivityType(a.activityTypeID);
       if (at.hasDistance)
         return `${this.dayPart(a.startTime)} ${at.labels.base}`;
       return at.labels.base
+    },
+    activityHasMap: function (a) {
+      let at = this.getActivityType(a.activityTypeID);
+      return at.hasMap;
     },
     formatDate: function (d) {
       return DateTime.fromISO(d).toLocaleString(DateTime.DATETIME_FULL);
@@ -137,9 +156,6 @@ export default {
       } else if (this.items instanceof Array) {
         cb(this.items);
       }
-    },
-    addSet: function (activity) {
-
     },
     updatePerPage: function (newValue) {
       this.$emit("update:perPage", newValue);
@@ -216,4 +232,5 @@ export default {
 </script>
 
 <style scoped>
+
 </style>

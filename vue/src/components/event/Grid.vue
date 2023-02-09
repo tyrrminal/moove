@@ -1,14 +1,6 @@
 <template>
-  <b-table
-    striped
-    small
-    hover
-    :items="events"
-    :fields="fields"
-    :sort-compare="sortCompare"
-    foot-clone
-    no-footer-sorting
-  >
+  <b-table striped small hover :items="events" :fields="fields" :sort-compare="sortCompare" :foot-clone="showFooter"
+    no-footer-sorting responsive>
     <template v-slot:table-busy>
       <div class="text-center text-info my-2">
         <b-spinner class="align-middle"></b-spinner>
@@ -18,7 +10,7 @@
 
     <template v-slot:thead-top="data" v-if="viewType == 1">
       <b-tr :title="data">
-        <b-th colspan="4">
+        <b-th colspan="5">
           <span class="sr-only">Default Fields</span>
         </b-th>
         <b-th colspan="2" class="text-center">Overall</b-th>
@@ -28,18 +20,15 @@
     </template>
 
     <template #foot()><span></span></template>
-    <template #foot(date)
-      ><span v-if="viewType == 0 || viewType == 2">Total</span>
-      <span v-else>Best</span></template
-    >
+    <template #foot(date)><span v-if="viewType == 0 || viewType == 2">Total</span>
+      <span v-else>Best</span></template>
     <template #foot(registrationFee)>
       {{
         events.map((e) => e.registrationFee).reduce((a, c) => a + (c || 0), 0)
           | currency
       }}
     </template>
-    <template #foot(distance)
-      ><span v-if="events.length">
+    <template #foot(distance)><span v-if="events.length">
         {{ eventDistance | formatDistance }}
       </span>
     </template>
@@ -91,7 +80,7 @@
     <template #foot(frMinimum)>
       {{
         events
-          .filter((e) => e.fundraising != null)
+            .filter((e) => e.fundraising != null)
           .map((e) => e.fundraising.minimum)
           .reduce((a, c) => a + c, 0) | currency
       }}
@@ -99,7 +88,7 @@
     <template #foot(frReceived)>
       {{
         events
-          .filter((e) => e.fundraising != null)
+            .filter((e) => e.fundraising != null)
           .map((e) => e.fundraising.received)
           .reduce((a, c) => a + c, 0) | currency
       }}
@@ -109,111 +98,74 @@
     </template>
 
     <template v-slot:cell(index)="data">{{ data.index + 1 }}</template>
+    <template #cell(year)="data">{{ data.item.eventActivity.scheduledStart.substr(0, 4) }}</template>
     <template v-slot:cell(date)="data">{{
-      data.item.eventActivity.scheduledStart | luxon({ output: "short" })
+      data.item.eventActivity.scheduledStart | luxon({ output: { format: dateFormat } })
     }}</template>
+    <template #cell(countdown)="data">
+      <span v-if="isInFuture(data.item)">{{
+        relDate(data.item.eventActivity.scheduledStart)
+      }}</span>
+    </template>
     <template v-slot:cell(type)="data">{{
       data.item.eventActivity.eventType.description
     }}</template>
     <template v-slot:cell(name)="data">
-      <b-link
-        :class="eventNameClass(data.item)"
-        :to="{
-          name: 'registration-detail',
-          params: { id: data.item.id },
-        }"
-        >{{ data.item.eventActivity.event.name }}</b-link
-      >
+      <b-link :class="eventNameClass(data.item)" :to="{
+        name: 'registration-detail',
+        params: { id: data.item.id },
+      }">{{ data.item.eventActivity.event.name }}</b-link>
     </template>
     <template v-slot:cell(registrationFee)="data">
       {{ data.value | currency }}
     </template>
-    <template v-slot:cell(speed)="data"
-      >{{ fillUnits(eventVelocity(data.item)) | formatDistance }}
+    <template v-slot:cell(speed)="data">{{ fillUnits(eventVelocity(data.item)) | formatDistance }}
     </template>
     <template v-slot:cell(distance)="data">{{
       fillUnits(data.item.eventActivity.distance) | formatDistanceTrim
     }}</template>
 
-    <template v-slot:cell(place)="data"
-      ><span v-if="data.item.placements && data.item.placements.overall"
-        >{{ data.item.placements.overall.place
-        }}<span
-          v-if="data.item.placements.overall.of"
-          class="placement-partition-size"
-        >
-          / {{ data.item.placements.overall.of }}</span
-        ></span
-      ></template
-    >
-    <template v-slot:cell(pct)="data"
-      ><span v-if="data.item.placements && data.item.placements.overall">{{
-        data.item.placements.overall.percentile | percent(1)
-      }}</span></template
-    >
-    <template v-slot:cell(placeGender)="data"
-      ><span v-if="data.item.placements && data.item.placements.gender"
-        >{{ data.item.placements.gender.place
-        }}<span
-          v-if="data.item.placements.gender.of"
-          class="placement-partition-size"
-        >
-          / {{ data.item.placements.gender.of }}</span
-        ></span
-      ></template
-    >
-    <template v-slot:cell(pctGender)="data"
-      ><span
-        v-if="
-          data.item.placements &&
-          data.item.placements.gender &&
-          data.item.placements.gender.percentile != null
-        "
-        >{{ data.item.placements.gender.percentile | percent(1) }}</span
-      ></template
-    >
-    <template v-slot:cell(placeDivision)="data"
-      ><span v-if="data.item.placements && data.item.placements.division"
-        >{{ data.item.placements.division.place
-        }}<span
-          v-if="data.item.placements.division.of"
-          class="placement-partition-size"
-        >
-          / {{ data.item.placements.division.of }}</span
-        ></span
-      ></template
-    >
-    <template v-slot:cell(pctDivision)="data"
-      ><span
-        v-if="
-          data.item.placements &&
-          data.item.placements.division &&
-          data.item.placements.division.percentile != null
-        "
-        >{{ data.item.placements.division.percentile | percent(1) }}</span
-      ></template
-    >
+    <template v-slot:cell(place)="data"><span v-if="data.item.placements && data.item.placements.overall">{{
+      data.item.placements.overall.place
+    }}<span v-if="data.item.placements.overall.of" class="placement-partition-size">
+          / {{ data.item.placements.overall.of }}</span></span></template>
+    <template v-slot:cell(pct)="data"><span v-if="data.item.placements && data.item.placements.overall">{{
+      data.item.placements.overall.percentile | percent(1)
+    }}</span></template>
+    <template v-slot:cell(placeGender)="data"><span v-if="data.item.placements && data.item.placements.gender">{{
+      data.item.placements.gender.place
+    }}<span v-if="data.item.placements.gender.of" class="placement-partition-size">
+          / {{ data.item.placements.gender.of }}</span></span></template>
+    <template v-slot:cell(pctGender)="data"><span v-if="
+      data.item.placements &&
+      data.item.placements.gender &&
+      data.item.placements.gender.percentile != null
+    ">{{ data.item.placements.gender.percentile | percent(1) }}</span></template>
+    <template v-slot:cell(placeDivision)="data"><span v-if="data.item.placements && data.item.placements.division">{{
+      data.item.placements.division.place
+    }}<span v-if="data.item.placements.division.of" class="placement-partition-size">
+          / {{ data.item.placements.division.of }}</span></span></template>
+    <template v-slot:cell(pctDivision)="data"><span v-if="
+      data.item.placements &&
+      data.item.placements.division &&
+      data.item.placements.division.percentile != null
+    ">{{ data.item.placements.division.percentile | percent(1) }}</span></template>
 
-    <template v-slot:cell(frMinimum)="data"
-      ><span v-if="data.item.fundraising">{{
-        data.item.fundraising.minimum | currency
-      }}</span></template
-    >
-    <template v-slot:cell(frReceived)="data"
-      ><span v-if="data.item.fundraising">{{
-        data.item.fundraising.received | currency
-      }}</span></template
-    >
-    <template v-slot:cell(frPct)="data"
-      ><span v-if="data.item.fundraising">{{
-        (data.item.fundraising.received / data.item.fundraising.minimum)
-          | percent(1)
-      }}</span></template
-    >
+    <template v-slot:cell(frMinimum)="data"><span v-if="data.item.fundraising">{{
+      data.item.fundraising.minimum | currency
+    }}</span></template>
+    <template v-slot:cell(frReceived)="data"><span v-if="data.item.fundraising">{{
+      data.item.fundraising.received | currency
+    }}</span></template>
+    <template v-slot:cell(frPct)="data"><span v-if="data.item.fundraising">{{
+    (data.item.fundraising.received / data.item.fundraising.minimum)
+      | percent(1)
+    }}</span></template>
   </b-table>
 </template>
 
 <script>
+import { DateTime } from "luxon";
 import UnitConversion from "@/mixins/UnitConversion.js";
 import { mapGetters } from "vuex";
 import EventFilters from "@/mixins/events/Filters.js";
@@ -230,80 +182,10 @@ export default {
       type: Number,
       default: 0,
     },
-  },
-  data: function () {
-    return {
-      baseFields: [
-        { key: "index", label: "" },
-        { key: "date", sortable: true },
-        { key: "name", sortable: true },
-        { key: "type", sortable: true },
-        {
-          key: "registrationFee",
-          label: "Fee",
-          sortable: true,
-          show: { performance: true, fundraising: true },
-        },
-        { key: "distance", sortable: true, show: { performance: true } },
-        { key: "speed", sortable: true, show: { performance: true } },
-        {
-          key: "place",
-          sortable: true,
-          label: "Place",
-          show: { results: true },
-        },
-        { key: "pct", sortable: true, label: "%", show: { results: true } },
-        {
-          key: "placeGender",
-          sortable: true,
-          label: "Place",
-          show: { results: true },
-        },
-        {
-          key: "pctGender",
-          sortable: true,
-          label: "%",
-          show: { results: true },
-        },
-        {
-          key: "placeDivision",
-          sortable: true,
-          label: "Place",
-          show: { results: true },
-        },
-        {
-          key: "pctDivision",
-          sortable: true,
-          label: "%",
-          show: { results: true },
-        },
-        {
-          key: "frMinimum",
-          sortable: true,
-          label: "Minimum",
-          tdClass: "text-right pr-2",
-          thClass: "ncol",
-          show: { fundraising: true },
-        },
-        {
-          key: "frReceived",
-          sortable: true,
-          label: "Recieved",
-          tdClass: "text-right pr-2",
-          thClass: "ncol",
-          show: { fundraising: true },
-        },
-        {
-          key: "frPct",
-          sortable: true,
-          label: "%",
-          tdClass: "text-right pr-2",
-          thClass: "ncol",
-          show: { fundraising: true },
-        },
-        ,
-      ],
-    };
+    dateFormat: {
+      type: String,
+      default: "ccc LLL d"
+    }
   },
   methods: {
     sortCompare: function (a, b, key, sortDesc, formatterFn, options, locale) {
@@ -347,16 +229,16 @@ export default {
           ar == null
             ? 0
             : convertUnitValue(
-                ar.value,
-                this.getUnitOfMeasure(ar.unitOfMeasureID)
-              );
+              ar.value,
+              this.getUnitOfMeasure(ar.unitOfMeasureID)
+            );
         b =
           br == null
             ? 0
             : convertUnitValue(
-                br.value,
-                this.getUnitOfMeasure(br.unitOfMeasureID)
-              );
+              br.value,
+              this.getUnitOfMeasure(br.unitOfMeasureID)
+            );
       }
       var m;
       if ((m = key.match(/(place|pct)(Division|Gender)?/))) {
@@ -404,9 +286,22 @@ export default {
       g.percentile = (100 * g.place) / g.of;
       return g;
     },
+    isInFuture: function (e) {
+      return DateTime.fromISO(e.eventActivity.scheduledStart) > DateTime.now();
+    },
+    relDate: function (d) {
+      let dur = DateTime.fromISO(d).startOf('day').diff(DateTime.now().startOf('day'), ["weeks", "days"]);
+      let p = [];
+      if (dur.weeks) p.push(dur.weeks + 'w');
+      if (dur.days) p.push(dur.days + 'd');
+      return p.join(' ');
+    }
   },
   computed: {
     ...mapGetters("meta", ["getUnitOfMeasure", "getUnitsOfMeasure"]),
+    showFooter: function () {
+      return this.events.length > 1;
+    },
     eventDistance: function () {
       let activities = this.events.map((e) => e.activity ?? e.eventActivity);
       let v = activities.reduce(
@@ -433,22 +328,39 @@ export default {
           .reduce((a, c) => a + c, 0) / fr.length
       );
     },
+    eventYears: function () {
+      return [...new Set(this.events.map(e => DateTime.fromISO(e.eventActivity.scheduledStart).year))]
+    },
     fields: function () {
-      let fields = this.baseFields.filter((f) => !f.hasOwnProperty("show"));
-      if (this.viewType == 0) {
-        fields.push(
-          ...this.baseFields.filter((f) => f.show && f.show.performance)
-        );
-      }
-      if (this.viewType == 1) {
-        fields.push(...this.baseFields.filter((f) => f.show && f.show.results));
-      }
-      if (this.viewType == 2) {
-        fields.push(
-          ...this.baseFields.filter((f) => f.show && f.show.fundraising)
-        );
-      }
-      return fields;
+      let baseFields = [
+        { key: "year", sortable: false, predicate: () => this.eventYears.length > 1 },
+        { key: "date", sortable: true },
+        { key: "countdown", sortable: false, predicate: () => Math.min(...this.events.map(e => DateTime.fromISO(e.eventActivity.scheduledStart))) > DateTime.now() },
+        { key: "name", sortable: true },
+        { key: "type", sortable: true },
+        { key: "distance", sortable: true },
+        { key: "speed", sortable: true, predicate: () => this.events.map(e => e.activity).reduce((c, a) => c && a, true) && (this.viewType == 0 || this.viewType == 1) },
+        { key: "registrationFee", label: "Fee", sortable: true, predicate: () => this.viewType == 0 || this.viewType == 2 },
+        { key: "place", sortable: true, label: "Place", predicate: () => this.viewType == 1 },
+        { key: "pct", sortable: true, label: "%", predicate: () => this.viewType == 1 },
+        { key: "placeGender", sortable: true, label: "Place", predicate: () => this.viewType == 1 },
+        { key: "pctGender", sortable: true, label: "%", predicate: () => this.viewType == 1 },
+        { key: "placeDivision", sortable: true, label: "Place", predicate: () => this.viewType == 1 },
+        { key: "pctDivision", sortable: true, label: "%", predicate: () => this.viewType == 1 },
+        {
+          key: "frMinimum", sortable: true, label: "Minimum", predicate: () => this.viewType == 2,
+          tdClass: "text-right pr-2", thClass: "ncol",
+        },
+        {
+          key: "frReceived", sortable: true, label: "Recieved", predicate: () => this.viewType == 2,
+          tdClass: "text-right pr-2", thClass: "ncol",
+        },
+        {
+          key: "frPct", sortable: true, label: "%", predicate: () => this.viewType == 2,
+          tdClass: "text-right pr-2", thClass: "ncol",
+        },
+      ];
+      return baseFields.filter(f => Object.hasOwn(f, 'predicate') ? f.predicate() : true);
     },
   },
 };

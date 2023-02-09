@@ -34,11 +34,12 @@
     <template v-if="hasSearched">
       <b-table :items="list" :fields="fields">
         <template #cell(name)="data">
-          <b-link :to="{ name: 'event-detail', params: { id: data.item.id } }">{{  data.value  }}</b-link> {{
-           data.item.activities.map(a => a.name).join(", ") | pwrap("()")  }}
+          <b-link :to="{ name: 'event-detail', params: { id: data.item.id } }">{{ data.value }}</b-link> {{
+            data.item.activities.map(a => a.name).join(", ") | pwrap("()")
+          }}
         </template>
         <template #cell(address)="data">
-          {{  data.value.city  }}, {{  data.value.state  }}
+          {{ data.value.city }}, {{ data.value.state }}
         </template>
       </b-table>
       <DetailedPagination :currentPage.sync="page.number" :perPage.sync="page.length" :totalRows="counts.filter"
@@ -126,4 +127,5 @@ export default {
 </script>
 
 <style scoped>
+
 </style>

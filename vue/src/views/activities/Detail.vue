@@ -4,7 +4,7 @@
       <h4 class="float-right">{{ workout.date | luxon(dtSettings) }}</h4>
       <b-link :to="{ name: 'workout', params: { id: workout.id } }">{{ workout.name }}</b-link>
     </h2>
-    <ActivityCard v-if="activity" :activity="activity" no-link-to-activity class="mt-3" />
+    <ActivityCard v-if="activity" :activity="activity" :linkToActivity="false" class="mt-3" />
   </b-container>
 </template>
 

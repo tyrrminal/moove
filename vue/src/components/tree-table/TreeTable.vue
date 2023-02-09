@@ -1,44 +1,25 @@
 <template>
   <table :class="tableClasses">
-    <TreeTableHeader
-      v-if="showHeader"
-      :options="tableOptions"
-      @update:sort="toggleSort"
-    >
+    <TreeTableHeader v-if="showHeader" :options="tableOptions" @update:sort="toggleSort">
       <slot v-for="(_, name) in $slots" :name="name" :slot="name" />
-      <template
-        v-for="(_, name) in $scopedSlots"
-        :slot="name"
-        slot-scope="slotData"
-        ><slot :name="name" v-bind="slotData"
-      /></template>
+      <template v-for="(_, name) in $scopedSlots" :slot="name" slot-scope="slotData">
+        <slot :name="name" v-bind="slotData" />
+      </template>
     </TreeTableHeader>
     <tbody>
-      <TreeTableRow
-        v-for="(c, i) in visibleRows"
-        :key="i"
-        :item="c"
-        :index="i"
-        :options="tableOptions"
-        @update-state="updateState"
-      >
+      <TreeTableRow v-for="(c, i) in visibleRows" :key="i" :item="c" :index="i" :options="tableOptions"
+        @update-state="updateState">
         <slot v-for="(_, name) in $slots" :name="name" :slot="name" />
-        <template
-          v-for="(_, name) in $scopedSlots"
-          :slot="name"
-          slot-scope="slotData"
-          ><slot :name="name" v-bind="slotData"
-        /></template>
+        <template v-for="(_, name) in $scopedSlots" :slot="name" slot-scope="slotData">
+          <slot :name="name" v-bind="slotData" />
+        </template>
       </TreeTableRow>
     </tbody>
     <TreeTableFooter v-if="showFooter" :options="tableOptions">
       <slot v-for="(_, name) in $slots" :name="name" :slot="name" />
-      <template
-        v-for="(_, name) in $scopedSlots"
-        :slot="name"
-        slot-scope="slotData"
-        ><slot :name="name" v-bind="slotData"
-      /></template>
+      <template v-for="(_, name) in $scopedSlots" :slot="name" slot-scope="slotData">
+        <slot :name="name" v-bind="slotData" />
+      </template>
     </TreeTableFooter>
   </table>
 </template>
@@ -249,18 +230,16 @@ export default {
 </script>
 
 <style scoped>
-table.tree-table.col-striped >>> td:nth-child(even),
-table.tree-table.col-striped >>> th:nth-child(even) {
+table.tree-table.col-striped>>>td:nth-child(even),
+table.tree-table.col-striped>>>th:nth-child(even) {
   background-color: #e9e9e9;
 }
 
-table.tree-table.row-striped >>> tr:nth-child(even) td {
+table.tree-table.row-striped>>>tr:nth-child(even) td {
   background-color: #e9e9e9;
 }
 
-table.tree-table.col-striped.row-striped
-  >>> tr:nth-child(even)
-  td:nth-child(even) {
+table.tree-table.col-striped.row-striped>>>tr:nth-child(even) td:nth-child(even) {
   background-color: #d4d4d4;
 }
 </style>

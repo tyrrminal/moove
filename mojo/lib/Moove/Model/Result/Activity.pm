@@ -388,6 +388,15 @@ use List::Util qw(max);
 
 use Class::Method::Modifiers;
 
+sub is_event_activity($self) {
+  return $self->user_event_activities->count > 0;
+}
+
+sub user_event_activity($self) {
+  return unless($self->is_event_activity);
+  return $self->user_event_activities->first;
+}
+
 sub last_updated_at ($self) {
   return $self->updated_at // $self->created_at;
 }
@@ -398,6 +407,12 @@ sub result ($self) {
 
 sub start_time ($self) {
   return $self->activity_result->start_time;
+}
+
+sub start_date ($self) {
+  return undef unless(defined($self->activity_result));
+  return undef unless(defined($self->activity_result->start_time));
+  return $self->activity_result->start_time->truncate(to => 'day');
 }
 
 sub description ($self) {

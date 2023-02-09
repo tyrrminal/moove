@@ -10,13 +10,13 @@
         <b-list-group-item class="py-2 d-flex align-items-center justify-content-between" v-for="g in prs" :key="g.id"
           :to="{ name: 'goal', params: { user: effectiveUser, id: g.id } }">
           <span>
-            <span class="text-muted">[{{  g.activityType.description  }}]</span>
-            <label class="listlabel">{{  g.name  }}:</label>
+            <span class="text-muted">[{{ g.activityType.description }}]</span>
+            <label class="listlabel">{{ g.name }}:</label>
             <template v-if="g.count">{{
-               g.fulfillments[0].description 
-              }}</template>
+              g.fulfillments[0].description
+            }}</template>
           </span>
-          <b-badge variant="info" pill>{{  g.count  }}</b-badge>
+          <b-badge variant="info" pill>{{ g.count }}</b-badge>
         </b-list-group-item>
       </b-list-group>
     </template>
@@ -27,14 +27,14 @@
       <h3>Achievements</h3>
       <b-list-group class="py-0">
         <b-list-group-item v-for="g in achievements" :key="g.id">
-          <span class="text-muted">[{{  g.activityType.description  }}]</span>
-          <label class="listlabel">{{  g.name  }}:</label>
+          <span class="text-muted">[{{ g.activityType.description }}]</span>
+          <label class="listlabel">{{ g.name }}:</label>
           <span v-if="g.count">
-            {{  g.fulfillments[0].date | luxon({ output: "date_short" })  }}
+            {{ g.fulfillments[0].date | luxon({ output: "date_short" }) }}
             <b-link v-if="g.fulfillments[0].activities[0].event" :to="{
               name: 'event',
               params: { id: g.fulfillments[0].activities[0].event.id },
-            }">{{  g.fulfillments[0].activities[0].event.name  }}</b-link>
+            }">{{ g.fulfillments[0].activities[0].event.name }}</b-link>
           </span>
           <font-awesome-icon v-else icon="times" />
         </b-list-group-item>

@@ -19,6 +19,10 @@ const getters = {
 
   getActivityTypes: (state) => { return state.activityTypes },
   getActivityType: (state) => id => { return state.activityTypes.filter(x => x.id == id).shift() },
+  getBaseActivityTypes: (state) => [...new Set(state.activityTypes.map(at => at.labels.base))],
+  getActivityTypesForBase: (state) => base => { return state.activityTypes.filter(x => x.labels.base == base) },
+  getActivityTypeContexts: (state) => [...new Set(state.activityTypes.map(at => at.labels.context))],
+  getActivityTypesForContext: (state) => context => { return state.activityTypes.filter(x => x.labels.context == context) },
   getEventTypes: (state) => { return state.eventTypes },
   getEventType: (state) => id => { return state.eventTypes.filter(x => x.id == id).shift() },
   getUnitsOfMeasure: (state) => { return state.unitsOfMeasure },
