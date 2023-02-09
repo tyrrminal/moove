@@ -3,6 +3,8 @@
     <h4 v-if="isLoaded">
       <b-link v-if="linkToActivity" :to="{ name: 'activity', params: { id: activity.id } }">{{ cardTitle }}
       </b-link>
+      <b-link v-else-if="isEventActivity"
+        :to="{ name: 'registration-detail', params: { id: activity.userEventActivity.id } }">{{ cardTitle }}</b-link>
       <span v-else>{{ cardTitle }}</span>
     </h4>
     <ActivityResultSingle v-if="singleActivity" :activity="activity" :editable="editable" />
