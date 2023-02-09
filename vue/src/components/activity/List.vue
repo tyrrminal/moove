@@ -2,7 +2,12 @@
   <div>
     <b-table v-if="isLoaded" :id="tableId" class="rounded-row mt-2" tbody-tr-class="rounded-row" borderless
       :items="loadData" :fields="columns" :per-page.sync="page.length" :current-page.sync="page.current"
-      :sort-by="sort.by" :sort-desc="sort.desc">
+      :sort-by="sort.by" :sort-desc="sort.desc" show-empty>
+      <template #empty>
+        <div class="text-center">
+          <h4>No Activities Found</h4>
+        </div>
+      </template>
       <template #table-busy>
         <div class="text-center">
           <b-spinner variant="secondary" type="grow" />
