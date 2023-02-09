@@ -2,7 +2,12 @@
   <div>
     <b-table v-if="isLoaded" :id="tableId" class="rounded-row mt-2" tbody-tr-class="rounded-row" borderless
       :items="loadData" :fields="columns" :per-page.sync="page.length" :current-page.sync="page.current"
-      :sort-by="sort.by" :sort-desc="sort.desc">
+      :sort-by="sort.by" :sort-desc="sort.desc" show-empty>
+      <template #empty>
+        <div class="text-center">
+          <h4>No Activities Found</h4>
+        </div>
+      </template>
       <template #table-busy>
         <div class="text-center">
           <b-spinner variant="secondary" type="grow" />
@@ -54,7 +59,7 @@
         </div>
       </template>
       <template #cell(addSet)="data">
-        <b-link @click="addSet(data.item)"
+        <b-link
           :to="{ name: 'create-activity', params: { workoutID: data.item.workoutID, activityTypeID: data.item.activityTypeID, group: data.item.group } }">
           <b-icon icon="plus" />Set
         </b-link>
@@ -67,7 +72,7 @@
 </template>
 
 <script>
-const { DateTime } = require("luxon");
+import { DateTime } from 'luxon';
 import { mapGetters } from "vuex";
 
 import DPagination from "@/components/DetailedPagination";
@@ -149,9 +154,6 @@ export default {
       } else if (this.items instanceof Array) {
         cb(this.items);
       }
-    },
-    addSet: function (activity) {
-
     },
     updatePerPage: function (newValue) {
       this.$emit("update:perPage", newValue);

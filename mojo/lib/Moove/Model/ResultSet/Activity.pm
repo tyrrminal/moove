@@ -110,10 +110,10 @@ sub whole_or_event ($self) {
   );
 }
 
-sub has_event ($self) {
+sub has_event ($self, $flag = true) {
   return $self->search(
     {
-      'user_event_activities.id' => {'<>' => undef}
+      'user_event_activities.id' => {($flag ? '<>' : '=') => undef}
     }, {
       join => 'user_event_activities'
     }

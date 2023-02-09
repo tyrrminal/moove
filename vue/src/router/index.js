@@ -53,7 +53,7 @@ let router = new Router({
     },
     {
       path: "/activities", component: Activities, children: [
-        { path: "", name: "activities", component: ActivityList, props: true, },
+        { path: "", name: "activities", component: ActivityList },
         { path: "new", name: "create-activity", component: ActivityEdit, props: true },
         { path: "edit/:id", name: "edit-activity", component: ActivityEdit, props: true },
         { path: "summary", name: "activitiesSummary", component: ActivitySummary },

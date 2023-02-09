@@ -131,10 +131,11 @@ paths:
         # Query Params
         - $ref: "#/components/parameters/SearchWorkoutID"
         - $ref: "#/components/parameters/SearchUsername"
-        - $ref: "#/components/parameters/SearchActivityType"
+        - $ref: "#/components/parameters/SearchActivityTypes"
         - $ref: "#/components/parameters/SearchStartdate"
         - $ref: "#/components/parameters/SearchEnddate"
-        - $ref: "#/components/parameters/WholeActivity"
+        - $ref: "#/components/parameters/SearchWholeActivity"
+        - $ref: "#/components/parameters/SearchEventActivity"
       responses:
         200:
           description: OK
@@ -572,7 +573,7 @@ paths:
         - $ref: "#/components/parameters/SearchEventname"
         - $ref: "#/components/parameters/SearchStartdate"
         - $ref: "#/components/parameters/SearchEnddate"
-        - $ref: "#/components/parameters/SearchActivityType"
+        - $ref: "#/components/parameters/SearchActivityTypes"
         - $ref: "#/components/parameters/SearchUsername"
         - $ref: "#/components/parameters/SearchEventActivityID"
       responses:
@@ -1042,6 +1043,18 @@ components:
       schema:
         $ref: "#/components/schemas/DatabaseID"
       description: Activity Type to filter on
+    SearchActivityTypes:
+      in: query
+      name: activityTypeID
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          $ref: "#/components/schemas/DatabaseID"
+        minItems: 1
+      description: Activity Types to filter on
     SearchEventname:
       in: query
       name: name
@@ -1093,7 +1106,14 @@ components:
       schema:
         $ref: "#/components/schemas/DatabaseID"
       description: Search by Workout ID
-    WholeActivity:
+    SearchEventActivity:
+      in: query
+      name: event
+      required: false
+      schema:
+        type: boolean
+      description: Filter activities to those that are/aren't linked to events
+    SearchWholeActivity:
       in: query
       name: combine
       required: false

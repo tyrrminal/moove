@@ -1,23 +1,55 @@
 <template>
   <b-container class="mt-2">
     <b-row>
-      <b-col cols="3">
+      <b-form-group label="From">
         <b-datepicker v-model="internal.start" reset-button />
-      </b-col>
-      <b-col cols="3">
+      </b-form-group>
+      <b-form-group label="To" class="ml-3">
         <b-datepicker v-model="internal.end" reset-button />
-      </b-col>
-      <b-col offset="4" class="text-right">
-        <b-button variant="secondary" v-b-modal.filters>Filters</b-button>
+      </b-form-group>
+      <b-col class="text-right mt-4">
+        <b-dropdown :variant="activityButtonVariant" right class="mr-1">
+          <template #button-content><b-icon v-if="isActivityFiltered" icon="circle-fill" :scale="0.5"
+              class="mr-1" />Activity Types</template>
+          <b-container :style="{ width: '60rem' }">
+            <label class="font-weight-bold">Activity Types</label><b-button size="sm" variant="warning"
+              class="ml-1 py-0 float-right" @click="activityTypes = {}">Reset</b-button>
+            <b-row v-for="i in activityTypeRows" class="mb-2">
+              <b-col v-for="c in activityTypesInRow(i)" :key="c" cols="3">
+                <b-checkbox switch class="font-weight-bold" :checked="baseActivityIsEnabled(c)"
+                  @change="toggleBaseActivity(c)">{{ c }}</b-checkbox>
+                <div v-for="at in getActivityTypesForBase(c)" :key="at.id">
+                  <b-checkbox class="ml-2" v-model="activityTypes[at.id]">{{
+                    at.labels.context
+                  }}</b-checkbox>
+                </div>
+              </b-col>
+            </b-row>
+          </b-container>
+        </b-dropdown>
+        <b-dropdown :variant="filterButtonVariant" right>
+          <template #button-content><b-icon v-if="isFiltered" icon="circle-fill" :scale="0.5"
+              class="mr-1" />Filters</template>
+          <b-container>
+            <b-button size="sm" variant="warning" class="ml-1 py-0 float-right"
+              @click="internal.whole = true; internal.event = null">Reset</b-button>
+            <b-form-group label="Partial Activities" label-class="font-weight-bold">
+              <b-checkbox v-model="internal.whole">Combine</b-checkbox>
+            </b-form-group>
+            <b-form-group label="Events" label-class="font-weight-bold">
+              <b-radio-group v-model="internal.event" size="sm" stacked>
+                <b-radio :value="undefined" class="text-nowrap">Show All Activities</b-radio>
+                <b-radio :value="true" class="text-nowrap">Show Only Event Activities</b-radio>
+                <b-radio :value="false" class="text-nowrap">Don't Show Event Activities</b-radio>
+              </b-radio-group>
+            </b-form-group>
+          </b-container>
+        </b-dropdown>
       </b-col>
     </b-row>
 
     <ActivityList tableId="activityListTable" :items="getData" :page.sync="page" :total="total"
       @update:currentPage="updateCurrentPage" @update:perPage="updatePerPage" />
-
-    <b-modal id="filters">
-      <b-checkbox v-model="internal.whole">Combine Partial Activities</b-checkbox>
-    </b-modal>
   </b-container>
 </template>
 
@@ -25,6 +57,9 @@
 import { mapGetters } from "vuex";
 
 import ActivityList from "@/components/activity/List";
+import { DateTime } from "luxon";
+
+const ACTIVITIES_PER_ROW = 4;
 
 export default {
   name: "ActivitiesList",
@@ -42,28 +77,19 @@ export default {
         current: 1,
       },
       internal: {
-        activityTypeID: null,
         start: null,
         end: null,
         whole: true,
+        event: null,
       },
+      activityTypes: {}
     };
   },
-  props: {
-    activityTypeID: {
-      type: [String, Number],
-    },
-    start: {
-      type: String,
-    },
-    end: {
-      type: String,
-    },
-  },
   mounted() {
-    this.internal.activityTypeID = this.activityTypeID;
-    this.internal.start = this.start;
-    this.internal.end = this.end;
+    if (this.$route.query.activityTypeID) this.$route.query.activityTypeID.split(",").forEach(i => this.$set(this.activityTypes, Number(i), true))
+    this.internal.start = this.$route.query.start;
+    this.internal.end = this.$route.query.end;
+    this.internal.event = this.$route.query.event;
   },
   methods: {
     getData: function (ctx, callback) {
@@ -88,6 +114,32 @@ export default {
     },
     updateCurrentPage: function (newValue) {
       this.page.current = newValue;
+    },
+    postProcessParam: function (k) {
+      let v = this.internal[k];
+      if (k == 'end') {
+        v = DateTime.fromISO(v).plus({ days: 1 }).toISODate();
+      }
+      return v;
+    },
+    getActivityTypesForContext: function (c) {
+      return this.$store.getters["meta/getActivityTypesForContext"](c);
+    },
+    getActivityTypesForBase: function (b) {
+      return this.$store.getters["meta/getActivityTypesForBase"](b)
+    },
+    activityTypesInRow: function (rowNum) {
+      let max = this.getBaseActivityTypes.length;
+      return this.getBaseActivityTypes.slice(rowNum * ACTIVITIES_PER_ROW, Math.min(rowNum * ACTIVITIES_PER_ROW + ACTIVITIES_PER_ROW, max))
+    },
+    toggleBaseActivity: function (base) {
+      let self = this;
+      let state = !this.baseActivityIsEnabled(base);
+      this.getActivityTypesForBase(base).forEach(at => self.$set(self.activityTypes, at.id, state))
+    },
+    baseActivityIsEnabled: function (base) {
+      let t = { ...this.activityTypes };
+      return this.getActivityTypesForBase(base).reduce((a, v) => a && t[v.id] === true, true);
     }
   },
   computed: {
@@ -95,29 +147,56 @@ export default {
       getActivityType: "getActivityType",
       getUnitOfMeasure: "getUnitOfMeasure",
       isLoaded: "isLoaded",
+      getActivityTypeContexts: "getActivityTypeContexts",
+      getBaseActivityTypes: "getBaseActivityTypes",
     }),
     ...mapGetters("auth", {
       currentUser: "currentUser",
     }),
+    activityTypeRows: function () {
+      return [...Array(Math.ceil(this.getBaseActivityTypes.length / ACTIVITIES_PER_ROW)).keys()]
+    },
+    isFiltered: function () {
+      return this.internal.whole != true || this.internal.event != null
+    },
+    filterButtonVariant: function () {
+      if (this.isFiltered) return 'primary';
+      return 'secondary';
+    },
+    isActivityFiltered: function () {
+      return this.activityTypeID != null
+    },
+    activityButtonVariant: function () {
+      return this.isActivityFiltered ? 'primary' : 'secondary'
+    },
     queryParams: function () {
       let r = {
         ...this.sort,
         combine: this.internal.whole,
         "page.length": 0,
       };
-      ["activityTypeID", "start", "end"].forEach((k) => {
-        if (this.internal[k]) r[k] = this.internal[k];
+      ["start", "end", 'event'].forEach((k) => {
+        if (this.internal[k] != null) r[k] = this.postProcessParam(k);
       });
+      if (this.activityTypeID)
+        r.activityTypeID = this.activityTypeID
       return r;
     },
+    activityTypeID: function () {
+      let ids = [];
+      Object.keys(this.activityTypes).forEach(k => {
+        if (this.activityTypes[k] === true) ids.push(k);
+      })
+      return ids.length == 0 ? null : ids.join(',')
+    }
   },
   watch: {
+    activityTypeID: function () {
+      this.$root.$emit("bv::refresh::table", "activityListTable");
+    },
     internal: {
       deep: true,
       handler: function () {
-        if (this.watchInternal)
-          if (Object.keys(this.$route.query).length)
-            this.$router.push({ query: {} });
         this.$root.$emit("bv::refresh::table", "activityListTable");
       },
     },
