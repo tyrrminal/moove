@@ -54,7 +54,7 @@
         </div>
       </template>
       <template #cell(addSet)="data">
-        <b-link @click="addSet(data.item)"
+        <b-link
           :to="{ name: 'create-activity', params: { workoutID: data.item.workoutID, activityTypeID: data.item.activityTypeID, group: data.item.group } }">
           <b-icon icon="plus" />Set
         </b-link>
@@ -149,9 +149,6 @@ export default {
       } else if (this.items instanceof Array) {
         cb(this.items);
       }
-    },
-    addSet: function (activity) {
-
     },
     updatePerPage: function (newValue) {
       this.$emit("update:perPage", newValue);
