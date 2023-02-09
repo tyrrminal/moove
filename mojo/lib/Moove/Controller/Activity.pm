@@ -5,7 +5,7 @@ use Mojo::Base 'DCS::Base::API::Model::Controller';
 
 use Role::Tiny::With;
 with 'DCS::Base::Role::Rest::Collection', 'DCS::Base::Role::Rest::Entity';
-with 'Moove::Controller::Role::ModelEncoding::Activity';
+with 'Moove::Controller::Role::ModelEncoding::Activity', 'Moove::Controller::Role::ModelEncoding::Activity::UserEventActivity';
 with 'Moove::Role::Import::Activity';
 with 'Moove::Role::Unit::Conversion';
 
