@@ -8,7 +8,15 @@ use Lingua::EN::Inflect qw(PL);
 use List::Util qw(max);
 use Mojo::Util 'getopt';
 
-use Data::Printer;
+has 'description' => 'Display information about streaks and gaps';
+has 'usage'       => <<"USAGE";
+$0 streaks [OPTIONS]
+OPTIONS:
+  --longest   display information about the sequentially longest streaks only
+  --start YYYY-MM-DD
+  --end   YYYY-MM-DD
+USAGE
+
 sub run ($self, @args) {
   my ($start, $end, $longest);
   getopt(\@args, 'start=s' => \$start, 'end=s' => \$end, 'longest' => \$longest);
