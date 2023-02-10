@@ -44,7 +44,7 @@ export default {
       getUnitOfMeasure: "getUnitOfMeasure",
     }),
     typeDescription: function () {
-      if (this.activity.activityType) return this.activity.activityType.description;
+      if (this.activityType) return this.activityType.description;
       return 'All Activities';
     },
     activityType: function () {
