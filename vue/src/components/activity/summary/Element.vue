@@ -64,7 +64,7 @@ export default {
       return "none"
     },
     nominalProgressText: function () {
-      if (this.activity.nominal)
+      if (this.activity.nominal && this.activity.nominal.distance)
         return this.$options.filters.percent(this.activity.distance / this.activity.nominal.distance)
       return "";
     },
