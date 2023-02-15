@@ -169,7 +169,7 @@ sub summary ($self) {
       my %nom;
       if (defined($nominal)) {
         my $pd = $nominal->per_day;
-        %nom = (nominal => {(map {$_ => $pd->{$_} * $nominal->days_in_range_between_dates($start, $end)} keys($pd->%*))});
+        %nom = (nominal => {(map {$_ => $pd->{$_} * $nominal->days_in_range_between_dates($start, $end, $sl->after_date($today->strftime('%F'))->count > 0)} keys($pd->%*))});
       }
       push(
         @activity_summaries, {

@@ -169,9 +169,12 @@ use v5.36;
 
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-09 16:32:11
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ha97sKhVVZO3ll0DEvEKvw
+use builtin qw(false);
+use experimental qw(builtin);
+
 use Mojo::JSON qw(decode_json);
 
-sub days_in_range_between_dates ($self, $start, $end = undef) {
+sub days_in_range_between_dates ($self, $start, $end = undef, $include_today = false) {
   my $year = $self->year;
   die('Start date is required') unless (defined($start) && ref($start) eq 'DateTime');
   die('End date must be a DateTime') if (defined($end) && ref($end) ne 'DateTime');
@@ -182,7 +185,7 @@ sub days_in_range_between_dates ($self, $start, $end = undef) {
   die('Start date must come before end date') if ($start > $end);
   die('Start date out of range') unless ($year == $start->year);
   die('End date out of range')   unless (abs($year - $end->year) <= 1);
-  $end->add(days => 1) if ($end < DateTime->today);
+  $end->add(days => 1) if ($end < DateTime->today || $include_today);
 
   my $days;
   if (my @ranges = $self->user_nominal_activity_ranges->all) {
