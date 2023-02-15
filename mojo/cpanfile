@@ -35,6 +35,7 @@ requires 'Moose';
 requires 'MooseX::NonMoose';
 requires 'Net::LDAP';
 requires 'Net::SSLeay';
+requires 'Parser::FIT';
 requires 'Readonly';
 requires 'String::Util';
 requires 'Syntax::Keyword::Junction';
