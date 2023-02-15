@@ -187,7 +187,6 @@ sub summary ($self) {
       openapi => {
         period => {
           daysElapsed => min($end, $today)->delta_days($start)->delta_days,
-          # daysElapsed => min(0, DateTime->today(time_zone => 'local')->delta_days($start)->delta_days),
           defined($period) ? (daysTotal => _days_in_period($period, $start)) : (),
           years => $end->yearfrac($start),
         },
