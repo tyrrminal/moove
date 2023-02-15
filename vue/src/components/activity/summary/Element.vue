@@ -9,11 +9,11 @@
       </b-progress>
 
       <b-badge :to="{ name: 'activities', query: qs() }" :variant="nominalProgressVariant">
-        {{ activity.distance | number("0,0.00") }} {{ unit.abbreviation }}
+        {{ formattedDistance(activity.distance) }}
       </b-badge>
       <span v-if="activity.eventDistance"> /
         <b-badge :to="{ name: 'activities', query: qs(true) }" variant="none">
-          {{ activity.eventDistance | number("0,0.00") }} {{ unit.abbreviation }}
+          {{ formattedDistance(activity.eventDistance) }}
         </b-badge>
       </span>
 
@@ -70,6 +70,9 @@ export default {
     },
   },
   methods: {
+    formattedDistance: function (d) {
+      return this.$options.filters.number(d, "0,0.00") + ' ' + this.unit.abbreviation
+    },
     qs: function (withEvent) {
       let q = {};
       if (withEvent != null)
