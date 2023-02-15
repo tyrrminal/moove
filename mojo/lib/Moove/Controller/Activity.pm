@@ -183,6 +183,7 @@ sub summary ($self) {
         if ($sl->count || defined($nominal));
     }
 
+    $today->add(days => 1) if($ars->after_date($today->strftime('%F'))->count > 0);
     return $self->render(
       openapi => {
         period => {
