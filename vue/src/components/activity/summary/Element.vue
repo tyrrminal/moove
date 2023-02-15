@@ -3,8 +3,8 @@
     <template v-if="metaLoaded">
       <h5>{{ typeDescription }}</h5>
 
-      <b-progress v-if="activity.nominal" height="0.5rem" :max="activity.nominal.distance" :title="nominalProgressText"
-        class="mb-2">
+      <b-progress v-if="activity.nominal" height="0.5rem" :max="nominalDistance" :title="nominalProgressText"
+        v-b-tooltip.bottom class="mb-2" :striped="!activity.nominal.distance">
         <b-progress-bar :value="activity.distance" :variant="nominalProgressVariant" />
       </b-progress>
 
@@ -52,6 +52,9 @@ export default {
     },
     unit: function () {
       return this.getUnitOfMeasure(this.activity.unitID)
+    },
+    nominalDistance: function () {
+      return this.activity.nominal.distance || this.activity.distance
     },
     nominalProgressVariant: function () {
       if (this.activity.nominal) {
