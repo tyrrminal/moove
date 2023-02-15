@@ -3,17 +3,17 @@
     <template v-if="metaLoaded">
       <h5>{{ typeDescription }}</h5>
 
-      <b-progress v-if="activity.nominal" height="0.5rem" :max="activity.nominal.distance" :title="nominalProgressText"
-        class="mb-2">
+      <b-progress v-if="activity.nominal" height="0.5rem" :max="nominalDistance" :title="nominalProgressText"
+        v-b-tooltip.bottom class="mb-2" :striped="!activity.nominal.distance">
         <b-progress-bar :value="activity.distance" :variant="nominalProgressVariant" />
       </b-progress>
 
       <b-badge :to="{ name: 'activities', query: qs() }" :variant="nominalProgressVariant">
-        {{ activity.distance | number("0,0.00") }} {{ unit.abbreviation }}
+        {{ formattedDistance(activity.distance) }}
       </b-badge>
       <span v-if="activity.eventDistance"> /
         <b-badge :to="{ name: 'activities', query: qs(true) }" variant="none">
-          {{ activity.eventDistance | number("0,0.00") }} {{ unit.abbreviation }}
+          {{ formattedDistance(activity.eventDistance) }}
         </b-badge>
       </span>
 
@@ -44,7 +44,7 @@ export default {
       getUnitOfMeasure: "getUnitOfMeasure",
     }),
     typeDescription: function () {
-      if (this.activity.activityType) return this.activity.activityType.description;
+      if (this.activityType) return this.activityType.description;
       return 'All Activities';
     },
     activityType: function () {
@@ -52,6 +52,9 @@ export default {
     },
     unit: function () {
       return this.getUnitOfMeasure(this.activity.unitID)
+    },
+    nominalDistance: function () {
+      return this.activity.nominal.distance || this.activity.distance
     },
     nominalProgressVariant: function () {
       if (this.activity.nominal) {
@@ -64,12 +67,16 @@ export default {
       return "none"
     },
     nominalProgressText: function () {
-      if (this.activity.nominal)
+      if (this.activity.nominal && this.activity.nominal.distance)
         return this.$options.filters.percent(this.activity.distance / this.activity.nominal.distance)
+          + ' of ' + this.formattedDistance(this.activity.nominal.distance)
       return "";
     },
   },
   methods: {
+    formattedDistance: function (d) {
+      return this.$options.filters.number(d, "0,0.00") + ' ' + this.unit.abbreviation
+    },
     qs: function (withEvent) {
       let q = {};
       if (withEvent != null)
