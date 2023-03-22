@@ -12,19 +12,29 @@ has 'description' => 'Display information about streaks and gaps';
 has 'usage'       => <<"USAGE";
 $0 streaks [OPTIONS]
 OPTIONS:
+  --user      username or user-id to query [required]
+  --type      activity type ID(s) to filter on [required, repeatable]
   --longest   display information about the sequentially longest streaks only
-  --start YYYY-MM-DD
-  --end   YYYY-MM-DD
+  --start     YYYY-MM-DD
+  --end       YYYY-MM-DD
 USAGE
 
 sub run ($self, @args) {
-  my ($start, $end, $longest);
-  getopt(\@args, 'start=s' => \$start, 'end=s' => \$end, 'longest' => \$longest);
+  getopt(\@args, 
+    'start=s' => \my $start, 
+    'end=s'   => \my $end, 
+    'longest' => \my $longest, 
+    'type=s'  => \my @activity_type, 
+    'user=s'  => \my $user_id
+  );
 
-  my $user = $self->app->model('User')->find(1);
+  my $user = $self->app->model('User')->find_user($user_id//'');
+  die("'user' is required\n") unless($user);
   my $activities = $user->workouts->related_resultset('activities');
+  die("'type' is required\n") unless(@activity_type);
+  my $activity_type = [map {split(',', $_)} @activity_type];
   $activities = $activities->search({
-    activity_type_id => 1,
+    activity_type_id => {-in => $activity_type},
     activity_result_id => {'<>' => undef},
     whole_activity_id => undef
   },{
