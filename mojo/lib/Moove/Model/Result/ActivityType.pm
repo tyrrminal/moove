@@ -63,7 +63,7 @@ __PACKAGE__->table("ActivityType");
   data_type: 'integer'
   extra: {unsigned => 1}
   is_foreign_key: 1
-  is_nullable: 1
+  is_nullable: 0
 
 =cut
 
@@ -87,7 +87,7 @@ __PACKAGE__->add_columns(
     data_type => "integer",
     extra => { unsigned => 1 },
     is_foreign_key => 1,
-    is_nullable => 1,
+    is_nullable => 0,
   },
 );
 
@@ -151,12 +151,7 @@ __PACKAGE__->belongs_to(
   "activity_context",
   "Moove::Model::Result::ActivityContext",
   { id => "activity_context_id" },
-  {
-    is_deferrable => 1,
-    join_type     => "LEFT",
-    on_delete     => "NO ACTION",
-    on_update     => "NO ACTION",
-  },
+  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 =head2 base_activity_type
@@ -206,8 +201,8 @@ __PACKAGE__->has_many(
 #>>>
 use v5.36;
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-09 12:32:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:jv5xGLLZEwz9Dnvm7bJyzQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-03-27 16:11:42
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:BO+6E7TVehfwtJrL+BEKIw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
