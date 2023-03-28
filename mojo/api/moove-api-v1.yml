@@ -1650,6 +1650,7 @@ components:
       properties:
         minimum:
           type: number
+          nullable: true
         received:
           type: number
         donations:
