@@ -80,6 +80,7 @@ import { DateTime } from "luxon";
 import { mapGetters } from "vuex";
 
 export default {
+  name: "EditRegistration",
   mixins: [Branding],
   metaInfo: function () {
     return {
