@@ -321,7 +321,7 @@ export default {
     },
     rowClass: function (item) {
       let r = ["text-muted"];
-      if (item.visibilityTypeID == 1) r.push('event-private')
+      if (item != null && item.visibilityTypeID == 1) r.push('event-private')
       return r
     },
   },
