@@ -20,7 +20,7 @@
               <b-form-group label="When">
                 <b-icon icon="calendar" class="mr-1" />{{
                   eventActivity.scheduledStart
-                    | luxon({ input: { zone: "local" }, output: "short" })
+                  | luxon({ input: { zone: "local" }, output: "short" })
                 }}
               </b-form-group>
               <b-form-group label="Where" v-if="$options.filters.formatAddress(event.address)">
@@ -48,10 +48,12 @@
               Number.parseFloat(userEventActivity.registrationFee) ||
               userEventActivity.registrationNumber
             ">
+              <b-button variant="primary" :to="{ name: 'registration-edit', params: { id: userEventActivity.id } }"
+                size="sm" class="float-right">Edit</b-button>
               <b-form-group label="Registered On" v-if="userEventActivity.dateRegistered">
                 {{
                   userEventActivity.dateRegistered
-                    | luxon({ input: { zone: "local" }, output: "date_med" })
+                  | luxon({ input: { zone: "local" }, output: "date_med" })
                 }}
               </b-form-group>
               <b-form-group label="Total Fee" v-if="userEventActivity.registrationFee != null">
@@ -116,7 +118,7 @@
                 <b-progress height="2rem" class="my-2">
                   <b-progress-bar :value="100 - (100 * p.place) / p.of" :max="100" :animated="p.place <= 3"
                     :style="{ fontSize: '1.25rem' }" :variant="progressClass(1 - p.place / p.of, 2)">{{ (1 - p.place /
-                    p.of) | percent(1) }}
+                      p.of) | percent(1) }}
                   </b-progress-bar>
                 </b-progress>
               </div>
@@ -148,8 +150,7 @@
           {{ fundraising.minimum | currency | stripDecimals }}
         </h4>
 
-        <b-progress v-if="fundraising.received >= fundraising.minimum" height="8px"
-          class="bg-success upper-progress-bar">
+        <b-progress v-if="fundraising.received >= fundraising.minimum" height="8px" class="bg-success upper-progress-bar">
           <b-progress-bar :value="fundraising.minimum" :max="fundraising.received" variant="secondary">
           </b-progress-bar>
         </b-progress>
@@ -166,8 +167,7 @@
             :value="fundraising.received" :max="fundraising.minimum">
           </b-progress-bar>
         </b-progress>
-        <b-progress v-if="fundraising.received >= fundraising.minimum" height="8px"
-          class="bg-success lower-progress-bar">
+        <b-progress v-if="fundraising.received >= fundraising.minimum" height="8px" class="bg-success lower-progress-bar">
           <b-progress-bar :value="fundraising.minimum" :max="fundraising.received" variant="secondary">
           </b-progress-bar>
         </b-progress>
@@ -191,10 +191,10 @@
 
         <template #foot(amount)>
           {{
-  person.donations.reduce(
-    (a, c) => a + Number.parseFloat(c.amount),
-    0
-  ) | currency
+            person.donations.reduce(
+              (a, c) => a + Number.parseFloat(c.amount),
+              0
+            ) | currency
           }}
         </template>
         <template #foot(date)>Total</template>
