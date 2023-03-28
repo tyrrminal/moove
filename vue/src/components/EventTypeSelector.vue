@@ -6,7 +6,12 @@
     <b-container :style="{ width: '40rem' }">
       <label class="font-weight-bold">Event Types</label><b-button size="sm" variant="warning"
         class="ml-1 py-0 float-right" @click="clearSelection()">Reset</b-button>
-      <b-checkbox switch class="mb-2" @change="toggleVirtual($event)">Non-virtual only</b-checkbox>
+      <div class="my-1">
+        <b-button-group size="sm">
+          <b-button :pressed.sync="virtual" variant="outline-primary">Virtual</b-button>
+          <b-button :pressed.sync="nonvirtual" variant="outline-primary">Non-Virtual</b-button>
+        </b-button-group>
+      </div>
       <b-row>
         <b-col v-for="at in activityTypes">
           <b-checkbox switch class="font-weight-bold" :checked="activityTypeIsEnabled(at)"
@@ -57,15 +62,43 @@ export default {
       this.getEventTypes.map(et => et.activityType).forEach(at => ats.set(at.id, at))
       return [...ats.values()];
     },
+    virtual: {
+      get: function () {
+        let ets = new Map();
+        this.getEventTypes.forEach(et => { if (et.virtual) ets.set(et.id, true) })
+        return this.getEventTypes.reduce((a, c) => {
+          let is_selected = this.eventTypes[c.id] === true
+          let is_virtual = ets.get(c.id) === true
+          return a && (is_virtual ? is_selected : !is_selected)
+        }, true)
+      },
+      set: function (newVal) {
+        if (newVal) this.setVirtual(true)
+        else this.clearSelection()
+      }
+    },
+    nonvirtual: {
+      get: function () {
+        let ets = new Map();
+        this.getEventTypes.forEach(et => { if (!et.virtual) ets.set(et.id, true) })
+        return this.getEventTypes.reduce((a, c) => {
+          let is_selected = this.eventTypes[c.id] === true
+          let isnt_virtual = ets.get(c.id) === true
+          return a && (isnt_virtual ? is_selected : !is_selected)
+        }, true)
+      },
+      set: function (newVal) {
+        if (newVal) this.setVirtual(false)
+        else this.clearSelection()
+      }
+    }
   },
   methods: {
-    toggleVirtual: function (v) {
-      if (v)
-        this.getEventTypes.forEach(et => {
-          if (et.virtual) delete (this.eventTypes[et.id])
-          else this.toggleEventType(et, true)
-        })
-      else this.clearSelection();
+    setVirtual: function (v) {
+      this.getEventTypes.forEach(et => {
+        if (et.virtual != v) delete (this.eventTypes[et.id])
+        else this.toggleEventType(et, true)
+      })
     },
     clearSelection: function () {
       this.eventTypes = {}
