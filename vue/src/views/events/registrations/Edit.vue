@@ -52,7 +52,7 @@
               <template #prepend>
                 <b-button :disabled="true" variant="secondary">$</b-button>
               </template>
-              <b-input :disabled="!hasFundraisingRequirement" v-model="userActivity.fundraising.minimum" number />
+              <b-input :disabled="!hasFundraisingRequirement" v-model.trim="userActivity.fundraising.minimum" number />
               <template #append>
                 <div class="rounded-right border border-control pl-1">
                   <b-checkbox class="mt-1 ml-1" v-model="hasFundraisingRequirement" />
