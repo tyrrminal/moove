@@ -159,7 +159,7 @@ export default {
       let p;
       let ua = { ...this.registration, ...this.userActivity };
       if (this.isEdit)
-        p = this.$http.patch(["user", events, this.id].join("/"), ua);
+        p = this.$http.patch(["user", "events", this.id].join("/"), ua);
       else {
         delete (ua.id);
         p = this.$http.post(["user", "events"].join("/"), ua)
