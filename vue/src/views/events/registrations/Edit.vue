@@ -158,7 +158,6 @@ export default {
     save: function () {
       let p;
       let ua = { ...this.registration, ...this.userActivity };
-      if (!this.hasFundraisingRequirement) delete (ua.fundraising);
       if (this.isEdit)
         p = this.$http.patch(["user", events, this.id].join("/"), ua);
       else {
