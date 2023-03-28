@@ -3,7 +3,13 @@
     <b-row>
       <b-col cols="2" class="bg-sidebar min-vh-100">
         <div class="sticky-top">
-          <EventTypeSelector v-model="eventTypes" class="mt-2" />
+          <div class="bg-white mt-2 py-2 pl-3 rounded-lg rounded-top">
+            <EventTypeSelector v-model="eventTypes" class="mb-2" />
+            <b-button-group size="sm">
+              <b-button :pressed.sync="nonprivate" variant="outline-secondary">Public</b-button>
+              <b-button :pressed.sync="private" variant="outline-danger">Private</b-button>
+            </b-button-group>
+          </div>
           <b-skeleton-wrapper :loading="!loaded">
             <EventSummary :events="events" />
             <template #loading>
@@ -21,10 +27,7 @@
         <div class="float-right">
           <b-form-radio-group buttons button-variant="outline-primary" :options="view.options" v-model="view.type"
             size="sm" />
-
         </div>
-
-
         <h2 class="d-inline-block mr-2">Events </h2><b-spinner v-if="!loaded" variant="info" />
         <component :is="listView" :events="filteredEvents" :loaded="loaded" :gridOptions="gridOptions" />
       </b-col>
@@ -68,6 +71,7 @@ export default {
       filters: {
         eventTypeID: null,
         completed: false,
+        private: null,
       },
       view: {
         type: 'registration',
@@ -129,13 +133,30 @@ export default {
     },
     filteredEvents: function () {
       let events = this.events;
-      if (Object.keys(this.eventTypes).length) {
-        events = events.filter(e => this.eventTypes[e.eventActivity.eventType.id])
-      }
+      if (Object.keys(this.eventTypes).length) events = events.filter(e => this.eventTypes[e.eventActivity.eventType.id])
       if (this.view.type == 'results') events = events.filter((e) => e.placements);
       if (this.view.type == 'fundraising') events = events.filter((e) => e.fundraising);
+      if (this.filters.private === true) events = events.filter((e) => e.visibilityTypeID == 1)
+      if (this.filters.private === false) events = events.filter((e) => e.visibilityTypeID > 1)
+
       return events;
     },
+    private: {
+      get() {
+        return this.filters.private === true
+      },
+      set(newVal) {
+        this.filters.private = newVal ? true : null
+      }
+    },
+    nonprivate: {
+      get() {
+        return this.filters.private === false
+      },
+      set(newVal) {
+        this.filters.private = newVal ? false : null
+      }
+    }
   },
 };
 </script>
