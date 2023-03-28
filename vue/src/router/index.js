@@ -28,10 +28,6 @@ import RegistrationDetail from "@/views/events/registrations/Detail.vue";
 import RegistrationEdit from "@/views/events/registrations/Edit.vue";
 import RegistrationSeries from "@/views/events/registrations/Series.vue";
 
-import Goals from "@/views/goals/Base.vue";
-import GoalList from "@/views/goals/List.vue";
-import Goal from "@/views/goals/Detail.vue";
-
 import ErrorNotFound from "@/error/NotFound.vue";
 
 let router = new Router({
@@ -74,12 +70,6 @@ let router = new Router({
         { path: "edit/:id", name: "registration-edit", component: RegistrationEdit, props: true },
         { path: "series/:id", name: "registration-series", component: RegistrationSeries, props: true },
         { path: ":id", name: "registration-detail", component: RegistrationDetail, props: true },
-      ]
-    },
-    {
-      path: "/goals", component: Goals, children: [
-        { path: "", name: "goals", component: GoalList, props: true },
-        { path: ":id", name: "goal", component: Goal },
       ]
     },
     { path: "*", name: "errorNotFound", component: ErrorNotFound }
