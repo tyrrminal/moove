@@ -10,7 +10,7 @@
           }}</h6>
           <h3>{{ eventActivity.name }}</h3>
         </div>
-        <hr />
+        <hr :style="{ clear: 'both' }" />
       </b-col>
     </b-row>
 
