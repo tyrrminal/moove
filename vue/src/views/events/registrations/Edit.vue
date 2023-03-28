@@ -168,6 +168,14 @@ export default {
       }
       p.then(resp => this.$router.push({ name: "registration-detail", params: { id: resp.data.id } }));
     }
+  },
+  watch: {
+    hasFundraisingRequirement: function (newVal) {
+      if (!newVal)
+        this.userActivity.fundraising.minimum = null
+      else if (this.userActivity.fundraising.minimum == null)
+        this.userActivity.fundraising.minimum = 0
+    }
   }
 };
 </script>
