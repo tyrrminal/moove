@@ -7,7 +7,8 @@
             event.address | formatAddress
           }}
         </div>
-        <b-link href="event.url" target="_blank">{{ event.name }}</b-link> - {{ event.year }}
+        <b-link v-if="event.url" :href="event.url" target="_blank">{{ event.name }}</b-link><span v-else>{{ event.name
+        }}</span> - {{ event.year }}
       </b-card-header>
       <b-card-body>
 
@@ -41,6 +42,7 @@
 import EventFilters from "@/mixins/events/Filters.js";
 
 export default {
+  name: "EventDetail",
   mixins: [EventFilters],
   props: {
     id: {

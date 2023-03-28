@@ -5,8 +5,6 @@ Vue.use(Router);
 import Home from "@/views/Home.vue";
 import Login from "@/components/auth/Login.vue";
 
-import UserSummary from "@/views/user/Summary.vue";
-
 import Workouts from "@/views/workouts/Base.vue";
 import WorkoutList from "@/views/workouts/List.vue";
 import Workout from "@/views/workouts/Detail.vue";
@@ -42,7 +40,6 @@ let router = new Router({
   routes: [
     { path: "/", name: "home", component: Home },
     { path: "/login", name: "login", component: Login },
-    { path: "/summary/:username", name: "user", component: UserSummary },
     {
       path: "/workouts", component: Workouts, children: [
         { path: "", name: "workouts", component: WorkoutList },
