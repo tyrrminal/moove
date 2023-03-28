@@ -126,8 +126,9 @@ export default {
           visibilityTypeID: resp.data.visibilityTypeID,
           dateRegistered: resp.data.dateRegistered,
           registrationFee: resp.data.registrationFee,
-          fundraising: { ...resp.data.fundraising, minimum: null }
+          fundraising: { minimum: null, ...resp.data.fundraising }
         }
+        this.hasFundraisingRequirement = this.userActivity.fundraising.minimum != null
         this.event = resp.data.eventActivity.event;
         this.eventActivity = resp.data.eventActivity;
         delete (this.eventActivity.event);
