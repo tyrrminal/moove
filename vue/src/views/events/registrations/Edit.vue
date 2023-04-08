@@ -8,13 +8,20 @@
           <h6 class="float-right">{{
             eventActivity.scheduledStart | luxon({ input: { zone: "local" }, output: "short" })
           }}</h6>
-          <h3>{{ eventActivity.name }}</h3>
+          <h3 v-if="event.activities.length == 1">{{ eventActivity.name }}</h3>
         </div>
         <hr :style="{ clear: 'both' }" />
       </b-col>
     </b-row>
 
     <b-form class="mt-2">
+      <b-form-row v-if="event.activities.length > 1">
+        <b-col cols="6" offset="3">
+          <b-form-group label="Activity">
+            <b-select :options="event.activities" text-field="name" value-field="id" v-model="selectedEventActivity" />
+          </b-form-group>
+        </b-col>
+      </b-form-row>
       <b-form-row>
         <b-col cols="6" offset="3">
           <b-form-group label="Registration Date">
@@ -133,6 +140,7 @@ export default {
         this.event = resp.data.eventActivity.event;
         this.eventActivity = resp.data.eventActivity;
         delete (this.eventActivity.event);
+        this.$http.get(["events", this.event.id].join("/")).then(resp => this.event = resp.data)
       })
     } else if (this.eventActivityID) {
       this.userActivity.eventActivityID = this.eventActivityID;
@@ -152,6 +160,14 @@ export default {
     isEdit: function () {
       return this.id != null;
     },
+    selectedEventActivity: {
+      get() {
+        return this.userActivity.eventActivityID
+      },
+      set(newValue) {
+        this.userActivity.eventActivityID = newValue
+      }
+    }
   },
   methods: {
     cancel: function () {
