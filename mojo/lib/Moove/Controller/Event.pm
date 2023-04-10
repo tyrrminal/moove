@@ -25,8 +25,8 @@ sub decode_model ($self, $data) {
     $data->{event_group}->{name} = $data->{name};
     $data->{event_group}->{url}  = $data->{url};
   }
-  delete($data->{external_identifier}) unless ($data->{external_identifier});
-  delete($data->{url})                 unless ($data->{url});
+  $data->{external_identifier} = undef if(exists($data->{external_identifier}) && !$data->{external_identifier});
+  $data->{url} = undef if(exists($data->{url}) && !$data->{url});
 
   return $data;
 }
