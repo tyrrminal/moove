@@ -1386,6 +1386,7 @@ components:
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"
+          nullable: true
         street1:
           type: string
           nullable: true
