@@ -1517,7 +1517,7 @@ components:
           type: string
     EventRegistration:
       type: object
-      additionalProperties: true
+      additionalProperties: false
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"
