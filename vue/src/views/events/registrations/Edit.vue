@@ -167,6 +167,13 @@ export default {
       set(newValue) {
         this.userActivity.eventActivityID = newValue
       }
+    },
+    apiRecord: function () {
+      let r = { ...this.registration, ...this.userActivity };
+      r.eventActivity = { id: r.eventActivityID }
+      delete (r.id);
+      delete (r.eventActivityID)
+      return r;
     }
   },
   methods: {
@@ -174,15 +181,8 @@ export default {
       this.$router.back();
     },
     save: function () {
-      let p;
-      let ua = { ...this.registration, ...this.userActivity };
-      if (this.isEdit)
-        p = this.$http.patch(["user", "events", this.id].join("/"), ua);
-      else {
-        delete (ua.id);
-        p = this.$http.post(["user", "events"].join("/"), ua)
-      }
-      p.then(resp => this.$router.push({ name: "registration-detail", params: { id: resp.data.id } }));
+      (this.isEdit ? this.$http.patch(["user", "events", this.id].join("/"), this.apiRecord) : this.$http.post(["user", "events"].join("/"), this.apiRecord))
+        .then(resp => this.$router.push({ name: "registration-detail", params: { id: resp.data.id } }));
     }
   },
   watch: {
