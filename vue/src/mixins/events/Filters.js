@@ -29,10 +29,10 @@ export default {
       );
     },
 
-    formatAddress: (a) => {
+    formatAddress: (a, includeStreet = true) => {
       let str = "";
-      if (a.street1) str += a.street1 + " ";
-      if (a.street2) str += a.street2 + " ";
+      if (a.street1 && includeStreet) str += a.street1 + " ";
+      if (a.street2 && includeStreet) str += a.street2 + " ";
       if (a.city) str += a.city + " ";
       if (a.state) {
         if (a.city) {
