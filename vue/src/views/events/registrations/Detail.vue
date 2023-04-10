@@ -15,6 +15,8 @@
         <b-row>
           <b-col cols="6">
             <b-jumbotron class="py-2 event-details" border-variant="primary">
+              <b-button variant="primary" :to="{ name: 'event-edit', params: { id: event.id } }" size="sm"
+                class="float-right">Edit</b-button>
               <b-form-group v-if="eventActivity" label="What">{{ eventActivityDescription }}
               </b-form-group>
               <b-form-group label="When">

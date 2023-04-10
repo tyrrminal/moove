@@ -42,7 +42,10 @@
             {{ data.value | formatAddress(false) }}
           </span>
           <span v-else class="font-italic">Virtual</span>
-          {{ data.value.city }}, {{ data.value.state }}
+        </template>
+        <template #cell(edit)="data">
+          <b-button :to="{ name: 'event-edit', params: { id: data.item.id } }" size="sm" variant="primary"
+            class="text-uppercase">Edit</b-button>
         </template>
       </b-table>
       <DetailedPagination :currentPage.sync="page.number" :perPage.sync="page.length" :totalRows="counts.filter"
@@ -99,7 +102,11 @@ export default {
         {
           key: "year",
           sortable: true
-          key: "year"
+        },
+        {
+          key: "edit",
+          label: "",
+          sortable: false
         }
       ],
       page: {
