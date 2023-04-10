@@ -15,7 +15,11 @@ sub decode_model ($self, $data) {
   delete($data->{id});
   $data = {convert_hash_keys($data->%*, \&camel_to_snake)};
   if (exists($data->{address}) && exists($data->{address}->{id})) {
-    $data->{address_id} = $data->{address}->{id};
+    if(defined($data->{address}->{id})) {
+      $data->{address_id} = $data->{address}->{id};
+    } else {
+      $data->{address_id} = $self->app->model('Address')->get_address()->id;
+    }
     delete($data->{address});
   }
   if (exists($data->{event_group}->{id})) {
