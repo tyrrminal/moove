@@ -136,6 +136,11 @@ paths:
         - $ref: "#/components/parameters/SearchEnddate"
         - $ref: "#/components/parameters/SearchWholeActivity"
         - $ref: "#/components/parameters/SearchEventActivity"
+        - $ref: "#/components/parameters/SearchDistance"
+        - $ref: "#/components/parameters/SearchNetTime"
+        - $ref: "#/components/parameters/SearchDuration"
+        - $ref: "#/components/parameters/SearchPace"
+        - $ref: "#/components/parameters/SearchSpeed"
       responses:
         200:
           description: OK
@@ -1119,6 +1124,36 @@ components:
       required: false
       schema:
         type: boolean
+    SearchDistance:
+      in: query
+      name: distance
+      required: false
+      schema:
+        type: string
+    SearchNetTime:
+      in: query
+      name: net_time
+      required: false
+      schema:
+        type: string
+    SearchDuration:
+      in: query
+      name: net_time
+      required: false
+      schema:
+        type: string
+    SearchPace:
+      in: query
+      name: pace
+      required: false
+      schema: 
+        type: string
+    SearchSpeed:
+      in: query
+      name: speed
+      required: false
+      schema:
+        type: string
     # Pagination Params
     PageNumber:
       in: query
