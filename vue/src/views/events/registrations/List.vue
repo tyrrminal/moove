@@ -1,8 +1,15 @@
 <template>
   <b-container fluid>
     <b-row>
-      <b-col cols="2" class="bg-sidebar">
+      <b-col cols="2" class="bg-sidebar min-vh-100">
         <div class="sticky-top">
+          <div class="bg-white mt-2 py-2 pl-3 rounded-lg rounded-top">
+            <EventTypeSelector v-model="eventTypes" class="mb-2" />
+            <b-button-group size="sm">
+              <b-button :pressed.sync="nonprivate" variant="outline-secondary">Public</b-button>
+              <b-button :pressed.sync="private" variant="outline-danger">Private</b-button>
+            </b-button-group>
+          </div>
           <b-skeleton-wrapper :loading="!loaded">
             <EventSummary :events="events" />
             <template #loading>
@@ -17,52 +24,33 @@
         </div>
       </b-col>
       <b-col cols="10" class="mt-2">
-        <b-form-radio-group buttons button-variant="outline-primary" class="float-right" :options="view.options"
-          v-model="view.type" size="sm" />
+        <div class="float-right">
+          <b-form-radio-group buttons button-variant="outline-primary" :options="view.options" v-model="view.type"
+            size="sm" />
+        </div>
         <h2 class="d-inline-block mr-2">Events </h2><b-spinner v-if="!loaded" variant="info" />
-
-        <div v-if="loaded && view.type != 1">
-          <h4>Upcoming</h4>
-          <Grid v-if="upcomingEvents.length" :events="upcomingEvents" :viewType="view.type" />
-          <label v-else>No upcoming events</label>
-          <hr />
-        </div>
-
-        <div>
-          <h4 v-if="upcomingEvents.length || incompleteEvents.length">Completed</h4>
-          <template v-if="viewSplitYears">
-            <div v-for="y in eventYears" :key="grid + y" class="iterated-grid">
-              <h5>{{ y }}</h5>
-              <Grid :events="eventsByYear[y]" :viewType="view.type" />
-            </div>
-          </template>
-          <template v-else>
-            <Grid :events="completedEvents" :viewType="view.type" />
-          </template>
-          <hr v-if="incompleteEvents.length" />
-        </div>
-
-        <div v-if="incompleteEvents.length">
-          <h4>DNS/DNF</h4>
-          <Grid :events="incompleteEvents" :viewType="0" date-format="date_med" />
-        </div>
+        <component :is="listView" :events="filteredEvents" :loaded="loaded" :gridOptions="gridOptions" />
       </b-col>
     </b-row>
   </b-container>
 </template>
 
 <script>
-import { DateTime } from "luxon";
 import Branding from "@/mixins/Branding.js";
 import Events from "@/mixins/events/API.js";
 
+import EventTypeSelector from "@/components/EventTypeSelector";
 import EventSummary from "@/components/event/Summary.vue";
-import Grid from "@/components/event/Grid.vue";
+import YearGroupedList from "@/components/event/YearGroupedList.vue";
+import UngroupedList from "@/components/event/UngroupedList.vue"
 
 export default {
+  name: "EventRegistrationList",
   components: {
+    EventTypeSelector,
     EventSummary,
-    Grid,
+    YearGroupedList,
+    UngroupedList
   },
   mixins: [Branding, Events],
   metaInfo: function () {
@@ -79,17 +67,19 @@ export default {
         "order.by": "scheduledStart",
         "order.dir": "desc",
       },
+      eventTypes: {},
       filters: {
-        activityTypeID: null,
+        eventTypeID: null,
         completed: false,
+        private: null,
       },
       view: {
-        type: 0,
+        type: 'registration',
         splitYears: true,
         options: [
-          { text: "Registration", value: 0 },
-          { text: "Results", value: 1 },
-          { text: "Fundraising", value: 2 },
+          { text: "Registration", value: 'registration' },
+          { text: "Results", value: 'results' },
+          { text: "Fundraising", value: 'fundraising' },
         ],
       },
     };
@@ -127,48 +117,46 @@ export default {
     },
   },
   computed: {
+    gridOptions: function () {
+      return {
+        showFees: this.view.type == 'registration' || this.view.type == 'fundraising',
+        showSpeed: this.view.type == 'registration' || this.view.type == 'results',
+        showResults: this.view.type == 'results',
+        showFundraising: this.view.type == 'fundraising',
+      }
+    },
     title: function () {
       return `${this.applicationName} / Events`;
     },
-    viewSplitYears: function () {
-      return (this.view.type == 0)
-    },
-    eventYears: function () {
-      return Object.keys(this.eventsByYear).sort((a, b) => b - a)
-    },
-    eventsByYear: function () {
-      let years = {};
-      this.completedEvents.forEach(e => {
-        let y = DateTime.fromISO(e.eventActivity.scheduledStart).year
-        if (!years[y]) years[y] = [];
-        years[y].push(e);
-      })
-      return years;
-    },
-    upcomingEvents: function () {
-      return this.filteredEvents.filter(e => DateTime.fromISO(e.eventActivity.scheduledStart) > DateTime.now())
-    },
-    pastEvents: function () {
-      return this.filteredEvents.filter(e => DateTime.fromISO(e.eventActivity.scheduledStart) < DateTime.now())
-    },
-    completedEvents: function () {
-      return this.pastEvents.filter(e => e.activity != null)
-    },
-    incompleteEvents: function () {
-      return this.pastEvents.filter(e => e.activity == null)
+    listView: function () {
+      return this.view.splitYears && this.view.type == 'registration' ? YearGroupedList : UngroupedList;
     },
     filteredEvents: function () {
       let events = this.events;
-      if (this.filters.activityTypeID != null)
-        events = events.filter(
-          (e) =>
-            e.eventActivity.event.eventType.activityTypeID ===
-            this.filters.activityTypeID
-        );
-      if (this.view.type == 1) events = events.filter((e) => e.placements);
-      if (this.view.type == 2) events = events.filter((e) => e.fundraising);
+      if (Object.keys(this.eventTypes).length) events = events.filter(e => this.eventTypes[e.eventActivity.eventType.id])
+      if (this.view.type == 'results') events = events.filter((e) => e.placements);
+      if (this.view.type == 'fundraising') events = events.filter((e) => e.fundraising);
+      if (this.filters.private === true) events = events.filter((e) => e.visibilityTypeID == 1)
+      if (this.filters.private === false) events = events.filter((e) => e.visibilityTypeID > 1)
+
       return events;
     },
+    private: {
+      get() {
+        return this.filters.private === true
+      },
+      set(newVal) {
+        this.filters.private = newVal ? true : null
+      }
+    },
+    nonprivate: {
+      get() {
+        return this.filters.private === false
+      },
+      set(newVal) {
+        this.filters.private = newVal ? false : null
+      }
+    }
   },
 };
 </script>
@@ -176,13 +164,5 @@ export default {
 <style scoped>
 .bg-sidebar {
   background-color: #bdbdbd
-}
-
-.iterated-grid {
-  padding-top: 0.5rem;
-}
-
-.iterated-grid:nth-child(odd) {
-  background-color: #e4e4e485
 }
 </style>

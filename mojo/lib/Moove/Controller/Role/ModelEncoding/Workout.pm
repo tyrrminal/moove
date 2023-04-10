@@ -2,7 +2,10 @@ package Moove::Controller::Role::ModelEncoding::Workout;
 use v5.36;
 
 use Role::Tiny;
-with 'Moove::Controller::Role::ModelEncoding::Activity';
+with qw(
+  Moove::Controller::Role::ModelEncoding::Activity
+  Moove::Controller::Role::ModelEncoding::Activity::UserEventActivity
+);
 
 sub encode_model_workout ($self, $entity) {
   return {

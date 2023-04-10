@@ -12,3 +12,4 @@ unit_of_measure_type 2022-07-28T14:32:34Z root <root@47a4f036b1d4> # add types l
 rename_event_series_column 2022-08-02T14:07:54Z root <root@47a4f036b1d4> # rename EventSeriesEvent.event_group_id to event_series_id to disambiguate it
 add_runsignup_external_data_source 2022-10-22T19:38:42Z root <root@f48a6e133dd4> # add RunSignup external data source
 add_bodyweight_context 2023-02-09T14:43:18Z root <root@e99c1c58dab5> # Add an activity context for body weight exercises and enforce non-null contexts on activity types
+add_virtual_event_types 2023-03-27T20:08:50Z root <root@4263e418f9aa> # add column to eventtype to mark virtual types

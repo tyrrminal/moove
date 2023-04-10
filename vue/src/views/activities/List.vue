@@ -8,25 +8,7 @@
         <b-datepicker v-model="internal.end" reset-button />
       </b-form-group>
       <b-col class="text-right mt-4">
-        <b-dropdown :variant="activityButtonVariant" right class="mr-1">
-          <template #button-content><b-icon v-if="isActivityFiltered" icon="circle-fill" :scale="0.5"
-              class="mr-1" />Activity Types</template>
-          <b-container :style="{ width: '60rem' }">
-            <label class="font-weight-bold">Activity Types</label><b-button size="sm" variant="warning"
-              class="ml-1 py-0 float-right" @click="activityTypes = {}">Reset</b-button>
-            <b-row v-for="i in activityTypeRows" class="mb-2">
-              <b-col v-for="c in activityTypesInRow(i)" :key="c" cols="3">
-                <b-checkbox switch class="font-weight-bold" :checked="baseActivityIsEnabled(c)"
-                  @change="toggleBaseActivity(c)">{{ c }}</b-checkbox>
-                <div v-for="at in getActivityTypesForBase(c)" :key="at.id">
-                  <b-checkbox class="ml-2" v-model="activityTypes[at.id]">{{
-                    at.labels.context
-                  }}</b-checkbox>
-                </div>
-              </b-col>
-            </b-row>
-          </b-container>
-        </b-dropdown>
+        <ActivityTypeSelector v-model="activityTypes" />
         <b-dropdown :variant="filterButtonVariant" right>
           <template #button-content><b-icon v-if="isFiltered" icon="circle-fill" :scale="0.5"
               class="mr-1" />Filters</template>
@@ -56,6 +38,7 @@
 <script>
 import { mapGetters } from "vuex";
 
+import ActivityTypeSelector from "@/components/ActivityTypeSelector";
 import ActivityList from "@/components/activity/List";
 import { DateTime } from "luxon";
 
@@ -64,7 +47,8 @@ const ACTIVITIES_PER_ROW = 4;
 export default {
   name: "ActivitiesList",
   components: {
-    ActivityList
+    ActivityList,
+    ActivityTypeSelector
   },
   data() {
     return {
@@ -204,6 +188,4 @@ export default {
 };
 </script>
 
-<style>
-
-</style>
+<style></style>

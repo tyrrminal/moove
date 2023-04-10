@@ -450,7 +450,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Event"
+                $ref: "#/components/schemas/EventActivity"
       tags:
         - Event
     delete:
@@ -1386,6 +1386,7 @@ components:
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"
+          nullable: true
         street1:
           type: string
           nullable: true
@@ -1516,7 +1517,7 @@ components:
           type: string
     EventRegistration:
       type: object
-      additionalProperties: true
+      additionalProperties: false
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"
@@ -1597,6 +1598,8 @@ components:
           $ref: "#/components/schemas/ActivityType"
         description:
           type: string
+        virtual: 
+          type: boolean
     ExternalDataSource:
       type: object
       required:
@@ -1648,6 +1651,7 @@ components:
       properties:
         minimum:
           type: number
+          nullable: true
         received:
           type: number
         donations:

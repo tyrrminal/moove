@@ -1,8 +1,10 @@
 <template>
   <b-list-group class="mt-3">
     <b-list-group-item>
-      <label>Events (completed / all)</label>
-      <div class="font-weight-bold text-monospace">{{ completedEvents.length }} / {{ events.length }}</div>
+      <label>Events</label>
+      <div class="text-monospace">{{ events.length }} total</div>
+      <div class="text-monospace">{{ completedEvents.length }} completed</div>
+      <div class="text-monospace">{{ futureEvents.length }} upcoming</div>
     </b-list-group-item>
     <b-list-group-item>
       <label>Total Fees</label>
@@ -16,6 +18,7 @@
 </template>
 
 <script>
+import { DateTime } from "luxon"
 import { mapGetters } from "vuex";
 import { convertUnitValue } from "@/utils/unitConversion.js";
 
@@ -31,6 +34,9 @@ export default {
     completedEvents: function () {
       return this.events.filter(e => e.activity)
     },
+    futureEvents: function () {
+      return this.events.filter(e => DateTime.fromISO(e.eventActivity.scheduledStart) > DateTime.now())
+    },
     totalFees: function () {
       return this.events.map(e => e.registrationFee).reduce((ps, a) => ps + a, 0)
     },
@@ -42,5 +48,4 @@ export default {
 </script>
 
 <style>
-
 </style>
