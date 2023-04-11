@@ -21,6 +21,10 @@ sub decode_model ($self, $data) {
     $data->{fundraising_requirement} = $data->{fundraising}->{minimum};
     delete($data->{fundraising});
   }
+  if (exists($data->{event_activity})) {
+    my $ea = delete($data->{event_activity});
+    $data->{event_activity_id} = $ea->{id}
+  }
   return $data;
 }
 
@@ -85,8 +89,13 @@ sub insert_record ($self, $data) {
 }
 
 sub update_record ($self, $entity, $data) {
-  delete($data->{event_activity_id});
-  my $registration = {registration_number => delete($data->{registration_number}),};
+  my $registration = {};
+  if(my $reg_num = delete($data->{registration_number})) {
+    $registration->{registration_number} = $reg_num;
+  }
+  if(my $ea_id = delete($data->{event_activity_id})) {
+    $registration->{event_activity_id} = $ea_id
+  }
   $entity->event_registration->update($registration);
   $self->SUPER::update_record($entity, $data);
 }

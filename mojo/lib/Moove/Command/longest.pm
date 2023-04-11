@@ -9,7 +9,7 @@ use Mojo::Util 'getopt';
 use List::Util qw(sum);
 use Array::Utils qw(intersect);
 
-has 'description' => 'Quick test functionality';
+has 'description' => 'List longest cumulative activity by distance over specified time frame';
 has 'usage'       => <<"USAGE";
 $0 deploy [OPTIONS]
 OPTIONS:
@@ -23,15 +23,18 @@ sub run ($self, @args) {
   my $interval = 7;
   getopt(
     \@args,
-    'days:i'   => sub {$interval = pop; $type = shift},
-    'weeks:i'  => sub {$interval = pop; $type = shift},
-    'months:i' => sub {$interval = pop; $type = shift},
-    'years:i'  => sub {$interval = pop; $type = shift},
-    'top:i'    => \$top,
-    'type:s'   => \$act_type
+    'days=i'   => sub {$interval = pop; $type = shift},
+    # 'weeks=i'  => sub {$interval = pop; $type = shift},
+    # 'months=i' => sub {$interval = pop; $type = shift},
+    # 'years=i'  => sub {$interval = pop; $type = shift},
+    'top=i'    => \$top,
+    'type=i'   => \$act_type,
+    'user=s'  => \my $user_id
   );
-  my $u = $self->app->model('User')->find({username => 'digicow'});
-  my $activity_type = $self->app->model('ActivityType')->find({description => $act_type});
+  my $u = $self->app->model('User')->search({-or => [{username => $user_id},{id => $user_id}]})->first;
+  die("User is required\n") unless($u);
+  my $activity_type = $self->app->model('ActivityType')->find({id => $act_type});
+  die("Type is required\n") unless($activity_type);
   my @activities = $self->app->model('Activity')->for_user($u)->whole->activity_type($activity_type)->ordered;
 
   my @d_sum;
@@ -41,7 +44,7 @@ sub run ($self, @args) {
   }
 
   my @intermediate = sort {
-    sum(map {$_->distance->normalized_value} @$b) <=> sum(map {$_->distance->normalized_value} @$a)
+    sum(map {$_->activity_result->normalized_distance->value} @$b) <=> sum(map {$_->activity_result->normalized_distance->value} @$a)
   } @d_sum;
   my @sorted_d_sum;
 
@@ -59,7 +62,7 @@ sub run ($self, @args) {
   for (my $i = 0 ; $i < $top ; $i++) {
     say $sorted_d_sum[$i]->[0]->start_time->strftime('%F'), " - ",
       $sorted_d_sum[$i]->[-1]->start_time->strftime('%F'),
-      " => ", sprintf('%.2f', sum(map {$_->distance->normalized_value} @{$sorted_d_sum[$i]})), " mi";
+      " => ", sprintf('%.2f', sum(map {$_->activity_result->normalized_distance->value} @{$sorted_d_sum[$i]})), " mi";
   }
 }
 

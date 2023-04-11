@@ -50,14 +50,7 @@ export default {
       this.$store
         .dispatch("auth/login", [username, password])
         .then(() =>
-          self.$router.replace(
-            this.$route.query.from || {
-              name: "user",
-              params: {
-                username: this.$store.getters["auth/currentUser"].username,
-              },
-            }
-          )
+          self.$router.replace(this.$route.query.from || { name: "home" })
         )
         .catch((err) => (self.error = err.response.data.message));
     },
@@ -70,6 +63,4 @@ export default {
 };
 </script>
 
-<style>
-
-</style>
+<style></style>

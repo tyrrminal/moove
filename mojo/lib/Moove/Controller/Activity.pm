@@ -16,6 +16,8 @@ use List::Util   qw(sum min max);
 use DCS::DateTime::Extras;
 use Syntax::Keyword::Try;
 use Mojo::Exception qw(raise);
+use Mojo::JSON qw(decode_json);
+use JSON::Validator;
 
 use syntax 'junction';
 
@@ -109,7 +111,83 @@ sub resultset ($self, %args) {
     $rs = $rs->has_event($event_filter);
   }
 
+  if(my $distance_filter = $self->validation->param('distance')) {
+    my ($value, $op) = $self->decode_distance_param($distance_filter);
+    $rs = $rs->search({
+      'normalized_distance.value' => {$op => $value}
+    })
+  }
+
+  if(my $time_filter = $self->validation->param('net_time')) {
+    my ($value, $op) = $self->decode_time_param($time_filter);
+    $rs = $rs->search({
+      "activity_result.net_time" => {$op => $value}
+    })
+  }
+
+  if(my $time_filter = $self->validation->param('duration')) {
+    my ($value, $op) = $self->decode_time_param($time_filter);
+    $rs = $rs->search({
+      "activity_result.duration" => {$op => $value}
+    })
+  }
+
+  if(my $time_filter = $self->validation->param('pace')) {
+    my ($value, $op) = $self->decode_time_param($time_filter);
+    $rs = $rs->search({
+      "activity_result.pace" => {$op => $value}
+    })
+  }
+
+  if(my $speed_filter = $self->validation->param('speed')) {
+    my ($value, $op) = $self->decode_distance_param($speed_filter, 'Rate');
+    $rs = $rs->search({
+      'activity_result.speed' => {$op => $value}
+    })
+  }
+
   return $rs;
+}
+
+sub decode_distance_param($self, $txt, $uom_type = 'Distance') {
+  my $jv = JSON::Validator->new();
+  $jv->schema({
+    type => 'object',
+    required => [qw(value uom_abbr op)],
+    properties => {
+      value => {type => 'number', minimum => 0},
+      uom_abbr => {type => 'string'},
+      op => {type => 'string', enum => [qw(= > >= < <=)]},
+    }
+  });
+  my $f = decode_json($txt);
+  if(my @errors = $jv->validate($f)) {
+    die(@errors)
+  }
+  my $v = $f->{value};
+  my $dist_uom_type = $self->model('UnitOfMeasureType')->find({description => $uom_type});
+  my $unit = $self->model('UnitOfMeasure')->search({abbreviation => $f->{uom_abbr}, unit_of_measure_type_id => $dist_uom_type->id})->first;
+  die("Invalid unit: " . $f->{uom_abbr}) unless($unit);
+  $v *= $unit->normalization_factor if(defined($unit->normal_unit));
+  return ($v, $f->{op})
+}
+
+sub decode_time_param($self, $txt) {
+  my $jv = JSON::Validator->new();
+  $jv->schema({
+    type => 'object',
+    required => ['value','op'],
+    properties => {
+      value => {type => 'string'},
+      op => {type => 'string', enum => [qw(= > >= < <=)]}
+    }
+  });
+  my $f = decode_json($txt);
+  if(my @errors = $jv->validate($f)) {
+    die(@errors);
+  }
+  die('/value: Does not match time format') unless($f->{value} =~ /^\d{1,}:\d{2}:\d{2}$/);
+  return ($f->{value}, $f->{op});
 }
 
 sub custom_sort_for_column ($self, $col_name) {

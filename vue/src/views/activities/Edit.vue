@@ -217,7 +217,8 @@ export default {
     this.$http.get(["workouts", this._workoutID].join("/")).then(resp => {
       this.workout = resp.data;
       let d = DateTime.fromISO(this.workout.date);
-      this.edit.startTime = DateTime.fromISO(this.edit.startTime).set({ year: d.year, month: d.month, day: d.day }).toISO();
+      if (this.edit.startTime == null)
+        this.edit.startTime = DateTime.fromISO(this.edit.startTime).set({ year: d.year, month: d.month, day: d.day }).toISO();
     });
   },
   methods: {
@@ -338,6 +339,4 @@ export default {
 }
 </script>
 
-<style>
-
-</style>
+<style></style>

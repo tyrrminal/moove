@@ -4,7 +4,7 @@ info:
   description: "Moo've Fitness Tracker"
   contact:
     email: moove@digicow.net
-  version: 2.1.8
+  version: 2.1.10
 servers:
   - url: https://moove.digicowsoftware.com/api/v1
 security:
@@ -136,6 +136,11 @@ paths:
         - $ref: "#/components/parameters/SearchEnddate"
         - $ref: "#/components/parameters/SearchWholeActivity"
         - $ref: "#/components/parameters/SearchEventActivity"
+        - $ref: "#/components/parameters/SearchDistance"
+        - $ref: "#/components/parameters/SearchNetTime"
+        - $ref: "#/components/parameters/SearchDuration"
+        - $ref: "#/components/parameters/SearchPace"
+        - $ref: "#/components/parameters/SearchSpeed"
       responses:
         200:
           description: OK
@@ -450,7 +455,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Event"
+                $ref: "#/components/schemas/EventActivity"
       tags:
         - Event
     delete:
@@ -1119,6 +1124,36 @@ components:
       required: false
       schema:
         type: boolean
+    SearchDistance:
+      in: query
+      name: distance
+      required: false
+      schema:
+        type: string
+    SearchNetTime:
+      in: query
+      name: net_time
+      required: false
+      schema:
+        type: string
+    SearchDuration:
+      in: query
+      name: duration
+      required: false
+      schema:
+        type: string
+    SearchPace:
+      in: query
+      name: pace
+      required: false
+      schema:
+        type: string
+    SearchSpeed:
+      in: query
+      name: speed
+      required: false
+      schema:
+        type: string
     # Pagination Params
     PageNumber:
       in: query
@@ -1386,6 +1421,7 @@ components:
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"
+          nullable: true
         street1:
           type: string
           nullable: true
@@ -1516,7 +1552,7 @@ components:
           type: string
     EventRegistration:
       type: object
-      additionalProperties: true
+      additionalProperties: false
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"
@@ -1597,6 +1633,8 @@ components:
           $ref: "#/components/schemas/ActivityType"
         description:
           type: string
+        virtual:
+          type: boolean
     ExternalDataSource:
       type: object
       required:
@@ -1648,6 +1686,7 @@ components:
       properties:
         minimum:
           type: number
+          nullable: true
         received:
           type: number
         donations:

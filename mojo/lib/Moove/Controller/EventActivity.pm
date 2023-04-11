@@ -49,8 +49,13 @@ sub delete_results ($self) {
 sub decode_model ($self, $data) {
   delete($data->{id});
   $data = {convert_hash_keys($data->%*, \&camel_to_snake)};
-  my $event = $self->model_find(Event => $self->validation->param('eventID')) or $self->render_not_found('Event');
-  $data->{event_id} = $event->id;
+  if(my $id = $self->validation->param('eventID')) {
+    my $event = $self->model_find(Event => $id) or die("Event $id not found");
+    $data->{event_id} = $event->id;
+  } elsif($id = $self->validation->param('eventActivityID')) {
+    my $ea = $self->model_find(EventActivity => $id) or die("Event Activity $id not found");
+    $data->{event_id} = $ea->event->id;
+  }
   my $event_type = delete($data->{event_type});
   $data->{event_type_id} = $event_type->{id};
   my $distance = delete($data->{distance});

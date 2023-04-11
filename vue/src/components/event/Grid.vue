@@ -1,167 +1,174 @@
 <template>
-  <b-table striped small hover :items="events" :fields="fields" :sort-compare="sortCompare" :foot-clone="showFooter"
-    no-footer-sorting responsive>
-    <template v-slot:table-busy>
-      <div class="text-center text-info my-2">
-        <b-spinner class="align-middle"></b-spinner>
-        <strong>Loading...</strong>
-      </div>
-    </template>
+  <div>
+    <h5 v-if="label">{{ label }}</h5>
+    <b-table striped small hover :items="events" :fields="fields" :sort-compare="sortCompare" :foot-clone="showFooter"
+      no-footer-sorting responsive show-empty :tbody-tr-class="rowClass">
+      <template v-slot:table-busy>
+        <div class="text-center text-info my-2">
+          <b-spinner class="align-middle"></b-spinner>
+          <strong>Loading...</strong>
+        </div>
+      </template>
 
-    <template v-slot:thead-top="data" v-if="viewType == 1">
-      <b-tr :title="data">
-        <b-th colspan="5">
-          <span class="sr-only">Default Fields</span>
-        </b-th>
-        <b-th colspan="2" class="text-center">Overall</b-th>
-        <b-th colspan="2" class="text-center">Gender</b-th>
-        <b-th colspan="2" class="text-center">Division</b-th>
-      </b-tr>
-    </template>
+      <template v-slot:empty>
+        <slot name="no-data"></slot>
+      </template>
 
-    <template #foot()><span></span></template>
-    <template #foot(date)><span v-if="viewType == 0 || viewType == 2">Total</span>
-      <span v-else>Best</span></template>
-    <template #foot(registrationFee)>
-      {{
-        events.map((e) => e.registrationFee).reduce((a, c) => a + (c || 0), 0)
+      <template v-slot:thead-top="data" v-if="showResults">
+        <b-tr :title="data">
+          <b-th colspan="5">
+            <span class="sr-only">Default Fields</span>
+          </b-th>
+          <b-th colspan="2" class="text-center">Overall</b-th>
+          <b-th colspan="2" class="text-center">Gender</b-th>
+          <b-th colspan="2" class="text-center">Division</b-th>
+        </b-tr>
+      </template>
+
+      <template #foot()><span></span></template>
+      <template #foot(date)><span v-if="showResults">Best</span>
+        <span v-else>Total</span></template>
+      <template #foot(registrationFee)>
+        {{
+          events.map((e) => e.registrationFee).reduce((a, c) => a + (c || 0), 0)
           | currency
-      }}
-    </template>
-    <template #foot(distance)><span v-if="events.length">
-        {{ eventDistance | formatDistance }}
-      </span>
-    </template>
-    <template #foot(place)>{{
-      Math.min(
-        ...events
-          .filter((e) => e.placements)
-          .map((e) => e.placements.overall.place)
-          .filter((p) => p != null)
-      )
-    }}</template>
-    <template #foot(pct)>{{
-      Math.max(
-        ...events
-          .filter((e) => e.placements)
-          .map((e) => e.placements.overall.percentile)
-      ) | percent(1)
-    }}</template>
-    <template #foot(placeGender)>{{
-      Math.min(
-        ...events
-          .filter((e) => e.placements && e.placements.gender)
-          .map((e) => e.placements.gender.place)
-          .filter((p) => p != null)
-      )
-    }}</template>
-    <template #foot(pctGender)>{{
-      Math.max(
-        ...events
-          .filter((e) => e.placements && e.placements.gender)
-          .map((e) => e.placements.gender.percentile)
-      ) | percent(1)
-    }}</template>
-    <template #foot(placeDivision)>{{
-      Math.min(
-        ...events
-          .filter((e) => e.placements && e.placements.division)
-          .map((e) => e.placements.division.place)
-          .filter((p) => p != null)
-      )
-    }}</template>
-    <template #foot(pctDivision)>{{
-      Math.max(
-        ...events
-          .filter((e) => e.placements && e.placements.division)
-          .map((e) => e.placements.division.percentile)
-      ) | percent(1)
-    }}</template>
-    <template #foot(frMinimum)>
-      {{
-        events
+        }}
+      </template>
+      <template #foot(distance)><span v-if="events.length">
+          {{ eventDistance | formatDistance }}
+        </span>
+      </template>
+      <template #foot(place)>{{
+        Math.min(
+          ...events
+            .filter((e) => e.placements)
+            .map((e) => e.placements.overall.place)
+            .filter((p) => p != null)
+        )
+      }}</template>
+      <template #foot(pct)>{{
+        Math.max(
+          ...events
+            .filter((e) => e.placements)
+            .map((e) => e.placements.overall.percentile)
+        ) | percent(1)
+      }}</template>
+      <template #foot(placeGender)>{{
+        Math.min(
+          ...events
+            .filter((e) => e.placements && e.placements.gender)
+            .map((e) => e.placements.gender.place)
+            .filter((p) => p != null)
+        )
+      }}</template>
+      <template #foot(pctGender)>{{
+        Math.max(
+          ...events
+            .filter((e) => e.placements && e.placements.gender)
+            .map((e) => e.placements.gender.percentile)
+        ) | percent(1)
+      }}</template>
+      <template #foot(placeDivision)>{{
+        Math.min(
+          ...events
+            .filter((e) => e.placements && e.placements.division)
+            .map((e) => e.placements.division.place)
+            .filter((p) => p != null)
+        )
+      }}</template>
+      <template #foot(pctDivision)>{{
+        Math.max(
+          ...events
+            .filter((e) => e.placements && e.placements.division)
+            .map((e) => e.placements.division.percentile)
+        ) | percent(1)
+      }}</template>
+      <template #foot(frMinimum)>
+        {{
+          events
             .filter((e) => e.fundraising != null)
-          .map((e) => e.fundraising.minimum)
-          .reduce((a, c) => a + c, 0) | currency
-      }}
-    </template>
-    <template #foot(frReceived)>
-      {{
-        events
+            .map((e) => e.fundraising.minimum)
+            .reduce((a, c) => a + c, 0) | currency
+        }}
+      </template>
+      <template #foot(frReceived)>
+        {{
+          events
             .filter((e) => e.fundraising != null)
-          .map((e) => e.fundraising.received)
-          .reduce((a, c) => a + c, 0) | currency
-      }}
-    </template>
-    <template #foot(frPct)>
-      {{ frPctAvg | percent(1) }}
-    </template>
+            .map((e) => e.fundraising.received)
+            .reduce((a, c) => a + c, 0) | currency
+        }}
+      </template>
+      <template #foot(frPct)>
+        {{ frPctAvg | percent(1) }}
+      </template>
 
-    <template v-slot:cell(index)="data">{{ data.index + 1 }}</template>
-    <template #cell(year)="data">{{ data.item.eventActivity.scheduledStart.substr(0, 4) }}</template>
-    <template v-slot:cell(date)="data">{{
-      data.item.eventActivity.scheduledStart | luxon({ output: { format: dateFormat } })
-    }}</template>
-    <template #cell(countdown)="data">
-      <span v-if="isInFuture(data.item)">{{
-        relDate(data.item.eventActivity.scheduledStart)
-      }}</span>
-    </template>
-    <template v-slot:cell(type)="data">{{
-      data.item.eventActivity.eventType.description
-    }}</template>
-    <template v-slot:cell(name)="data">
-      <b-link :class="eventNameClass(data.item)" :to="{
-        name: 'registration-detail',
-        params: { id: data.item.id },
-      }">{{ data.item.eventActivity.event.name }}</b-link>
-    </template>
-    <template v-slot:cell(registrationFee)="data">
-      {{ data.value | currency }}
-    </template>
-    <template v-slot:cell(speed)="data">{{ fillUnits(eventVelocity(data.item)) | formatDistance }}
-    </template>
-    <template v-slot:cell(distance)="data">{{
-      fillUnits(data.item.eventActivity.distance) | formatDistanceTrim
-    }}</template>
+      <template v-slot:cell(index)="data">{{ data.index + 1 }}</template>
+      <template #cell(year)="data">{{ data.item.eventActivity.scheduledStart.substr(0, 4) }}</template>
+      <template v-slot:cell(date)="data">{{
+        data.item.eventActivity.scheduledStart | luxon({ output: { format: dateFormat } })
+      }}</template>
+      <template #cell(countdown)="data">
+        <span v-if="isInFuture(data.item)">{{
+          relDate(data.item.eventActivity.scheduledStart)
+        }}</span>
+      </template>
+      <template v-slot:cell(type)="data">{{
+        data.item.eventActivity.eventType.description
+      }}</template>
+      <template v-slot:cell(name)="data">
+        <b-link :to="{
+          name: 'registration-detail',
+          params: { id: data.item.id },
+        }" class="text-muted">{{ data.item.eventActivity.event.name }}</b-link>
+      </template>
+      <template v-slot:cell(registrationFee)="data">
+        {{ data.value | currency }}
+      </template>
+      <template v-slot:cell(speed)="data">{{ fillUnits(eventVelocity(data.item)) | formatDistance }}
+      </template>
+      <template v-slot:cell(distance)="data">{{
+        fillUnits(data.item.eventActivity.distance) | formatDistanceTrim
+      }}</template>
 
-    <template v-slot:cell(place)="data"><span v-if="data.item.placements && data.item.placements.overall">{{
-      data.item.placements.overall.place
-    }}<span v-if="data.item.placements.overall.of" class="placement-partition-size">
-          / {{ data.item.placements.overall.of }}</span></span></template>
-    <template v-slot:cell(pct)="data"><span v-if="data.item.placements && data.item.placements.overall">{{
-      data.item.placements.overall.percentile | percent(1)
-    }}</span></template>
-    <template v-slot:cell(placeGender)="data"><span v-if="data.item.placements && data.item.placements.gender">{{
-      data.item.placements.gender.place
-    }}<span v-if="data.item.placements.gender.of" class="placement-partition-size">
-          / {{ data.item.placements.gender.of }}</span></span></template>
-    <template v-slot:cell(pctGender)="data"><span v-if="
-      data.item.placements &&
-      data.item.placements.gender &&
-      data.item.placements.gender.percentile != null
-    ">{{ data.item.placements.gender.percentile | percent(1) }}</span></template>
-    <template v-slot:cell(placeDivision)="data"><span v-if="data.item.placements && data.item.placements.division">{{
-      data.item.placements.division.place
-    }}<span v-if="data.item.placements.division.of" class="placement-partition-size">
-          / {{ data.item.placements.division.of }}</span></span></template>
-    <template v-slot:cell(pctDivision)="data"><span v-if="
-      data.item.placements &&
-      data.item.placements.division &&
-      data.item.placements.division.percentile != null
-    ">{{ data.item.placements.division.percentile | percent(1) }}</span></template>
+      <template v-slot:cell(place)="data"><span v-if="data.item.placements && data.item.placements.overall">{{
+        data.item.placements.overall.place
+      }}<span v-if="data.item.placements.overall.of" class="placement-partition-size">
+            / {{ data.item.placements.overall.of }}</span></span></template>
+      <template v-slot:cell(pct)="data"><span v-if="data.item.placements && data.item.placements.overall">{{
+        data.item.placements.overall.percentile | percent(1)
+      }}</span></template>
+      <template v-slot:cell(placeGender)="data"><span v-if="data.item.placements && data.item.placements.gender">{{
+        data.item.placements.gender.place
+      }}<span v-if="data.item.placements.gender.of" class="placement-partition-size">
+            / {{ data.item.placements.gender.of }}</span></span></template>
+      <template v-slot:cell(pctGender)="data"><span v-if="
+        data.item.placements &&
+        data.item.placements.gender &&
+        data.item.placements.gender.percentile != null
+      ">{{ data.item.placements.gender.percentile | percent(1) }}</span></template>
+      <template v-slot:cell(placeDivision)="data"><span v-if="data.item.placements && data.item.placements.division">{{
+        data.item.placements.division.place
+      }}<span v-if="data.item.placements.division.of" class="placement-partition-size">
+            / {{ data.item.placements.division.of }}</span></span></template>
+      <template v-slot:cell(pctDivision)="data"><span v-if="
+        data.item.placements &&
+        data.item.placements.division &&
+        data.item.placements.division.percentile != null
+      ">{{ data.item.placements.division.percentile | percent(1) }}</span></template>
 
-    <template v-slot:cell(frMinimum)="data"><span v-if="data.item.fundraising">{{
-      data.item.fundraising.minimum | currency
-    }}</span></template>
-    <template v-slot:cell(frReceived)="data"><span v-if="data.item.fundraising">{{
-      data.item.fundraising.received | currency
-    }}</span></template>
-    <template v-slot:cell(frPct)="data"><span v-if="data.item.fundraising">{{
-    (data.item.fundraising.received / data.item.fundraising.minimum)
-      | percent(1)
-    }}</span></template>
-  </b-table>
+      <template v-slot:cell(frMinimum)="data"><span v-if="data.item.fundraising">{{
+        data.item.fundraising.minimum | currency
+      }}</span></template>
+      <template v-slot:cell(frReceived)="data"><span v-if="data.item.fundraising">{{
+        data.item.fundraising.received | currency
+      }}</span></template>
+      <template v-slot:cell(frPct)="data"><span v-if="data.item.fundraising">{{
+        (data.item.fundraising.received / data.item.fundraising.minimum)
+        | percent(1)
+      }}</span></template>
+    </b-table>
+  </div>
 </template>
 
 <script>
@@ -178,13 +185,33 @@ export default {
       type: Array,
       required: true,
     },
-    viewType: {
-      type: Number,
-      default: 0,
+    label: {
+      type: String,
+      default: null
     },
     dateFormat: {
       type: String,
       default: "ccc LLL d"
+    },
+    separateYear: {
+      type: Boolean,
+      default: true
+    },
+    showFees: {
+      type: Boolean,
+      default: true
+    },
+    showSpeed: {
+      type: Boolean,
+      default: true
+    },
+    showResults: {
+      type: Boolean,
+      default: false
+    },
+    showFundraising: {
+      type: Boolean,
+      default: false
     }
   },
   methods: {
@@ -276,10 +303,6 @@ export default {
       }
       return null;
     },
-    eventNameClass: function (e) {
-      if (e.visibilityTypeID == 1) return ["text-danger"];
-      return [];
-    },
     getResultsGroup: function (results, partitionType) {
       let g = results[partitionType];
       if (g == null) return { percentile: null, place: null };
@@ -295,10 +318,16 @@ export default {
       if (dur.weeks) p.push(dur.weeks + 'w');
       if (dur.days) p.push(dur.days + 'd');
       return p.join(' ');
-    }
+    },
+    rowClass: function (item) {
+      let r = ["text-muted"];
+      if (item != null && item.visibilityTypeID == 1) r.push('event-private')
+      return r
+    },
   },
   computed: {
     ...mapGetters("meta", ["getUnitOfMeasure", "getUnitsOfMeasure"]),
+
     showFooter: function () {
       return this.events.length > 1;
     },
@@ -333,30 +362,30 @@ export default {
     },
     fields: function () {
       let baseFields = [
-        { key: "year", sortable: false, predicate: () => this.eventYears.length > 1 },
+        { key: "year", sortable: false, predicate: () => this.eventYears.length > 1 && this.separateYear },
         { key: "date", sortable: true },
         { key: "countdown", sortable: false, predicate: () => Math.min(...this.events.map(e => DateTime.fromISO(e.eventActivity.scheduledStart))) > DateTime.now() },
         { key: "name", sortable: true },
         { key: "type", sortable: true },
         { key: "distance", sortable: true },
-        { key: "speed", sortable: true, predicate: () => this.events.map(e => e.activity).reduce((c, a) => c && a, true) && (this.viewType == 0 || this.viewType == 1) },
-        { key: "registrationFee", label: "Fee", sortable: true, predicate: () => this.viewType == 0 || this.viewType == 2 },
-        { key: "place", sortable: true, label: "Place", predicate: () => this.viewType == 1 },
-        { key: "pct", sortable: true, label: "%", predicate: () => this.viewType == 1 },
-        { key: "placeGender", sortable: true, label: "Place", predicate: () => this.viewType == 1 },
-        { key: "pctGender", sortable: true, label: "%", predicate: () => this.viewType == 1 },
-        { key: "placeDivision", sortable: true, label: "Place", predicate: () => this.viewType == 1 },
-        { key: "pctDivision", sortable: true, label: "%", predicate: () => this.viewType == 1 },
+        { key: "speed", sortable: true, predicate: () => this.events.map(e => e.activity).reduce((c, a) => c && a, true) && this.showSpeed },
+        { key: "registrationFee", label: "Fee", sortable: true, predicate: () => this.showFees },
+        { key: "place", sortable: true, label: "Place", predicate: () => this.showResults },
+        { key: "pct", sortable: true, label: "%", predicate: () => this.vshowResults },
+        { key: "placeGender", sortable: true, label: "Place", predicate: () => this.showResults },
+        { key: "pctGender", sortable: true, label: "%", predicate: () => this.showResults },
+        { key: "placeDivision", sortable: true, label: "Place", predicate: () => this.showResults },
+        { key: "pctDivision", sortable: true, label: "%", predicate: () => this.showResults },
         {
-          key: "frMinimum", sortable: true, label: "Minimum", predicate: () => this.viewType == 2,
+          key: "frMinimum", sortable: true, label: "Minimum", predicate: () => this.showFundraising,
           tdClass: "text-right pr-2", thClass: "ncol",
         },
         {
-          key: "frReceived", sortable: true, label: "Recieved", predicate: () => this.viewType == 2,
+          key: "frReceived", sortable: true, label: "Recieved", predicate: () => this.showFundraising,
           tdClass: "text-right pr-2", thClass: "ncol",
         },
         {
-          key: "frPct", sortable: true, label: "%", predicate: () => this.viewType == 2,
+          key: "frPct", sortable: true, label: "%", predicate: () => this.showFundraising,
           tdClass: "text-right pr-2", thClass: "ncol",
         },
       ];
@@ -376,5 +405,13 @@ tfoot .ncol {
   font-size: 0.66rem;
   color: grey;
   vertical-align: top;
+}
+
+.event-private {
+  background-color: rgb(255, 215, 215) !important;
+}
+
+.event-private:hover {
+  background-color: rgb(255, 197, 197) !important;
 }
 </style>

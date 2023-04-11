@@ -31,45 +31,52 @@
         <b-row>
           <b-col cols="6">
             <b-form-group label="Name" label-cols="2">
-              <b-input v-model="newEvent.event.name" />
+              <b-input v-model="edit.event.name" />
             </b-form-group>
           </b-col>
           <b-col offset="3" cols="3">
             <b-form-group label="Year" label-cols="2">
-              <b-input v-model="newEvent.event.year" />
+              <b-input v-model="edit.event.year" />
             </b-form-group>
           </b-col>
         </b-row>
-        <b-form-group label="URL" label-cols="1">
-          <b-input v-model="newEvent.event.url" />
-        </b-form-group>
-        <b-form-group label="Address" label-cols="1">
-          <b-input-group>
-            <b-input :disabled="true" :value="
-              $options.filters.formatAddress(newEvent.event.address || {})
-            " />
-            <template #append>
-              <b-button variant="warning" @click="makeNewAddress">Change</b-button>
-            </template>
-          </b-input-group>
-        </b-form-group>
+        <b-row>
+          <b-col>
+            <b-form-group label="URL" label-cols="1">
+              <b-input v-model="edit.event.url" />
+            </b-form-group>
+            <b-form-group label="Address" label-cols="1">
+              <b-input-group>
+                <b-input :disabled="true" :value="
+                  $options.filters.formatAddress(edit.event.address || {})
+                " />
+                <template #append>
+                  <b-dropdown variant="outline-secondary">
+                    <b-dropdown-item @click="makeNewAddress">Change</b-dropdown-item>
+                    <b-dropdown-item @click="unsetAddress">Clear</b-dropdown-item>
+                  </b-dropdown>
+                </template>
+              </b-input-group>
+            </b-form-group>
+          </b-col>
+        </b-row>
         <b-row>
           <b-col cols="4">
             <b-form-group label="Results" label-cols="3" content-cols="9">
               <b-input-group>
                 <b-select :options="eventDataSources" text-field="name" value-field="id"
-                  v-model="newEvent.event.externalDataSourceID" />
+                  v-model="edit.event.externalDataSourceID" />
                 <template #append>
-                  <b-button variant="outline-danger" @click="newEvent.event.externalDataSourceID = null">
+                  <b-button variant="outline-danger" @click="clearExternalDataSource">
                     <b-icon icon="x" />
                   </b-button>
                 </template>
               </b-input-group>
             </b-form-group>
           </b-col>
-          <b-col cols="4">
+          <b-col cols="6">
             <b-form-group label="Results Event ID" label-cols="4" content-cols="6">
-              <b-input v-model="newEvent.event.externalIdentifier" :disabled="!newEvent.event.externalDataSourceID" />
+              <b-input v-model="edit.event.externalIdentifier" :disabled="!edit.event.externalDataSourceID" />
             </b-form-group>
           </b-col>
         </b-row>
@@ -79,14 +86,13 @@
     <b-card class="mt-2 mb-4" no-body>
       <b-card-header><strong>Event Activities</strong></b-card-header>
       <b-card-body>
-        <div v-for="(a, i) in newEvent.eventActivities" :key="i"
-          class="border-left border-success mb-2 pl-2 pb-1 bg-light">
-          <div class="float-right">
-            <b-button v-if="i > 0" variant="danger" @click="newEvent.eventActivities.splice(i, 1)" size="sm">
+        <div v-for="(a, i) in edit.eventActivities" :key="i" class="border-left border-success mb-2 pl-2 pb-1 bg-light">
+          <div v-if="edit.eventActivities.length > 1 && !a.id" class="float-right">
+            <b-button variant="danger" @click="edit.eventActivities.splice(i, 1)" size="sm">
               <b-icon icon="x" />
             </b-button>
           </div>
-          <b-row class="pt-2">
+          <b-row :style="{ clear: 'both' }" class="pt-2">
             <b-col cols="4">
               <b-form-group label="Name" label-cols="3">
                 <b-input v-model="a.name" title="Required when Event has multiple activities" />
@@ -102,7 +108,7 @@
                 <b-input-group>
                   <b-input v-model="a.distance.value" />
                   <template #append>
-                    <b-select :options="unitsOfMeasure" text-field="abbreviation" value-field="id"
+                    <b-select :options="distanceUnitsOfMeasure" text-field="abbreviation" value-field="id"
                       v-model="a.distance.unitOfMeasureID" />
                   </template>
                 </b-input-group>
@@ -122,22 +128,26 @@
             </b-col>
           </b-row>
           <b-form-group label="Results Activity ID" label-cols="2" content-cols="2">
-            <b-input v-model="a.externalIdentifier" :disabled="!newEvent.event.externalDataSourceID" />
+            <b-input v-model="a.externalIdentifier" :disabled="!edit.event.externalDataSourceID" />
           </b-form-group>
         </div>
         <b-button variant="outline-success" @click="addEventActivity">
-          <b-icon scale="3" icon="plus" class="mr-1"></b-icon> Add an
+          <b-icon scale="1.75" icon="plus" class="mr-1"></b-icon> Add an
           Activity
         </b-button>
       </b-card-body>
     </b-card>
 
-    <b-button @click="saveEvent" class="mb-4 float-right" variant="primary">Save</b-button>
+    <b-row align-h="between">
+      <b-col cols=1>
+        <b-button @click="$router.back()" class="mb-4 float-right" variant="secondary">Cancel</b-button>
+      </b-col>
+      <b-col cols=1>
+        <b-button @click="saveEvent" class="mb-4 float-right" variant="primary">Save</b-button>
+      </b-col>
+    </b-row>
 
-    <b-modal id="changeAddress" title="Edit Address" @cancel="newAddress = null" @ok="
-  newEvent.event.address = newAddress;
-newAddress = null;
-    ">
+    <b-modal id="changeAddress" title="Edit Address" @cancel="clearAddress" @ok="saveAddress">
       <template v-if="newAddress">
         <b-form-group label="Street (1)" label-cols="2">
           <b-input v-model="newAddress.street1" />
@@ -174,6 +184,7 @@ import { DateTime } from "luxon";
 import EventFilters from "@/mixins/events/Filters.js";
 
 export default {
+  name: 'EventEditor',
   mixins: [EventFilters],
   metaInfo: function () {
     return {
@@ -182,9 +193,7 @@ export default {
   },
   data: function () {
     return {
-      title: "Create Event",
-
-      newEvent: {
+      edit: {
         event: { name: "" },
         eventGroup: { name: "" },
         eventActivities: [],
@@ -193,53 +202,96 @@ export default {
     };
   },
   props: {
-    event: null,
-    eventGroup: null,
-    eventActivity: null,
+    id: {
+      type: String | Number,
+      default: null,
+    },
+    event: {
+      type: Object,
+      default: null,
+    },
+    eventGroup: {
+      type: Object,
+      default: null
+    },
+    eventActivity: {
+      type: Object,
+      default: null
+    },
   },
   mounted: function () {
-    if (this.event) {
-      this.newEvent.event = this.event;
-      this.newEvent.event.year = DateTime.now().year;
-    }
-    if (this.eventActivity) {
-      let dt = this.eventActivity.scheduledStart.split("T");
-      this.newEvent.eventActivities.push({
-        ...this.eventActivity,
-        date: dt[0],
-        time: dt[1],
-      });
-    }
+    this.reload();
   },
   methods: {
+    reload: function () {
+      if (this.isNew) {
+        this.edit = { event: { name: "" }, eventGroup: { name: "" }, eventActivities: [] }
+        if (this.event) {
+          this.edit.event = this.event;
+          this.edit.event.year = DateTime.now().year;
+        }
+        if (this.eventActivity) {
+          let dt = this.eventActivity.scheduledStart.split("T");
+          this.edit.eventActivities.push({
+            ...this.eventActivity,
+            date: dt[0],
+            time: dt[1],
+          });
+        }
+      } else {
+        this.$http.get(["events", this.id].join("/")).then(resp => {
+          this.edit.event = resp.data
+          this.edit.eventGroup = resp.data.eventGroup
+          this.edit.eventActivities = resp.data.activities.map(a => {
+            let dt = a.scheduledStart.split("T")
+            return { ...a, date: dt[0], time: dt[1] }
+          })
+        })
+      }
+    },
+    clearExternalDataSource: function () {
+      this.edit.event.externalDataSourceID = null;
+      this.edit.event.externalIdentifier = null
+    },
     makeNewAddress: function () {
-      this.newAddress = Object.assign({}, this.newEvent.event.address);
+      this.newAddress = Object.assign({}, this.edit.event.address);
       delete this.newAddress.id;
       this.$bvModal.show("changeAddress");
     },
+    saveAddress: function () {
+      this.edit.event.address = this.newAddress;
+      this.clearAddress();
+    },
+    clearAddress: function () {
+      this.newAddress = null;
+    },
+    unsetAddress: function () {
+      this.edit.event.address = { id: null }
+    },
     addEventActivity: function () {
-      this.newEvent.eventActivities.push({
-        eventType: { id: 0 },
+      let prev = this.edit.eventActivities.slice(-1).pop();
+      this.edit.eventActivities.push({
+        eventType: { id: prev.eventType.id },
         name: null,
         distance: { value: '', unitOfMeasureID: 1 },
-        date: '',
-        time: '',
+        date: prev.date,
+        time: prev.time,
       })
     },
     saveEvent: function () {
-      this.$http.post("events", this.apiRecord).then((resp) => {
+      (this.isNew ? this.$http.post("events", this.apiRecord) : this.$http.patch(["events", this.edit.event.id].join("/"), this.apiRecord)).then((resp) => {
         let promises = [];
-        this.newEvent.eventActivities.forEach((a) => {
-          let p = this.$http.post(["events", resp.data.id, "activities"].join("/"), {
+        this.edit.eventActivities.forEach((a) => {
+          let eaRecord = {
             scheduledStart: [a.date, a.time].join("T"),
             name: a.name,
             eventType: { id: a.eventType.id },
             distance: a.distance,
             externalIdentifier: a.externalIdentifier,
-          });
-          promises.push(p);
+          };
+          promises.push(a.id == null ? this.$http.post(["events", resp.data.id, "activities"].join("/"), eaRecord) : this.$http.patch(["events", "activities", a.id].join("/"), eaRecord));
         });
-        Promise.all(promises).then(results => this.$router.push({ name: "event-detail", params: { id: resp.data.id } }))
+        Promise.all(promises).then(() => this.$router.push({ name: "event-detail", params: { id: resp.data.id } }))
       });
     },
   },
@@ -249,19 +301,33 @@ export default {
       unitsOfMeasure: "getUnitsOfMeasure",
       externalDataSources: "getExternalDataSources",
     }),
+    isNew: function () {
+      return this.$route.name == 'event-create'
+    },
+    title: function () {
+      return this.isNew ? 'Create Event' : 'Edit Event';
+    },
+    distanceUnitsOfMeasure: function () {
+      return this.unitsOfMeasure.filter(x => x.type == 'Distance')
+    },
     eventDataSources: function () {
       return this.externalDataSources.filter((x) => x.type == "Event");
     },
     apiRecord: function () {
-      let r = { eventGroup: {}, ...this.newEvent.event };
+      let r = { eventGroup: {}, ...this.edit.event };
       delete r.id;
+      delete r.eventSeries;
+      delete r.activities;
       if (this.eventGroup) r.eventGroup.id = this.eventGroup.id;
       return r;
     },
   },
+  watch: {
+    '$route.name': function () {
+      this.reload()
+    }
+  }
 };
 </script>
 
-<style>
-
-</style>
+<style></style>

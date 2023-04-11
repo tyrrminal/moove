@@ -64,6 +64,13 @@ __PACKAGE__->table("EventType");
   is_nullable: 0
   size: 45
 
+=head2 is_virtual
+
+  data_type: 'enum'
+  default_value: 'N'
+  extra: {list => ["Y","N"]}
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -83,6 +90,13 @@ __PACKAGE__->add_columns(
   },
   "description",
   { data_type => "varchar", is_nullable => 0, size => 45 },
+  "is_virtual",
+  {
+    data_type => "enum",
+    default_value => "N",
+    extra => { list => ["Y", "N"] },
+    is_nullable => 1,
+  },
 );
 
 =head1 PRIMARY KEY
@@ -145,10 +159,17 @@ __PACKAGE__->has_many(
 #>>>
 use v5.36;
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-09 12:32:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Uld73FDN8GEUDvZoz+5Uuw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-03-27 16:16:24
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:z7JfY31hXggg3xvk7RDk3g
+use Class::Method::Modifiers;
 
-
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
+around [qw(is_virtual)] => sub ($orig, $self, $value = undef) {
+  if (defined($value)) {
+    $value = $self->$orig($value ? 'Y' : 'N');
+  } else {
+    $value = $self->$orig();
+  }
+  return $value eq 'Y';
+};
 
 1;
