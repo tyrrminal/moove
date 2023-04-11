@@ -1138,7 +1138,7 @@ components:
         type: string
     SearchDuration:
       in: query
-      name: net_time
+      name: duration
       required: false
       schema:
         type: string
@@ -1146,7 +1146,7 @@ components:
       in: query
       name: pace
       required: false
-      schema: 
+      schema:
         type: string
     SearchSpeed:
       in: query
@@ -1633,7 +1633,7 @@ components:
           $ref: "#/components/schemas/ActivityType"
         description:
           type: string
-        virtual: 
+        virtual:
           type: boolean
     ExternalDataSource:
       type: object
