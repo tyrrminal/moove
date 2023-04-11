@@ -1,5 +1,5 @@
 <template>
-  <b-dropdown :variant="variant" right class="mr-1" small>
+  <b-dropdown :variant="variant" right class="mr-1" small :block="block">
     <template #button-content><b-icon v-if="isFiltered" icon="circle-fill" :scale="0.5" class="mr-1" />Activity
       Types</template>
     <ActivityTypeSelection v-model="activityTypes" :cols="4" />
@@ -18,6 +18,10 @@ export default {
     value: {
       type: Object,
       required: true
+    },
+    block: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
