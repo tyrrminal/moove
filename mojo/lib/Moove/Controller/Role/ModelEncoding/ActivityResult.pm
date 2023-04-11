@@ -19,13 +19,12 @@ sub encode_model_result ($self, $type, $entity) {
   if ($base->has_duration) {
     $r->{duration} = $self->encode_time($entity->duration);
   }
-  if ($base->has_speed) {
+  if ($base->has_speed || $base->has_pace) {
     $r->{netTime} = $self->encode_time($entity->net_time);
-    $r->{speed} =
-      $self->encode_value_with_units($entity->speed, $self->model('UnitOfMeasure')->find({abbreviation => 'mph'}));
-  }
-  if ($base->has_pace) {
-    $r->{netTime} = $self->encode_time($entity->net_time);
+    if (defined($entity->speed)) {
+      $r->{speed} =
+        $self->encode_value_with_units($entity->speed, $self->model('UnitOfMeasure')->find({abbreviation => 'mph'}));
+    }
     if (defined($entity->pace)) {
       $r->{pace} = $self->encode_value_with_units($self->encode_time($entity->pace),
         $self->model('UnitOfMeasure')->find({abbreviation => '/mi'}));
