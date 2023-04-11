@@ -65,7 +65,7 @@
         </b-link>
       </template>
     </b-table>
-    <DPagination v-if="page.length" :per-page="page.length" :current-page="page.current"
+    <DPagination v-if="page.length && total.results > 0" :per-page="page.length" :current-page="page.current"
       @update:currentPage="updateCurrentPage" @update:perPage="updatePerPage" :total-rows="total.rows"
       :total-results="total.results" />
   </div>
@@ -231,6 +231,4 @@ export default {
 }
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
