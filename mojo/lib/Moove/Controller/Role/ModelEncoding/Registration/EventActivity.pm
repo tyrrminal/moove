@@ -4,8 +4,19 @@ use v5.36;
 use Role::Tiny;
 
 use DateTime;
+use Mojo::Util qw(class_to_path);
 
 sub encode_model_eventactivity ($self, $entity) {
+  my $importable = defined($entity->event->external_identifier) && $entity->scheduled_start < DateTime->now();
+  my $fields = [];
+  if($importable) {
+    my $event          = $entity->event;
+    my $edc            = $event->external_data_source;
+    my $class          = $edc->import_class;
+    require(class_to_path($class));
+    $fields = $class->import_request_fields;
+  }
+
   return {
     id             => $entity->id,
     name           => $entity->name,
@@ -16,8 +27,9 @@ sub encode_model_eventactivity ($self, $entity) {
     distance       => $self->encode_model($entity->distance),
     results        => {
       url              => $entity->url,
-      importable       => defined($entity->event->external_identifier) && $entity->scheduled_start < DateTime->now(),
-      importCompletion => $self->get_task_progress($entity)
+      importable       => $importable,
+      importCompletion => $self->get_task_progress($entity),
+      fields           => $fields,
     }
   };
 }

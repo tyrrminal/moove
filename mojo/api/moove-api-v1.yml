@@ -489,7 +489,7 @@ paths:
       tags:
         - Event
     post:
-      summary: Import event results from a file or the web
+      summary: Import event results from the web
       x-mojo-to: EventActivity#import_results
       requestBody:
         description: The import data; imports from a web resource if not supplied
@@ -498,10 +498,11 @@ paths:
           application/json:
             schema:
               type: object
+              additionalProperties: false
               properties:
-                file:
-                  type: string
-                  format: binary
+                importFields:
+                  type: object
+                  additionalProperties: true
       responses:
         200:
           description: Imported
@@ -1496,6 +1497,7 @@ components:
           nullable: true
         results:
           type: object
+          additionalProperties: false
           properties:
             url:
               type: string
@@ -1506,6 +1508,10 @@ components:
             importCompletion:
               type: number
               nullable: true
+            fields:
+              type: array
+              items:
+                type: string
         event:
           $ref: "#/components/schemas/Event"
         eventType:

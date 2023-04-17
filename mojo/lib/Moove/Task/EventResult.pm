@@ -6,17 +6,18 @@ use Mojo::Util qw(class_to_path);
 
 use DCS::Constants qw(:symbols);
 
+use Data::Printer;
 sub register ($self, $app, $args) {
   $app->minion->add_task(
-    import_event_results => sub ($job, $event_activity_id) {
+    import_event_results => sub ($job, $event_activity_id, $import_fields) {
       $job->note(progress => 0);
       my $event_activity = $job->app->model('EventActivity')->find($event_activity_id);
       my $event          = $event_activity->event;
       my $edc            = $event->external_data_source;
       my $class          = $edc->import_class;
       require(class_to_path($class));
-      my $importer = $class->new(event_id => $event->external_identifier, race_id => $event_activity->external_identifier);
-
+      my $importer = $class->new(event_id => $event->external_identifier, race_id => $event_activity->external_identifier, import_fields => $import_fields);
+      
       # BEGIN LRP
       my @participants = $importer->results->@*;
       $job->note(progress => $job->info->{notes}->{progress} + 25);

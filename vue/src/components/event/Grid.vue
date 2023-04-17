@@ -131,6 +131,8 @@
         fillUnits(data.item.eventActivity.distance) | formatDistanceTrim
       }}</template>
 
+      <template v-slot:cell(entrants)="data"><span v-if="data.item.placements && data.item.placements.overall">{{
+        data.item.placements.overall.of }}</span></template>
       <template v-slot:cell(place)="data"><span v-if="data.item.placements && data.item.placements.overall">{{
         data.item.placements.overall.place
       }}<span v-if="data.item.placements.overall.of" class="placement-partition-size">
@@ -267,6 +269,11 @@ export default {
               this.getUnitOfMeasure(br.unitOfMeasureID)
             );
       }
+      if (key == "entrants") {
+        t = "num";
+        a = a.placements.overall.of;
+        b = b.placements.overall.of;
+      }
       var m;
       if ((m = key.match(/(place|pct)(Division|Gender)?/))) {
         t = "num";
@@ -295,13 +302,12 @@ export default {
       return a - b;
     },
     eventVelocity: function (e) {
-      if (Object.hasOwn(e, "eventResult")) {
-        return e.eventResult.pace || e.eventResult.speed;
-      }
-      if (Object.hasOwn(e, "activity")) {
-        return e.activity.pace || e.activity.speed;
-      }
-      return null;
+      let values = [];
+      ["eventResult", "activity"].filter(k => Object.hasOwn(e, k)).splice(0, 1).forEach(k => {
+        values.push(...[e[k].pace, e[k].speed].filter(x => !!x))
+      });
+      if (this.$store.getters["meta/getActivityType"](e.activity.activityTypeID).hasSpeed) values.reverse();
+      return values[0];
     },
     getResultsGroup: function (results, partitionType) {
       let g = results[partitionType];
@@ -370,8 +376,9 @@ export default {
         { key: "distance", sortable: true },
         { key: "speed", sortable: true, predicate: () => this.events.map(e => e.activity).reduce((c, a) => c && a, true) && this.showSpeed },
         { key: "registrationFee", label: "Fee", sortable: true, predicate: () => this.showFees },
+        { key: 'entrants', sortable: true, label: "Field", predicate: () => this.showResults },
         { key: "place", sortable: true, label: "Place", predicate: () => this.showResults },
-        { key: "pct", sortable: true, label: "%", predicate: () => this.vshowResults },
+        { key: "pct", sortable: true, label: "%", predicate: () => this.showResults },
         { key: "placeGender", sortable: true, label: "Place", predicate: () => this.showResults },
         { key: "pctGender", sortable: true, label: "%", predicate: () => this.showResults },
         { key: "placeDivision", sortable: true, label: "Place", predicate: () => this.showResults },

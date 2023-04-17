@@ -93,8 +93,7 @@
           </b-col>
 
           <b-col v-if="eventResult" cols="4">
-            <ActivityCard :activity="eventResultActivity" :linkToActivity="false" :editable="false"
-              title="Event Result" />
+            <ActivityCard :activity="eventResult" :linkToActivity="false" :editable="false" title="Event Result" />
           </b-col>
 
           <b-col>
@@ -106,10 +105,9 @@
                 </b-progress>
               </template>
               <template v-else>
-                <b-button v-if="hasResults" block variant="warning" @click="reimportResults" size="sm">
-                  <b-icon icon="arrow-repeat" class="mr-2" />Re-import
-                  Results</b-button>
-                <b-button v-else block variant="success" @click="importResults">
+                <b-button v-if="hasResults" block variant="warning" v-b-modal.importResults size="sm">
+                  <b-icon icon="arrow-repeat" class="mr-2" />Re-import Results</b-button>
+                <b-button v-else block variant="success" v-b-modal.importResults>
                   <b-icon icon="upload" class="mr-1" />Import Results</b-button>
               </template>
             </div>
@@ -203,6 +201,28 @@
         <template #foot()><span></span></template>
       </b-table>
     </b-modal>
+
+    <b-modal id="importResults" body-class="mx-0 px-0 mb-0 pb-0" hide-footer>
+      <template #modal-title>
+        <span v-if="hasResults">Re-import Results</span>
+        <span v-else>Import Results</span>
+      </template>
+      <b-form @submit.prevent="importResults" name="results-import-data-form">
+        <div class="mx-4">
+          <b-alert v-if="hasResults" show variant="warning">All existing results will be deleted prior to re-importing
+            data.</b-alert>
+          <b-alert v-else show variant="secondary">Import event activity results</b-alert>
+          <b-form-group v-for="(f, i) in this.eventActivity.results.fields" :key="i" :label="f">
+            <b-input v-model="importFields[f]" :name="`${f}_${eventActivity.id}`" autocomplete="on" />
+          </b-form-group>
+        </div>
+        <footer class="modal-footer">
+          <b-button variant="secondary" @click="cancelImportResults">Cancel</b-button>
+          <b-button v-if="hasResults" variant="warning" type="submit">Re-import</b-button>
+          <b-button v-else variant="primary" type="submit">Import</b-button>
+        </footer>
+      </b-form>
+    </b-modal>
   </b-container>
 </template>
 
@@ -254,6 +274,8 @@ export default {
 
       person: null,
       donorFields: [{ key: "date" }, { key: "event" }, { key: "amount" }],
+
+      importFields: {}
     };
   },
   props: {
@@ -284,7 +306,7 @@ export default {
           if (self.userEventActivity.eventResult)
             self.eventResult = {
               ...self.userEventActivity.eventResult,
-              activityType: self.eventActivity.eventType.activityType,
+              activityTypeID: self.eventActivity.eventType.activityType.id,
             };
           else self.eventResult = null;
           delete self.userEventActivity.eventResult;
@@ -351,31 +373,24 @@ export default {
       if (i > 0) c.push("separated-progress");
       return c;
     },
+    cancelImportResults: function () {
+      this.$root.$emit('bv::hide::modal', 'importResults')
+    },
     importResults: function () {
+      this.$root.$emit('bv::hide::modal', 'importResults')
       let self = this;
+      if (this.hasResults) {
+        self.$nextTick(() => {
+          self.eventResult = null;
+          if (self.userEventActivity)
+            self.userEventActivity.placements = null;
+        });
+      }
       this.$http
-        .post(
-          ["events", "activities", this.eventActivity.id, "results"].join("/")
-        )
+        .post(["events", "activities", this.eventActivity.id, "results"].join("/"), { importFields: this.importFields })
         .then((resp) => {
           self.eventActivity.results.importCompletion = 1;
           self.checkImportStatus();
-        });
-    },
-    reimportResults: function () {
-      let self = this;
-      this.$bvModal
-        .msgBoxConfirm(
-          "All existing results will be deleted, before re-importing from the remote source. Proceed?"
-        )
-        .then((value) => {
-          if (!value) return;
-          self.$nextTick(() => {
-            self.eventResult = null;
-            if (self.userEventActivity)
-              self.userEventActivity.placements = null;
-          });
-          self.importResults();
         });
     },
     checkImportStatus: function () {
@@ -481,9 +496,6 @@ export default {
         [this.person.firstname, this.person.lastname].join(" "),
         base,
       ].join("'s ");
-    },
-    eventResultActivity: function () {
-      return this.eventResult;
     },
   },
 };
