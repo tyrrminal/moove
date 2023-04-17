@@ -286,7 +286,7 @@ export default {
             scheduledStart: [a.date, a.time].join("T"),
             name: a.name,
             eventType: { id: a.eventType.id },
-            distance: a.distance,
+            distance: { value: a.distance.value, unitOfMeasureID: a.distance.unitOfMeasureID },
             externalIdentifier: a.externalIdentifier,
           };
           promises.push(a.id == null ? this.$http.post(["events", resp.data.id, "activities"].join("/"), eaRecord) : this.$http.patch(["events", "activities", a.id].join("/"), eaRecord));

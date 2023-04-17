@@ -27,7 +27,7 @@ sub import_results ($self) {
   return unless ($self->openapi->valid_input);
 
   my $event_activity = $self->entity;
-  $self->app->minion->enqueue(import_event_results => [$event_activity->id]);
+  $self->app->minion->enqueue(import_event_results => [$event_activity->id, $self->req->json->{importFields}//{}]);
 
   return $self->render(openapi => $self->encode_model($event_activity->event));
 }

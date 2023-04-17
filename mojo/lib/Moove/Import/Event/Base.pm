@@ -1,4 +1,6 @@
 package Moove::Import::Event::Base;
+use v5.36;
+
 use Moose::Role;
 
 use builtin      qw(true);
@@ -19,5 +21,18 @@ has 'results' => (
     total_entrants => 'count'
   }
 );
+
+sub import_request_fields($class) { return [] }
+
+has '_import_fields' => (
+  is       => 'ro',
+  isa      => 'HashRef',
+  init_arg => 'import_fields',
+  default  => sub {{}}
+);
+
+sub import_fields ($self) {
+  return {map { $_ => $self->_import_fields->{$_} } $self->import_request_fields->@*}
+}
 
 1;
