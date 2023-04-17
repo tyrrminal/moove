@@ -131,6 +131,8 @@
         fillUnits(data.item.eventActivity.distance) | formatDistanceTrim
       }}</template>
 
+      <template v-slot:cell(entrants)="data"><span v-if="data.item.placements && data.item.placements.overall">{{
+        data.item.placements.overall.of }}</span></template>
       <template v-slot:cell(place)="data"><span v-if="data.item.placements && data.item.placements.overall">{{
         data.item.placements.overall.place
       }}<span v-if="data.item.placements.overall.of" class="placement-partition-size">
@@ -267,6 +269,11 @@ export default {
               this.getUnitOfMeasure(br.unitOfMeasureID)
             );
       }
+      if (key == "entrants") {
+        t = "num";
+        a = a.placements.overall.of;
+        b = b.placements.overall.of;
+      }
       var m;
       if ((m = key.match(/(place|pct)(Division|Gender)?/))) {
         t = "num";
@@ -370,6 +377,7 @@ export default {
         { key: "distance", sortable: true },
         { key: "speed", sortable: true, predicate: () => this.events.map(e => e.activity).reduce((c, a) => c && a, true) && this.showSpeed },
         { key: "registrationFee", label: "Fee", sortable: true, predicate: () => this.showFees },
+        { key: 'entrants', sortable: true, label: "Field", predicate: () => this.showResults },
         { key: "place", sortable: true, label: "Place", predicate: () => this.showResults },
         { key: "pct", sortable: true, label: "%", predicate: () => this.showResults },
         { key: "placeGender", sortable: true, label: "Place", predicate: () => this.showResults },
