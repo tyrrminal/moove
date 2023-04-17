@@ -68,7 +68,6 @@ has 'record_key_map' => (
   }
 );
 
-use Data::Printer;
 sub _build_results ($self) {
   my $page = 1;
   my $res  = $self->fetch_results($page);

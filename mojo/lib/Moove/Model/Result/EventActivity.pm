@@ -278,7 +278,7 @@ sub add_participant ($self, $p) {
 
   my $reg_no = $p->{bib_no};
   if ($reg_no =~ /\W/) {
-    print STDERR "Truncating $reg_no\n";
+    say STDERR "Truncating $reg_no";
     $reg_no =~ s/\W//g;
   }
 
