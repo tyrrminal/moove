@@ -93,8 +93,7 @@
           </b-col>
 
           <b-col v-if="eventResult" cols="4">
-            <ActivityCard :activity="eventResultActivity" :linkToActivity="false" :editable="false"
-              title="Event Result" />
+            <ActivityCard :activity="eventResult" :linkToActivity="false" :editable="false" title="Event Result" />
           </b-col>
 
           <b-col>
@@ -284,7 +283,7 @@ export default {
           if (self.userEventActivity.eventResult)
             self.eventResult = {
               ...self.userEventActivity.eventResult,
-              activityType: self.eventActivity.eventType.activityType,
+              activityTypeID: self.eventActivity.eventType.activityType.id,
             };
           else self.eventResult = null;
           delete self.userEventActivity.eventResult;
@@ -481,9 +480,6 @@ export default {
         [this.person.firstname, this.person.lastname].join(" "),
         base,
       ].join("'s ");
-    },
-    eventResultActivity: function () {
-      return this.eventResult;
     },
   },
 };
