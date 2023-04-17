@@ -302,13 +302,12 @@ export default {
       return a - b;
     },
     eventVelocity: function (e) {
-      if (Object.hasOwn(e, "eventResult")) {
-        return e.eventResult.pace || e.eventResult.speed;
-      }
-      if (Object.hasOwn(e, "activity")) {
-        return e.activity.pace || e.activity.speed;
-      }
-      return null;
+      let values = [];
+      ["eventResult", "activity"].filter(k => Object.hasOwn(e, k)).splice(0, 1).forEach(k => {
+        values.push(...[e[k].pace, e[k].speed].filter(x => !!x))
+      });
+      if (this.$store.getters["meta/getActivityType"](e.activity.activityTypeID).hasSpeed) values.reverse();
+      return values[0];
     },
     getResultsGroup: function (results, partitionType) {
       let g = results[partitionType];
