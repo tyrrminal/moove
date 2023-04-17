@@ -1497,6 +1497,7 @@ components:
           nullable: true
         results:
           type: object
+          additionalProperties: false
           properties:
             url:
               type: string
@@ -1507,6 +1508,10 @@ components:
             importCompletion:
               type: number
               nullable: true
+            fields:
+              type: array
+              items:
+                type: string
         event:
           $ref: "#/components/schemas/Event"
         eventType:
