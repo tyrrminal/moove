@@ -13,3 +13,4 @@ rename_event_series_column 2022-08-02T14:07:54Z root <root@47a4f036b1d4> # renam
 add_runsignup_external_data_source 2022-10-22T19:38:42Z root <root@f48a6e133dd4> # add RunSignup external data source
 add_bodyweight_context 2023-02-09T14:43:18Z root <root@e99c1c58dab5> # Add an activity context for body weight exercises and enforce non-null contexts on activity types
 add_virtual_event_types 2023-03-27T20:08:50Z root <root@4263e418f9aa> # add column to eventtype to mark virtual types
+add_rtrt_external_data_source 2023-04-15T21:00:16Z root <root@9e707f535c7c> # Add Real-Time Race Tracking entry to External Data Source
