@@ -371,7 +371,7 @@ export default {
         { key: "speed", sortable: true, predicate: () => this.events.map(e => e.activity).reduce((c, a) => c && a, true) && this.showSpeed },
         { key: "registrationFee", label: "Fee", sortable: true, predicate: () => this.showFees },
         { key: "place", sortable: true, label: "Place", predicate: () => this.showResults },
-        { key: "pct", sortable: true, label: "%", predicate: () => this.vshowResults },
+        { key: "pct", sortable: true, label: "%", predicate: () => this.showResults },
         { key: "placeGender", sortable: true, label: "Place", predicate: () => this.showResults },
         { key: "pctGender", sortable: true, label: "%", predicate: () => this.showResults },
         { key: "placeDivision", sortable: true, label: "Place", predicate: () => this.showResults },
