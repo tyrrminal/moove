@@ -364,8 +364,8 @@ export default {
       let baseFields = [
         { key: "year", sortable: false, predicate: () => this.eventYears.length > 1 && this.separateYear },
         { key: "date", sortable: true },
-        { key: "countdown", sortable: false, predicate: () => Math.min(...this.events.map(e => DateTime.fromISO(e.eventActivity.scheduledStart))) > DateTime.now() },
-        { key: "name", sortable: true },
+        { key: "countdown", sortable: false, tdClass: "text-right pr-3", thClass: "text-right", predicate: () => Math.min(...this.events.map(e => DateTime.fromISO(e.eventActivity.scheduledStart))) > DateTime.now() },
+        { key: "name", sortable: true, thClass: "text-center" },
         { key: "type", sortable: true },
         { key: "distance", sortable: true },
         { key: "speed", sortable: true, predicate: () => this.events.map(e => e.activity).reduce((c, a) => c && a, true) && this.showSpeed },
