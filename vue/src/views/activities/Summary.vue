@@ -56,7 +56,7 @@ export default {
       return DateTime.fromISO(this.present).plus({ weeks: 1 }).toISODate();
     },
     atMaxDate: function () {
-      return this.date == this.present
+      return this.date >= this.datepickerMax
     }
   },
   methods: {
@@ -91,8 +91,8 @@ export default {
       });
     },
     changeDate: function (by) {
-      let newDate = DateTime.fromISO(this.date).plus(by)
-      if (newDate <= DateTime.now())
+      let newDate = DateTime.fromISO(this.date).plus(by);
+      if (newDate <= DateTime.fromISO(this.datepickerMax))
         this.date = newDate.toISODate();
 
       this.loadMore();
@@ -102,7 +102,7 @@ export default {
     date: {
       handler: function (newVal) {
         let d = DateTime.fromISO(newVal);
-        if (d.toISODate() > this.present) this.date = this.present;
+        if (d.toISODate() > this.datepickerMax) this.date = this.datepickerMax;
         else if (d.weekday != 7) {
           d = d.startOf('week').minus({ days: 1 })
           this.date = d.toISODate();
@@ -114,6 +114,4 @@ export default {
 };
 </script>
 
-<style>
-
-</style>
+<style></style>
