@@ -10,7 +10,7 @@
               icon="chevron-left" /></b-button>
           <b-datepicker button-variant="outline-secondary" button-only v-model="date" size="sm" right today-button
             :max="datepickerMax" />
-          <b-button variant="outline-secondary" @click="changeDate({ weeks: 1 })" :disabled="atPresent"><b-icon
+          <b-button variant="outline-secondary" @click="changeDate({ weeks: 1 })" :disabled="atMaxDate"><b-icon
               icon="chevron-right" /></b-button>
         </b-button-group>
         <h4>Week of {{ date.toString() | luxon({ output: "date_med" }) }}</h4>
@@ -55,7 +55,7 @@ export default {
     datepickerMax: function () {
       return DateTime.fromISO(this.present).plus({ weeks: 1 }).minus({ days: 1 }).toISODate();
     },
-    atPresent: function () {
+    atMaxDate: function () {
       return this.date == this.present
     }
   },
