@@ -53,7 +53,7 @@ export default {
   },
   computed: {
     datepickerMax: function () {
-      return DateTime.fromISO(this.present).plus({ weeks: 1 }).minus({ days: 1 }).toISODate();
+      return DateTime.fromISO(this.present).plus({ weeks: 1 }).toISODate();
     },
     atMaxDate: function () {
       return this.date == this.present
