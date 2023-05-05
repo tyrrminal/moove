@@ -10,7 +10,7 @@
               icon="chevron-left" /></b-button>
           <b-datepicker button-variant="outline-secondary" button-only v-model="date" size="sm" right today-button
             :max="datepickerMax" />
-          <b-button variant="outline-secondary" @click="changeDate({ weeks: 1 })" :disabled="atPresent"><b-icon
+          <b-button variant="outline-secondary" @click="changeDate({ weeks: 1 })" :disabled="atMaxDate"><b-icon
               icon="chevron-right" /></b-button>
         </b-button-group>
         <h4>Week of {{ date.toString() | luxon({ output: "date_med" }) }}</h4>
@@ -53,10 +53,10 @@ export default {
   },
   computed: {
     datepickerMax: function () {
-      return DateTime.fromISO(this.present).plus({ weeks: 1 }).minus({ days: 1 }).toISODate();
+      return DateTime.fromISO(this.present).plus({ weeks: 1 }).toISODate();
     },
-    atPresent: function () {
-      return this.date == this.present
+    atMaxDate: function () {
+      return this.date >= this.datepickerMax
     }
   },
   methods: {
@@ -91,8 +91,8 @@ export default {
       });
     },
     changeDate: function (by) {
-      let newDate = DateTime.fromISO(this.date).plus(by)
-      if (newDate <= DateTime.now())
+      let newDate = DateTime.fromISO(this.date).plus(by);
+      if (newDate <= DateTime.fromISO(this.datepickerMax))
         this.date = newDate.toISODate();
 
       this.loadMore();
@@ -102,7 +102,7 @@ export default {
     date: {
       handler: function (newVal) {
         let d = DateTime.fromISO(newVal);
-        if (d.toISODate() > this.present) this.date = this.present;
+        if (d.toISODate() > this.datepickerMax) this.date = this.datepickerMax;
         else if (d.weekday != 7) {
           d = d.startOf('week').minus({ days: 1 })
           this.date = d.toISODate();
@@ -114,6 +114,4 @@ export default {
 };
 </script>
 
-<style>
-
-</style>
+<style></style>
