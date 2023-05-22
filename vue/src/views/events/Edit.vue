@@ -233,8 +233,10 @@ export default {
         if (this.eventActivity) {
           let dt = this.eventActivity.scheduledStart.split("T");
           let d = y + dt[0].slice(4)
+          let ea = this.eventActivity;
+          delete (ea.id)
           this.edit.eventActivities.push({
-            ...this.eventActivity,
+            ...ea,
             date: d,
             time: dt[1],
           });
