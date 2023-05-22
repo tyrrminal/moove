@@ -146,7 +146,7 @@ export default {
       this.userActivity.eventActivityID = this.eventActivityID;
       this.$http.get(["events", "activities", this.eventActivityID].join("/")).then(resp => {
         this.eventActivity = resp.data;
-        this.event = this.eventActivity.event;
+        this.$http.get(["events", this.eventActivity.event.id].join("/")).then(resp => this.event = resp.data)
         delete (this.eventActivity.event)
       })
     }

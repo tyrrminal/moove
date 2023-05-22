@@ -47,9 +47,8 @@
             </b-form-group>
             <b-form-group label="Address" label-cols="1">
               <b-input-group>
-                <b-input :disabled="true" :value="
-                  $options.filters.formatAddress(edit.event.address || {})
-                " />
+                <b-input :disabled="true" :value="$options.filters.formatAddress(edit.event.address || {})
+                  " />
                 <template #append>
                   <b-dropdown variant="outline-secondary">
                     <b-dropdown-item @click="makeNewAddress">Change</b-dropdown-item>
@@ -225,16 +224,20 @@ export default {
   methods: {
     reload: function () {
       if (this.isNew) {
+        const y = DateTime.now().year;
         this.edit = { event: { name: "" }, eventGroup: { name: "" }, eventActivities: [] }
         if (this.event) {
           this.edit.event = this.event;
-          this.edit.event.year = DateTime.now().year;
+          this.edit.event.year = y;
         }
         if (this.eventActivity) {
           let dt = this.eventActivity.scheduledStart.split("T");
+          let d = y + dt[0].slice(4)
+          let ea = this.eventActivity;
+          delete (ea.id)
           this.edit.eventActivities.push({
-            ...this.eventActivity,
-            date: dt[0],
+            ...ea,
+            date: d,
             time: dt[1],
           });
         }
@@ -270,13 +273,22 @@ export default {
     },
     addEventActivity: function () {
       let prev = this.edit.eventActivities.slice(-1).pop();
-      this.edit.eventActivities.push({
-        eventType: { id: prev.eventType.id },
-        name: null,
-        distance: { value: '', unitOfMeasureID: 1 },
-        date: prev.date,
-        time: prev.time,
-      })
+      if (prev)
+        this.edit.eventActivities.push({
+          eventType: { id: prev.eventType.id },
+          name: null,
+          distance: { value: '', unitOfMeasureID: 1 },
+          date: prev.date,
+          time: prev.time,
+        })
+      else
+        this.edit.eventActivities.push({
+          eventType: { id: null },
+          name: null,
+          distance: { value: '', unitOfMeasure: 1 },
+          date: null,
+          time: null
+        })
     },
     saveEvent: function () {
       (this.isNew ? this.$http.post("events", this.apiRecord) : this.$http.patch(["events", this.edit.event.id].join("/"), this.apiRecord)).then((resp) => {
