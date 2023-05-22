@@ -47,9 +47,8 @@
             </b-form-group>
             <b-form-group label="Address" label-cols="1">
               <b-input-group>
-                <b-input :disabled="true" :value="
-                  $options.filters.formatAddress(edit.event.address || {})
-                " />
+                <b-input :disabled="true" :value="$options.filters.formatAddress(edit.event.address || {})
+                  " />
                 <template #append>
                   <b-dropdown variant="outline-secondary">
                     <b-dropdown-item @click="makeNewAddress">Change</b-dropdown-item>
