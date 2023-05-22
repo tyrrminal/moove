@@ -273,13 +273,22 @@ export default {
     },
     addEventActivity: function () {
       let prev = this.edit.eventActivities.slice(-1).pop();
-      this.edit.eventActivities.push({
-        eventType: { id: prev.eventType.id },
-        name: null,
-        distance: { value: '', unitOfMeasureID: 1 },
-        date: prev.date,
-        time: prev.time,
-      })
+      if (prev)
+        this.edit.eventActivities.push({
+          eventType: { id: prev.eventType.id },
+          name: null,
+          distance: { value: '', unitOfMeasureID: 1 },
+          date: prev.date,
+          time: prev.time,
+        })
+      else
+        this.edit.eventActivities.push({
+          eventType: { id: null },
+          name: null,
+          distance: { value: '', unitOfMeasure: 1 },
+          date: null,
+          time: null
+        })
     },
     saveEvent: function () {
       (this.isNew ? this.$http.post("events", this.apiRecord) : this.$http.patch(["events", this.edit.event.id].join("/"), this.apiRecord)).then((resp) => {
