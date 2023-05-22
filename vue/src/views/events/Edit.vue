@@ -224,16 +224,18 @@ export default {
   methods: {
     reload: function () {
       if (this.isNew) {
+        const y = DateTime.now().year;
         this.edit = { event: { name: "" }, eventGroup: { name: "" }, eventActivities: [] }
         if (this.event) {
           this.edit.event = this.event;
-          this.edit.event.year = DateTime.now().year;
+          this.edit.event.year = y;
         }
         if (this.eventActivity) {
           let dt = this.eventActivity.scheduledStart.split("T");
+          let d = y + dt[0].slice(4)
           this.edit.eventActivities.push({
             ...this.eventActivity,
-            date: dt[0],
+            date: d,
             time: dt[1],
           });
         }
