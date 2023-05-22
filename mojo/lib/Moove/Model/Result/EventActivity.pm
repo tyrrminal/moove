@@ -254,9 +254,11 @@ sub description ($self) {
 sub url ($self) {
   my @urls = ($self->event->url);
   if (my $edc = $self->event->external_data_source) {
-    require(module_path($edc->import_class));
-    my $importer = $edc->import_class->new(event_id => $self->event->external_identifier, race_id => $self->external_identifier);
-    push(@urls, $importer->url);
+    if(defined($self->event->external_identifier)) {
+      require(module_path($edc->import_class));
+      my $importer = $edc->import_class->new(event_id => $self->event->external_identifier, race_id => $self->external_identifier);
+      push(@urls, $importer->url);
+    }
   }
   @urls = grep {defined} @urls;
   return $urls[0];
