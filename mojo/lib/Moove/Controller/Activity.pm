@@ -217,6 +217,7 @@ sub update_record ($self, $entity, $data) {
 
 sub delete_record ($self, $entity) {
   $entity->activities->update({whole_activity_id => undef});
+  $entity->user_event_activities->update({activity_id => undef});
   return $self->SUPER::delete_record($entity);
 }
 
