@@ -8,11 +8,11 @@
       </b-card-header>
 
       <b-card-body>
-        <b-form-radio-group buttons button-variant="outline-primary" class="mb-2" :options="view.options"
-          v-model="view.type" />
+        <b-form-radio-group buttons button-variant="outline-primary" class="mb-2" :options="viewOptions"
+          v-model="viewType" />
 
         <h4>Events</h4>
-        <Grid v-if="group" :events="group.events" :viewType="view.type" />
+        <UngroupedList v-if="group" :events="group.events" :loaded="loaded" :gridOptions="gridOptions" />
       </b-card-body>
     </b-card>
   </b-container>
@@ -21,11 +21,11 @@
 <script>
 import Branding from "@/mixins/Branding.js";
 import Events from "@/mixins/events/API.js";
-import Grid from "@/components/event/Grid.vue";
+import UngroupedList from "@/components/event/UngroupedList.vue"
 
 export default {
   mixins: [Branding, Events],
-  components: { Grid },
+  components: { UngroupedList },
   metaInfo: function () {
     return {
       title: this.title,
@@ -33,15 +33,9 @@ export default {
   },
   data: function () {
     return {
+      loaded: false,
       group: null,
-      view: {
-        type: 0,
-        options: [
-          { text: "Performance", value: 0, disabled: false },
-          { text: "Results", value: 1, disabled: false },
-          { text: "Fundraising", value: 2, disabled: false },
-        ],
-      },
+      viewType: 'registration',
     };
   },
   props: {
@@ -61,6 +55,7 @@ export default {
       this.$http
         .get(["user", "events", "groups", this.id].join("/"))
         .then((resp) => {
+          this.loaded = true;
           this.group = resp.data;
           this.group.events = this.group.events.map((x) =>
             this.processEventPlacements(x)
@@ -75,10 +70,29 @@ export default {
           }`;
       else return this.applicationName;
     },
+    viewOptions: function () {
+      return [
+        { text: "Performance", value: 'registration' },
+        { text: "Results", value: 'results', disabled: !this.hasAnyResults },
+        { text: "Fundraising", value: 'fundraising', disabled: !this.hasAnyFundraising },
+      ]
+    },
+    hasAnyResults: function () {
+      return this.group.events.some(e => Object.hasOwn(e, "eventResult"))
+    },
+    hasAnyFundraising: function () {
+      return this.group.events.some(e => Object.hasOwn(e, "fundraising"))
+    },
+    gridOptions: function () {
+      return {
+        showFees: this.viewType == 'registration' || this.viewType == 'fundraising',
+        showSpeed: this.viewType == 'registration' || this.viewType == 'results',
+        showResults: this.viewType == 'results',
+        showFundraising: this.viewType == 'fundraising',
+      }
+    },
   },
 };
 </script>
 
-<style>
-
-</style>
+<style></style>
