@@ -74,7 +74,7 @@ sub _build_results ($self) {
         my %record;
         my @values = map {_trim($_->text)} @{$_->find('.runnersearch-cell > a')->to_array()};
         @record{@col_map} = @values;
-        _fix_name(\%record);
+        $self->split_names(\%record);
         normalize_times(\%record);
         _fix_address(\%record);
         _fix_place(\%record);
@@ -96,32 +96,6 @@ sub _trim ($str) {
   $str =~ s/^\s*//;
   $str =~ s/\s*$//;
   return $str;
-}
-
-sub _fix_name ($v) {
-  my @prefixes = qw(del St St. Van De Von O);
-  my @suffixes = qw(Jr Jr. Sr Sr. II II. III IV V);
-  my $s;
-  foreach (@suffixes) {
-    if ($v->{name} =~ /\s+\Q$_\E\s*$/i) {
-      $v->{name} =~ s/,?\s+\Q$_\E\s*$//i;
-      $s = $_;
-      last;
-    }
-  }
-  my @parts = split(/\s+/, delete($v->{name}));
-  $v->{last_name} = pop(@parts);
-  foreach (@prefixes) {
-    if (@parts > 1 && $parts[-1] eq $_) {
-      $v->{last_name} = join($SPACE, pop(@parts), $v->{last_name});
-      last;
-    }
-  }
-  $v->{first_name} = join($SPACE, @parts) || undef;
-  $v->{first_name} .= $SPACE . $s if (defined($v->{first_name}) && defined($s));
-
-  $v->{first_name} = $DEFAULT_FIRST_NAME unless (defined($v->{first_name}));
-  $v->{last_name}  = $DEFAULT_LAST_NAME  unless (defined($v->{last_name}));
 }
 
 sub _fix_address ($v) {
