@@ -142,20 +142,18 @@
         data.item.placements.gender.place
       }}<span v-if="data.item.placements.gender.of" class="placement-partition-size">
             / {{ data.item.placements.gender.of }}</span></span></template>
-      <template v-slot:cell(pctGender)="data"><span v-if="
-        data.item.placements &&
+      <template v-slot:cell(pctGender)="data"><span v-if="data.item.placements &&
         data.item.placements.gender &&
         data.item.placements.gender.percentile != null
-      ">{{ data.item.placements.gender.percentile | percent(1) }}</span></template>
+        ">{{ data.item.placements.gender.percentile | percent(1) }}</span></template>
       <template v-slot:cell(placeDivision)="data"><span v-if="data.item.placements && data.item.placements.division">{{
         data.item.placements.division.place
       }}<span v-if="data.item.placements.division.of" class="placement-partition-size">
             / {{ data.item.placements.division.of }}</span></span></template>
-      <template v-slot:cell(pctDivision)="data"><span v-if="
-        data.item.placements &&
+      <template v-slot:cell(pctDivision)="data"><span v-if="data.item.placements &&
         data.item.placements.division &&
         data.item.placements.division.percentile != null
-      ">{{ data.item.placements.division.percentile | percent(1) }}</span></template>
+        ">{{ data.item.placements.division.percentile | percent(1) }}</span></template>
 
       <template v-slot:cell(frMinimum)="data"><span v-if="data.item.fundraising">{{
         data.item.fundraising.minimum | currency
