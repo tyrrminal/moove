@@ -358,32 +358,33 @@ export default {
       return [...new Set(this.events.map(e => DateTime.fromISO(e.eventActivity.scheduledStart).year))]
     },
     fields: function () {
+      let self = this;
       let baseFields = [
-        { key: "year", sortable: false, predicate: () => this.eventYears.length > 1 && this.separateYear },
+        { key: "year", sortable: false, predicate: () => self.eventYears.length > 1 && self.separateYear },
         { key: "date", sortable: true },
-        { key: "countdown", sortable: false, tdClass: "text-right pr-3", thClass: "text-right", predicate: () => Math.min(...this.events.map(e => DateTime.fromISO(e.eventActivity.scheduledStart))) > DateTime.now() },
+        { key: "countdown", sortable: false, tdClass: "text-right pr-3", thClass: "text-right", predicate: () => Math.min(...self.events.map(e => DateTime.fromISO(e.eventActivity.scheduledStart))) > DateTime.now() },
         { key: "name", sortable: true, thClass: "text-center" },
         { key: "type", sortable: true },
         { key: "distance", sortable: true },
-        { key: "speed", sortable: true, predicate: () => this.events.map(e => e.activity).reduce((c, a) => c && a, true) && this.showSpeed },
-        { key: "registrationFee", label: "Fee", sortable: true, predicate: () => this.showFees },
-        { key: 'entrants', sortable: true, label: "Field", predicate: () => this.showResults },
-        { key: "place", sortable: true, label: "Place", predicate: () => this.showResults },
-        { key: "pct", sortable: true, label: "%", predicate: () => this.showResults },
-        { key: "placeGender", sortable: true, label: "Place", predicate: () => this.showResults },
-        { key: "pctGender", sortable: true, label: "%", predicate: () => this.showResults },
-        { key: "placeDivision", sortable: true, label: "Place", predicate: () => this.showResults },
-        { key: "pctDivision", sortable: true, label: "%", predicate: () => this.showResults },
+        { key: "speed", sortable: true, predicate: () => self.events.some(e => !!e.activity) && self.showSpeed },
+        { key: "registrationFee", label: "Fee", sortable: true, predicate: () => self.showFees },
+        { key: 'entrants', sortable: true, label: "Field", predicate: () => self.showResults },
+        { key: "place", sortable: true, label: "Place", predicate: () => self.showResults },
+        { key: "pct", sortable: true, label: "%", predicate: () => self.showResults },
+        { key: "placeGender", sortable: true, label: "Place", predicate: () => self.showResults },
+        { key: "pctGender", sortable: true, label: "%", predicate: () => self.showResults },
+        { key: "placeDivision", sortable: true, label: "Place", predicate: () => self.showResults },
+        { key: "pctDivision", sortable: true, label: "%", predicate: () => self.showResults },
         {
-          key: "frMinimum", sortable: true, label: "Minimum", predicate: () => this.showFundraising,
+          key: "frMinimum", sortable: true, label: "Minimum", predicate: () => self.showFundraising,
           tdClass: "text-right pr-2", thClass: "ncol",
         },
         {
-          key: "frReceived", sortable: true, label: "Recieved", predicate: () => this.showFundraising,
+          key: "frReceived", sortable: true, label: "Recieved", predicate: () => self.showFundraising,
           tdClass: "text-right pr-2", thClass: "ncol",
         },
         {
-          key: "frPct", sortable: true, label: "%", predicate: () => this.showFundraising,
+          key: "frPct", sortable: true, label: "%", predicate: () => self.showFundraising,
           tdClass: "text-right pr-2", thClass: "ncol",
         },
       ];
