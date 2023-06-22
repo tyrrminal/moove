@@ -3,9 +3,8 @@
     <b-card no-body class="mt-3 mb-3">
       <b-card-header>
         <b-button-group class="float-right">
-          <b-button v-for="n in navLinks" :key="n.id" variant="outline-secondary" :disabled="nav[n.id] == null" :to="
-            nav[n.id] ? { to: 'event', params: { id: nav[n.id].id } } : null
-          " :title="nav[n.id] ? nav[n.id].name : ''">
+          <b-button v-for="n in navLinks" :key="n.id" variant="outline-secondary" :disabled="nav[n.id] == null" :to="nav[n.id] ? { to: 'event', params: { id: nav[n.id].id } } : null
+            " :title="nav[n.id] ? nav[n.id].name : ''">
             <b-icon :icon="n.icon" />
           </b-button>
         </b-button-group>
@@ -45,11 +44,10 @@
                   :create-event-params="{ event, eventGroup, eventActivity }" />
               </b-form-group>
             </b-jumbotron>
-            <b-jumbotron class="py-2 event-details" border-variant="info" v-if="
-              userEventActivity.dateRegistered ||
+            <b-jumbotron class="py-2 event-details" border-variant="info" v-if="userEventActivity.dateRegistered ||
               Number.parseFloat(userEventActivity.registrationFee) ||
               userEventActivity.registrationNumber
-            ">
+              ">
               <b-button variant="primary" :to="{ name: 'registration-edit', params: { id: userEventActivity.id } }"
                 size="sm" class="float-right">Edit</b-button>
               <b-form-group label="Registered On" v-if="userEventActivity.dateRegistered">
