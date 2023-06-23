@@ -332,31 +332,92 @@ export default {
     showFooter: function () {
       return this.events.length > 1;
     },
-    eventDistance: function () {
-      let activities = this.events.map((e) => e.activity ?? e.eventActivity);
-      let v = activities.reduce(
-        (a, c) =>
-          a +
-          convertUnitValue(
-            c.distance.value,
-            this.getUnitOfMeasure(c.distance.unitOfMeasureID)
-          ),
-        0
-      );
-      return {
-        value: v,
+    eventYears: function () {
+      return [...new Set(this.events.map(e => DateTime.fromISO(e.eventActivity.scheduledStart).year))]
+    },
+    personalRecords: function () {
+      let events = this.events;
+      let pr = {};
+      pr.place = Math.min(
+        ...events
+          .filter((e) => e.placements)
+          .map((e) => e.placements.overall.place)
+          .filter((p) => p != null));
+      pr.pct = Math.max(
+        ...events
+          .filter((e) => e.placements)
+          .map((e) => e.placements.overall.percentile));
+      pr.placeGender = Math.min(
+        ...events
+          .filter((e) => e.placements && e.placements.gender)
+          .map((e) => e.placements.gender.place)
+          .filter((p) => p != null));
+      pr.pctGender = Math.max(
+        ...events
+          .filter((e) => e.placements && e.placements.gender)
+          .map((e) => e.placements.gender.percentile));
+      pr.placeDivision = Math.min(
+        ...events
+          .filter((e) => e.placements && e.placements.division)
+          .map((e) => e.placements.division.place)
+          .filter((p) => p != null))
+      pr.pctDivision = Math.max(
+        ...events
+          .filter((e) => e.placements && e.placements.division)
+          .map((e) => e.placements.division.percentile))
+      pr.registrationFee = Math.max(
+        ...events
+          .map((e) => e.registrationFee)
+      )
+      pr.frMinimum = Math.max(
+        ...events
+          .filter((e) => e.fundraising != null)
+          .map((e) => e.fundraising.minimum)
+      )
+      pr.frReceived = Math.max(
+        ...events
+          .filter((e) => e.fundraising != null)
+          .map((e) => e.fundraising.received)
+      )
+      pr.frPct = Math.max(
+        ...events
+          .filter((e) => e.fundraising != null)
+          .map((e) => e.fundraising.received / e.fundraising.minimum)
+      )
+      return pr;
+    },
+    totals: function () {
+      let events = this.events;
+      let t = {};
+
+      t.distance = {
+        value: events.map((e) => e.eventActivity ?? e.activity)
+          .reduce((a, c) => a + convertUnitValue(c.distance.value, this.getUnitOfMeasure(c.distance.unitOfMeasureID)), 0),
         units: this.getUnitsOfMeasure.find(
           (u) => u.normalUnitID == null && u.type == "Distance"
         ),
-      };
+      }
+      t.registrationFee = events
+        .map((e) => e.registrationFee)
+        .reduce((a, c) => a + (c || 0), 0)
+      t.frMinimum = events
+        .filter((e) => e.fundraising != null)
+        .map((e) => e.fundraising.minimum)
+        .reduce((a, c) => a + c, 0)
+      t.frReceived = events
+        .filter((e) => e.fundraising != null)
+        .map((e) => e.fundraising.received)
+        .reduce((a, c) => a + c, 0);
+      return t;
     },
-    frPctAvg: function () {
-      let fr = this.events.filter((e) => e.fundraising != null);
-      return (
-        fr
-          .map((e) => e.fundraising.received / e.fundraising.minimum)
-          .reduce((a, c) => a + c, 0) / fr.length
-      );
+    averages: function () {
+      let events = this.events;
+      let avg = {};
+
+      let fr = events.filter((e) => e.fundraising != null);
+      avg.frPct = fr.map((e) => e.fundraising.received / e.fundraising.minimum).reduce((a, c) => a + c, 0) / fr.length;
+
+      return avg;
     },
     resultsFieldOffset: function () {
       return this.fields.findIndex(f => f.key == 'place');
