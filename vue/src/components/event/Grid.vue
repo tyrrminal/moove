@@ -26,82 +26,12 @@
       </template>
 
       <template #foot()><span></span></template>
-      <template #foot(date)><span v-if="showResults">Best</span>
-        <span v-else>Total</span></template>
-      <template #foot(registrationFee)>
-        {{
-          events.map((e) => e.registrationFee).reduce((a, c) => a + (c || 0), 0)
-          | currency
-        }}
-      </template>
-      <template #foot(distance)><span v-if="events.length">
-          {{ eventDistance | formatDistance }}
-        </span>
-      </template>
-      <template #foot(place)>{{
-        Math.min(
-          ...events
-            .filter((e) => e.placements)
-            .map((e) => e.placements.overall.place)
-            .filter((p) => p != null)
-        )
-      }}</template>
-      <template #foot(pct)>{{
-        Math.max(
-          ...events
-            .filter((e) => e.placements)
-            .map((e) => e.placements.overall.percentile)
-        ) | percent(1)
-      }}</template>
-      <template #foot(placeGender)>{{
-        Math.min(
-          ...events
-            .filter((e) => e.placements && e.placements.gender)
-            .map((e) => e.placements.gender.place)
-            .filter((p) => p != null)
-        )
-      }}</template>
-      <template #foot(pctGender)>{{
-        Math.max(
-          ...events
-            .filter((e) => e.placements && e.placements.gender)
-            .map((e) => e.placements.gender.percentile)
-        ) | percent(1)
-      }}</template>
-      <template #foot(placeDivision)>{{
-        Math.min(
-          ...events
-            .filter((e) => e.placements && e.placements.division)
-            .map((e) => e.placements.division.place)
-            .filter((p) => p != null)
-        )
-      }}</template>
-      <template #foot(pctDivision)>{{
-        Math.max(
-          ...events
-            .filter((e) => e.placements && e.placements.division)
-            .map((e) => e.placements.division.percentile)
-        ) | percent(1)
-      }}</template>
-      <template #foot(frMinimum)>
-        {{
-          events
-            .filter((e) => e.fundraising != null)
-            .map((e) => e.fundraising.minimum)
-            .reduce((a, c) => a + c, 0) | currency
-        }}
-      </template>
-      <template #foot(frReceived)>
-        {{
-          events
-            .filter((e) => e.fundraising != null)
-            .map((e) => e.fundraising.received)
-            .reduce((a, c) => a + c, 0) | currency
-        }}
-      </template>
-      <template #foot(frPct)>
-        {{ frPctAvg | percent(1) }}
-      </template>
+      <template #foot(date)>Total</template>
+      <template #foot(registrationFee)>{{ totals.registrationFee | currency }}</template>
+      <template #foot(distance)><span v-if="events.length">{{ totals.distance | formatDistance }}</span></template>
+      <template #foot(frMinimum)>{{ totals.frMinimum | currency }}</template>
+      <template #foot(frReceived)>{{ totals.frReceived | currency }}</template>
+      <template #foot(frPct)>{{ averages.frPct | percent(1) }}</template>
 
       <template v-slot:cell(index)="data">{{ data.index + 1 }}</template>
       <template #cell(year)="data">{{ data.item.eventActivity.scheduledStart.substr(0, 4) }}</template>
