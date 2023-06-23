@@ -71,13 +71,14 @@ sub url ($self) {
 
 sub _build_results ($self) {
   my ($event_id, $key) = split(/\|/, $self->event_id);
+  my ($race_id, $contest_id) = (split(/\|/, $self->race_id),0);
 
   my $url = Mojo::URL->new(sprintf($results_url, $event_id));
   $url->query(
     key => $key,
     listname => 'Result Lists|Overall Results',
     page => 'results',
-    contest => 0,
+    contest => $contest_id,
     r => 'all',
     l => 0
   );
@@ -92,10 +93,7 @@ sub _build_results ($self) {
 
   my $contest_key;
   foreach (keys($res->json->{data}->%*)) {
-    my $race_id = $self->race_id;
-    if(/^#\d+_$race_id$/) {
-      $contest_key = $_;
-    }
+    $contest_key = $_ and last if(/^#\d+_$race_id$/);
   }
   die("Race contest not found") unless($contest_key);
 
