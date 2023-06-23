@@ -139,8 +139,12 @@ sub _post_fix_city_state($self, $p) {
 
 sub _post_fix_div_place($self, $p) {
   return unless (defined($p->{div_place}));
-  if($p->{div_place} eq 'Age Group Champ' || $p->{div_place} eq '1st Overall') {
+  if($p->{div_place} eq 'Age Group Champ') {
     $p->{div_place} = 1;
+    return;
+  }
+  if($p->{div_place} =~ /^(\d+)\w+ Overall$/) {
+    $p->{div_place} = $1;
     return;
   }
   my ($place, $count) = split('/', $p->{div_place});
