@@ -50,51 +50,58 @@
           params: { id: data.item.id },
         }" class="text-muted">{{ data.item.eventActivity.event.name }}</b-link>
       </template>
-      <template v-slot:cell(registrationFee)="data">
-        {{ data.value | currency }}
-      </template>
-      <template v-slot:cell(speed)="data">{{ fillUnits(eventVelocity(data.item)) | formatDistance }}
-      </template>
-      <template v-slot:cell(distance)="data">{{
-        fillUnits(data.item.eventActivity.distance) | formatDistanceTrim
+      <template v-slot:cell(registrationFee)="data"><span
+          :class="prHighlightClass(data.value, 'registrationFee', 'text-danger')">{{ data.value | currency
+          }}</span></template>
+      <template v-slot:cell(speed)="data">{{ fillUnits(eventVelocity(data.item)) | formatDistance }}</template>
+      <template v-slot:cell(distance)="data">{{ fillUnits(data.item.eventActivity.distance) | formatDistanceTrim
       }}</template>
 
       <template v-slot:cell(entrants)="data"><span v-if="data.item.placements && data.item.placements.overall">{{
         data.item.placements.overall.of }}</span></template>
-      <template v-slot:cell(place)="data"><span v-if="data.item.placements && data.item.placements.overall">{{
-        data.item.placements.overall.place
-      }}<span v-if="data.item.placements.overall.of" class="placement-partition-size">
+      <template v-slot:cell(place)="data"><span v-if="data.item.placements && data.item.placements.overall">
+          <span :class="prHighlightClass(data.item.placements.overall.place, 'place')">{{
+            data.item.placements.overall.place }} </span>
+          <span v-if="data.item.placements.overall.of" class="placement-partition-size">
             / {{ data.item.placements.overall.of }}</span></span></template>
-      <template v-slot:cell(pct)="data"><span v-if="data.item.placements && data.item.placements.overall">{{
-        data.item.placements.overall.percentile | percent(1)
-      }}</span></template>
-      <template v-slot:cell(placeGender)="data"><span v-if="data.item.placements && data.item.placements.gender">{{
-        data.item.placements.gender.place
-      }}<span v-if="data.item.placements.gender.of" class="placement-partition-size">
+      <template v-slot:cell(pct)="data"><span v-if="data.item.placements && data.item.placements.overall"
+          :class="prHighlightClass(data.item.placements.overall.percentile, 'pct')">{{
+            data.item.placements.overall.percentile | percent(1)
+          }}</span></template>
+      <template v-slot:cell(placeGender)="data"><span v-if="data.item.placements && data.item.placements.gender">
+          <span :class="prHighlightClass(data.item.placements.gender.place, 'placeGender')">{{
+            data.item.placements.gender.place }}</span>
+          <span v-if="data.item.placements.gender.of" class="placement-partition-size">
             / {{ data.item.placements.gender.of }}</span></span></template>
       <template v-slot:cell(pctGender)="data"><span v-if="data.item.placements &&
         data.item.placements.gender &&
         data.item.placements.gender.percentile != null
-        ">{{ data.item.placements.gender.percentile | percent(1) }}</span></template>
-      <template v-slot:cell(placeDivision)="data"><span v-if="data.item.placements && data.item.placements.division">{{
-        data.item.placements.division.place
-      }}<span v-if="data.item.placements.division.of" class="placement-partition-size">
+        " :class="prHighlightClass(data.item.placements.gender.percentile, 'pctGender')">{{
+    data.item.placements.gender.percentile | percent(1) }}</span></template>
+      <template v-slot:cell(placeDivision)="data"><span v-if="data.item.placements && data.item.placements.division">
+          <span :class="prHighlightClass(data.item.placements.division.place, 'placeDivision')">{{
+            data.item.placements.division.place }}</span>
+          <span v-if="data.item.placements.division.of" class="placement-partition-size">
             / {{ data.item.placements.division.of }}</span></span></template>
       <template v-slot:cell(pctDivision)="data"><span v-if="data.item.placements &&
         data.item.placements.division &&
         data.item.placements.division.percentile != null
-        ">{{ data.item.placements.division.percentile | percent(1) }}</span></template>
+        " :class="prHighlightClass(data.item.placements.division.percentile, 'pctDivision')">{{
+    data.item.placements.division.percentile | percent(1) }}</span></template>
 
-      <template v-slot:cell(frMinimum)="data"><span v-if="data.item.fundraising">{{
-        data.item.fundraising.minimum | currency
-      }}</span></template>
-      <template v-slot:cell(frReceived)="data"><span v-if="data.item.fundraising">{{
-        data.item.fundraising.received | currency
-      }}</span></template>
-      <template v-slot:cell(frPct)="data"><span v-if="data.item.fundraising">{{
-        (data.item.fundraising.received / data.item.fundraising.minimum)
-        | percent(1)
-      }}</span></template>
+      <template v-slot:cell(frMinimum)="data"><span v-if="data.item.fundraising"
+          :class="prHighlightClass(data.item.fundraising.minimum, 'frMinimum')">{{
+            data.item.fundraising.minimum | currency
+          }}</span></template>
+      <template v-slot:cell(frReceived)="data"><span v-if="data.item.fundraising"
+          :class="prHighlightClass(data.item.fundraising.received, 'frReceived')">{{
+            data.item.fundraising.received | currency
+          }}</span></template>
+      <template v-slot:cell(frPct)="data"><span v-if="data.item.fundraising"
+          :class="prHighlightClass(data.item.fundraising.received / data.item.fundraising.minimum, 'frPct')">{{
+            (data.item.fundraising.received / data.item.fundraising.minimum)
+            | percent(1)
+          }}</span></template>
     </b-table>
   </div>
 </template>
@@ -255,6 +262,10 @@ export default {
       if (item != null && item.visibilityTypeID == 1) r.push('event-private')
       return r
     },
+    prHighlightClass: function (v, label, variant = 'text-success') {
+      if (v == this.personalRecords[label]) return ["font-weight-bold", variant];
+      return [];
+    }
   },
   computed: {
     ...mapGetters("meta", ["getUnitOfMeasure", "getUnitsOfMeasure"]),
