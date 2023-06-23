@@ -16,7 +16,7 @@
 
       <template v-slot:thead-top="data" v-if="showResults">
         <b-tr :title="data">
-          <b-th colspan="5">
+          <b-th :colspan="resultsFieldOffset">
             <span class="sr-only">Default Fields</span>
           </b-th>
           <b-th colspan="2" class="text-center">Overall</b-th>
@@ -358,8 +358,8 @@ export default {
           .reduce((a, c) => a + c, 0) / fr.length
       );
     },
-    eventYears: function () {
-      return [...new Set(this.events.map(e => DateTime.fromISO(e.eventActivity.scheduledStart).year))]
+    resultsFieldOffset: function () {
+      return this.fields.findIndex(f => f.key == 'place');
     },
     fields: function () {
       let self = this;
