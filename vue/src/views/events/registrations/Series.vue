@@ -1,20 +1,24 @@
 <template>
-  <b-container>
-    <b-card v-if="group" no-body class="mt-2">
-      <b-card-header>
-        <h3>
-          Event Series: <span v-if="group.year">{{ group.year }} </span>{{ group.name }}
-        </h3>
-      </b-card-header>
+  <b-container fluid>
+    <b-row>
+      <b-col offset="2">
+        <b-card v-if="group" no-body class="mt-2">
+          <b-card-header>
+            <h3>
+              Event Series: <span v-if="group.year">{{ group.year }} </span>{{ group.name }}
+            </h3>
+          </b-card-header>
 
-      <b-card-body>
-        <b-form-radio-group buttons button-variant="outline-primary" class="mb-2" :options="viewOptions"
-          v-model="viewType" />
+          <b-card-body>
+            <b-form-radio-group buttons button-variant="outline-primary" class="mb-2" :options="viewOptions"
+              v-model="viewType" />
 
-        <h4>Events</h4>
-        <UngroupedList v-if="group" :events="group.events" :loaded="loaded" :gridOptions="gridOptions" />
-      </b-card-body>
-    </b-card>
+            <h4>Events</h4>
+            <UngroupedList v-if="group" :events="group.events" :loaded="loaded" :gridOptions="gridOptions" />
+          </b-card-body>
+        </b-card>
+      </b-col>
+    </b-row>
   </b-container>
 </template>
 
