@@ -1,12 +1,12 @@
 <template>
   <div>
     <h4>Upcoming</h4>
-    <Grid :events="upcomingEvents">
+    <Grid :events="upcomingEvents" v-bind="gridOptions">
       <template #no-data><span v-show="loaded">No upcoming events</span></template>
     </Grid>
 
     <h4>Completed</h4>
-    <Grid v-for="y in eventYears" :key="'grid' + y" :label="y" :events="eventsByYear[y]" />
+    <Grid v-for="y in eventYears" :key="'grid' + y" :label="y" :events="eventsByYear[y]" v-bind="gridOptions" />
 
     <template v-if="incompleteEvents.length">
       <h4>DNS/DNF</h4>
@@ -69,4 +69,5 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+</style>
