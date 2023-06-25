@@ -54,7 +54,7 @@
           :class="prHighlightClass(data.value, 'registrationFee', 'text-danger')">{{ data.value | currency
           }}</span></template>
       <template v-slot:cell(speed)="data">{{ fillUnits(eventVelocity(data.item)) | formatDistance }}</template>
-      <template v-slot:cell(distance)="data">{{ fillUnits(data.item.eventActivity.distance) | formatDistanceTrim
+      <template v-slot:cell(distance)="data">{{ fillUnits(eventDistance(data.item)) | formatDistanceTrim
       }}</template>
 
       <template v-slot:cell(entrants)="data"><span v-if="data.item.placements && data.item.placements.overall">{{
@@ -152,6 +152,10 @@ export default {
     showFundraising: {
       type: Boolean,
       default: false
+    },
+    showActivityDistance: {
+      type: Boolean,
+      default: false
     }
   },
   methods: {
@@ -177,15 +181,15 @@ export default {
       }
       if (key == "distance") {
         t = "num";
-        let aa = a.eventActivity ?? a.activity;
+        let aa = this.eventDistance(a);
         a = convertUnitValue(
-          aa.distance.value,
-          this.getUnitOfMeasure(aa.distance.unitOfMeasureID)
+          aa.value,
+          this.getUnitOfMeasure(aa.unitOfMeasureID)
         );
-        let ba = b.eventActivity ?? b.activity;
+        let ba = this.eventDistance(b);
         b = convertUnitValue(
-          ba.distance.value,
-          this.getUnitOfMeasure(ba.distance.unitOfMeasureID)
+          ba.value,
+          this.getUnitOfMeasure(ba.unitOfMeasureID)
         );
       }
       if (key == "speed") {
@@ -238,6 +242,10 @@ export default {
       }
       if (t == "str") return a.localeCompare(b, locale, options);
       return a - b;
+    },
+    eventDistance: function (e) {
+      if (this.showActivityDistance && e.activity) return e.activity.distance
+      return (e.eventActivity ?? e.activity).distance
     },
     eventVelocity: function (e) {
       let values = [];
@@ -332,8 +340,8 @@ export default {
       let t = {};
 
       t.distance = {
-        value: events.map((e) => e.eventActivity ?? e.activity)
-          .reduce((a, c) => a + convertUnitValue(c.distance.value, this.getUnitOfMeasure(c.distance.unitOfMeasureID)), 0),
+        value: events.map((e) => this.eventDistance(e))
+          .reduce((a, c) => a + convertUnitValue(c.value, this.getUnitOfMeasure(c.unitOfMeasureID)), 0),
         units: this.getUnitsOfMeasure.find(
           (u) => u.normalUnitID == null && u.type == "Distance"
         ),
