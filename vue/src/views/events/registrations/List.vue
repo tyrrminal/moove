@@ -9,6 +9,7 @@
               <b-button :pressed.sync="nonprivate" variant="outline-secondary">Public</b-button>
               <b-button :pressed.sync="private" variant="outline-danger">Private</b-button>
             </b-button-group>
+            <b-checkbox class="mt-1" v-model="view.distanceType">Show Activity Distance</b-checkbox>
           </div>
           <b-skeleton-wrapper :loading="!loaded">
             <EventSummary :events="events" />
@@ -75,6 +76,7 @@ export default {
       },
       view: {
         type: 'registration',
+        distanceType: false,
         splitYears: true,
         options: [
           { text: "Registration", value: 'registration' },
@@ -123,6 +125,7 @@ export default {
         showSpeed: this.view.type == 'registration' || this.view.type == 'results',
         showResults: this.view.type == 'results',
         showFundraising: this.view.type == 'fundraising',
+        showActivityDistance: this.view.distanceType,
       }
     },
     title: function () {

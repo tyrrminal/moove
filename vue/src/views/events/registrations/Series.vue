@@ -10,6 +10,7 @@
           </b-card-header>
 
           <b-card-body>
+            <div class="float-right"><b-checkbox v-model="distanceType">Show actual distance</b-checkbox></div>
             <b-form-radio-group buttons button-variant="outline-primary" class="mb-2" :options="viewOptions"
               v-model="viewType" />
 
@@ -40,6 +41,7 @@ export default {
       loaded: false,
       group: null,
       viewType: 'registration',
+      distanceType: false,
     };
   },
   props: {
@@ -93,10 +95,12 @@ export default {
         showSpeed: this.viewType == 'registration' || this.viewType == 'results',
         showResults: this.viewType == 'results',
         showFundraising: this.viewType == 'fundraising',
+        showActivityDistance: this.distanceType,
       }
     },
   },
 };
 </script>
 
-<style></style>
+<style>
+</style>
