@@ -26,7 +26,6 @@ import Registrations from "@/views/events/registrations/Base.vue";
 import RegistrationList from "@/views/events/registrations/List.vue";
 import RegistrationDetail from "@/views/events/registrations/Detail.vue";
 import RegistrationEdit from "@/views/events/registrations/Edit.vue";
-import RegistrationSeries from "@/views/events/registrations/Series.vue";
 
 import ErrorNotFound from "@/error/NotFound.vue";
 
