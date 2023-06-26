@@ -1,5 +1,5 @@
 <template>
-  <b-list-group class="mt-3">
+  <b-list-group class="mt-2">
     <b-list-group-item>
       <label>Events</label>
       <div class="text-monospace">{{ events.length }} total</div>
