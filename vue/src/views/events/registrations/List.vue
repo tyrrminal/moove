@@ -9,12 +9,14 @@
               <b-button :pressed.sync="nonprivate" variant="outline-secondary">Public</b-button>
               <b-button :pressed.sync="private" variant="outline-danger">Private</b-button>
             </b-button-group>
-            <b-checkbox class="mt-1" v-model="view.distanceType">Show Activity Distance</b-checkbox>
+          </div>
+          <div class="bg-white mt-2 py-2 pl-3 rounded-lg rounded-top">
+            <b-checkbox v-model="view.distanceType">Show Activity Distance</b-checkbox>
           </div>
           <b-skeleton-wrapper :loading="!loaded">
             <EventSummary :events="events" />
             <template #loading>
-              <b-list-group class="mt-3 mb-4">
+              <b-list-group class="mt-2 mb-4">
                 <b-list-group-item v-for="(s, i) in [[90, 50], [55, 66], [70, 80]]" :key="i">
                   <b-skeleton :width="s[0] + '%'" />
                   <b-skeleton :width="s[1] + '%'" type="input" />
@@ -25,11 +27,13 @@
         </div>
       </b-col>
       <b-col cols="10" class="mt-2">
-        <div class="float-right">
-          <b-form-radio-group buttons button-variant="outline-primary" :options="view.options" v-model="view.type"
+        <div class="float-right" v-if="viewOptions.length > 1">
+          <b-form-radio-group buttons button-variant="outline-primary" :options="viewOptions" v-model="view.type"
             size="sm" />
         </div>
-        <h2 class="d-inline-block mr-2">Events </h2><b-spinner v-if="!loaded" variant="info" />
+        <h2 class="d-inline-block mr-2">{{ listTitle }} </h2><b-spinner v-if="!loaded" variant="info" /><b-select
+          v-else-if="eventActivityNames.length > 2 && eventGroupMode" :options="eventActivityNames"
+          v-model="eventActivityName" :style="{ width: '8rem' }" class="mb-2 ml-2" />
         <component :is="listView" :events="filteredEvents" :loaded="loaded" :gridOptions="gridOptions" />
       </b-col>
     </b-row>
@@ -68,6 +72,8 @@ export default {
         "order.by": "scheduledStart",
         "order.dir": "desc",
       },
+      listTitle: "Events",
+      eventActivityName: 'All',
       eventTypes: {},
       filters: {
         eventTypeID: null,
@@ -78,11 +84,6 @@ export default {
         type: 'registration',
         distanceType: false,
         splitYears: true,
-        options: [
-          { text: "Registration", value: 'registration' },
-          { text: "Results", value: 'results' },
-          { text: "Fundraising", value: 'fundraising' },
-        ],
       },
     };
   },
@@ -96,13 +97,21 @@ export default {
   },
   methods: {
     init: function () {
+      this.events = [];
+      this.loaded = false;
+      this.eventActivityName = 'All';
+      this.listTitle = "Events";
+      delete (this.params.eventGroupID);
+      this.view.splitYears = true;
+      if (this.eventGroupMode) {
+        this.params.eventGroupID = this.$route.params.id
+        this.view.splitYears = false
+      }
       this.loadEvents();
     },
     loadEvents: function (pageNum = 1) {
       let self = this;
-      let params = Object.prototype.hasOwnProperty.call(this, "params")
-        ? this.params
-        : {};
+      let params = this.params;
       self.$http
         .get(["user", "events"].join("/"), {
           params: { ...params, "page.number": pageNum },
@@ -115,10 +124,15 @@ export default {
             self.loadEvents(pageNum + 1);
           else
             self.loaded = true
+          if (self.eventGroupMode)
+            this.listTitle = self.events[0].eventActivity.event.eventGroup.name
         });
     },
   },
   computed: {
+    eventGroupMode: function () {
+      return this.$route.name == 'registration-series'
+    },
     gridOptions: function () {
       return {
         showFees: this.view.type == 'registration' || this.view.type == 'fundraising',
@@ -128,11 +142,25 @@ export default {
         showActivityDistance: this.view.distanceType,
       }
     },
+    viewOptions: function () {
+      let opt = [{ text: "Registration", value: 'registration' }];
+      if (this.events.some(e => !!e.placements))
+        opt.push({ text: "Results", value: 'results' });
+      if (this.events.some(e => !!e.fundraising))
+        opt.push({ text: "Fundraising", value: 'fundraising' })
+      return opt;
+    },
     title: function () {
-      return `${this.applicationName} / Events`;
+      return `${this.applicationName} / ${this.listTitle}`;
     },
     listView: function () {
       return this.view.splitYears && this.view.type == 'registration' ? YearGroupedList : UngroupedList;
+    },
+    eventActivityNames: function () {
+      let unique = function (value, index, array) {
+        return array.indexOf(value) === index;
+      }
+      return ["All", ...this.events.map(e => e.eventActivity ? e.eventActivity.name : null).filter(n => n != null).filter(unique)]
     },
     filteredEvents: function () {
       let events = this.events;
@@ -141,6 +169,7 @@ export default {
       if (this.view.type == 'fundraising') events = events.filter((e) => e.fundraising);
       if (this.filters.private === true) events = events.filter((e) => e.visibilityTypeID == 1)
       if (this.filters.private === false) events = events.filter((e) => e.visibilityTypeID > 1)
+      if (this.eventActivityName != 'All') events = events.filter((e) => e.eventActivity.name == this.eventActivityName)
 
       return events;
     },
@@ -161,6 +190,11 @@ export default {
       }
     }
   },
+  watch: {
+    '$route.name': function () {
+      this.init();
+    }
+  }
 };
 </script>
 
