@@ -582,6 +582,8 @@ paths:
         - $ref: "#/components/parameters/SearchActivityTypes"
         - $ref: "#/components/parameters/SearchUsername"
         - $ref: "#/components/parameters/SearchEventActivityID"
+
+        - $ref: "#/components/parameters/SearchEventGroupID"
       responses:
         200:
           description: OK
@@ -673,23 +675,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Fundraising"
-      tags:
-        - Event
-  /user/events/groups/{eventGroupID}:
-    parameters:
-      - $ref: "#/components/parameters/EventGroupID"
-    get:
-      summary: Get an event group and its registered events for the given user
-      x-mojo-to: EventGroup#get
-      parameters:
-        - $ref: "#/components/parameters/SearchUsername"
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/EventGroup"
       tags:
         - Event
   /goals:
@@ -995,11 +980,11 @@ components:
       required: false
       schema:
         $ref: "#/components/schemas/DatabaseID"
-    EventGroupID:
-      in: path
+    SearchEventGroupID:
+      in: query
       name: eventGroupID
       description: The ID number of the event
-      required: true
+      required: false
       schema:
         $ref: "#/components/schemas/DatabaseID"
     GoalID:
