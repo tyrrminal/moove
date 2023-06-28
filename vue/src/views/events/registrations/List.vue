@@ -37,7 +37,7 @@
         <component :is="listView" :events="filteredEvents" :loaded="loaded" :gridOptions="gridOptions" />
 
         <div v-if="eventGroupMode && loaded && filteredEvents.length > 1">
-          <ActivityChart :data="chartData" />
+          <component :is="chartType" :data="chartData" />
         </div>
       </b-col>
     </b-row>
@@ -141,6 +141,12 @@ export default {
   computed: {
     eventGroupMode: function () {
       return this.$route.name == 'registration-series'
+    },
+    chartType: function () {
+      switch (this.view.type) {
+        case 'registration': return 'ActivityChart';
+        case 'fundraising': return 'FundraisingChart';
+      }
     },
     gridOptions: function () {
       return {
