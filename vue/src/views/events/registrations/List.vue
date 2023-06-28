@@ -4,14 +4,17 @@
       <b-col cols="2" class="bg-sidebar min-vh-100">
         <div class="sticky-top">
           <div class="bg-white mt-2 py-2 pl-3 rounded-lg rounded-top">
-            <EventTypeSelector v-model="eventTypes" class="mb-2" />
-            <b-button-group size="sm" v-if="hasPrivateEvents">
+            <label class="font-weight-bold" :style="{ fontSize: '10pt' }">Filters</label>
+            <EventTypeSelector v-model="eventTypes" class="mb-2 d-block" />
+            <b-button-group size="sm" v-if="hasPrivateEvents" class="d-block">
               <b-button :pressed.sync="nonprivate" variant="outline-secondary">Public</b-button>
               <b-button :pressed.sync="private" variant="outline-danger">Private</b-button>
             </b-button-group>
           </div>
           <div class="bg-white mt-2 py-2 pl-3 rounded-lg rounded-top">
-            <b-checkbox v-model="view.distanceType">Show Activity Distance</b-checkbox>
+            <label class="font-weight-bold" :style="{ fontSize: '10pt' }">Options</label>
+            <b-checkbox v-model="view.distanceType">Show Recorded Distance</b-checkbox>
+            <b-checkbox v-model="view.splitYears">Collate by Year</b-checkbox>
           </div>
           <b-skeleton-wrapper :loading="!loaded">
             <EventSummary :events="events" />
