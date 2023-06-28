@@ -35,6 +35,10 @@
           v-else-if="eventActivityNames.length > 2 && eventGroupMode" :options="eventActivityNames"
           v-model="eventActivityName" :style="{ width: '8rem' }" class="mb-2 ml-2" />
         <component :is="listView" :events="filteredEvents" :loaded="loaded" :gridOptions="gridOptions" />
+
+        <div v-if="eventGroupMode && loaded && filteredEvents.length > 1">
+          <ActivityChart :data="chartData" />
+        </div>
       </b-col>
     </b-row>
   </b-container>
@@ -48,6 +52,7 @@ import EventTypeSelector from "@/components/EventTypeSelector";
 import EventSummary from "@/components/event/Summary.vue";
 import YearGroupedList from "@/components/event/YearGroupedList.vue";
 import UngroupedList from "@/components/event/UngroupedList.vue"
+import ActivityChart from "@/components/activity/charts/Annual.vue";
 
 export default {
   name: "EventRegistrationList",
@@ -55,7 +60,8 @@ export default {
     EventTypeSelector,
     EventSummary,
     YearGroupedList,
-    UngroupedList
+    UngroupedList,
+    ActivityChart,
   },
   mixins: [Branding, Events],
   metaInfo: function () {
@@ -172,6 +178,11 @@ export default {
       if (this.eventActivityName != 'All') events = events.filter((e) => e.eventActivity.name == this.eventActivityName)
 
       return events;
+    },
+    chartData: function () {
+      return this.filteredEvents
+        .filter(e => e.eventResult || e.activity)
+        .map(e => ({ ...(e.eventResult ?? e.activity), year: e.eventActivity.event.year, activityTypeID: e.eventActivity.eventType.activityType.id }))
     },
     private: {
       get() {
