@@ -111,12 +111,13 @@ import { DateTime } from "luxon";
 import UnitConversion from "@/mixins/UnitConversion.js";
 import { mapGetters } from "vuex";
 import EventFilters from "@/mixins/events/Filters.js";
+import EventUtils from "@/mixins/events/Util.js";
 import { activityRate, convertUnitValue } from "@/utils/unitConversion.js";
 
 import Countdown from "@/components/Countdown.vue";
 
 export default {
-  mixins: [UnitConversion, EventFilters],
+  mixins: [UnitConversion, EventFilters, EventUtils],
   components: {
     Countdown
   },
@@ -246,18 +247,6 @@ export default {
     eventDistance: function (e) {
       if (this.showActivityDistance && e.activity) return e.activity.distance
       return (e.eventActivity ?? e.activity).distance
-    },
-    eventVelocity: function (e) {
-      let values = [];
-      ["eventResult", "activity"].filter(k => Object.hasOwn(e, k)).splice(0, 1).forEach(k => {
-        values.push(...[e[k].pace, e[k].speed].filter(x => !!x))
-      });
-      if (e.activity != null) {
-        let t = this.$store.getters["meta/getActivityType"](e.activity.activityTypeID);
-        if (t && t.hasSpeed)
-          values.reverse();
-      }
-      return values[0];
     },
     getResultsGroup: function (results, partitionType) {
       let g = results[partitionType];
