@@ -52,7 +52,9 @@ import EventTypeSelector from "@/components/EventTypeSelector";
 import EventSummary from "@/components/event/Summary.vue";
 import YearGroupedList from "@/components/event/YearGroupedList.vue";
 import UngroupedList from "@/components/event/UngroupedList.vue"
+
 import ActivityChart from "@/components/activity/charts/Annual.vue";
+import FundraisingChart from "@/components/event/charts/Fundraising.vue";
 
 export default {
   name: "EventRegistrationList",
@@ -62,6 +64,7 @@ export default {
     YearGroupedList,
     UngroupedList,
     ActivityChart,
+    FundraisingChart
   },
   mixins: [Branding, Events],
   metaInfo: function () {
