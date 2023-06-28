@@ -5,7 +5,7 @@
         <div class="sticky-top">
           <div class="bg-white mt-2 py-2 pl-3 rounded-lg rounded-top">
             <EventTypeSelector v-model="eventTypes" class="mb-2" />
-            <b-button-group size="sm">
+            <b-button-group size="sm" v-if="hasPrivateEvents">
               <b-button :pressed.sync="nonprivate" variant="outline-secondary">Public</b-button>
               <b-button :pressed.sync="private" variant="outline-danger">Private</b-button>
             </b-button-group>
@@ -161,6 +161,9 @@ export default {
     },
     listView: function () {
       return this.view.splitYears && this.view.type == 'registration' ? YearGroupedList : UngroupedList;
+    },
+    hasPrivateEvents: function () {
+      return this.events.some((e) => e.visibilityTypeID == 1)
     },
     eventActivityNames: function () {
       let unique = function (value, index, array) {
