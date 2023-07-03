@@ -23,10 +23,10 @@
     <b-form-group label="Net Time" v-if="result.netTime && result.duration != result.netTime">
       {{ result.netTime }}
     </b-form-group>
-    <b-form-group label="Average Pace" v-if="result.pace && activityType.hasPace">
+    <b-form-group label="Average Pace" v-if="showPace">
       <span id="form-group-pace" class="pr-2">{{ fillUnits(result.pace) | formatDistance }}</span>
     </b-form-group>
-    <b-form-group label="Avg. Speed" v-if="result.speed && activityType.hasSpeed">
+    <b-form-group label="Avg. Speed" v-if="showSpeed">
       <span id="form-group-speed" class="pr-2">{{ fillUnits(result.speed) | formatDistance }}</span>
     </b-form-group>
     <b-form-group label="Temperature" v-if="result.temperature">
@@ -42,10 +42,10 @@
       {{ result.weight }} lbs
     </b-form-group>
 
-    <b-tooltip v-if="result.speed && !activityType.hasSpeed" target="form-group-pace" placement="right">
+    <b-tooltip v-if="showSpeed" target="form-group-speed" placement="right">
       {{ fillUnits(result.speed) | formatDistance }}
     </b-tooltip>
-    <b-tooltip v-if="result.pace && !activityType.hasPace" target="form-group-speed" placement="right">
+    <b-tooltip v-if="showPace" target="form-group-pace" placement="right">
       {{ fillUnits(result.pace) | formatDistance }}
     </b-tooltip>
   </div>
@@ -100,6 +100,14 @@ export default {
         return { ...this.activity, ...this.activity.sets[0] };
       return this.activity;
     },
+    showPace: function () {
+      if (!this.result || !this.activityType) return false;
+      return this.result.pace && this.activityType.hasPace
+    },
+    showSpeed: function () {
+      if (!this.result || !this.activityType) return false;
+      return this.result.speed && this.activityType.hasSpeed
+    }
   },
 };
 </script>
