@@ -20,7 +20,8 @@
         <b-radio-group size="sm" :options="additionalDataOptions" v-model="additionalDataSelection" />
       </b-col>
     </b-row>
-    <div :style="{ height: height }">
+    <hr />
+    <div :style="{ height: height }" class="mx-1">
       <LineChartGenerator id="results-chart" :options="options" :data="chartData" />
     </div>
   </div>
