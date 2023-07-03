@@ -175,7 +175,7 @@ export default {
       return `${this.applicationName} / ${this.listTitle}`;
     },
     listView: function () {
-      return this.view.splitYears && this.view.type == 'registration' ? YearGroupedList : UngroupedList;
+      return this.view.splitYears ? YearGroupedList : UngroupedList;
     },
     hasPrivateEvents: function () {
       return this.events.some((e) => e.visibilityTypeID == 1)
@@ -222,6 +222,9 @@ export default {
   watch: {
     '$route.name': function () {
       this.init();
+    },
+    'view.type': function (newValue) {
+      this.view.splitYears = newValue == 'registration' && !this.eventGroupMode
     }
   }
 };
