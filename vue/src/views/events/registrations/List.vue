@@ -4,14 +4,17 @@
       <b-col cols="2" class="bg-sidebar min-vh-100">
         <div class="sticky-top">
           <div class="bg-white mt-2 py-2 pl-3 rounded-lg rounded-top">
-            <EventTypeSelector v-model="eventTypes" class="mb-2" />
-            <b-button-group size="sm">
+            <label class="font-weight-bold" :style="{ fontSize: '10pt' }">Filters</label>
+            <EventTypeSelector v-model="eventTypes" class="mb-2 d-block" />
+            <b-button-group size="sm" v-if="hasPrivateEvents" class="d-block">
               <b-button :pressed.sync="nonprivate" variant="outline-secondary">Public</b-button>
               <b-button :pressed.sync="private" variant="outline-danger">Private</b-button>
             </b-button-group>
           </div>
           <div class="bg-white mt-2 py-2 pl-3 rounded-lg rounded-top">
-            <b-checkbox v-model="view.distanceType">Show Activity Distance</b-checkbox>
+            <label class="font-weight-bold" :style="{ fontSize: '10pt' }">Options</label>
+            <b-checkbox v-model="view.distanceType" size="sm">Show Recorded Distance</b-checkbox>
+            <b-checkbox v-model="view.splitYears" v-if="!eventGroupMode" size="sm">Collate by Year</b-checkbox>
           </div>
           <b-skeleton-wrapper :loading="!loaded">
             <EventSummary :events="events" />
@@ -35,6 +38,10 @@
           v-else-if="eventActivityNames.length > 2 && eventGroupMode" :options="eventActivityNames"
           v-model="eventActivityName" :style="{ width: '8rem' }" class="mb-2 ml-2" />
         <component :is="listView" :events="filteredEvents" :loaded="loaded" :gridOptions="gridOptions" />
+
+        <div v-if="eventGroupMode && loaded && filteredEvents.length > 1" class="events-chart-container">
+          <component :is="chartType" :data="chartData" />
+        </div>
       </b-col>
     </b-row>
   </b-container>
@@ -49,13 +56,20 @@ import EventSummary from "@/components/event/Summary.vue";
 import YearGroupedList from "@/components/event/YearGroupedList.vue";
 import UngroupedList from "@/components/event/UngroupedList.vue"
 
+import ActivityChart from "@/components/activity/charts/Annual.vue";
+import ResultsChart from "@/components/event/charts/Results.vue";
+import FundraisingChart from "@/components/event/charts/Fundraising.vue";
+
 export default {
   name: "EventRegistrationList",
   components: {
     EventTypeSelector,
     EventSummary,
     YearGroupedList,
-    UngroupedList
+    UngroupedList,
+    ActivityChart,
+    ResultsChart,
+    FundraisingChart
   },
   mixins: [Branding, Events],
   metaInfo: function () {
@@ -133,6 +147,13 @@ export default {
     eventGroupMode: function () {
       return this.$route.name == 'registration-series'
     },
+    chartType: function () {
+      switch (this.view.type) {
+        case 'registration': return 'ActivityChart';
+        case 'results': return 'ResultsChart';
+        case 'fundraising': return 'FundraisingChart';
+      }
+    },
     gridOptions: function () {
       return {
         showFees: this.view.type == 'registration' || this.view.type == 'fundraising',
@@ -154,7 +175,10 @@ export default {
       return `${this.applicationName} / ${this.listTitle}`;
     },
     listView: function () {
-      return this.view.splitYears && this.view.type == 'registration' ? YearGroupedList : UngroupedList;
+      return this.view.splitYears ? YearGroupedList : UngroupedList;
+    },
+    hasPrivateEvents: function () {
+      return this.events.some((e) => e.visibilityTypeID == 1)
     },
     eventActivityNames: function () {
       let unique = function (value, index, array) {
@@ -172,6 +196,11 @@ export default {
       if (this.eventActivityName != 'All') events = events.filter((e) => e.eventActivity.name == this.eventActivityName)
 
       return events;
+    },
+    chartData: function () {
+      return this.filteredEvents
+        .filter(e => e.eventResult || e.activity)
+        .map(e => ({ ...(e.eventResult ?? e.activity), ...e.placements, ...e.fundraising, year: e.eventActivity.event.year, activityTypeID: e.eventActivity.eventType.activityType.id }))
     },
     private: {
       get() {
@@ -193,6 +222,9 @@ export default {
   watch: {
     '$route.name': function () {
       this.init();
+    },
+    'view.type': function (newValue) {
+      this.view.splitYears = newValue == 'registration' && !this.eventGroupMode
     }
   }
 };
@@ -201,5 +233,11 @@ export default {
 <style scoped>
 .bg-sidebar {
   background-color: #bdbdbd
+}
+
+.events-chart-container {
+  background-color: rgba(65, 65, 65, 0.05);
+  border: 1px solid rgb(200, 200, 200);
+  padding: 1rem;
 }
 </style>
