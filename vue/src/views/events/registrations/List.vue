@@ -57,6 +57,7 @@ import YearGroupedList from "@/components/event/YearGroupedList.vue";
 import UngroupedList from "@/components/event/UngroupedList.vue"
 
 import ActivityChart from "@/components/activity/charts/Annual.vue";
+import ResultsChart from "@/components/event/charts/Results.vue";
 import FundraisingChart from "@/components/event/charts/Fundraising.vue";
 
 export default {
@@ -67,6 +68,7 @@ export default {
     YearGroupedList,
     UngroupedList,
     ActivityChart,
+    ResultsChart,
     FundraisingChart
   },
   mixins: [Branding, Events],
@@ -148,6 +150,7 @@ export default {
     chartType: function () {
       switch (this.view.type) {
         case 'registration': return 'ActivityChart';
+        case 'results': return 'ResultsChart';
         case 'fundraising': return 'FundraisingChart';
       }
     },
