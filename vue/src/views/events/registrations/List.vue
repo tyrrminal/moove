@@ -198,11 +198,9 @@ export default {
       return events;
     },
     chartData: function () {
-      if (this.view.type == 'fundraising')
-        return this.filteredEvents.map(e => ({ ...e.fundraising, year: e.eventActivity.event.year })).filter(e => e != null);
       return this.filteredEvents
         .filter(e => e.eventResult || e.activity)
-        .map(e => ({ ...(e.eventResult ?? e.activity), year: e.eventActivity.event.year, activityTypeID: e.eventActivity.eventType.activityType.id }))
+        .map(e => ({ ...(e.eventResult ?? e.activity), ...e.placements, ...e.fundraising, year: e.eventActivity.event.year, activityTypeID: e.eventActivity.eventType.activityType.id }))
     },
     private: {
       get() {
