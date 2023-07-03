@@ -39,7 +39,7 @@
           v-model="eventActivityName" :style="{ width: '8rem' }" class="mb-2 ml-2" />
         <component :is="listView" :events="filteredEvents" :loaded="loaded" :gridOptions="gridOptions" />
 
-        <div v-if="eventGroupMode && loaded && filteredEvents.length > 1">
+        <div v-if="eventGroupMode && loaded && filteredEvents.length > 1" class="events-chart-container">
           <component :is="chartType" :data="chartData" />
         </div>
       </b-col>
@@ -233,5 +233,11 @@ export default {
 <style scoped>
 .bg-sidebar {
   background-color: #bdbdbd
+}
+
+.events-chart-container {
+  background-color: rgba(65, 65, 65, 0.05);
+  border: 1px solid rgb(200, 200, 200);
+  padding: 1rem;
 }
 </style>
