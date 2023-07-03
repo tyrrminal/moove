@@ -14,7 +14,7 @@
           <div class="bg-white mt-2 py-2 pl-3 rounded-lg rounded-top">
             <label class="font-weight-bold" :style="{ fontSize: '10pt' }">Options</label>
             <b-checkbox v-model="view.distanceType">Show Recorded Distance</b-checkbox>
-            <b-checkbox v-model="view.splitYears">Collate by Year</b-checkbox>
+            <b-checkbox v-model="view.splitYears" v-if="!eventGroupMode">Collate by Year</b-checkbox>
           </div>
           <b-skeleton-wrapper :loading="!loaded">
             <EventSummary :events="events" />
