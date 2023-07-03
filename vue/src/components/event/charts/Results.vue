@@ -2,7 +2,7 @@
   <div>
     <b-row>
       <b-col cols="2">
-        <b-button-group class="mr-2" size="sm">
+        <b-button-group class="mr-2 bg-white" size="sm">
           <b-button variant="outline-primary" @click="ordinalMode = true" :pressed="ordinalMode">Ordinal</b-button>
           <b-button variant="outline-primary" @click="ordinalMode = false" :pressed="!ordinalMode">Percentile</b-button>
         </b-button-group>
