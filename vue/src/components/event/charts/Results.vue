@@ -55,11 +55,6 @@ export default {
     return {
       ordinalMode: true,
       additionalDataSelection: 'field',
-      additionalDataOptions: [
-        { text: 'None', value: false },
-        { text: 'Field Size', value: 'field' },
-        { text: 'Pace/Speed', value: 'speed' }
-      ],
       show: {
         overall: true,
         gender: true,
@@ -68,6 +63,13 @@ export default {
     }
   },
   computed: {
+    additionalDataOptions: function () {
+      return [
+        { text: 'None', value: false },
+        { text: 'Field Size', value: 'field' },
+        { text: this.velocityType, value: 'speed' }
+      ]
+    },
     options: function () {
       let self = this;
 
