@@ -2,7 +2,7 @@
   <div>
     <h5 v-if="label">{{ label }}</h5>
     <b-table striped small hover :items="events" :fields="fields" :sort-compare="sortCompare" :foot-clone="showFooter"
-      no-footer-sorting responsive show-empty :tbody-tr-class="rowClass">
+      no-footer-sorting responsive show-empty :tbody-tr-class="rowClass" :style="{ fontSize: '9pt' }">
       <template v-slot:table-busy>
         <div class="text-center text-info my-2">
           <b-spinner class="align-middle"></b-spinner>
