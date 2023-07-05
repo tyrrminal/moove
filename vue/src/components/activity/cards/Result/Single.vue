@@ -1,16 +1,5 @@
 <template>
   <div>
-    <b-dropdown v-if="editable" class="float-right" variant="outline-secondary">
-      <template #button-content>
-        <b-icon icon="gear" />
-      </template>
-      <b-dropdown-item :to="{ name: 'edit-activity', params: { activity: editableActivity } }">
-        <b-icon icon="pencil" class="mr-1" />Edit
-      </b-dropdown-item>
-      <b-dropdown-item @click="deleteActivity">
-        <b-icon icon="trash" class="mr-1" variant="danger" />Delete
-      </b-dropdown-item>
-    </b-dropdown>
     <b-form-group label="Start Time">
       {{ result.startTime | luxon({ input: { zone: "local" }, output: "f" }) }}
     </b-form-group>
@@ -41,6 +30,17 @@
     <b-form-group label="Weight" v-if="result.weight">
       {{ result.weight }} lbs
     </b-form-group>
+
+    <slot>
+      <div v-if="editable">
+        <b-button :to="{ name: 'edit-activity', params: { activity: editableActivity } }" size="sm" block pill>
+          <b-icon icon="pencil" class="mr-1" />Modify
+        </b-button>
+        <b-button @click="deleteActivity" size="sm" block pill variant="danger">
+          <b-icon icon="trash" class="mr-1" />Delete
+        </b-button>
+      </div>
+    </slot>
 
     <b-tooltip v-if="showSpeed" target="form-group-speed" placement="right">
       {{ fillUnits(result.speed) | formatDistance }}
