@@ -7,8 +7,16 @@
         :to="{ name: 'registration-detail', params: { id: activity.userEventActivity.id } }">{{ cardTitle }}</b-link>
       <span v-else>{{ cardTitle }}</span>
     </h4>
-    <ActivityResultSingle v-if="singleActivity" :activity="activity" :editable="editable" />
-    <ActivityResultMulti v-else :activity="activity" :editable="editable" />
+    <ActivityResultSingle v-if="singleActivity" :activity="activity" :editable="editable">
+      <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
+        <slot :name="slot" v-bind="scope" />
+      </template>
+    </ActivityResultSingle>
+    <ActivityResultMulti v-else :activity="activity" :editable="editable">
+      <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
+        <slot :name="slot" v-bind="scope" />
+      </template>
+    </ActivityResultMulti>
   </b-jumbotron>
 </template>
 
@@ -66,6 +74,4 @@ export default {
 };
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
