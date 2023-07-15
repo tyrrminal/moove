@@ -50,6 +50,7 @@
           params: { id: data.item.id },
         }" class="text-muted">{{ data.item.eventActivity.event.name }}</b-link>
       </template>
+      <template v-slot:cell(registrationNumber)="data"><span v-if="data.value">#{{ data.value }}</span></template>
       <template v-slot:cell(registrationFee)="data"><span
           :class="prHighlightClass(data.value, 'registrationFee', 'text-danger')">{{ data.value | currency
           }}</span></template>
@@ -174,6 +175,11 @@ export default {
       if (key == "date") {
         a = a.eventActivity.scheduledStart;
         b = b.eventActivity.scheduledStart;
+      }
+      if (key == "registrationNumber") {
+        t = "num";
+        a = a.registrationNumber || 0;
+        b = b.registrationNumber || 0;
       }
       if (key == "registrationFee") {
         t = "num";
@@ -366,6 +372,7 @@ export default {
         { key: "year", sortable: false, predicate: () => self.eventYears.length > 1 && self.separateYear },
         { key: "date", sortable: true },
         { key: "countdown", sortable: false, tdClass: "text-right pr-3", thClass: "text-right", predicate: () => Math.min(...self.events.map(e => DateTime.fromISO(e.eventActivity.scheduledStart))) > DateTime.now() },
+        { key: "registrationNumber", label: "Bib #", sortable: true, predicate: () => self.events.some(e => e.registrationNumber) && !self.showFundraising },
         { key: "name", sortable: true, thClass: "text-center" },
         { key: "type", sortable: true },
         { key: "distance", sortable: true },
