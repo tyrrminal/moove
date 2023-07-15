@@ -1,70 +1,84 @@
 <template>
   <div>
-    <b-form-group label="Start Time">
-      {{ result.startTime | luxon({ input: { zone: "local" }, output: "f" }) }}
-    </b-form-group>
-    <b-form-group label="Distance" v-if="result.distance">
-      {{ fillUnits(result.distance) | formatDistance }}
-    </b-form-group>
-    <b-form-group label="Total Time" v-if="result.duration">
-      {{ result.duration }}
-    </b-form-group>
-    <b-form-group label="Net Time" v-if="result.netTime && result.duration != result.netTime">
-      {{ result.netTime }}
-    </b-form-group>
-    <b-form-group label="Average Pace" v-if="showPace">
-      <span id="form-group-pace" class="pr-2">{{ fillUnits(result.pace) | formatDistance }}</span>
-    </b-form-group>
-    <b-form-group label="Avg. Speed" v-if="showSpeed">
-      <span id="form-group-speed" class="pr-2">{{ fillUnits(result.speed) | formatDistance }}</span>
-    </b-form-group>
-    <b-form-group label="Temperature" v-if="result.temperature">
-      {{ result.temperature }}° F
-    </b-form-group>
-    <b-form-group label="Heart Rate" v-if="result.heartRate">
-      {{ result.heartRate }} bpm
-    </b-form-group>
-    <b-form-group label="Reps" v-if="result.repetitions != null">
-      {{ result.repetitions }}
-    </b-form-group>
-    <b-form-group label="Weight" v-if="result.weight">
-      {{ result.weight }} lbs
-    </b-form-group>
+    <b-row>
 
-    <slot>
-      <div v-if="editable">
-        <b-button :to="{ name: 'edit-activity', params: { activity: editableActivity } }" size="sm" block pill>
-          <b-icon icon="pencil" class="mr-1" />Modify
-        </b-button>
-        <b-button @click="deleteActivity" size="sm" block pill variant="danger">
-          <b-icon icon="trash" class="mr-1" />Delete
-        </b-button>
-      </div>
+      <b-col>
+        <ComparisonField label="Start Time" :lvalue="activityData.startTime" :rvalue="eventResultData.startTime"
+          :comparator="compareDates"
+          :formatter="v => $options.filters.luxon(v, { input: { zone: 'local' }, output: 'f' })" />
+
+        <ComparisonField label="Distance" :lvalue="activityData.distance" :rvalue="eventResultData.distance"
+          :comparator="compareDistances"
+          :formatter="v => $options.filters.formatDistance({ ...v, units: getUnitOfMeasureByID(v.unitOfMeasureID) })" />
+      </b-col>
+
+      <b-col cols="2">
+        <ComparisonField label="Total Time" :lvalue="activityData.duration" :rvalue="eventResultData.duration" />
+
+        <ComparisonField label="Net Time" :lvalue="activityData.netTime" :rvalue="eventResultData.netTime"
+          v-if="(activityData.netTime && (activityData.duration != activityData.netTime)) || (eventResultData.netTime && eventResultData.duration != eventResultData.netTime && eventResultData.netTime != activityData.netTime)" />
+      </b-col>
+
+      <b-col cols="2">
+        <ComparisonField v-if="showPace" label="Average Pace" :lvalue="activityData.pace" :rvalue="eventResultData.pace"
+          :comparator="compareDistances" :formatter="v => $options.filters.formatDistance(fillUnits(v))" />
+
+        <ComparisonField v-if="showSpeed" label="Average Speed" :lvalue="activityData.speed"
+          :rvalue="eventResultData.speed" :comparator="compareDistances"
+          :formatter="v => $options.filters.formatDistance(fillUnits(v))" />
+      </b-col>
+
+      <b-col cols="2">
+        <ComparisonField label="Temperature" :lvalue="activityData.temperature" :rvalue="eventResultData.temperature"
+          :formatter="v => `${v}° F`" />
+
+        <ComparisonField label="Heart Rate" :lvalue="activityData.heartRate" :rvalue="eventResultData.heartRate"
+          :formatter="v => `${v} bpm`" />
+      </b-col>
+
+      <b-col cols="2">
+        <ComparisonField label="Reps" :lvalue="activityData.repetitions" :rvalue="eventResultData.repetitions" />
+
+        <ComparisonField v-if="activityData.weight > 0 || eventResultData > 0" label="Weight"
+          :lvalue="activityData.weight" :rvalue="eventResultData.weight" :formatter="v => `${v} lbs`" />
+      </b-col>
+
+    </b-row>
+
+    <slot name="pre-controls"></slot>
+    <slot name="controls">
+      <b-button :to="{ name: 'edit-activity', params: { activity: editableActivity } }" size="sm" block pill>
+        <b-icon icon="pencil" class="mr-1" />Modify
+      </b-button>
+      <b-button @click="deleteActivity" size="sm" block pill variant="danger">
+        <b-icon icon="trash" class="mr-1" />Delete
+      </b-button>
     </slot>
+    <slot name="post-controls"></slot>
 
-    <b-tooltip v-if="showSpeed" target="form-group-speed" placement="right">
-      {{ fillUnits(result.speed) | formatDistance }}
-    </b-tooltip>
-    <b-tooltip v-if="showPace" target="form-group-pace" placement="right">
-      {{ fillUnits(result.pace) | formatDistance }}
-    </b-tooltip>
   </div>
 </template>
 
 <script>
+import ComparisonField from "@/components/activity/cards/Result/ComparisonField.vue";
 import EventFilters from "@/mixins/events/Filters.js";
 import UnitConversion from "@/mixins/UnitConversion.js";
+import { convertUnitValue } from "@/utils/unitConversion.js";
+import { DateTime } from "luxon";
 
 export default {
+  components: {
+    ComparisonField
+  },
   mixins: [EventFilters, UnitConversion],
   props: {
     activity: {
       type: Object,
       required: true,
     },
-    editable: {
-      type: Boolean,
-      default: true,
+    eventResult: {
+      type: Object,
+      required: false
     },
   },
   methods: {
@@ -84,16 +98,41 @@ export default {
           }
         });
     },
+    getActivityType: function (id) {
+      return this.$store.getters["meta/getActivityType"](id)
+    },
+    getUnitOfMeasureByID: function (id) {
+      return this.$store.getters["meta/getUnitOfMeasure"](id)
+    },
+    compareDates: function (d1, d2) {
+      if (d1 == null || d2 == null) return 0;
+      let dt1 = DateTime.fromISO(d1).set({ seconds: 0 });
+      let dt2 = DateTime.fromISO(d2).set({ seconds: 0 });
+      return dt1 - dt2
+    },
+    compareDistances: function (d1, d2) {
+      if (d1 == null || d2 == null) return 0;
+      let dd1 = convertUnitValue(d1.value, this.getActivityType(d1.unitOfMeasureID));
+      let dd2 = convertUnitValue(d2.value, this.getActivityType(d2.unitOfMeasureID));
+      if (typeof dd1 == "number" && typeof dd2 == "number")
+        return dd1.toFixed(2) - dd2.toFixed(2)
+      return dd1.localeCompare(dd2)
+    },
   },
   computed: {
     activityType: function () {
-      return this.$store.getters["meta/getActivityType"](this.activity.activityTypeID)
+      return this.getActivityType(this.activity.activityTypeID)
     },
-    result: function () {
+    activityData: function () {
+      if (!this.activity) return {};
       return this.activity.sets ? this.activity.sets[0] : this.activity;
     },
+    eventResultData: function () {
+      if (!this.eventResult) return {};
+      return this.eventResult.sets ? this.eventResult.sets[0] : this.eventResult
+    },
     hasStoppedTime: function () {
-      return this.result.duration != this.result.netTime;
+      return this.activityData.duration != this.activityData.netTime;
     },
     editableActivity: function () {
       if (this.activity.sets)
@@ -101,12 +140,12 @@ export default {
       return this.activity;
     },
     showPace: function () {
-      if (!this.result || !this.activityType) return false;
-      return this.result.pace && this.activityType.hasPace
+      if (!this.activityData || !this.activityType) return false;
+      return this.activityData.pace && this.activityType.hasPace
     },
     showSpeed: function () {
-      if (!this.result || !this.activityType) return false;
-      return this.result.speed && this.activityType.hasSpeed
+      if (!this.activityData || !this.activityType) return false;
+      return this.activityData.speed && this.activityType.hasSpeed
     }
   },
 };
