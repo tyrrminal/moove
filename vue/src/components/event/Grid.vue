@@ -50,6 +50,7 @@
           params: { id: data.item.id },
         }" class="text-muted">{{ data.item.eventActivity.event.name }}</b-link>
       </template>
+      <template v-slot:cell(registrationNumber)="data"><span v-if="data.value">#{{ data.value }}</span></template>
       <template v-slot:cell(registrationFee)="data"><span
           :class="prHighlightClass(data.value, 'registrationFee', 'text-danger')">{{ data.value | currency
           }}</span></template>
