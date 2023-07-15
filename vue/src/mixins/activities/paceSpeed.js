@@ -38,6 +38,7 @@ export default {
       return null;
     },
     getNumericVelocity: function (v) {
+      if (v == null) return null
       if (this.velocityType.toLocaleLowerCase() == 'speed') return v;
       return hmsToHours(v) * 60;
     },
