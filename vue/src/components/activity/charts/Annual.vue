@@ -50,10 +50,12 @@ activity: {
 
 import { Line as LineChartGenerator } from 'vue-chartjs';
 
-import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, PointElement, LineElement } from 'chart.js';
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, PointElement, LineElement);
+import 'chartjs-adapter-luxon';
+import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, TimeScale, LinearScale, PointElement, LineElement } from 'chart.js';
+ChartJS.register(Title, Tooltip, Legend, BarElement, TimeScale, LinearScale, PointElement, LineElement);
 
 import paceSpeed from "@/mixins/activities/paceSpeed.js"
+import { DateTime } from 'luxon';
 
 export default {
   props: {
@@ -99,6 +101,17 @@ export default {
           // yAxisKey: 'y'
         },
         scales: {
+          x: {
+            type: 'time',
+            time: {
+              unit: 'year',
+              unitStepSize: 1,
+              displayFormats: {
+                'year': 'yyyy'
+              },
+              tooltipFormat: "MMM d, yyyy"
+            }
+          },
           y: {
             suggestedMax: this.suggestedMax,
             suggestedMin: this.suggestedMin,
@@ -130,28 +143,20 @@ export default {
       }
     },
     chartData: function () {
-      let start = Math.min(...this.data.map(a => a.year));
-      let end = Math.max(...this.data.map(a => a.year));
-      let legendLabels = [this.velocityType];
-      let activity;
-      let data = [];
-      let set = [];
-      for (let i = start; i <= end; i++) {
-        activity = this.data.find(a => a.year == i);
-        if (activity == null) {
-          if (set.filter(s => s != null).length)
-            data.push({ data: set, label: legendLabels.pop(), backgroundColor: this.speedChartBackgroundColor, borderColor: this.speedChartBorderColor });
-          set = [];
-        } else {
-          let v = activity[this.velocityType.toLowerCase()].value
-          set.push({ x: i, y: this.getNumericVelocity(v), v: v })
-        }
-      }
-      if (set.filter(s => s != null).length)
-        data.push({ data: set, label: legendLabels.pop(), backgroundColor: this.speedChartBackgroundColor, borderColor: this.speedChartBorderColor });
       return {
         labels: this.dataYears,
-        datasets: data
+        datasets: [{
+          data: this.dataYears.map(d => {
+            let e = this.data.find(e => DateTime.fromISO(e.startTime).year == DateTime.fromISO(d).year);
+            let v = e ? e[this.velocityType.toLowerCase()].value : null;
+            return { x: d, y: this.getNumericVelocity(v), v: v };
+          }), spanGaps: true, label: this.velocityType, backgroundColor: this.speedChartBackgroundColor, borderColor: this.speedChartBorderColor,
+          segment: {
+            borderColor: ctx => ctx.p0.parsed.y == null || ctx.p1.parsed.y == null ? 'gray' : undefined,
+            borderDash: ctx => ctx.p0.parsed.y == null || ctx.p1.parsed.y == null ? [6, 6] : undefined,
+            borderWidth: ctx => ctx.p0.parsed.y == null || ctx.p1.parsed.y == null ? 2 : undefined,
+          }
+        }]
       }
     },
   },
