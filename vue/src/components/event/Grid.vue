@@ -366,6 +366,7 @@ export default {
         { key: "year", sortable: false, predicate: () => self.eventYears.length > 1 && self.separateYear },
         { key: "date", sortable: true },
         { key: "countdown", sortable: false, tdClass: "text-right pr-3", thClass: "text-right", predicate: () => Math.min(...self.events.map(e => DateTime.fromISO(e.eventActivity.scheduledStart))) > DateTime.now() },
+        { key: "registrationNumber", label: "Bib #", sortable: true },
         { key: "name", sortable: true, thClass: "text-center" },
         { key: "type", sortable: true },
         { key: "distance", sortable: true },
