@@ -60,6 +60,7 @@ export default {
           }
         },
         plugins: {
+          datalabels: { display: false },
           tooltip: {
             callbacks: {
               title: function () {

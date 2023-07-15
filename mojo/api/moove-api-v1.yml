@@ -1566,12 +1566,9 @@ components:
         visibilityTypeID:
           type: integer
         nav:
-          type: object
-          properties:
-            next:
-              $ref: "#/components/schemas/Event"
-            prev:
-              $ref: "#/components/schemas/Event"
+          type: array
+          items:
+            $ref: "#/components/schemas/Navigation"
         placements:
           type: array
           items:
@@ -1580,6 +1577,30 @@ components:
           $ref: "#/components/schemas/Fundraising"
         user:
           $ref: "#/components/schemas/User"
+    NamedEntity:
+      type: object
+      additionalProperties: true
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    Navigation:
+      type: object
+      additionalProperties: false
+      properties:
+        description:
+          type: string
+          nullable: true
+        next:
+          $ref: "#/components/schemas/NamedEntity"
+          nullable: true
+        prev:
+          $ref: "#/components/schemas/NamedEntity"
+          nullable: true
     UserEventActivity:
       type: object
       additionalProperties: false

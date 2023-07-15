@@ -20,6 +20,7 @@ sub encode_model_usereventactivity ($self, $entity) {
     dateRegistered     => $self->encode_date($entity->date_registered),
     visibilityTypeID   => $entity->visibility_type_id,
     user               => $self->encode_model($entity->user),
+    nav                => [],
   };
   $r->{activity}    = $self->encode_model($entity->activity) if (defined($entity->activity));
   $r->{eventResult} = $self->encode_model_result($ea->event_type->activity_type, $participant->event_result)
@@ -29,20 +30,27 @@ sub encode_model_usereventactivity ($self, $entity) {
   if (my $fr = $self->encode_model_usereventactivity_fundraising($entity)) {
     $r->{fundraising} = $fr;
   }
-  if (ref($self->resultset) =~ /UserEventActivity/) {
-    $r->{nav} = {
-      prev => $self->encode_model_simple(
-        $self->resultset->before($entity)->for_user($entity->user)->visible_to($self->current_user)->first
-      ),
-      next => $self->encode_model_simple(
-        $self->resultset->after($entity)->for_user($entity->user)->visible_to($self->current_user)->first
-      ),
-    };
-    foreach (qw(next prev)) {
-      delete($r->{nav}->{$_}) unless (defined($r->{nav}->{$_}));
-    }
+  
+  push($r->{nav}->@*, $self->encode_model_usereventactivity_navigation($entity, $self->resultset)); 
+  push($r->{nav}->@*, $self->encode_model_usereventactivity_navigation($entity, scalar $self->resultset->in_group($event->event_group_id), 'group'));
+  foreach my $ese ($event->event_series_events) {
+    push($r->{nav}->@*, $self->encode_model_usereventactivity_navigation($entity, scalar $self->resultset->in_group($ese->event_series_id), $ese->event_series->description));
   }
+
   return $r;
+}
+
+sub encode_model_usereventactivity_navigation($self, $entity, $rs, $description = undef) {
+  return unless (ref($self->resultset) =~ /UserEventActivity/);
+  my $nav;
+  if(my $prev = $rs->before($entity)->for_user($entity->user)->visible_to($self->current_user)->first) {
+    $nav->{prev} = $self->encode_model_simple($prev)
+  }
+  if(my $next = $rs->after($entity)->for_user($entity->user)->visible_to($self->current_user)->first) {
+    $nav->{next} = $self->encode_model_simple($next)
+  }
+  return unless(grep { defined } keys($nav->%*));
+  return {$nav->%*, description => $description};
 }
 
 sub encode_model_user ($self, $entity) {
@@ -56,7 +64,8 @@ sub encode_model_simple ($self, $entity) {
   return undef unless (defined($entity));
   return {
     id   => $entity->id,
-    name => $entity->name
+    name => $entity->name,
+    year => $entity->event_registration->event_activity->event->year,
   };
 }
 
