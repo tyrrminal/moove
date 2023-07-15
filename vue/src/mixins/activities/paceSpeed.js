@@ -1,4 +1,5 @@
 import { hmsToHours, minutesToHms } from "@/utils/unitConversion.js";
+import { DateTime } from "luxon";
 
 export default {
   data: function () {
@@ -13,9 +14,15 @@ export default {
       return this.data.some(a => this.getActivityType(a.activityTypeID).hasSpeed) ? 'Speed' : 'Pace'
     },
     dataYears: function () {
-      let start = Math.min(...this.data.map(a => a.year));
-      let end = Math.max(...this.data.map(a => a.year));
-      return Array.from(new Array(end - start + 1), (x, i) => i + start);
+      let dates = this.data.map(e => DateTime.fromISO(e.startTime).startOf('year'));
+      dates.sort((a, b) => a.toISO().localeCompare(b.toISO()));
+      let i = dates[0];
+      let years = [];
+      while (i <= dates[dates.length - 1]) {
+        years.push(i.toISO());
+        i = i.plus({ years: 1 })
+      }
+      return years;
     }
   },
   methods: {
