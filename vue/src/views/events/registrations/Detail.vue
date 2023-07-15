@@ -1,203 +1,168 @@
 <template>
-  <b-container v-if="userEventActivity">
-    <b-card no-body class="mt-3 mb-3">
-      <b-card-header>
-        <b-button-group class="float-right">
-          <b-button v-for="n in navLinks" :key="n.id" variant="outline-secondary" :disabled="nav[n.id] == null" :to="nav[n.id] ? { to: 'event', params: { id: nav[n.id].id } } : null
-            " :title="nav[n.id] ? nav[n.id].name : ''">
-            <b-icon :icon="n.icon" />
-          </b-button>
-        </b-button-group>
-        <h2>{{ event.year }} {{ event.name }}</h2>
-      </b-card-header>
-      <b-card-body>
-        <b-row>
-          <b-col cols="6">
-            <b-jumbotron class="py-2 event-details" border-variant="primary">
-              <b-button variant="primary" :to="{ name: 'event-edit', params: { id: event.id } }" size="sm"
-                class="float-right">Edit</b-button>
-              <b-form-group v-if="eventActivity" label="What">{{ eventActivityDescription }}
-              </b-form-group>
-              <b-form-group label="When">
-                <b-icon icon="calendar" class="mr-1" />{{
-                  eventActivity.scheduledStart
-                  | luxon({ input: { zone: "local" }, output: "short" })
-                }}
-              </b-form-group>
-              <b-form-group label="Where" v-if="$options.filters.formatAddress(event.address)">
-                <b-icon icon="compass" class="mr-1" />{{
-                  event.address | formatAddress
-                }}
-              </b-form-group>
-              <b-form-group label="Website" v-if="eventGroup != null && eventGroup.url">
-                <b-link :href="eventGroup.url" target="_blank">{{
-                  eventGroup.url
-                }}</b-link>
-              </b-form-group>
-            </b-jumbotron>
-          </b-col>
-          <b-col>
-            <b-jumbotron class="py-2 event-details" border-variant="info" v-if="relatedEvents.length">
-              <b-form-group label="Related Events">
-                <RelatedEventNav v-for="s in relatedEvents" :key="s.id"
-                  :series="{ ...s, username: userEventActivity.user.username }" :next="s.next" :prev="s.prev"
-                  :create-event-params="{ event, eventGroup, eventActivity }" />
-              </b-form-group>
-            </b-jumbotron>
-            <b-jumbotron class="py-2 event-details" border-variant="info" v-if="userEventActivity.dateRegistered ||
-              Number.parseFloat(userEventActivity.registrationFee) ||
-              userEventActivity.registrationNumber
-              ">
-              <b-button variant="primary" :to="{ name: 'registration-edit', params: { id: userEventActivity.id } }"
-                size="sm" class="float-right">Edit</b-button>
-              <b-form-group label="Registered On" v-if="userEventActivity.dateRegistered">
-                {{
-                  userEventActivity.dateRegistered
-                  | luxon({ input: { zone: "local" }, output: "date_med" })
-                }}
-              </b-form-group>
-              <b-form-group label="Total Fee" v-if="userEventActivity.registrationFee != null">
-                {{ userEventActivity.registrationFee | currency }}
-              </b-form-group>
-              <b-form-group label="Registration Number" v-if="userEventActivity.registrationNumber != null">
-                #{{ userEventActivity.registrationNumber }}
-              </b-form-group>
-            </b-jumbotron>
-          </b-col>
-        </b-row>
-      </b-card-body>
-    </b-card>
+  <b-container v-if="userEventActivity" fluid>
+    <b-row>
+      <b-col cols="2" class="bg-light pt-2">
+        <div>
+          <h4 class="float-right" v-if="nav.group && (nav.group.prev || nav.group.next)">
+            <b-link v-if="nav.group.prev" :to="{ name: 'registration-detail', params: { id: nav.group.prev.id } }"><b-icon
+                icon="chevron-left" :title="`${nav.group.prev.year} ${nav.group.prev.name}`" variant="dark" /></b-link>
+            <b-icon v-else icon="chevron-left" :style="{ color: 'gray' }" />
+            <b-link v-if="nav.group.next" :to="{ name: 'registration-detail', params: { id: nav.group.next.id } }"><b-icon
+                icon="chevron-right" :title="`${nav.group.next.year} ${nav.group.next.name}`" variant="dark" /></b-link>
+            <b-icon v-else icon="chevron-right" :style="{ color: 'gray' }" />
+          </h4>
+          <h4>{{ event.year }} </h4>
+          <div class="data-value-form">
+            <b-form-group v-if="eventActivity" label="What">{{ eventActivityDescription }}
+            </b-form-group>
+            <b-form-group label="When">
+              <b-icon icon="calendar" class="mr-1" />{{
+                eventActivity.scheduledStart
+                | luxon({ input: { zone: "local" }, output: "short" })
+              }}
+            </b-form-group>
+            <b-form-group label="Where" v-if="$options.filters.formatAddress(event.address)">
+              <b-icon icon="compass" class="mr-1" />{{
+                event.address | formatAddress
+              }}
+            </b-form-group>
+            <b-form-group label="Website" v-if="eventGroup != null && eventGroup.url">
+              <b-link :href="eventGroup.url" target="_blank">{{
+                eventGroup.url
+              }}</b-link>
+            </b-form-group>
 
-    <b-card no-body class="mb-3" v-if="eventIsInFuture">
-      <b-card-header>
-        <h3>Countdown</h3>
-      </b-card-header>
-      <b-card-body>
-        <Countdown :end="countdownTarget" />
-      </b-card-body>
-    </b-card>
-
-    <b-card no-body class="mb-3" v-if="activity || eventResult || canDoResultsFunctions">
-      <b-card-header>
-        <h3>Results</h3>
-      </b-card-header>
-      <b-card-body>
-        <b-jumbotron class="p-2" v-if="activity && activity.note">
-          <em>{{ activity.note }}</em>
-        </b-jumbotron>
-        <b-row>
-          <b-col v-if="activity" cols="4">
-            <ActivityCard :activity="activity" />
-          </b-col>
-
-          <b-col v-if="eventResult" cols="4">
-            <ActivityCard :activity="eventResult" :linkToActivity="false" :editable="false" title="Event Result" />
-          </b-col>
-
-          <b-col>
-            <div v-if="canDoResultsFunctions" class="mb-4">
-              <template v-if="isLoading">
-                <b-progress>
-                  <b-progress-bar variant="info" :value="eventActivity.results.importCompletion" :max="100"><span
-                      class="font-weight-bold">Importing Results&hellip;</span></b-progress-bar>
-                </b-progress>
-              </template>
-              <template v-else>
-                <b-button v-if="hasResults" block variant="warning" v-b-modal.importResults size="sm">
-                  <b-icon icon="arrow-repeat" class="mr-2" />Re-import Results</b-button>
-                <b-button v-else block variant="success" v-b-modal.importResults>
-                  <b-icon icon="upload" class="mr-1" />Import Results</b-button>
-              </template>
-            </div>
-
-            <template v-if="!isLoading">
-              <div v-for="(p, i) in orderedPlacements" :key="i">
-                <h5>{{ p.description }}: {{ p.place }} / {{ p.of }}</h5>
-                <b-progress height="2rem" class="my-2">
-                  <b-progress-bar :value="100 - (100 * p.place) / p.of" :max="100" :animated="p.place <= 3"
-                    :style="{ fontSize: '1.25rem' }" :variant="progressClass(1 - p.place / p.of, 2)">{{ (1 - p.place /
-                      p.of) | percent(1) }}
-                  </b-progress-bar>
-                </b-progress>
-              </div>
-            </template>
-
-            <div v-if="eventActivity.results.importable" class="text-center mt-4">
-              <b-link v-if="eventActivity.results.url" :href="eventActivity.results.url" target="_blank">Original
-                Results
-              </b-link>
-            </div>
-          </b-col>
-        </b-row>
-      </b-card-body>
-    </b-card>
-
-    <b-card v-if="fundraising" no-body class="mb-3">
-      <b-card-header>
-        <b-button class="float-right" size="sm" variant="outline-primary" v-b-modal.addDonation>
-          <b-icon icon="plus" />
-        </b-button>
-        <h3>Fundraising</h3>
-      </b-card-header>
-      <b-card-body>
-        <h4>
-          <div class="float-right">
-            {{ (fundraising.received / fundraising.minimum) | percent(1) }}
+            <b-button variant="secondary" :to="{ name: 'event-edit', params: { id: event.id } }" size="sm" block pill
+              class="my-1"><b-icon icon="pencil" class="mr-1" />Modify</b-button>
+            <b-button variant="success" :to="{ name: 'event-create', params: { event, eventGroup, eventActivity } }"
+              size="sm" block pill class="my-1"><b-icon icon="plus-circle" class="mr-2" />Clone</b-button>
           </div>
-          Raised {{ fundraising.received | currency | stripDecimals }} of
-          {{ fundraising.minimum | currency | stripDecimals }}
-        </h4>
 
-        <b-progress v-if="fundraising.received >= fundraising.minimum" height="8px" class="bg-success upper-progress-bar">
-          <b-progress-bar :value="fundraising.minimum" :max="fundraising.received" variant="secondary">
-          </b-progress-bar>
-        </b-progress>
-        <b-progress v-if="fundraising.donations" height="3rem" class="middle-progress-bar">
-          <b-progress-bar v-for="(d, i) in donors" :key="d.id" :value="donorTotal(d)" :max="fundraising.minimum"
-            :class="donorProgressClass(d, i)" :variant="progressClass(fundraising.received / fundraising.minimum)"
-            v-b-tooltip.hover :title="[d.firstname, d.lastname].join(' ')" @click.native="showDonorHistory(d)">{{
-              sumStr(d.donations.map((v) => v.amount))
-            }}
-          </b-progress-bar>
-        </b-progress>
-        <b-progress v-else height="2rem" class="middle-progress-bar">
-          <b-progress-bar :variant="progressClass(fundraising.received / fundraising.minimum)"
-            :value="fundraising.received" :max="fundraising.minimum">
-          </b-progress-bar>
-        </b-progress>
-        <b-progress v-if="fundraising.received >= fundraising.minimum" height="8px" class="bg-success lower-progress-bar">
-          <b-progress-bar :value="fundraising.minimum" :max="fundraising.received" variant="secondary">
-          </b-progress-bar>
-        </b-progress>
-      </b-card-body>
-    </b-card>
+          <div v-if="isRegistered" class="data-value-form">
+            <hr />
+            <b-form-group label="Registered On" v-if="userEventActivity.dateRegistered">
+              {{
+                userEventActivity.dateRegistered
+                | luxon({ input: { zone: "local" }, output: "date_med" })
+              }}
+            </b-form-group>
+            <b-form-group label="Total Fee" v-if="userEventActivity.registrationFee != null">
+              {{ userEventActivity.registrationFee | currency }}
+            </b-form-group>
+            <b-form-group label="Registration Number" v-if="userEventActivity.registrationNumber != null">
+              #{{ userEventActivity.registrationNumber }}
+            </b-form-group>
+
+            <b-button variant="secondary" :to="{ name: 'registration-edit', params: { id: userEventActivity.id } }"
+              size="sm" block pill><b-icon icon="pencil" class="mr-2" />Modify</b-button>
+          </div>
+        </div>
+
+        <div v-if="nav.series.length" class="mt-2">
+          <hr />
+          <span v-for="s in nav.series.filter(s => s.prev || s.next)" :style="{ fontSize: '10pt' }">
+            <b-link v-if="s.prev" :to="{ name: 'registration-detail', params: { id: s.prev.id } }"><b-icon
+                icon="chevron-left" :title="`${s.prev.year} ${s.prev.name}`" variant="dark" /></b-link>
+            <b-icon v-else icon="chevron-left" :style="{ color: 'gray' }" />
+            <span>{{ s.description }}</span>
+            <b-link v-if="s.next" :to="{ name: 'registration-detail', params: { id: s.next.id } }"><b-icon
+                icon="chevron-right" :title="`${s.next.year} ${s.next.name}`" variant="dark" /></b-link>
+            <b-icon v-else icon="chevron-right" :style="{ color: 'gray' }" />
+          </span>
+        </div>
+      </b-col>
+
+      <b-col cols="9">
+        <h3 class="float-right my-2">
+          <b-link v-if="nav.global.prev" :to="{ name: 'registration-detail', params: { id: nav.global.prev.id } }"><b-icon
+              icon="chevron-left" :title="`${nav.global.prev.year} ${nav.global.prev.name}`" variant="dark" /></b-link>
+          <b-icon v-else icon="chevron-left" :style="{ color: 'gray' }" />
+          <b-link v-if="nav.global.next" :to="{ name: 'registration-detail', params: { id: nav.global.next.id } }"><b-icon
+              icon="chevron-right" :title="`${nav.global.next.year} ${nav.global.next.name}`" variant="dark" /></b-link>
+          <b-icon v-else icon="chevron-right" :style="{ color: 'gray' }" />
+        </h3>
+
+        <h3 class="my-2">
+          <template v-if="eventGroup">
+            <b-link class="text-dark" :to="{ name: 'registration-series', params: { id: eventGroup.id } }">{{
+              event.name }}</b-link>
+          </template>
+          <template v-else>
+            <span>{{ event.name }}</span>
+          </template>
+        </h3>
+
+        <div v-if="eventIsInFuture" class="text-center mt-5">
+          <vue-ellipse-progress v-if="countdownPctElapsed" :progress="countdownPctElapsed" :size="48" :thickness="3"
+            color="gray" :legend="false" class="d-inline-block mr-3">
+            <template #legend-caption>
+              <vue-ellipse-progress v-if="countdownPctElapsed > 95"
+                :progress="10 * (countdownPctElapsed - (Math.trunc(countdownPctElapsed / 10) * 10))" :size="24"
+                :thickness="3" color="gray" :legend="false" :style="{ marginTop: '6px' }" />
+            </template>
+          </vue-ellipse-progress>
+          <Countdown :end="countdownTarget" class="d-inline-block" />
+        </div>
+
+        <div :style="{ clear: 'both' }">
+          <ActivityNote v-if="activity && activity.note" class="mb-2">{{ activity.note }}</ActivityNote>
+        </div>
+
+        <div class="bg-light p-2 mb-3 border border-gray" v-if="fundraising">
+          <b-button @click="addDonation" size="sm" pill class="float-right mr-2 px-3"
+            :variant="isOutOfDate ? 'warning' : 'success'"><b-icon icon="plus-circle" class="mr-2" />Add
+            Donation</b-button>
+          <legend>Fundraising</legend>
+          <FundraisingChart :data="fundraisingChartData" @selectDonor="showDonorHistory" class="px-3" />
+          <hr />
+          <div class="d-inline-block w-50">
+            Progress: {{ fundraising.received | currency }} of {{ fundraising.minimum | currency }} ({{
+              fundraising.received / fundraising.minimum | percent(1) }}) <b-icon icon="check-lg" variant="success"
+              v-if="fundraising.received >= fundraising.minimum" class="ml-1" />
+          </div>
+          <div class="text-right d-inline-block" :style="{ width: '49%' }">
+            <b-button v-b-modal.donationHistory size="sm" variant="info"><b-icon icon="list"
+                class="mr-1" />Donations</b-button>
+          </div>
+        </div>
+
+        <div v-if="hasResults || canDoResultsFunctions" class="bg-light p-2 border border-gray mb-3">
+          <EventResultChart v-if="hasResults" :data="orderedPlacements" class="px-3" :style="{ clear: 'both' }" />
+          <b-progress v-else-if="isLoading" height="1.5rem" class="my-2">
+            <b-progress-bar variant="info" :value="eventActivity.results.importCompletion" :max="100"><span
+                class="font-weight-bold">Importing Results&hellip;</span></b-progress-bar>
+          </b-progress>
+          <div v-else-if="canDoResultsFunctions" class="text-center">
+            <b-button pill variant="success" @click="importResults" class="mr-2 px-3">
+              <b-icon icon="download" class="mr-2" :rotate="-90" />Import Results</b-button>
+          </div>
+          <div v-if="eventActivity.results.url">
+            <hr v-if="hasResults" />
+            <b-button v-if="hasResults && canDoResultsFunctions" pill variant="warning" v-b-modal.importResults size="sm"
+              class="float-right mr-2 px-3">
+              <b-icon icon="arrow-repeat" class="mr-2" />Re-import Results</b-button>
+            <b-link :href="eventActivity.results.url" target="_blank" :style="{ fontSize: '10pt' }">
+              Original Results
+            </b-link>
+            <div :style="{ clear: 'both' }"></div>
+          </div>
+        </div>
+
+        <ActivityCard v-if="activity" :activity="activity" :activity2="eventResult" class="mb-3" />
+
+      </b-col>
+    </b-row>
 
     <AddDonation :userEventActivityID="userEventActivity.id" @update="updateFundraising" />
 
-    <b-modal id="donationHistory" :title="donationHistoryTitle" size="lg">
-      <b-table v-if="person" :items="person.donations" :fields="donorFields" foot-clone>
-        <template #cell(amount)="data">
-          {{ data.value | currency }}
-        </template>
-        <template #cell(date)="data">
-          {{ data.value | luxon({ input: { zone: "local" }, output: "DD" }) }}
-        </template>
-        <template #cell(event)="data">
-          {{ data.value.eventYear }} {{ data.value.eventName }}
-          <span v-if="data.value.eventActivityName">({{ data.value.eventActivityName }})</span>
-        </template>
+    <b-modal id="donorHistory" :title="donorHistoryTitle" size="lg" ok-only>
+      <DonationHistory v-if="person" :donations="person.donations"
+        @selectEvent="e => { $bvModal.hide('donorHistory'); $bvModal.hide('donationHistory'); $router.push({ name: 'registration-detail', params: { id: e.id } }) }" />
+    </b-modal>
 
-        <template #foot(amount)>
-          {{
-            person.donations.reduce(
-              (a, c) => a + Number.parseFloat(c.amount),
-              0
-            ) | currency
-          }}
-        </template>
-        <template #foot(date)>Total</template>
-        <template #foot()><span></span></template>
-      </b-table>
+    <b-modal id="donationHistory" :title="`${event.year} ${event.name} Donations`" size="lg" ok-only>
+      <DonationHistory v-if="fundraising" :donations="fundraising.donations" contextKey="person"
+        @selectDonor="showDonorHistory" />
     </b-modal>
 
     <b-modal id="importResults" body-class="mx-0 px-0 mb-0 pb-0" hide-footer>
@@ -231,9 +196,14 @@ import EventFilters from "@/mixins/events/Filters.js";
 import UnitConversion from "@/mixins/UnitConversion.js";
 import { DateTime } from "luxon";
 import Countdown from "vuejs-countdown";
+import { VueEllipseProgress } from "vue-ellipse-progress";
 import AddDonation from "@/components/event/fundraising/AddDonation.vue";
 import ActivityCard from "@/components/activity/cards/Result";
+import ActivityNote from "@/components/activity/Note.vue";
 import RelatedEventNav from "@/components/event/RelatedEventNav";
+import FundraisingChart from "@/components/activity/charts/Fundraising.vue";
+import EventResultChart from "@/components/activity/charts/EventResult.vue";
+import DonationHistory from "@/components/event/fundraising/History.vue";
 import { unitValue } from "@/utils/unitValue";
 
 export default {
@@ -246,9 +216,14 @@ export default {
   mixins: [Branding, EventFilters, UnitConversion],
   components: {
     Countdown,
+    VueEllipseProgress,
     AddDonation,
     ActivityCard,
+    ActivityNote,
     RelatedEventNav,
+    DonationHistory,
+    FundraisingChart,
+    EventResultChart
   },
   data: function () {
     return {
@@ -270,8 +245,9 @@ export default {
       activity: null,
       eventResult: null,
 
+      nav: {},
+
       person: null,
-      donorFields: [{ key: "date" }, { key: "event" }, { key: "amount" }],
 
       importFields: {}
     };
@@ -290,6 +266,9 @@ export default {
         .get(["user", "events", this.id].join("/"))
         .then((response) => {
           self.userEventActivity = response.data;
+          self.nav.global = self.userEventActivity.nav.find(x => x.description == null);
+          self.nav.group = self.userEventActivity.nav.find(x => x.description == 'group');
+          self.nav.series = self.userEventActivity.nav.filter(x => x.description != null && x.description != 'group')
           self.eventActivity = self.userEventActivity.eventActivity;
           delete self.userEventActivity.eventActivity;
           self.event = self.eventActivity.event;
@@ -298,7 +277,6 @@ export default {
           delete self.event.eventSeries;
           self.eventGroup = self.event.eventGroup;
           delete self.event.eventGroup;
-          this.relatedEvents.forEach((s) => self.getGroupNav(s));
           self.activity = self.userEventActivity.activity;
           delete self.userEventActivity.activity;
           if (self.userEventActivity.eventResult)
@@ -310,8 +288,6 @@ export default {
           delete self.userEventActivity.eventResult;
           self.fundraising = self.userEventActivity.fundraising;
           delete self.userEventActivity.fundraising;
-          self.nav = self.userEventActivity.nav;
-          delete self.userEventActivity.nav;
           if (
             self.eventActivity.results.importable &&
             self.eventActivity.results.importCompletion != null &&
@@ -320,23 +296,6 @@ export default {
             self.checkImportStatus();
         })
         .catch((err) => (self.error = err.response.data.message));
-    },
-    getGroupNav: function (s) {
-      let self = this;
-      if (s == null) return;
-      this.$http
-        .get(["user", "events", "groups", s.id].join("/"))
-        .then((resp) => {
-          let l = resp.data.events;
-          l.sort((a, b) =>
-            a.eventActivity.scheduledStart.localeCompare(
-              b.eventActivity.scheduledStart
-            )
-          );
-          let idx = l.findIndex((el) => el.id == self.id);
-          this.$set(s, "next", l[idx + 1]);
-          this.$set(s, "prev", l[idx - 1]);
-        });
     },
     updateFundraising: function (newValue) {
       this.fundraising = newValue;
@@ -360,10 +319,23 @@ export default {
         )
         .join(" + ");
     },
+    addDonation: function () {
+      if (this.isOutOfDate) {
+        this.$bvModal.msgBoxConfirm('This event occurred over one year ago. Are you sure you want to add a new donation to it?', {
+          title: "Event Out of Date",
+          okVariant: "warning",
+          okTitle: "Continue"
+        }).then(value => {
+          if (value) this.$bvModal.show('addDonation')
+        })
+      } else {
+        this.$bvModal.show('addDonation')
+      }
+    },
     showDonorHistory: function (d) {
       this.$http.get(["donors", d.id].join("/")).then((resp) => {
         this.person = { ...resp.data.person, donations: resp.data.donations };
-        this.$bvModal.show("donationHistory");
+        this.$bvModal.show("donorHistory");
       });
     },
     donorProgressClass: function (d, i) {
@@ -459,6 +431,21 @@ export default {
         DateTime.fromISO(this.eventActivity.scheduledStart) > DateTime.local()
       );
     },
+    isOutOfDate: function () {
+      return DateTime.fromISO(this.eventActivity.scheduledStart) < DateTime.now().minus({ years: 1 })
+    },
+    isRegistered: function () {
+      return this.userEventActivity.dateRegistered ||
+        Number.parseFloat(this.userEventActivity.registrationFee) ||
+        this.userEventActivity.registrationNumber
+    },
+    countdownPctElapsed: function () {
+      if (!this.userEventActivity.dateRegistered) return null;
+      let start = DateTime.fromISO(this.userEventActivity.dateRegistered).toUnixInteger();
+      let end = DateTime.fromISO(this.eventActivity.scheduledStart).toUnixInteger();
+      let now = DateTime.local().toUnixInteger();
+      return 100 * (1 - ((end - now) / (end - start)));
+    },
     countdownTarget: function () {
       return DateTime.fromISO(this.eventActivity.scheduledStart)
         .setZone("local")
@@ -487,7 +474,7 @@ export default {
       });
       return donors.sort((a, b) => this.donorTotal(a) - this.donorTotal(b));
     },
-    donationHistoryTitle: function () {
+    donorHistoryTitle: function () {
       let base = "Donation History";
       if (this.person == null) return base;
       return [
@@ -495,11 +482,30 @@ export default {
         base,
       ].join("'s ");
     },
+    fundraisingChartData: function () {
+      if (!this.fundraising) return {}
+      return {
+        donations: [...this.fundraising.donations],
+        minimum: this.fundraising.minimum,
+        received: this.fundraising.received,
+        from: this.userEventActivity.dateRegistered,
+        to: this.eventActivity.scheduledStart,
+      };
+    }
   },
 };
 </script>
 
 <style>
+.data-value-form {
+  font-size: 10pt;
+}
+
+.data-value-form legend {
+  font-weight: bold;
+  font-size: 9pt;
+}
+
 .event-details legend {
   font-weight: bold;
 }
