@@ -111,6 +111,7 @@ export default {
           }
         },
         plugins: {
+          datalabels: { display: false },
           legend: {
             labels: {
               filter: function (item, chart) {

@@ -146,6 +146,7 @@ export default {
           ...additionalAxis,
         },
         plugins: {
+          datalabels: { display: false },
           tooltip: {
             callbacks: {
               title: function () { return null },

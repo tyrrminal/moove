@@ -113,7 +113,7 @@ export default {
 
       return {
         datasets: [
-          { fill: 'start', data: data, backgroundColor: 'rgba(218, 131, 44, 0.5)' },
+          { fill: 'start', data: data, backgroundColor: 'rgba(218, 131, 44, 0.5)', datalabels: { display: false }, datalabels: { display: false } },
         ]
       }
     },
@@ -121,4 +121,5 @@ export default {
 }
 </script>
 
-<style></style>
+<style>
+</style>
