@@ -176,6 +176,11 @@ export default {
         a = a.eventActivity.scheduledStart;
         b = b.eventActivity.scheduledStart;
       }
+      if (key == "registrationNumber") {
+        t = "num";
+        a = a.registrationNumber || 0;
+        b = b.registrationNumber || 0;
+      }
       if (key == "registrationFee") {
         t = "num";
         a = a.registrationFee || 0;
