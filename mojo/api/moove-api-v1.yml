@@ -524,6 +524,85 @@ paths:
                 type: string
       tags:
         - Event
+  /eventgroups:
+    get:
+      parameters:
+        - in: query
+          name: name
+          required: true
+          schema:
+            type: string
+            minLength: 3
+        - in: query
+          name: type
+          required: true
+          schema:
+            type: string
+            enum: [parent, series]
+      summary: Search for event groups
+      x-mojo-to: EventGroup#list
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EventGroup"
+      tags:
+        - EventGroup
+    post:
+      summary: Create an event group
+      x-mojo-to: EventGroup#create
+      requestBody:
+        description: the event group
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EventGroup"
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventGroup"
+      security:
+        - Session:
+            - admin
+      tags:
+        - EventGroup
+  /eventgroups/{eventGroupID}:
+    parameters:
+      - in: path
+        name: eventGroupID
+        required: true
+        schema:
+          type: integer
+    patch:
+      summary: Modify an event group
+      x-mojo-to: EventGroup#update
+      requestBody:
+        description: the event group
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EventGroup"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventGroup"
+      security:
+        - Session:
+            - admin
+      tags:
+        - EventGroup
   /donors:
     get:
       parameters:
@@ -1519,6 +1598,10 @@ components:
         year:
           type: integer
           nullable: true
+        type:
+          type: string
+          enum: [parent, series]
+          writeOnly: true
         events:
           type: array
           items:
@@ -1958,5 +2041,6 @@ tags:
   - name: User
   - name: Activity
   - name: Event
+  - name: EventGroup
   - name: Goal
   - name: Workout
