@@ -1,40 +1,42 @@
 <template>
   <b-container>
-    <b-row>
-      <b-col cols="6">
-        <b-card class="mt-2" no-body v-if="eventGroup">
-          <b-card-header><strong>Parent Event
-              <b-icon v-if="eventGroup" icon="lock-fill" />
-            </strong></b-card-header>
-          <b-card-body>
-            <b-form-group>
-              <b-input :disabled="true" :value="eventGroup.name" />
-            </b-form-group>
-            <b-form-group>
-              <b-input-group>
-                <b-input :disabled="true" :value="eventGroup.url" />
-                <template #append>
-                  <b-button :href="eventGroup.url" target="_blank">
-                    <b-icon icon="link" />
-                  </b-button>
-                </template>
-              </b-input-group>
-            </b-form-group>
-          </b-card-body>
-        </b-card>
-      </b-col>
-    </b-row>
-
     <b-card class="mt-2" no-body>
-      <b-card-header><strong>Event</strong></b-card-header>
-      <b-card-body>
+      <b-card-header @click="collapse.eventGroup = !collapse.eventGroup" class="collapse-header"><strong>Event
+          Group</strong></b-card-header>
+      <b-card-body v-if="!collapse.eventGroup">
+        <b-button pill size="sm" variant="success" class="px-3 mr-2" v-b-modal.selectEventGroup><b-icon icon="list-ul"
+            class="mr-2" />Select
+          Group</b-button>
+        <b-row class="mt-2">
+          <b-col cols="6">
+            <b-form-group label="Name" label-cols="2">
+              <b-input :disabled="edit.eventGroup.id != null" :value="edit.eventGroup.name" />
+            </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row>
+          <b-col>
+            <b-form-group label="URL" label-cols="1">
+              <b-input :disabled="edit.eventGroup.id != null" :value="edit.eventGroup.url" />
+            </b-form-group>
+          </b-col>
+        </b-row>
+        <b-button pill size="sm" variant="secondary" class="px-3" @click="showEventGroupEditor"><b-icon icon="pencil"
+            class="mr-2" />Modify</b-button>
+      </b-card-body>
+    </b-card>
+
+    <b-card class="mt-2 mb-4" no-body>
+      <b-card-header @click="collapse.event = !collapse.event"
+        class="collapse-header"><strong>Event</strong></b-card-header>
+      <b-card-body v-if="!collapse.event">
         <b-row>
           <b-col cols="6">
             <b-form-group label="Name" label-cols="2">
               <b-input v-model="edit.event.name" />
             </b-form-group>
           </b-col>
-          <b-col offset="3" cols="3">
+          <b-col offset="2" cols="4">
             <b-form-group label="Year" label-cols="2">
               <b-input v-model="edit.event.year" />
             </b-form-group>
@@ -83,9 +85,11 @@
     </b-card>
 
     <b-card class="mt-2 mb-4" no-body>
-      <b-card-header><strong>Event Activities</strong></b-card-header>
-      <b-card-body>
-        <div v-for="(a, i) in edit.eventActivities" :key="i" class="border-left border-success mb-2 pl-2 pb-1 bg-light">
+      <b-card-header @click="collapse.eventActivities = !collapse.eventActivities" class="collapse-header"><strong>Event
+          Activities</strong></b-card-header>
+      <b-card-body v-if="!collapse.eventActivities">
+        <div v-for="( a, i ) in  edit.eventActivities " :key="i"
+          class="border-left border-success mb-2 pl-2 pb-1 bg-light">
           <div v-if="edit.eventActivities.length > 1 && !a.id" class="float-right">
             <b-button variant="danger" @click="edit.eventActivities.splice(i, 1)" size="sm">
               <b-icon icon="x" />
@@ -130,10 +134,17 @@
             <b-input v-model="a.externalIdentifier" :disabled="!edit.event.externalDataSourceID" />
           </b-form-group>
         </div>
-        <b-button variant="outline-success" @click="addEventActivity">
-          <b-icon scale="1.75" icon="plus" class="mr-1"></b-icon> Add an
+        <b-button variant="success" @click="addEventActivity" pill size="sm">
+          <b-icon icon="plus-circle" class="mr-1"></b-icon> Add an
           Activity
         </b-button>
+      </b-card-body>
+    </b-card>
+
+    <b-card class="mt-2 mb-4" no-body>
+      <b-card-header @click="collapse.eventSeries = !collapse.eventSeries" class="collapse-header"><strong>Event
+          Series</strong></b-card-header>
+      <b-card-body v-if="!collapse.eventSeries">
       </b-card-body>
     </b-card>
 
@@ -145,6 +156,36 @@
         <b-button @click="saveEvent" class="mb-4 float-right" variant="primary">Save</b-button>
       </b-col>
     </b-row>
+
+    <b-modal id="selectEventGroup" title="Select Event Group" @ok="selectEventGroup"
+      :ok-disabled="eventGroupSearch.selection == null">
+      <b-input-group>
+        <b-input v-model="eventGroupSearch.name" placeholder="Search" />
+        <template #append>
+          <b-button variant="success" @click="searchEventGroups">Search</b-button>
+        </template>
+      </b-input-group>
+
+      <div v-if="eventGroupSearch.results.length > 0">
+        <hr class="my-2" />
+
+        <b-button v-for=" r  in  eventGroupSearch.results " @click="eventGroupSearch.selection = r"
+          :variant="eventGroupSearch.selection == null || eventGroupSearch.selection.id != r.id ? 'outline-success' : 'success'"
+          class="my-1" pill block size="sm">
+          {{ r.name }}
+        </b-button>
+      </div>
+    </b-modal>
+
+    <b-modal id="modifyEventGroup" title="Modify Event Group" @ok="saveEventGroup">
+      <b-form-group label="Name" label-cols="3">
+        <b-input v-model="eventGroupEdit.name" />
+      </b-form-group>
+
+      <b-form-group label="URL" label-cols="3">
+        <b-input v-model="eventGroupEdit.url" />
+      </b-form-group>
+    </b-modal>
 
     <b-modal id="changeAddress" title="Edit Address" @cancel="clearAddress" @ok="saveAddress">
       <template v-if="newAddress">
@@ -192,12 +233,26 @@ export default {
   },
   data: function () {
     return {
+      collapse: {
+        eventGroup: false,
+        event: false,
+        eventActivities: false,
+        eventSeries: false
+      },
+
       edit: {
         event: { name: "" },
         eventGroup: { name: "" },
         eventActivities: [],
       },
       newAddress: null,
+      eventGroupEdit: {},
+
+      eventGroupSearch: {
+        name: "",
+        results: [],
+        selection: null
+      }
     };
   },
   props: {
@@ -219,6 +274,8 @@ export default {
     },
   },
   mounted: function () {
+    if (this.eventGroup)
+      this.edit.eventGroup = this.eventGroup;
     this.reload();
   },
   methods: {
@@ -255,6 +312,33 @@ export default {
     clearExternalDataSource: function () {
       this.edit.event.externalDataSourceID = null;
       this.edit.event.externalIdentifier = null
+    },
+    searchEventGroups: function () {
+      this.$http.get("eventgroups", { params: { type: 'parent', name: this.eventGroupSearch.name } })
+        .then(resp => this.eventGroupSearch.results = resp.data)
+    },
+    selectEventGroup: function () {
+      this.edit.eventGroup = { ...this.eventGroupSearch.selection }
+    },
+    showEventGroupEditor: function () {
+      this.eventGroupEdit = { ...this.edit.eventGroup }
+      this.$bvModal.show('modifyEventGroup')
+    },
+    saveEventGroup: function () {
+      let self = this;
+      let eg = this.eventGroupEdit;
+      let eventGroupID = eg.id;
+      delete eg.id;
+
+      let p;
+      if (eventGroupID == null) {
+        p = this.$http.post("eventgroups", eg);
+      } else {
+        p = this.$http.patch(`eventgroups/${eventGroupID}`, eg)
+      }
+      p.then(resp => {
+        self.edit.eventGroup = { ...resp.data }
+      })
     },
     makeNewAddress: function () {
       this.newAddress = Object.assign({}, this.edit.event.address);
@@ -342,4 +426,8 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+.collapse-header {
+  cursor: row-resize
+}
+</style>
