@@ -75,11 +75,6 @@
               </b-input-group>
             </b-form-group>
           </b-col>
-          <b-col cols="6">
-            <b-form-group label="Results Event ID" label-cols="4" content-cols="6">
-              <b-input v-model="edit.event.externalIdentifier" :disabled="!edit.event.externalDataSourceID" />
-            </b-form-group>
-          </b-col>
         </b-row>
       </b-card-body>
     </b-card>
@@ -130,13 +125,17 @@
               </b-form-group>
             </b-col>
           </b-row>
-          <b-form-group label="Results Activity ID" label-cols="2" content-cols="2">
-            <b-input v-model="a.externalIdentifier" :disabled="!edit.event.externalDataSourceID" />
-          </b-form-group>
+          <div v-if="eventDataSource">
+            <strong>{{ eventDataSource.name }} Parameters</strong>
+            <b-form-group v-for="f in eventDataSource.fields" :label="f.label" label-cols="2" content-cols="4"
+              label-class="importParams-label" :state="!f.required == !a.importParameters[f.name]" class="my-0 py-0">
+              <b-input v-model="a.importParameters[f.name]" :required="f.required"
+                :state="!f.required == !a.importParameters[f.name]" size="sm" />
+            </b-form-group>
+          </div>
         </div>
         <b-button variant="success" @click="addEventActivity" pill size="sm">
-          <b-icon icon="plus-circle" class="mr-1"></b-icon> Add an
-          Activity
+          <b-icon icon="plus-circle" class="mr-1" />Add an Activity
         </b-button>
       </b-card-body>
     </b-card>
@@ -383,7 +382,7 @@ export default {
             name: a.name,
             eventType: { id: a.eventType.id },
             distance: { value: a.distance.value, unitOfMeasureID: a.distance.unitOfMeasureID },
-            externalIdentifier: a.externalIdentifier,
+            importParameters: a.importParameters,
           };
           promises.push(a.id == null ? this.$http.post(["events", resp.data.id, "activities"].join("/"), eaRecord) : this.$http.patch(["events", "activities", a.id].join("/"), eaRecord));
         });
@@ -406,6 +405,9 @@ export default {
     distanceUnitsOfMeasure: function () {
       return this.unitsOfMeasure.filter(x => x.type == 'Distance')
     },
+    eventDataSource: function () {
+      return this.eventDataSources.find(x => x.id == this.edit.event.externalDataSourceID)
+    },
     eventDataSources: function () {
       return this.externalDataSources.filter((x) => x.type == "Event");
     },
@@ -427,6 +429,10 @@ export default {
 </script>
 
 <style>
+.importParams-label {
+  font-size: 0.875rem;
+}
+
 .collapse-header {
   cursor: row-resize
 }

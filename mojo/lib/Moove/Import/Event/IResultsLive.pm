@@ -5,21 +5,10 @@ with 'Moove::Import::Event::Base';
 
 use DateTime::Format::Strptime;
 use Moove::Util::Unit::Normalization qw(normalize_times);
+use JSON::Validator::Joi qw(joi);
 
 use builtin      qw(true);
 use experimental qw(builtin);
-
-has 'race_id' => (
-  is     => 'rw',
-  isa    => 'Str|Undef',
-  writer => '_set_race_id'
-);
-
-has 'event_id' => (
-  is       => 'ro',
-  isa      => 'Str',
-  required => true
-);
 
 has 'base_url' => (
   is       => 'ro',
@@ -51,6 +40,16 @@ has 'key_map' => (
     'get_key' => 'get'
   }
 );
+
+sub _build_import_param_schema($self) {
+  my $jv = JSON::Validator->new();
+  return $jv->schema(
+    joi->object->strict->props(
+      event_id => joi->integer->required,
+      race_id  => joi->string,
+    )
+  );
+}
 
 sub _build_url ($self) {
   my $md = Mojo::URL->new($self->base_url);

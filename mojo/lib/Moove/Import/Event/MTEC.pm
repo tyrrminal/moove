@@ -6,6 +6,7 @@ with 'Moove::Import::Event::Base';
 use Readonly;
 use Scalar::Util qw(looks_like_number);
 use Data::Dumper;
+use JSON::Validator::Joi qw(joi);
 use Moove::Util::Unit::Normalization qw(normalize_times);
 
 use DCS::Constants qw(:symbols);
@@ -17,18 +18,6 @@ use Moove::Import::Event::Constants qw(:event);
 
 Readonly::Scalar my $metadata_url => 'https://www.mtecresults.com/race/show/%s/';
 Readonly::Scalar my $results_url  => 'https://www.mtecresults.com/race/show/%s';
-
-has 'event_id' => (
-  is       => 'ro',
-  isa      => 'Str',
-  required => true
-);
-
-has 'race_id' => (
-  is      => 'ro',
-  isa     => 'Undef',
-  default => undef
-);
 
 has 'key_map' => (
   traits   => ['Hash'],
@@ -53,6 +42,15 @@ has 'key_map' => (
     get_key => 'get'
   }
 );
+
+sub _build_import_param_schema($self) {
+  my $jv = JSON::Validator->new();
+  return $jv->schema(
+    joi->object->strict->props(
+      event_id => joi->integer->required,
+    )
+  );
+}
 
 sub url ($self) {
   return sprintf($metadata_url, $self->event_id);

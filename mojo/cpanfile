@@ -33,6 +33,7 @@ requires 'Mojolicious::Plugin::Minion';
 requires 'Mojolicious::Plugin::OpenAPI';
 requires 'Mojolicious';
 requires 'Moose';
+requires 'MooseX::ClassAttribute';
 requires 'MooseX::NonMoose';
 requires 'Net::LDAP';
 requires 'Net::SSLeay';
