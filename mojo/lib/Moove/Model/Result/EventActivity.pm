@@ -361,6 +361,11 @@ sub add_placements_for_gender ($self, $gender) {
   }
 }
 
+sub import_params($self) {
+  return decode_json($self->import_parameters) if($self->import_parameters);
+  return {};
+}
+
 sub qualified_external_identifier ($self) {
   return join($UNDERSCORE, grep {defined} ($self->event->external_identifier, $self->external_identifier));
 }
