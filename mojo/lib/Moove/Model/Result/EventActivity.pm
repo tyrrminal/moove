@@ -256,7 +256,7 @@ sub url ($self) {
     require(class_to_path($edc->import_class));
     if(defined($edc->import_class->import_param_schema)) {
       my $importer = $edc->import_class->new(import_params => decode_json($self->import_parameters));
-      push(@urls, $importer->url);
+      unshift(@urls, $importer->url);
     }
   }
   @urls = grep {defined} @urls;
