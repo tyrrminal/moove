@@ -265,11 +265,13 @@ sub url ($self) {
 }
 
 sub is_importable ($self) {
-  my $edc            = $self->event->external_data_source;
-  my $class          = $edc->import_class;
-  require(class_to_path($class));
-  my $schema = $class->import_param_schema;
-  return $schema->validate($self->import_parameters);
+  if(my $edc            = $self->event->external_data_source) {
+    my $class          = $edc->import_class;
+    require(class_to_path($class));
+    my $schema = $class->import_param_schema;
+    return $schema->validate($self->import_parameters);
+  }
+  return;
 }
 
 sub has_results ($self) {
