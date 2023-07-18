@@ -243,6 +243,7 @@ use v5.36;
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 use Mojo::Util qw(class_to_path);
 use Scalar::Util qw(looks_like_number);
+use Mojo::JSON qw(decode_json);
 
 use DCS::Constants qw(:symbols);
 
@@ -261,6 +262,14 @@ sub url ($self) {
   }
   @urls = grep {defined} @urls;
   return $urls[0];
+}
+
+sub is_importable ($self) {
+  my $edc            = $self->event->external_data_source;
+  my $class          = $edc->import_class;
+  require(class_to_path($class));
+  my $schema = $class->import_param_schema;
+  return $schema->validate($self->import_parameters);
 }
 
 sub has_results ($self) {
