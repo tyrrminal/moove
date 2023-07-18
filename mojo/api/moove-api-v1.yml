@@ -1457,9 +1457,6 @@ components:
         externalDataSourceID:
           type: integer
           nullable: true
-        externalIdentifier:
-          type: string
-          nullable: true
         activities:
           type: array
           items:
@@ -1502,7 +1499,7 @@ components:
           $ref: "#/components/schemas/Event"
         eventType:
           $ref: "#/components/schemas/EventType"
-        externalIdentifier:
+        importParameters:
           type: string
           nullable: true
     EventGroup:
