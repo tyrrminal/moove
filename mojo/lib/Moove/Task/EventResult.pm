@@ -16,7 +16,7 @@ sub register ($self, $app, $args) {
       my $edc            = $event->external_data_source;
       my $class          = $edc->import_class;
       require(class_to_path($class));
-      my $importer = $class->new(event_id => $event->external_identifier, race_id => $event_activity->external_identifier, import_fields => $import_fields);
+      my $importer = $class->new(import_params => $event_activity->import_params, import_fields => $import_fields);
       
       # BEGIN LRP
       my @participants = $importer->results->@*;

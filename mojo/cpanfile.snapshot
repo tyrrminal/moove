@@ -2459,20 +2459,6 @@ DISTRIBUTIONS
       Sys::Hostname 0
       Time::HiRes 0
       perl 5.010001
-  Modern-Perl-1.20200211
-    pathname: C/CH/CHROMATIC/Modern-Perl-1.20200211.tar.gz
-    provides:
-      Modern::Perl 1.20200211
-      odern::Perl 1.20200211
-    requirements:
-      ExtUtils::MakeMaker 0
-      IO::File 0
-      IO::Handle 0
-      feature 0
-      mro 0
-      perl 5.010
-      strict 0
-      warnings 0
   Module-Build-0.4231
     pathname: L/LE/LEONT/Module-Build-0.4231.tar.gz
     provides:
@@ -3376,6 +3362,33 @@ DISTRIBUTIONS
       parent 0.223
       strict 1.03
       warnings 1.03
+  MooseX-ClassAttribute-0.29
+    pathname: D/DR/DROLSKY/MooseX-ClassAttribute-0.29.tar.gz
+    provides:
+      MooseX::ClassAttribute 0.29
+      MooseX::ClassAttribute::Meta::Role::Attribute 0.29
+      MooseX::ClassAttribute::Trait::Application 0.29
+      MooseX::ClassAttribute::Trait::Application::ToClass 0.29
+      MooseX::ClassAttribute::Trait::Application::ToRole 0.29
+      MooseX::ClassAttribute::Trait::Attribute 0.29
+      MooseX::ClassAttribute::Trait::Class 0.29
+      MooseX::ClassAttribute::Trait::Mixin::HasClassAttributes 0.29
+      MooseX::ClassAttribute::Trait::Role 0.29
+      MooseX::ClassAttribute::Trait::Role::Composite 0.29
+    requirements:
+      ExtUtils::MakeMaker 0
+      List::Util 1.45
+      Moose 2.00
+      Moose::Exporter 0
+      Moose::Meta::Role::Attribute 0
+      Moose::Role 0
+      Moose::Util 0
+      Moose::Util::MetaRole 0
+      Scalar::Util 0
+      namespace::autoclean 0.11
+      namespace::clean 0.20
+      strict 0
+      warnings 0
   MooseX-NonMoose-0.26
     pathname: D/DO/DOY/MooseX-NonMoose-0.26.tar.gz
     provides:
@@ -5112,7 +5125,6 @@ DISTRIBUTIONS
       HTTP::Status 0
       IO::File 0
       IO::Socket::SSL 1.26
-      JSON 0
       LWP 0
       LWP::MediaTypes 0
       LWP::Protocol 0

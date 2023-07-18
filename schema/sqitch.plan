@@ -15,3 +15,4 @@ add_bodyweight_context 2023-02-09T14:43:18Z root <root@e99c1c58dab5> # Add an ac
 add_virtual_event_types 2023-03-27T20:08:50Z root <root@4263e418f9aa> # add column to eventtype to mark virtual types
 add_rtrt_external_data_source 2023-04-15T21:00:16Z root <root@9e707f535c7c> # Add Real-Time Race Tracking entry to External Data Source
 add_raceresult_to_externaldatasource 2023-06-21T22:06:27Z root <root@dc2f79778a23> # add RaceResult event importer
+support_arbitrary_fields_for_event_import 2023-07-16T20:30:45Z root <root@abf5018297fb> # convert existing event and event activity identifiers to a key-value pair system

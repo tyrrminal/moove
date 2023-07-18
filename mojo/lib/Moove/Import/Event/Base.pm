@@ -1,13 +1,16 @@
 package Moove::Import::Event::Base;
 use v5.36;
+use builtin      qw(true);
 
 use Moose::Role;
+use MooseX::ClassAttribute;
 
-use builtin      qw(true);
-use experimental qw(builtin);
+use JSON::Validator::Joi qw(joi);
 
 use DCS::Constants qw(:symbols);
 use Moove::Import::Event::Constants qw(:event);
+
+use experimental qw(builtin);
 
 requires qw(
   url
@@ -24,6 +27,35 @@ has 'results' => (
     total_entrants => 'count'
   }
 );
+
+has 'import_params' => (
+  traits   => ['Hash'],
+  is       => 'ro',
+  isa      => 'HashRef[Int|Str]',
+  required => true,
+  handles  => {
+    event_id => [get => 'event_id'],
+    race_id  => [get => 'race_id'],
+  }
+);
+
+class_has 'import_param_schema' => (
+  is       => 'ro',
+  isa      => 'JSON::Validator',
+  init_arg => undef,
+  builder  => '_build_import_param_schema',
+  lazy     => true,
+);
+
+sub _build_import_param_schema($class) {
+  my $jv = JSON::Validator->new();
+  return $jv->schema(
+    joi->object->strict->props(
+      event_id => joi->integer->required,
+      race_id  => joi->string->required,
+    )
+  );
+}
 
 sub import_request_fields($class) { return [] }
 

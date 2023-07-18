@@ -95,6 +95,7 @@ paths:
             application/json:
               schema:
                 type: object
+                additionalProperties: false
                 properties:
                   activityTypes:
                     type: array
@@ -108,7 +109,7 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/Unit"
-                  externalDataSource:
+                  externalDataSources:
                     type: array
                     items:
                       $ref: "#/components/schemas/ExternalDataSource"
@@ -1456,9 +1457,6 @@ components:
         externalDataSourceID:
           type: integer
           nullable: true
-        externalIdentifier:
-          type: string
-          nullable: true
         activities:
           type: array
           items:
@@ -1501,9 +1499,8 @@ components:
           $ref: "#/components/schemas/Event"
         eventType:
           $ref: "#/components/schemas/EventType"
-        externalIdentifier:
-          type: string
-          nullable: true
+        importParameters:
+          type: object
     EventGroup:
       type: object
       additionalProperties: false
@@ -1659,8 +1656,22 @@ components:
           type: string
         type:
           type: string
-        baseUrl:
+        baseURL:
           type: string
+        fields:
+          type: array
+          items: 
+            type: object
+            additionalProperties: true
+            properties:
+              name:
+                type: string
+              label:
+                type: string
+              required:
+                type: boolean
+              type: 
+                type: string
     Donation:
       type: object
       additionalProperties: false

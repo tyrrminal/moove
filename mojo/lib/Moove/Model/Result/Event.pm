@@ -88,12 +88,6 @@ __PACKAGE__->table("Event");
   is_foreign_key: 1
   is_nullable: 1
 
-=head2 external_identifier
-
-  data_type: 'varchar'
-  is_nullable: 1
-  size: 45
-
 =cut
 
 __PACKAGE__->add_columns(
@@ -131,8 +125,6 @@ __PACKAGE__->add_columns(
     is_foreign_key => 1,
     is_nullable => 1,
   },
-  "external_identifier",
-  { data_type => "varchar", is_nullable => 1, size => 45 },
 );
 
 =head1 PRIMARY KEY
@@ -246,8 +238,8 @@ __PACKAGE__->many_to_many("event_series", "event_series_events", "event_series")
 #>>>
 use v5.36;
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-08-02 10:06:54
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:dxZzTINoF7nRQPgCpt+KEw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-07-18 15:05:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:FghNfZyq2D5BBEHPzRKjow
 
 use DCS::DateTime::Extras;
 use DCS::Constants qw(:symbols);

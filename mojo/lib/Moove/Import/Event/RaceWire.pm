@@ -16,17 +16,6 @@ use experimental qw(builtin);
 Readonly::Scalar my $results_url     => 'https://my.racewire.com/results/%d/%d';
 Readonly::Scalar my $results_api_url => 'https://racewireapi.global.ssl.fastly.net/raceevent_results/';
 
-has 'event_id' => (
-  is       => 'ro',
-  isa      => 'Str',
-  required => true
-);
-
-has 'race_id' => (
-  is  => 'ro',
-  isa => 'Maybe[Str]'
-);
-
 has 'key_map' => (
   traits   => ['Hash'],
   is       => 'ro',

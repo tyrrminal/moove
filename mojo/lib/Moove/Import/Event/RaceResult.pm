@@ -5,6 +5,7 @@ use builtin      qw(true);
 use Moose;
 with 'Moove::Import::Event::Base';
 
+use JSON::Validator::Joi qw(joi);
 use Readonly;
 use Scalar::Util qw(looks_like_number);
 use Moove::Util::Unit::Normalization qw(normalize_times);
@@ -16,18 +17,6 @@ use Moove::Import::Event::Constants qw(:event);
 
 Readonly::Scalar my $metadata_url => 'https://www.secondwindtiming.com/result-page/?id=%s';
 Readonly::Scalar my $results_url  => 'https://my2.raceresult.com/%s/RRPublish/data/list';
-
-has 'event_id' => (
-  is       => 'ro',
-  isa      => 'Str',
-  required => true
-);
-
-has 'race_id' => (
-  is      => 'ro',
-  isa     => 'Str',
-  default => undef
-);
 
 has 'key_map' => (
   traits   => ['Hash'],
@@ -64,21 +53,31 @@ has 'key_order' => (
   }
 );
 
+sub _build_import_param_schema($self) {
+  my $jv = JSON::Validator->new();
+  return $jv->schema(
+    joi->object->strict->props(
+      event_id   => joi->integer->required,
+      import_key => joi->string->required,
+      race_id    => joi->string->required,
+      contest_id => joi->integer->required,
+      listname   => joi->string->required,
+    )
+  );
+}
+
 sub url ($self) {
   my ($event_id, $key) = split(/\|/, $self->event_id);
   return sprintf($metadata_url, $event_id);
 }
 
 sub _build_results ($self) {
-  my ($event_id, $key) = split(/\|/, $self->event_id);
-  my ($race_id, $contest_id) = (split(/\|/, $self->race_id),0);
-
-  my $url = Mojo::URL->new(sprintf($results_url, $event_id));
+  my $url = Mojo::URL->new(sprintf($results_url, $self->event_id));
   $url->query(
-    key => $key,
-    listname => 'Result Lists|Overall Results',
+    key => $self->import_params->{import_key},
+    listname => $self->import_params->{listname},
     page => 'results',
-    contest => $contest_id,
+    contest => $self->import_params->{contest_id},
     r => 'all',
     l => 0
   );
@@ -91,6 +90,7 @@ sub _build_results ($self) {
     push($self->key_order->@*, $self->get_key($f->{Label}));
   }
 
+  my $race_id = $self->race_id;
   my $contest_key;
   foreach (keys($res->json->{data}->%*)) {
     $contest_key = $_ and last if(/^#\d+_$race_id$/);
