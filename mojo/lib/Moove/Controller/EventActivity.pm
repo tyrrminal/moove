@@ -4,6 +4,8 @@ use v5.36;
 use Mojo::Base 'DCS::Base::API::Model::Controller';
 use Role::Tiny::With;
 
+use Mojo::JSON qw(encode_json);
+
 with 'DCS::Base::Role::Rest::Get', 'DCS::Base::Role::Rest::Create', 'DCS::Base::Role::Rest::Update',
   'DCS::Base::Role::Rest::Delete';
 with 'Moove::Controller::Role::ModelEncoding::Registration::Event',
@@ -61,6 +63,7 @@ sub decode_model ($self, $data) {
   my $distance = delete($data->{distance});
   $data->{distance_id} = $self->model('Distance')
     ->find_or_create_in_units($distance->{value}, $self->model('UnitOfMeasure')->find($distance->{unit_of_measure_id}))->id;
+  $data->{import_parameters} = encode_json($data->{import_parameters});
   return $data;
 }
 
