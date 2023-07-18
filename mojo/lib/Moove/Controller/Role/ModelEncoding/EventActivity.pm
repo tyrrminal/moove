@@ -17,9 +17,9 @@ sub encode_model_eventactivity ($self, $entity) {
     scheduledStart     => $self->encode_datetime($entity->scheduled_start),
     eventType          => $self->encode_model($entity->event_type),
     distance           => $self->encode_model($entity->distance),
-    externalIdentifier => $entity->external_identifier,
+    importParameters   => $self->encode_model($entity->import_parameters),
     results            => {
-      importable => defined($entity->event->external_identifier) && $entity->scheduled_start < DateTime->now(),
+      importable => defined($entity->is_importable) && $entity->scheduled_start < DateTime->now(),
     }
   };
 }
