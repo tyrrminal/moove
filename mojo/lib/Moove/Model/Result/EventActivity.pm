@@ -90,11 +90,10 @@ __PACKAGE__->table("EventActivity");
   is_foreign_key: 1
   is_nullable: 0
 
-=head2 external_identifier
+=head2 import_parameters
 
-  data_type: 'varchar'
+  data_type: 'longtext'
   is_nullable: 1
-  size: 45
 
 =cut
 
@@ -137,8 +136,8 @@ __PACKAGE__->add_columns(
     is_foreign_key => 1,
     is_nullable => 0,
   },
-  "external_identifier",
-  { data_type => "varchar", is_nullable => 1, size => 45 },
+  "import_parameters",
+  { data_type => "longtext", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -237,8 +236,8 @@ __PACKAGE__->belongs_to(
 #>>>
 use v5.36;
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-09 12:32:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:HhVDw3uoJNS9EbA1NywLog
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-07-18 15:05:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:PeqXVqqzRh4o0uIfGD0Y8Q
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
