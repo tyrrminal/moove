@@ -29,9 +29,14 @@ has 'results' => (
 );
 
 has 'import_params' => (
+  traits   => ['Hash'],
   is       => 'ro',
   isa      => 'HashRef[Int|Str]',
-  required => true
+  required => true,
+  handles  => {
+    event_id => [get => 'event_id'],
+    race_id  => [get => 'race_id'],
+  }
 );
 
 class_has 'import_param_schema' => (
@@ -89,14 +94,6 @@ sub split_names ($self, $v ) {
 
   $v->{first_name} = $DEFAULT_FIRST_NAME unless (defined($v->{first_name}));
   $v->{last_name}  = $DEFAULT_LAST_NAME  unless (defined($v->{last_name}));
-}
-
-sub event_id($self) {
-  return $self->import_params->{event_id}
-}
-
-sub race_id($self) {
-  return $self->import_params->{race_id}
 }
 
 1;
