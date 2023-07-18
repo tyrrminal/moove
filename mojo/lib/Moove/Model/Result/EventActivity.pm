@@ -241,7 +241,7 @@ use v5.36;
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
-use Module::Util qw(module_path);
+use Mojo::Util qw(class_to_path);
 use Scalar::Util qw(looks_like_number);
 
 use DCS::Constants qw(:symbols);
@@ -253,9 +253,9 @@ sub description ($self) {
 sub url ($self) {
   my @urls = ($self->event->url);
   if (my $edc = $self->event->external_data_source) {
-    if(defined($self->event->external_identifier)) {
-      require(module_path($edc->import_class));
-      my $importer = $edc->import_class->new(event_id => $self->event->external_identifier, race_id => $self->external_identifier);
+    require(class_to_path($edc->import_class));
+    if(defined($edc->import_class->import_param_schema)) {
+      my $importer = $edc->import_class->new(import_params => decode_json($self->import_parameters));
       push(@urls, $importer->url);
     }
   }
