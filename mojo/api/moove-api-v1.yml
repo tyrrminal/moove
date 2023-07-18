@@ -1657,8 +1657,22 @@ components:
           type: string
         type:
           type: string
-        baseUrl:
+        baseURL:
           type: string
+        fields:
+          type: array
+          items: 
+            type: object
+            additionalProperties: true
+            properties:
+              name:
+                type: string
+              label:
+                type: string
+              required:
+                type: boolean
+              type: 
+                type: string
     Donation:
       type: object
       additionalProperties: false
