@@ -95,6 +95,7 @@ paths:
             application/json:
               schema:
                 type: object
+                additionalProperties: false
                 properties:
                   activityTypes:
                     type: array
@@ -108,7 +109,7 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/Unit"
-                  externalDataSource:
+                  externalDataSources:
                     type: array
                     items:
                       $ref: "#/components/schemas/ExternalDataSource"
