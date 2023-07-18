@@ -3,6 +3,7 @@ use v5.36;
 use Moose;
 with 'Moove::Import::Event::Base';
 
+use JSON::Validator::Joi qw(joi);
 use DateTime::Format::Strptime;
 use Readonly;
 use Moove::Util::Unit::Normalization qw(normalize_times);
@@ -17,18 +18,6 @@ Readonly::Scalar my $RESULTS_URL  => 'https://results.raceroster.com/api/v1/sub-
 Readonly::Hash my %QUERY_PARAMS => (
   condensed      => '1',
   time_precision => 'full_second'
-);
-
-has 'event_id' => (
-  is       => 'ro',
-  isa      => 'Str',
-  required => true
-);
-
-has 'race_id' => (
-  is      => 'ro',
-  isa     => 'Str|Undef',
-  default => undef
 );
 
 has '_url' => (

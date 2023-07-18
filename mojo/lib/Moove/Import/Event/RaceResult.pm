@@ -5,6 +5,7 @@ use builtin      qw(true);
 use Moose;
 with 'Moove::Import::Event::Base';
 
+use JSON::Validator::Joi qw(joi);
 use Readonly;
 use Scalar::Util qw(looks_like_number);
 use Moove::Util::Unit::Normalization qw(normalize_times);
@@ -16,18 +17,6 @@ use Moove::Import::Event::Constants qw(:event);
 
 Readonly::Scalar my $metadata_url => 'https://www.secondwindtiming.com/result-page/?id=%s';
 Readonly::Scalar my $results_url  => 'https://my2.raceresult.com/%s/RRPublish/data/list';
-
-has 'event_id' => (
-  is       => 'ro',
-  isa      => 'Str',
-  required => true
-);
-
-has 'race_id' => (
-  is      => 'ro',
-  isa     => 'Str',
-  default => undef
-);
 
 has 'key_map' => (
   traits   => ['Hash'],
@@ -63,6 +52,19 @@ has 'key_order' => (
     key_order_size => 'count'
   }
 );
+
+sub _build_import_param_schema($self) {
+  my $jv = JSON::Validator->new();
+  return $jv->schema(
+    joi->object->strict->props(
+      event_id   => joi->integer->required,
+      import_key => joi->string->required,
+      race_id    => joi->string->required,
+      contest_id => joi->integer->required,
+      listname   => joi->string->required,
+    )
+  );
+}
 
 sub url ($self) {
   my ($event_id, $key) = split(/\|/, $self->event_id);

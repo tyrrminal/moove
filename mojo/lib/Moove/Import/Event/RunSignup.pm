@@ -19,18 +19,6 @@ Readonly::Scalar my $results_url     => 'https://runsignup.com/Race/Results/%s#r
 Readonly::Scalar my $results_api_url => 'https://runsignup.com/Race/Results/%s';
 # ?resultSetId=350160&page=1&num=100&search=';
 
-has 'event_id' => (
-  is       => 'ro',
-  isa      => 'Str',
-  required => true
-);
-
-has 'race_id' => (
-  is       => 'ro',
-  isa      => 'Str',
-  required => true,
-);
-
 has 'key_map' => (
   traits   => ['Hash'],
   is       => 'ro',

@@ -6,6 +6,7 @@ with 'Moove::Import::Event::Base';
 use DateTime::Format::Strptime;
 use Lingua::EN::Titlecase;
 use List::MoreUtils qw(uniq);
+use JSON::Validator::Joi qw(joi);
 
 use Moove::Import::Helper::CityService;
 use Moove::Util::Unit::Normalization qw(normalize_times);
@@ -14,18 +15,6 @@ use DCS::Constants qw(:symbols);
 
 use builtin      qw(true);
 use experimental qw(builtin);
-
-has 'event_id' => (
-  is       => 'ro',
-  isa      => 'Str',
-  required => true
-);
-
-has 'race_id' => (
-  is      => 'ro',
-  isa     => 'Undef',
-  default => undef
-);
 
 has 'base_url' => (
   is       => 'ro',
@@ -78,6 +67,15 @@ has 'key_map' => (
     'get_key' => 'get'
   }
 );
+
+sub _build_import_param_schema($self) {
+  my $jv = JSON::Validator->new();
+  return $jv->schema(
+    joi->object->strict->props(
+      event_id => joi->integer->required,
+    )
+  );
+}
 
 sub _build_results_page ($self) {
   my $pre = $self->_url;
