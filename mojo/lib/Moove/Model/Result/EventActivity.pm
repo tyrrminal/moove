@@ -264,14 +264,22 @@ sub url ($self) {
   return $urls[0];
 }
 
-sub is_importable ($self) {
-  if(my $edc            = $self->event->external_data_source) {
+sub import_validation_errors ($self) {
+  if(my $edc = $self->event->external_data_source) {
+    my @errors;
     my $class          = $edc->import_class;
     require(class_to_path($class));
-    my $schema = $class->import_param_schema;
-    return $schema->validate($self->import_parameters);
+    my $schemas = $class->import_param_schemas;
+
+    push(@errors, $schemas->{event}->validate($self->event->import_params));
+    push(@errors, $schemas->{eventactivity}->validate($self->import_params));
+    return @errors;
   }
-  return;
+  return ('No import data source configured');
+}
+
+sub is_importable ($self) {
+  return $self->import_validation_errors < 1;
 }
 
 sub has_results ($self) {
