@@ -53,17 +53,22 @@ has 'key_order' => (
   }
 );
 
-sub _build_import_param_schema($self) {
-  my $jv = JSON::Validator->new();
-  return $jv->schema(
-    joi->object->strict->props(
-      event_id   => joi->integer->required,
-      import_key => joi->string->required,
-      race_id    => joi->string->required,
-      contest_id => joi->integer->required,
-      listname   => joi->string->required,
+sub _build_import_param_schemas($self) {
+  return {
+    event => JSON::Validator->new()->schema(
+      joi->object->strict->props(
+        event_id   => joi->integer->required->min(1),
+        import_key => joi->string->required->min(1),
+      ),
+    ),
+    eventactivity => JSON::Validator->new()->schema(
+      joi->object->strict->props(
+        race_id    => joi->string->required->min(1),
+        contest_id => joi->integer->required->min(1),
+        listname   => joi->string->required->min(1),
+      )
     )
-  );
+  }
 }
 
 sub url ($self) {
