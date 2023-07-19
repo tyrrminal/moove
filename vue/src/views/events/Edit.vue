@@ -181,9 +181,9 @@
       <div v-if="eventGroupSearch.results.length > 0">
         <hr class="my-2" />
 
-        <b-button v-for=" r  in  eventGroupSearch.results " @click="eventGroupSearch.selection = r"
-          :variant="eventGroupSearch.selection == null || eventGroupSearch.selection.id != r.id ? 'outline-success' : 'success'"
-          class="my-1" pill block size="sm">
+        <b-button v-for="r in eventGroupSearch.results " @click="eventGroupSearch.selection = r"
+          :variant="eventGroupSearch.selection == null || eventGroupSearch.selection.id != r.id ? 'outline-primary' : 'primary'"
+          class="my-1" block size="sm">
           {{ r.name }}
         </b-button>
       </div>
