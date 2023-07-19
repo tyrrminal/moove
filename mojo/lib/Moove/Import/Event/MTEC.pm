@@ -57,7 +57,7 @@ sub _build_import_param_schemas($class) {
 }
 
 sub url ($self) {
-  return sprintf($metadata_url, $self->event_id);
+  return undef unless (defined($self->event_id));
   return sprintf($METADATA_URL, $self->event_id);
 }
 
