@@ -255,8 +255,8 @@ sub url ($self) {
   my @urls = ($self->event->url);
   if (my $edc = $self->event->external_data_source) {
     require(class_to_path($edc->import_class));
-    if(defined($edc->import_class->import_param_schema)) {
-      my $importer = $edc->import_class->new(import_params => $self->import_params);
+    if(defined($edc->import_class->import_param_schemas)) {
+      my $importer = $edc->import_class->new(import_params => $self->all_import_params);
       unshift(@urls, $importer->url);
     }
   }
