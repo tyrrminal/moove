@@ -13,8 +13,8 @@ use DCS::Constants qw(:symbols);
 use builtin      qw(true);
 use experimental qw(builtin);
 
-Readonly::Scalar my $results_url     => 'https://my.racewire.com/results/%d/%d';
-Readonly::Scalar my $results_api_url => 'https://racewireapi.global.ssl.fastly.net/raceevent_results/';
+Readonly::Scalar my $RESULTS_URL     => 'https://my.racewire.com/results/%d/%d';
+Readonly::Scalar my $RESULTS_API_URL => 'https://racewireapi.global.ssl.fastly.net/raceevent_results/';
 
 has 'key_map' => (
   traits   => ['Hash'],
@@ -49,7 +49,7 @@ has 'key_map' => (
 );
 
 sub _build_results ($self) {
-  my $results = Mojo::URL->new($results_api_url . join('/', grep {defined} ($self->event_id, $self->race_id)));
+  my $results = Mojo::URL->new($RESULTS_API_URL . join('/', grep {defined} ($self->event_id, $self->race_id)));
   my $ua      = Mojo::UserAgent->new();
   my $res     = $ua->get($results => {Accept => 'application/json'})->result->json;
 
@@ -59,9 +59,8 @@ sub _build_results ($self) {
 }
 
 sub url ($self) {
-  return undef unless (defined($results_url) && defined($self->event_id) && defined($self->race_id));
-
-  return sprintf($results_url, $self->event_id, $self->race_id);
+  return undef unless (defined($RESULTS_URL) && defined($self->event_id) && defined($self->race_id));
+  return sprintf($RESULTS_URL, $self->event_id, $self->race_id);
 }
 
 sub _build_participant_hash ($keys, $values) {

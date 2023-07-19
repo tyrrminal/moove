@@ -13,10 +13,10 @@ use experimental qw(builtin);
 
 # https://runsignup.com/Race/Results/98582#resultSetId-350160;perpage:100
 
-Readonly::Scalar my $per_page => 100;
+Readonly::Scalar my $PER_PAGE => 100;
 
-Readonly::Scalar my $results_url     => 'https://runsignup.com/Race/Results/%s#resultSetId-%s;perpage:100';
-Readonly::Scalar my $results_api_url => 'https://runsignup.com/Race/Results/%s';
+Readonly::Scalar my $RESULTS_URL     => 'https://runsignup.com/Race/Results/%s#resultSetId-%s;perpage:100';
+Readonly::Scalar my $RESULTS_API_URL => 'https://runsignup.com/Race/Results/%s';
 # ?resultSetId=350160&page=1&num=100&search=';
 
 has 'key_map' => (
@@ -87,16 +87,15 @@ sub make_participant_record ($self, @fields) {
 }
 
 sub fetch_results ($self, $page = 1) {
-  my $url = Mojo::URL->new(sprintf($results_api_url, $self->event_id));
-  $url->query(resultSetId => $self->race_id, page => $page, num => $per_page, search => $EMPTY);
+  my $url = Mojo::URL->new(sprintf($RESULTS_API_URL, $self->event_id));
+  $url->query(resultSetId => $self->race_id, page => $page, num => $PER_PAGE, search => $EMPTY);
 
   return Mojo::UserAgent->new()->get($url => {Accept => 'application/json'})->result;
 }
 
 sub url ($self) {
-  return undef unless (defined($results_url) && defined($self->event_id) && defined($self->race_id));
-
-  return sprintf($results_url, $self->event_id, $self->race_id);
+  return undef unless (defined($RESULTS_URL) && defined($self->event_id) && defined($self->race_id));
+  return sprintf($RESULTS_URL, $self->event_id, $self->race_id);
 }
 
 sub split_names ($record, $first_name_length) {
