@@ -368,6 +368,13 @@ sub import_params($self) {
   return {};
 }
 
+sub all_import_params($self) {
+  return {
+    $self->event->import_params->%*,
+    $self->import_params->%*
+  }
+}
+
 sub qualified_external_identifier ($self) {
   return join($UNDERSCORE, grep {defined} ($self->import_params->{event_id}, $self->import_params->{race_id}));
 }
