@@ -79,7 +79,7 @@ sub _build_results ($self) {
   my $url = Mojo::URL->new(sprintf($results_url, $self->event_id));
   $url->query(
     key => $self->import_params->{import_key},
-    listname => $self->import_params->{listname},
+    listname => join($PIPE, 'Result Lists', $self->import_params->{listname}),
     page => 'results',
     contest => $self->import_params->{contest_id},
     r => 'all',
