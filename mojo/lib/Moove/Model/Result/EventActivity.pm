@@ -279,7 +279,8 @@ sub import_validation_errors ($self) {
 }
 
 sub is_importable ($self) {
-  return $self->import_validation_errors < 1;
+  my @errors = $self->import_validation_errors;
+  return @errors < 1;
 }
 
 sub has_results ($self) {
