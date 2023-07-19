@@ -19,7 +19,7 @@ sub encode_model_eventactivity ($self, $entity) {
     distance           => $self->encode_model($entity->distance),
     importParameters   => $entity->import_params,
     results            => {
-      importable => defined($entity->is_importable) && $entity->scheduled_start < DateTime->now(),
+      importable => $entity->is_importable && $entity->scheduled_start < DateTime->now(),
     }
   };
 }

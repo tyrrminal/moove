@@ -7,7 +7,7 @@ use DateTime;
 use Mojo::Util qw(class_to_path);
 
 sub encode_model_eventactivity ($self, $entity) {
-  my $importable = defined($entity->is_importable) && $entity->scheduled_start < DateTime->now();
+  my $importable = $entity->is_importable && $entity->scheduled_start < DateTime->now();
   my $fields = [];
   if($importable) {
     my $event          = $entity->event;
