@@ -48,7 +48,7 @@ export default {
   methods: {
     sortCompare: function (a, b, key, sortDesc, formatterFn, options, locale) {
       switch (key) {
-        case 'amount': console.log(key); return a[key] - b[key];
+        case 'amount': return a[key] - b[key];
         case 'event': return this.$options.filters.eventName(a[key]).localeCompare(this.$options.filters.eventName(b[key]), locale, options);
         case 'person': return this.$options.filters.personName(a[key], false).localeCompare(this.$options.filters.personName(b[key], false), locale, options)
         default: return a[key].localeCompare(b[key], locale, options)
