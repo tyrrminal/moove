@@ -171,6 +171,10 @@
 
     <b-modal id="selectEventGroup" title="Select Event Group" @ok="selectEventGroup"
       :ok-disabled="eventGroupSearch.selection == null">
+      <b-button variant="secondary" block pill size="sm" @click="newEventGroup"><b-icon icon="plus-circle"
+          class="mr-2" />Create New Event
+        Group</b-button>
+      <hr />
       <b-form @submit.prevent="searchEventGroups">
         <b-input-group>
           <b-input v-model="eventGroupSearch.name" placeholder="Search" />
@@ -336,6 +340,10 @@ export default {
     },
     selectEventGroup: function () {
       this.edit.eventGroup = { ...this.eventGroupSearch.selection }
+    },
+    newEventGroup: function () {
+      this.edit.eventGroup = { name: "", url: "" }
+      this.$bvModal.hide('selectEventGroup')
     },
     showEventGroupEditor: function () {
       this.eventGroupEdit = { ...this.edit.eventGroup }
