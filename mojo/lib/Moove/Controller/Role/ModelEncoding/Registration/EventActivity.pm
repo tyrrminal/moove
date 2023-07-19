@@ -27,7 +27,7 @@ sub encode_model_eventactivity ($self, $entity) {
     distance       => $self->encode_model($entity->distance),
     results        => {
       url              => $entity->url,
-      importable       => $importable,
+      importable       => $self->encode_boolean($importable),
       importCompletion => $self->get_task_progress($entity),
       fields           => $fields,
     }
