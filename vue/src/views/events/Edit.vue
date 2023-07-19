@@ -21,8 +21,8 @@
             </b-form-group>
           </b-col>
         </b-row>
-        <b-button pill size="sm" variant="secondary" class="px-3" @click="showEventGroupEditor"><b-icon icon="pencil"
-            class="mr-2" />Modify</b-button>
+        <b-button pill size="sm" variant="secondary" class="px-3" @click="showEventGroupEditor"
+          v-show="edit.eventGroup.id != null"><b-icon icon="pencil" class="mr-2" />Modify</b-button>
       </b-card-body>
     </b-card>
 
