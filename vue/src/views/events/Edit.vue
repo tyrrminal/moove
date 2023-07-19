@@ -171,12 +171,14 @@
 
     <b-modal id="selectEventGroup" title="Select Event Group" @ok="selectEventGroup"
       :ok-disabled="eventGroupSearch.selection == null">
-      <b-input-group>
-        <b-input v-model="eventGroupSearch.name" placeholder="Search" />
-        <template #append>
-          <b-button variant="success" @click="searchEventGroups">Search</b-button>
-        </template>
-      </b-input-group>
+      <b-form @submit.prevent="searchEventGroups">
+        <b-input-group>
+          <b-input v-model="eventGroupSearch.name" placeholder="Search" />
+          <template #append>
+            <b-button type="submit" variant="success" @click="searchEventGroups">Search</b-button>
+          </template>
+        </b-input-group>
+      </b-form>
 
       <div v-if="eventGroupSearch.results.length > 0">
         <hr class="my-2" />
