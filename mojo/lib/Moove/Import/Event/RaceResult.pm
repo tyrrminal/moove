@@ -72,8 +72,7 @@ sub _build_import_param_schemas($self) {
 }
 
 sub url ($self) {
-  my ($event_id, $key) = split(/\|/, $self->event_id);
-  return sprintf($metadata_url, $event_id);
+  return sprintf($metadata_url, $self->event_id);
 }
 
 sub _build_results ($self) {
