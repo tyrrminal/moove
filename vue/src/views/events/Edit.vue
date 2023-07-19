@@ -74,6 +74,19 @@
             </b-form-group>
           </b-col>
         </b-row>
+        <b-row>
+          <b-col>
+            <div v-if="eventDataSource">
+              <strong>{{ eventDataSource.name }} Event Parameters</strong>
+              <b-form-group v-for="f in eventFields" :label="f.label" label-cols="2" content-cols="4"
+                label-class="importParams-label" :state="!f.required == !edit.event.importParameters[f.name]"
+                class="my-0 py-0">
+                <b-input v-model="edit.event.importParameters[f.name]" :required="f.required"
+                  :state="!f.required == !edit.event.importParameters[f.name]" size="sm" :number="f.type == 'integer'" />
+              </b-form-group>
+            </div>
+          </b-col>
+        </b-row>
       </b-card-body>
     </b-card>
 
@@ -122,11 +135,11 @@
             </b-col>
           </b-row>
           <div v-if="eventDataSource">
-            <strong>{{ eventDataSource.name }} Parameters</strong>
-            <b-form-group v-for="f in eventDataSource.fields" :label="f.label" label-cols="2" content-cols="4"
+            <strong>{{ eventDataSource.name }} Event Activity Parameters</strong>
+            <b-form-group v-for="f in eventActivityFields" :label="f.label" label-cols="2" content-cols="4"
               label-class="importParams-label" :state="!f.required == !a.importParameters[f.name]" class="my-0 py-0">
               <b-input v-model="a.importParameters[f.name]" :required="f.required"
-                :state="!f.required == !a.importParameters[f.name]" size="sm" />
+                :state="!f.required == !a.importParameters[f.name]" size="sm" :number="f.type == 'integer'" />
             </b-form-group>
           </div>
         </div>
@@ -222,6 +235,9 @@ export default {
     this.reload();
   },
   methods: {
+    nullOnBlank: function (value) {
+      return value ? value : null;
+    },
     reload: function () {
       if (this.isNew) {
         const y = DateTime.now().year;
@@ -280,6 +296,7 @@ export default {
           distance: { value: '', unitOfMeasureID: 1 },
           date: prev.date,
           time: prev.time,
+          importParameters: {},
         })
       else
         this.edit.eventActivities.push({
@@ -287,7 +304,8 @@ export default {
           name: null,
           distance: { value: '', unitOfMeasure: 1 },
           date: null,
-          time: null
+          time: null,
+          importParameters: {},
         })
     },
     saveEvent: function () {
@@ -299,13 +317,18 @@ export default {
             name: a.name,
             eventType: { id: a.eventType.id },
             distance: { value: a.distance.value, unitOfMeasureID: a.distance.unitOfMeasureID },
-            importParameters: a.importParameters,
+            importParameters: this.blanksToNulls(a.importParameters),
           };
           promises.push(a.id == null ? this.$http.post(["events", resp.data.id, "activities"].join("/"), eaRecord) : this.$http.patch(["events", "activities", a.id].join("/"), eaRecord));
         });
         Promise.all(promises).then(() => this.$router.push({ name: "event-detail", params: { id: resp.data.id } }))
       });
     },
+    blanksToNulls: function (obj) {
+      let r = {};
+      Object.keys(obj).forEach(k => r[k] = obj[k] ? obj[k] : null);
+      return r;
+    }
   },
   computed: {
     ...mapGetters("meta", {
@@ -333,9 +356,16 @@ export default {
       delete r.id;
       delete r.eventSeries;
       delete r.activities;
+      r.importParameters = this.blanksToNulls(r.importParameters);
       if (this.eventGroup) r.eventGroup.id = this.eventGroup.id;
       return r;
     },
+    eventFields: function () {
+      return this.eventDataSource.fields.filter(f => !f.activity).sort((a, b) => a.label.localeCompare(b.label));
+    },
+    eventActivityFields: function () {
+      return this.eventDataSource.fields.filter(f => f.activity).sort((a, b) => a.label.localeCompare(b.label));
+    }
   },
   watch: {
     '$route.name': function () {
