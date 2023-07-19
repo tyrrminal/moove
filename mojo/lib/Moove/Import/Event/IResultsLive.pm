@@ -41,14 +41,19 @@ has 'key_map' => (
   }
 );
 
-sub _build_import_param_schema($self) {
-  my $jv = JSON::Validator->new();
-  return $jv->schema(
-    joi->object->strict->props(
-      event_id => joi->integer->required,
-      race_id  => joi->string,
+sub _build_import_param_schemas($class) {
+  return {
+    event => JSON::Validator->new()->schema(
+      joi->object->strict->props(
+        event_id => joi->integer->required,
+      )
+    ),
+    eventactivity => JSON::Validator->new()->schema(
+      joi->object->strict->props(
+        race_id  => joi->string,
+      )
     )
-  );
+  }
 }
 
 sub _build_url ($self) {

@@ -255,8 +255,8 @@ sub url ($self) {
   my @urls = ($self->event->url);
   if (my $edc = $self->event->external_data_source) {
     require(class_to_path($edc->import_class));
-    if(defined($edc->import_class->import_param_schema)) {
-      my $importer = $edc->import_class->new(import_params => $self->import_params);
+    if(defined($edc->import_class->import_param_schemas)) {
+      my $importer = $edc->import_class->new(import_params => $self->all_import_params);
       unshift(@urls, $importer->url);
     }
   }
@@ -264,14 +264,22 @@ sub url ($self) {
   return $urls[0];
 }
 
-sub is_importable ($self) {
-  if(my $edc            = $self->event->external_data_source) {
+sub import_validation_errors ($self) {
+  if(my $edc = $self->event->external_data_source) {
+    my @errors;
     my $class          = $edc->import_class;
     require(class_to_path($class));
-    my $schema = $class->import_param_schema;
-    return $schema->validate($self->import_parameters);
+    my $schemas = $class->import_param_schemas;
+
+    push(@errors, $schemas->{event}->validate($self->event->import_params));
+    push(@errors, $schemas->{eventactivity}->validate($self->import_params));
+    return @errors;
   }
-  return;
+  return ('No import data source configured');
+}
+
+sub is_importable ($self) {
+  return $self->import_validation_errors < 1;
 }
 
 sub has_results ($self) {
@@ -366,6 +374,13 @@ sub add_placements_for_gender ($self, $gender) {
 sub import_params($self) {
   return decode_json($self->import_parameters) if($self->import_parameters);
   return {};
+}
+
+sub all_import_params($self) {
+  return {
+    $self->event->import_params->%*,
+    $self->import_params->%*
+  }
 }
 
 sub qualified_external_identifier ($self) {

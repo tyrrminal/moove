@@ -31,7 +31,7 @@ has 'results' => (
 has 'import_params' => (
   traits   => ['Hash'],
   is       => 'ro',
-  isa      => 'HashRef[Int|Str]',
+  isa      => 'HashRef[Int|Str|Undef]',
   required => true,
   handles  => {
     event_id => [get => 'event_id'],
@@ -39,22 +39,27 @@ has 'import_params' => (
   }
 );
 
-class_has 'import_param_schema' => (
+class_has 'import_param_schemas' => (
   is       => 'ro',
-  isa      => 'JSON::Validator',
+  isa      => 'HashRef[JSON::Validator]',
   init_arg => undef,
-  builder  => '_build_import_param_schema',
+  builder  => '_build_import_param_schemas',
   lazy     => true,
 );
 
-sub _build_import_param_schema($class) {
-  my $jv = JSON::Validator->new();
-  return $jv->schema(
-    joi->object->strict->props(
-      event_id => joi->integer->required,
-      race_id  => joi->string->required,
+sub _build_import_param_schemas($class) {
+  return {
+    event => JSON::Validator->new()->schema(
+      joi->object->strict->props(
+        event_id => joi->integer->required,
+      )
+    ),
+    eventactivity => JSON::Validator->new()->schema(
+      joi->object->strict->props(
+        race_id  => joi->string->required,
+      )
     )
-  );
+  }
 }
 
 sub import_request_fields($class) { return [] }

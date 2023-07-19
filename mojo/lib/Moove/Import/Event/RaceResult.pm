@@ -53,29 +53,33 @@ has 'key_order' => (
   }
 );
 
-sub _build_import_param_schema($self) {
-  my $jv = JSON::Validator->new();
-  return $jv->schema(
-    joi->object->strict->props(
-      event_id   => joi->integer->required,
-      import_key => joi->string->required,
-      race_id    => joi->string->required,
-      contest_id => joi->integer->required,
-      listname   => joi->string->required,
+sub _build_import_param_schemas($self) {
+  return {
+    event => JSON::Validator->new()->schema(
+      joi->object->strict->props(
+        event_id   => joi->integer->required->min(1),
+        import_key => joi->string->required->min(1),
+      ),
+    ),
+    eventactivity => JSON::Validator->new()->schema(
+      joi->object->strict->props(
+        race_id    => joi->string->required->min(1),
+        contest_id => joi->integer->required->min(1),
+        listname   => joi->string->required->min(1),
+      )
     )
-  );
+  }
 }
 
 sub url ($self) {
-  my ($event_id, $key) = split(/\|/, $self->event_id);
-  return sprintf($metadata_url, $event_id);
+  return sprintf($metadata_url, $self->event_id);
 }
 
 sub _build_results ($self) {
   my $url = Mojo::URL->new(sprintf($results_url, $self->event_id));
   $url->query(
     key => $self->import_params->{import_key},
-    listname => $self->import_params->{listname},
+    listname => join($PIPE, 'Result Lists', $self->import_params->{listname}),
     page => 'results',
     contest => $self->import_params->{contest_id},
     r => 'all',
