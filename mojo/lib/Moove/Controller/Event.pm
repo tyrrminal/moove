@@ -4,6 +4,8 @@ use v5.36;
 use Mojo::Base 'DCS::Base::API::Model::Controller';
 use Role::Tiny::With;
 
+use Mojo::JSON qw(encode_json);
+
 with 'DCS::Base::Role::Rest::Collection', 'DCS::Base::Role::Rest::Entity';
 with 'Moove::Controller::Role::ModelEncoding::Event', 'Moove::Controller::Role::ModelEncoding::EventActivity',
   'Moove::Controller::Role::ModelEncoding::Distance';
@@ -30,7 +32,7 @@ sub decode_model ($self, $data) {
     $data->{event_group}->{url}  = $data->{url};
   }
   $data->{url} = undef if(exists($data->{url}) && !$data->{url});
-
+  $data->{import_parameters} = encode_json($data->{import_parameters});
   return $data;
 }
 
