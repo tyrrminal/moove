@@ -170,7 +170,8 @@
     </b-row>
 
     <b-modal id="selectEventGroup" title="Select Event Group" @ok="selectEventGroup"
-      :ok-disabled="eventGroupSearch.selection == null || eventGroupSearch.results.length < 1">
+      :ok-disabled="eventGroupSearch.selection == null || eventGroupSearch.results.length < 1"
+      @show="eventGroupSearch.selection = { id: edit.eventGroup.id }">
       <b-button variant="secondary" block pill size="sm" @click="newEventGroup"><b-icon icon="plus-circle"
           class="mr-2" />Create New Event
         Group</b-button>
