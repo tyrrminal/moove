@@ -67,7 +67,6 @@ export default {
                 return null
               },
               label: function (context) {
-                console.log(context);
                 return context.raw.tooltip
               }
             }

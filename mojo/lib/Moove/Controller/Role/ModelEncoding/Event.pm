@@ -14,6 +14,7 @@ sub encode_model_event ($self, $event) {
     defined($event->event_group) ? (eventGroup => $self->encode_model($event->event_group)) : (),
     eventSeries          => $self->encode_model([$event->event_series]),
     externalDataSourceID => $event->external_data_source_id,
+    importParameters     => $event->import_params,
   };
 }
 

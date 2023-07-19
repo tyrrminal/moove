@@ -29,6 +29,7 @@ sub import_results ($self) {
   return unless ($self->openapi->valid_input);
 
   my $event_activity = $self->entity;
+  return $self->render_error(HTTP_BAD_REQUEST, "Event Activity is not importable", map { "$_" } $event_activity->import_validation_errors) if(!$event_activity->is_importable);
   $self->app->minion->enqueue(import_event_results => [$event_activity->id, $self->req->json->{importFields}//{}]);
 
   return $self->render(openapi => $self->encode_model($event_activity->event));

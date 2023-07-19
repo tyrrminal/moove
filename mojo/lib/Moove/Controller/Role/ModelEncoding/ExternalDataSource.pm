@@ -7,20 +7,23 @@ use Mojo::Util qw(class_to_path);
 
 use DCS::Constants qw(:semantics :symbols);
 
-use Data::Printer;
 sub encode_model_externaldatasource ($self, $entity) {
   my @fields;
   if(my $class_name = $entity->import_class) {
     require(class_to_path($class_name));
-    if($class_name->can('import_param_schema')) {
-      my $schema = $class_name->import_param_schema->schema->data;
-      my %props = $schema->{properties}->%*;
-      @fields = map +{
-          name     => $_,
-          label    => encode_label($_), 
-          required => defined({map { $_ => 1 } $schema->{required_props}->@*}->{$_}),
-          $props{$_}->%*,
-        }, keys(%props);
+    if($class_name->can('import_param_schemas')) {
+      foreach my $type (qw(event eventactivity)) {
+        my $schema = $class_name->import_param_schemas->{$type}->schema->data;
+        next unless(ref($schema->{properties}) eq 'HASH');
+        my %props = $schema->{properties}->%*;
+        push(@fields, map +{
+            name     => $_,
+            label    => encode_label($_),
+            activity => $type eq 'eventactivity',
+            required => defined({map { $_ => 1 } $schema->{required_props}->@*}->{$_}),
+            $props{$_}->%*,
+          }, keys(%props));
+      }
     }
   }
 

@@ -7,7 +7,7 @@ use DateTime;
 use Mojo::Util qw(class_to_path);
 
 sub encode_model_eventactivity ($self, $entity) {
-  my $importable = defined($entity->is_importable) && $entity->scheduled_start < DateTime->now();
+  my $importable = $entity->is_importable && $entity->scheduled_start < DateTime->now();
   my $fields = [];
   if($importable) {
     my $event          = $entity->event;
@@ -27,7 +27,7 @@ sub encode_model_eventactivity ($self, $entity) {
     distance       => $self->encode_model($entity->distance),
     results        => {
       url              => $entity->url,
-      importable       => $importable,
+      importable       => $self->encode_boolean($importable),
       importCompletion => $self->get_task_progress($entity),
       fields           => $fields,
     }

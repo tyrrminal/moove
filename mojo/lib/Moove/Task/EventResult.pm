@@ -6,7 +6,6 @@ use Mojo::Util qw(class_to_path);
 
 use DCS::Constants qw(:symbols);
 
-use Data::Printer;
 sub register ($self, $app, $args) {
   $app->minion->add_task(
     import_event_results => sub ($job, $event_activity_id, $import_fields) {
@@ -16,7 +15,7 @@ sub register ($self, $app, $args) {
       my $edc            = $event->external_data_source;
       my $class          = $edc->import_class;
       require(class_to_path($class));
-      my $importer = $class->new(import_params => $event_activity->import_params, import_fields => $import_fields);
+      my $importer = $class->new(import_params => $event_activity->all_import_params, import_fields => $import_fields);
       
       # BEGIN LRP
       my @participants = $importer->results->@*;

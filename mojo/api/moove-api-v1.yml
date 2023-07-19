@@ -1454,13 +1454,15 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/EventGroup"
-        externalDataSourceID:
-          type: integer
-          nullable: true
         activities:
           type: array
           items:
             $ref: "#/components/schemas/EventActivity"
+        externalDataSourceID:
+          type: integer
+          nullable: true
+        importParameters:
+          type: object
     EventActivity:
       type: object
       additionalProperties: false
@@ -1672,6 +1674,8 @@ components:
                 type: boolean
               type: 
                 type: string
+              activity:
+                type: boolean
     Donation:
       type: object
       additionalProperties: false
