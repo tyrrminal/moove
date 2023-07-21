@@ -1,53 +1,57 @@
 <template>
-  <b-container>
-    <b-card class="mt-2" no-body>
-      <b-card-header @click="collapse.eventGroup = !collapse.eventGroup" class="collapse-header"><strong>Event
-          Group</strong></b-card-header>
-      <b-card-body v-if="!collapse.eventGroup">
-        <b-button pill size="sm" variant="success" class="px-3 mr-2" v-b-modal.selectEventGroup><b-icon icon="list-ul"
-            class="mr-2" />Select
-          Group</b-button>
-        <b-row class="mt-2">
+  <b-container fluid>
+    <b-row>
+      <b-col cols="2" class="vh-100 bg-dark pt-3">
+        <b-button block variant="primary" @click="saveEvent"><b-icon icon="save" class="mr-2" />Save</b-button>
+        <b-button block variant="secondary" @click="$router.back()">Cancel</b-button>
+      </b-col>
+      <b-col cols="9" class="mt-3 event-editor">
+        <b-form-row class="mb-2">
+          <b-col class="text-center">
+            <label v-if="edit.eventGroup.name" class="font-weight-bold" :style="{ fontSize: '1.25rem' }">{{
+              edit.eventGroup.name }}</label>
+            <label v-else class="font-italic">No Event Group Selected</label>
+            <b-button class="py-0 ml-2" variant="success" pill size="sm" v-b-modal.selectEventGroup>Change</b-button>
+          </b-col>
+        </b-form-row>
+        <b-form-row>
+          <b-col :cols="edit.eventSeries.length == 0 ? 3 : 12">
+            <div class="bg-primary-light border border-primary rounded-lg py-2 px-3 mb-2">
+              <strong :style="{ fontSize: '1.0rem' }">Event Series</strong>
+              <b-button class="py-0 ml-2" variant="secondary" pill size="sm" v-b-modal.selectEventSeries><b-icon
+                  icon="plus" class="mr-1" />Add</b-button>
+              <div v-for="(s, i) in edit.eventSeries" class="d-block">
+                <b-icon icon="chevron-right" class="mr-2" />
+                <label :style="{ fontSize: '1.0rem ' }">{{ s.year }} {{
+                  s.name }}</label>
+                <b-button pill size="sm" variant="danger" class="py-0 ml-2" @click="edit.eventSeries.splice(i, 1)"><b-icon
+                    icon="x" class="mr-1" />Remove</b-button>
+              </div>
+            </div>
+          </b-col>
+        </b-form-row>
+        <b-form-row>
           <b-col cols="6">
-            <b-form-group label="Name" label-cols="2">
-              <b-input :disabled="edit.eventGroup.id != null" :value="edit.eventGroup.name" />
+            <b-form-group label="Name">
+              <b-input v-model="edit.event.name" name="event-name" />
             </b-form-group>
           </b-col>
-        </b-row>
-        <b-row>
+          <b-col offset="4" cols="2">
+            <b-form-group label="Year">
+              <b-input v-model="edit.event.year" name="event-year" :number="true" type="number" />
+            </b-form-group>
+          </b-col>
+        </b-form-row>
+        <b-form-row>
           <b-col>
-            <b-form-group label="URL" label-cols="1">
-              <b-input :disabled="edit.eventGroup.id != null" :value="edit.eventGroup.url" />
-            </b-form-group>
-          </b-col>
-        </b-row>
-        <b-button pill size="sm" variant="secondary" class="px-3" @click="showEventGroupEditor"
-          v-show="edit.eventGroup.id != null"><b-icon icon="pencil" class="mr-2" />Modify</b-button>
-      </b-card-body>
-    </b-card>
-
-    <b-card class="mt-2 mb-4" no-body>
-      <b-card-header @click="collapse.event = !collapse.event"
-        class="collapse-header"><strong>Event</strong></b-card-header>
-      <b-card-body v-if="!collapse.event">
-        <b-row>
-          <b-col cols="6">
-            <b-form-group label="Name" label-cols="2">
-              <b-input v-model="edit.event.name" />
-            </b-form-group>
-          </b-col>
-          <b-col offset="2" cols="4">
-            <b-form-group label="Year" label-cols="2">
-              <b-input v-model="edit.event.year" />
-            </b-form-group>
-          </b-col>
-        </b-row>
-        <b-row>
-          <b-col>
-            <b-form-group label="URL" label-cols="1">
+            <b-form-group label="URL">
               <b-input v-model="edit.event.url" />
             </b-form-group>
-            <b-form-group label="Address" label-cols="1">
+          </b-col>
+        </b-form-row>
+        <b-form-row>
+          <b-col>
+            <b-form-group label="Address">
               <b-input-group>
                 <b-input :disabled="true" :value="$options.filters.formatAddress(edit.event.address || {})
                   " />
@@ -60,150 +64,103 @@
               </b-input-group>
             </b-form-group>
           </b-col>
-        </b-row>
-        <b-row>
-          <b-col cols="4">
-            <b-form-group label="Results" label-cols="3" content-cols="9">
+        </b-form-row>
+        <b-form-row>
+          <b-col cols="5">
+            <b-form-group label="Results">
               <b-input-group>
                 <b-select :options="eventDataSources" text-field="name" value-field="id"
                   v-model="edit.event.externalDataSourceID" />
                 <template #append>
-                  <b-button variant="outline-danger" @click="clearExternalDataSource">
-                    <b-icon icon="x" />
-                  </b-button>
+                  <b-button variant="secondary" @click="clearExternalDataSource" size="sm">Clear</b-button>
                 </template>
               </b-input-group>
             </b-form-group>
           </b-col>
-        </b-row>
-        <b-row>
-          <b-col>
-            <div v-if="eventDataSource">
-              <strong>{{ eventDataSource.name }} Event Parameters</strong>
-              <b-form-group v-for="f in eventFields" :label="f.label" label-cols="2" content-cols="4"
-                label-class="importParams-label" :state="!f.required == !edit.event.importParameters[f.name]"
-                class="my-0 py-0">
-                <b-input v-model="edit.event.importParameters[f.name]" :required="f.required"
-                  :state="!f.required == !edit.event.importParameters[f.name]" size="sm" :number="f.type == 'integer'" />
-              </b-form-group>
-            </div>
+          <b-col v-if="eventDataSource" offset="1" class="bg-success-light p-3 rounded-sm border border-success">
+            <strong>Import Parameters</strong>
+            <b-form-group v-for="f in eventFields" :label="f.label" label-cols="3" label-class="importParams-label"
+              :state="!f.required == !edit.event.importParameters[f.name]" class="my-0 py-0">
+              <b-input v-model="edit.event.importParameters[f.name]" :required="f.required"
+                :state="!f.required == !edit.event.importParameters[f.name]" size="sm" :number="f.type == 'integer'" />
+            </b-form-group>
+          </b-col>
+        </b-form-row>
+        <hr />
+        <div>
+          <strong :style="{ fontSize: '1.0rem' }">Event Activities</strong>
+          <b-button size="sm" pill variant="success" class="ml-2 py-0 mt-1 px-3" @click="addEventActivity"><b-icon
+              icon="plus-circle" class="mr-2" />Add</b-button>
+        </div>
+        <b-row class="mt-2">
+          <b-col cols="3">
+            <b-list-group>
+              <b-list-group-item v-for="(ea, i) in edit.eventActivities" :style="{ fontSize: '0.9rem' }" class="py-1"
+                button @click="selectEventActivity(i)" :active="i == selectedEventActivityIdx"><b-icon icon="x-diamond"
+                  class="mr-1" /><b-icon class="float-right" icon="arrow-right-circle-fill" :scale="1.25"
+                  :shift-v="-4" />{{ ea.name
+                  }}</b-list-group-item>
+            </b-list-group>
+          </b-col>
+          <b-col class="event-activity-editor bg-light border border-gray rounded-sm py-2 px-3">
+            <b-form-group label="Start" label-cols="1">
+              <b-input-group>
+                <b-datepicker v-model="edit.eventActivities[selectedEventActivityIdx].date" />
+                <template #append>
+                  <b-timepicker v-model="edit.eventActivities[selectedEventActivityIdx].time" />
+                </template>
+              </b-input-group>
+            </b-form-group>
+            <b-form-row>
+              <b-col cols="4">
+                <b-form-group label="Name" label-cols="3"
+                  :description="edit.eventActivities.length > 1 ? 'Required' : 'Optional'">
+                  <b-input name="event-activity-name" v-model="edit.eventActivities[selectedEventActivityIdx].name" />
+                </b-form-group>
+                <b-form-group label="Type" label-cols="3">
+                  <b-select :options="eventTypes" text-field="description" value-field="id"
+                    v-model="edit.eventActivities[selectedEventActivityIdx].eventType.id" />
+                </b-form-group>
+                <b-form-group label="Distance" label-cols="3">
+                  <b-input-group>
+                    <b-input v-model="edit.eventActivities[selectedEventActivityIdx].distance.value" />
+                    <template #append>
+                      <b-select :options="distanceUnitsOfMeasure" text-field="abbreviation" value-field="id"
+                        v-model="edit.eventActivities[selectedEventActivityIdx].distance.unitOfMeasureID" />
+                    </template>
+                  </b-input-group>
+                </b-form-group>
+              </b-col>
+              <b-col v-if="eventDataSource" class="bg-success-light p-3 rounded-sm border border-success ml-2">
+                <strong>Import Parameters</strong>
+                <b-form-group v-for="f in eventActivityFields" :label="f.label" label-cols="2"
+                  label-class="importParams-label"
+                  :state="!f.required == !edit.eventActivities[selectedEventActivityIdx].importParameters[f.name]"
+                  class="my-0 py-0">
+                  <b-input v-model="edit.eventActivities[selectedEventActivityIdx].importParameters[f.name]"
+                    :required="f.required"
+                    :state="!f.required == !edit.eventActivities[selectedEventActivityIdx].importParameters[f.name]"
+                    size="sm" :number="f.type == 'integer'" />
+                </b-form-group>
+              </b-col>
+            </b-form-row>
+            <b-button v-if="edit.eventActivities.length > 1" variant="danger" @click="deleteSelectedEventActivity"
+              size="sm" pill block class="mt-2">
+              <b-icon icon="trash" class="mr-2" />Delete
+            </b-button>
           </b-col>
         </b-row>
-      </b-card-body>
-    </b-card>
-
-    <b-card class="mt-2 mb-4" no-body>
-      <b-card-header @click="collapse.eventActivities = !collapse.eventActivities" class="collapse-header"><strong>Event
-          Activities</strong></b-card-header>
-      <b-card-body v-if="!collapse.eventActivities">
-        <div v-for="( a, i ) in  edit.eventActivities " :key="i"
-          class="border-left border-success mb-2 pl-2 pb-1 bg-light">
-          <div v-if="edit.eventActivities.length > 1 && !a.id" class="float-right">
-            <b-button variant="danger" @click="edit.eventActivities.splice(i, 1)" size="sm">
-              <b-icon icon="x" />
-            </b-button>
-          </div>
-          <b-row :style="{ clear: 'both' }" class="pt-2">
-            <b-col cols="4">
-              <b-form-group label="Name" label-cols="3">
-                <b-input v-model="a.name" title="Required when Event has multiple activities" />
-              </b-form-group>
-            </b-col>
-            <b-col cols="4">
-              <b-form-group label="Type" label-cols="3">
-                <b-select :options="eventTypes" text-field="description" value-field="id" v-model="a.eventType.id" />
-              </b-form-group>
-            </b-col>
-            <b-col cols="3">
-              <b-form-group label="Distance" label-cols="4">
-                <b-input-group>
-                  <b-input v-model="a.distance.value" />
-                  <template #append>
-                    <b-select :options="distanceUnitsOfMeasure" text-field="abbreviation" value-field="id"
-                      v-model="a.distance.unitOfMeasureID" />
-                  </template>
-                </b-input-group>
-              </b-form-group>
-            </b-col>
-          </b-row>
-          <b-row>
-            <b-col cols="6">
-              <b-form-group label="Start" label-cols="2">
-                <b-input-group>
-                  <b-datepicker v-model="a.date" />
-                  <template #append>
-                    <b-timepicker v-model="a.time" />
-                  </template>
-                </b-input-group>
-              </b-form-group>
-            </b-col>
-          </b-row>
-          <div v-if="eventDataSource">
-            <strong>{{ eventDataSource.name }} Event Activity Parameters</strong>
-            <b-form-group v-for="f in eventActivityFields" :label="f.label" label-cols="2" content-cols="4"
-              label-class="importParams-label" :state="!f.required == !a.importParameters[f.name]" class="my-0 py-0">
-              <b-input v-model="a.importParameters[f.name]" :required="f.required"
-                :state="!f.required == !a.importParameters[f.name]" size="sm" :number="f.type == 'integer'" />
-            </b-form-group>
-          </div>
-        </div>
-        <b-button variant="success" @click="addEventActivity" pill size="sm">
-          <b-icon icon="plus-circle" class="mr-1" />Add an Activity
-        </b-button>
-      </b-card-body>
-    </b-card>
-
-    <b-card class="mt-2 mb-4" no-body>
-      <b-card-header @click="collapse.eventSeries = !collapse.eventSeries" class="collapse-header"><strong>Event
-          Series</strong></b-card-header>
-      <b-card-body v-if="!collapse.eventSeries">
-      </b-card-body>
-    </b-card>
-
-    <b-row align-h="between">
-      <b-col cols=1>
-        <b-button @click="$router.back()" class="mb-4 float-right" variant="secondary">Cancel</b-button>
-      </b-col>
-      <b-col cols=1>
-        <b-button @click="saveEvent" class="mb-4 float-right" variant="primary">Save</b-button>
       </b-col>
     </b-row>
 
-    <b-modal id="selectEventGroup" title="Select Event Group" @ok="selectEventGroup"
-      :ok-disabled="eventGroupSearch.selection == null || eventGroupSearch.results.length < 1"
-      @show="eventGroupSearch.selection = { id: edit.eventGroup.id }">
-      <b-button variant="secondary" block pill size="sm" @click="newEventGroup"><b-icon icon="plus-circle"
-          class="mr-2" />Create New Event
-        Group</b-button>
-      <hr />
-      <b-form @submit.prevent="searchEventGroups">
-        <b-input-group>
-          <b-input v-model="eventGroupSearch.name" placeholder="Search" />
-          <template #append>
-            <b-button type="submit" variant="success" @click="searchEventGroups">Search</b-button>
-          </template>
-        </b-input-group>
-      </b-form>
-
-      <div v-if="eventGroupSearch.results.length > 0">
-        <hr class="my-2" />
-
-        <b-button v-for="r in eventGroupSearch.results " @click="eventGroupSearch.selection = r"
-          :variant="eventGroupSearch.selection == null || eventGroupSearch.selection.id != r.id ? 'outline-primary' : 'primary'"
-          class="my-1" block size="sm">
-          {{ r.name }}
-        </b-button>
-      </div>
+    <b-modal id="selectEventGroup" title="Select Event Group" :ok-disabled="eventGroupSelect?.id == null"
+      @show="eventGroupSelect = null" @ok="selectEventGroup">
+      <EventGroupSearch type="parent" v-model="eventGroupSelect" :current="edit.eventGroup" />
     </b-modal>
 
-    <b-modal id="modifyEventGroup" title="Modify Event Group" @ok="saveEventGroup">
-      <b-form-group label="Name" label-cols="3">
-        <b-input v-model="eventGroupEdit.name" />
-      </b-form-group>
-
-      <b-form-group label="URL" label-cols="3">
-        <b-input v-model="eventGroupEdit.url" />
-      </b-form-group>
+    <b-modal id="selectEventSeries" title="Select Event Series" :ok-disabled="eventSeriesSelect?.id == null"
+      @show="eventSeriesSelect = {}" @ok="edit.eventSeries.push(eventSeriesSelect)">
+      <EventGroupSearch type="series" v-model="eventSeriesSelect" />
     </b-modal>
 
     <b-modal id="changeAddress" title="Edit Address" @cancel="clearAddress" @ok="saveAddress">
@@ -241,10 +198,14 @@
 import { mapGetters } from "vuex";
 import { DateTime } from "luxon";
 import EventFilters from "@/mixins/events/Filters.js";
+import EventGroupSearch from "@/components/event/EventGroupSearch.vue"
 
 export default {
   name: 'EventEditor',
   mixins: [EventFilters],
+  components: {
+    EventGroupSearch
+  },
   metaInfo: function () {
     return {
       title: this.title,
@@ -252,26 +213,19 @@ export default {
   },
   data: function () {
     return {
-      collapse: {
-        eventGroup: false,
-        event: false,
-        eventActivities: false,
-        eventSeries: false
-      },
-
       edit: {
         event: { name: "" },
         eventGroup: { name: "" },
+        eventSeries: [],
         eventActivities: [],
       },
       newAddress: null,
-      eventGroupEdit: {},
 
-      eventGroupSearch: {
-        name: "",
-        results: [],
-        selection: null
-      }
+      eventGroupEdit: {},
+      eventGroupSelect: null,
+      eventSeriesSelect: null,
+
+      selectedEventActivityIdx: 0,
     };
   },
   props: {
@@ -292,7 +246,7 @@ export default {
       default: null
     },
   },
-  mounted: function () {
+  created: function () {
     if (this.eventGroup)
       this.edit.eventGroup = this.eventGroup;
     this.reload();
@@ -304,10 +258,13 @@ export default {
     reload: function () {
       if (this.isNew) {
         const y = DateTime.now().year;
-        this.edit = { event: { name: "" }, eventGroup: { name: "" }, eventActivities: [] }
+        this.edit = { event: { name: "", importParameters: {} }, eventGroup: { name: "" }, eventActivities: [], eventSeries: [] }
         if (this.event) {
           this.edit.event = this.event;
           this.edit.event.year = y;
+        }
+        if (this.eventGroup) {
+          this.edit.eventGroup = this.eventGroup
         }
         if (this.eventActivity) {
           let dt = this.eventActivity.scheduledStart.split("T");
@@ -319,6 +276,9 @@ export default {
             date: d,
             time: dt[1],
           });
+        } else {
+          this.edit.event.year = DateTime.now().year;
+          this.addEventActivity();
         }
       } else {
         this.$http.get(["events", this.id].join("/")).then(resp => {
@@ -330,41 +290,14 @@ export default {
           })
         })
       }
+      this.selectEventActivity(0)
+    },
+    selectEventGroup: function () {
+      this.edit.eventGroup = this.eventGroupSelect
+      if (!this.edit.event.name) this.edit.event.name = this.edit.eventGroup.name;
     },
     clearExternalDataSource: function () {
       this.edit.event.externalDataSourceID = null;
-      this.edit.event.externalIdentifier = null
-    },
-    searchEventGroups: function () {
-      this.$http.get("eventgroups", { params: { type: 'parent', name: this.eventGroupSearch.name } })
-        .then(resp => this.eventGroupSearch.results = resp.data)
-    },
-    selectEventGroup: function () {
-      this.edit.eventGroup = { ...this.eventGroupSearch.selection }
-    },
-    newEventGroup: function () {
-      this.edit.eventGroup = { name: "", url: "" }
-      this.$bvModal.hide('selectEventGroup')
-    },
-    showEventGroupEditor: function () {
-      this.eventGroupEdit = { ...this.edit.eventGroup }
-      this.$bvModal.show('modifyEventGroup')
-    },
-    saveEventGroup: function () {
-      let self = this;
-      let eg = this.eventGroupEdit;
-      let eventGroupID = eg.id;
-      delete eg.id;
-
-      let p;
-      if (eventGroupID == null) {
-        p = this.$http.post("eventgroups", eg);
-      } else {
-        p = this.$http.patch(`eventgroups/${eventGroupID}`, eg)
-      }
-      p.then(resp => {
-        self.edit.eventGroup = { ...resp.data }
-      })
     },
     makeNewAddress: function () {
       this.newAddress = Object.assign({}, this.edit.event.address);
@@ -381,26 +314,36 @@ export default {
     unsetAddress: function () {
       this.edit.event.address = { id: null }
     },
+    selectEventActivity: function (idx) {
+      this.selectedEventActivityIdx = idx;
+    },
+    deleteSelectedEventActivity: function () {
+      this.edit.eventActivities.splice(this.edit.eventActivities.findIndex(ea => ea.id == this.selectEventActivity.id), 1)
+      this.selectEventActivity(0)
+    },
     addEventActivity: function () {
       let prev = this.edit.eventActivities.slice(-1).pop();
+      let ea;
       if (prev)
-        this.edit.eventActivities.push({
+        ea = {
           eventType: { id: prev.eventType.id },
           name: null,
           distance: { value: '', unitOfMeasureID: 1 },
           date: prev.date,
           time: prev.time,
           importParameters: {},
-        })
+        }
       else
-        this.edit.eventActivities.push({
+        ea = {
           eventType: { id: null },
           name: null,
           distance: { value: '', unitOfMeasure: 1 },
           date: null,
           time: null,
           importParameters: {},
-        })
+        }
+      this.edit.eventActivities.push(ea);
+      this.selectEventActivity(this.edit.eventActivities.length - 1)
     },
     saveEvent: function () {
       (this.isNew ? this.$http.post("events", this.apiRecord) : this.$http.patch(["events", this.edit.event.id].join("/"), this.apiRecord)).then((resp) => {
@@ -476,5 +419,18 @@ export default {
 
 .collapse-header {
   cursor: row-resize
+}
+
+.bg-success-light {
+  background-color: #c1f0cd !important;
+}
+
+.bg-primary-light {
+  background-color: #9eccfd !important;
+}
+
+.event-editor legend {
+  font-size: 0.75rem;
+  font-weight: bold;
 }
 </style>
