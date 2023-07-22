@@ -390,9 +390,8 @@ export default {
       return this.externalDataSources.filter((x) => x.type == "Event");
     },
     apiRecord: function () {
-      let r = { eventGroup: {}, ...this.edit.event };
+      let r = { eventGroup: {}, ...this.edit.event, eventSeries: this.edit.eventSeries };
       delete r.id;
-      delete r.eventSeries;
       delete r.activities;
       r.importParameters = this.blanksToNulls(r.importParameters);
       if (this.eventGroup) r.eventGroup.id = this.eventGroup.id;
