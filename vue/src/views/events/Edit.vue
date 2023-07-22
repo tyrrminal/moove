@@ -284,6 +284,7 @@ export default {
         this.$http.get(["events", this.id].join("/")).then(resp => {
           this.edit.event = resp.data
           this.edit.eventGroup = resp.data.eventGroup
+          this.edit.eventSeries = resp.data.eventSeries;
           this.edit.eventActivities = resp.data.activities.map(a => {
             let dt = a.scheduledStart.split("T")
             return { ...a, date: dt[0], time: dt[1] }
