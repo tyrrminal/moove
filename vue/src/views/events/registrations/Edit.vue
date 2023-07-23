@@ -1,7 +1,11 @@
 <template>
-  <b-container>
+  <b-container fluid>
     <b-row>
-      <b-col cols="6" offset="3">
+      <b-col cols="2" class="vh-100 bg-dark pt-3">
+        <b-button block variant="primary" @click="save"><b-icon icon="save" class="mr-2" />Save</b-button>
+        <b-button block variant="secondary" @click="$router.back()">Cancel</b-button>
+      </b-col>
+      <b-col>
         <div class="mt-3" v-if="event">
           <h2 class="float-right">{{ event.year }}</h2>
           <h2>{{ event.name }}</h2>
@@ -11,40 +15,18 @@
           <h3 v-if="event.activities.length == 1">{{ eventActivity.name }}</h3>
         </div>
         <hr :style="{ clear: 'both' }" />
-      </b-col>
-    </b-row>
 
-    <b-form class="mt-2">
-      <b-form-row v-if="event.activities.length > 1">
-        <b-col cols="6" offset="3">
-          <b-form-group label="Activity">
+        <b-form class="mt-2">
+          <b-form-group v-if="event.activities.length > 1" label="Activity" label-cols="2">
             <b-select :options="event.activities" text-field="name" value-field="id" v-model="selectedEventActivity" />
           </b-form-group>
-        </b-col>
-      </b-form-row>
-      <b-form-row>
-        <b-col cols="6" offset="3">
-          <b-form-group label="Registration Date">
+          <b-form-group label="Registered On" label-cols="2" content-cols="4">
             <b-datepicker v-model="userActivity.dateRegistered" />
           </b-form-group>
-        </b-col>
-      </b-form-row>
-      <b-form-row>
-        <b-col cols="3" offset="3">
-          <b-form-group label="Registration/Bib #">
+          <b-form-group label="Registration/Bib #" label-cols="2" content-cols="1">
             <b-input v-model="registration.registrationNumber" />
           </b-form-group>
-        </b-col>
-        <b-col cols="3">
-          <b-form-group label="Visibility">
-            <b-select :options="getVisibilityTypes" v-model="userActivity.visibilityTypeID" value-field="id"
-              text-field="description" />
-          </b-form-group>
-        </b-col>
-      </b-form-row>
-      <b-form-row>
-        <b-col cols="3" offset="3">
-          <b-form-group label="Registration Total">
+          <b-form-group label="Registration Total" label-cols="2" content-cols="2">
             <b-input-group>
               <template #prepend>
                 <b-button :disabled="true" variant="secondary">$</b-button>
@@ -52,32 +34,24 @@
               <b-input v-model="userActivity.registrationFee" number />
             </b-input-group>
           </b-form-group>
-        </b-col>
-        <b-col cols="3">
-          <b-form-group label="Fundraising Minimum">
+          <b-form-group label="Fundraising Minimum" label-cols="2" content-cols="2">
             <b-input-group>
               <template #prepend>
+                <div class="rounded-left border border-control pl-1">
+                  <b-checkbox class="mt-1 ml-1" v-model="hasFundraisingRequirement" />
+                </div>
                 <b-button :disabled="true" variant="secondary">$</b-button>
               </template>
               <b-input :disabled="!hasFundraisingRequirement" v-model.trim="userActivity.fundraising.minimum" number />
-              <template #append>
-                <div class="rounded-right border border-control pl-1">
-                  <b-checkbox class="mt-1 ml-1" v-model="hasFundraisingRequirement" />
-                </div>
-              </template>
             </b-input-group>
           </b-form-group>
-        </b-col>
-      </b-form-row>
-
-      <b-form-row>
-        <b-col cols="6" offset="3">
-          <hr />
-          <b-button variant="secondary" @click="cancel">Cancel</b-button>
-          <b-button class="float-right" @click="save" variant="success">Save</b-button>
-        </b-col>
-      </b-form-row>
-    </b-form>
+          <b-form-group label="Visibility" label-cols="2" content-cols="2">
+            <b-select :options="getVisibilityTypes" v-model="userActivity.visibilityTypeID" value-field="id"
+              text-field="description" />
+          </b-form-group>
+        </b-form>
+      </b-col>
+    </b-row>
   </b-container>
 </template>
 
@@ -177,9 +151,6 @@ export default {
     }
   },
   methods: {
-    cancel: function () {
-      this.$router.back();
-    },
     save: function () {
       (this.isEdit ? this.$http.patch(["user", "events", this.id].join("/"), this.apiRecord) : this.$http.post(["user", "events"].join("/"), this.apiRecord))
         .then(resp => this.$router.push({ name: "registration-detail", params: { id: resp.data.id } }));
