@@ -124,6 +124,7 @@ sub body($self) {
 }
 
 sub url ($self) {
+  return undef unless(defined($self->race_id));
   return sprintf($RESULTS_PAGE, $self->race_id);
 }
 

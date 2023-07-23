@@ -36,6 +36,32 @@ sub decode_model ($self, $data) {
   return $data;
 }
 
+sub insert_record($self, $data) {
+  my $event_series = delete($data->{event_series});
+  my $entity = $self->SUPER::insert_record($data);
+  foreach my $series (($event_series//[])->@*) {
+    $entity->add_to_event_series_events({
+      event_series_id => $series->{id}
+    })
+  }
+  return $entity;
+}
+
+sub update_record($self, $entity, $data) {
+  $entity->event_series_events->delete();
+  foreach my $series ((delete($data->{event_series})//[])->@*) {
+    $entity->add_to_event_series_events({
+      event_series_id => $series->{id}
+    })
+  }
+  return $self->SUPER::update_record($entity, $data);
+}
+
+sub delete_record($self, $entity) {
+  $entity->event_series_events->delete();
+  $self->SUPER::delete_record($entity);
+}
+
 sub resultset ($self, @args) {
   my $rs = $self->SUPER::resultset(@args);
   if (my $start = $self->validation->param('start')) {

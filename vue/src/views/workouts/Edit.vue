@@ -1,39 +1,41 @@
 <template>
-  <b-container class="my-2">
-    <h2>{{ title }}</h2>
-    <b-form>
-      <b-form-row>
-        <b-col>
-          <b-form-group label="Name">
-            <b-input v-model="edit.name" />
-          </b-form-group>
-        </b-col>
-      </b-form-row>
-      <b-form-row>
-        <b-col>
-          <b-form-group label="Date">
-            <b-datepicker v-model="edit.date" today-button />
-          </b-form-group>
-        </b-col>
-        <b-col v-if="workout" cols="2">
-          <b-form-group label="Activities">
-            <b-checkbox v-model="edit.adjustActivityDates" :disabled="edit.date == workout.date">Adjust Date
-            </b-checkbox>
-          </b-form-group>
-        </b-col>
-      </b-form-row>
-      <b-row v-if="error != null">
-        <b-col>
-          <b-alert variant="warning" :show="true">{{ error }}</b-alert>
-        </b-col>
-      </b-row>
-      <b-form-row>
-        <b-col class="text-right">
-          <b-button variant="secondary" @click="cancel" class="mr-2">Cancel</b-button>
-          <b-button variant="success" @click="save">Save</b-button>
-        </b-col>
-      </b-form-row>
-    </b-form>
+  <b-container fluid>
+    <b-row>
+      <b-col cols="2" class="vh-100 bg-dark pt-3">
+        <b-button variant="primary" @click="save" block><b-icon icon="save" class="mr-2" />Save</b-button>
+        <b-button variant="secondary" @click="cancel" block>Cancel</b-button>
+      </b-col>
+      <b-col>
+        <h2>{{ title }}</h2>
+        <b-form>
+          <b-form-row>
+            <b-col>
+              <b-form-group label="Name">
+                <b-input v-model="edit.name" />
+              </b-form-group>
+            </b-col>
+          </b-form-row>
+          <b-form-row>
+            <b-col>
+              <b-form-group label="Date">
+                <b-datepicker v-model="edit.date" today-button />
+              </b-form-group>
+            </b-col>
+            <b-col v-if="workout" cols="2">
+              <b-form-group label="Activities">
+                <b-checkbox v-model="edit.adjustActivityDates" :disabled="edit.date == workout.date">Adjust Date
+                </b-checkbox>
+              </b-form-group>
+            </b-col>
+          </b-form-row>
+          <b-row v-if="error != null">
+            <b-col>
+              <b-alert variant="warning" :show="true">{{ error }}</b-alert>
+            </b-col>
+          </b-row>
+        </b-form>
+      </b-col>
+    </b-row>
   </b-container>
 </template>
 

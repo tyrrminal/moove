@@ -97,6 +97,7 @@ sub _build_url ($self) {
 }
 
 sub url ($self) {
+  return undef unless (defined($self->event_id));
   return $self->_url->to_string;
 }
 

@@ -15,8 +15,8 @@ use experimental qw(builtin);
 use DCS::Constants qw(:symbols);
 use Moove::Import::Event::Constants qw(:event);
 
-Readonly::Scalar my $metadata_url => 'https://www.secondwindtiming.com/result-page/?id=%s';
-Readonly::Scalar my $results_url  => 'https://my2.raceresult.com/%s/RRPublish/data/list';
+Readonly::Scalar my $METADATA_URL => 'https://www.secondwindtiming.com/result-page/?id=%s';
+Readonly::Scalar my $RESULTS_URL  => 'https://my2.raceresult.com/%s/RRPublish/data/list';
 
 has 'key_map' => (
   traits   => ['Hash'],
@@ -72,11 +72,12 @@ sub _build_import_param_schemas($self) {
 }
 
 sub url ($self) {
-  return sprintf($metadata_url, $self->event_id);
+  return undef unless (defined($self->event_id));
+  return sprintf($METADATA_URL, $self->event_id);
 }
 
 sub _build_results ($self) {
-  my $url = Mojo::URL->new(sprintf($results_url, $self->event_id));
+  my $url = Mojo::URL->new(sprintf($RESULTS_URL, $self->event_id));
   $url->query(
     key => $self->import_params->{import_key},
     listname => join($PIPE, 'Result Lists', $self->import_params->{listname}),

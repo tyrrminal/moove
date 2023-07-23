@@ -16,8 +16,8 @@ use experimental qw(builtin);
 
 use Moove::Import::Event::Constants qw(:event);
 
-Readonly::Scalar my $metadata_url => 'https://www.mtecresults.com/race/show/%s/';
-Readonly::Scalar my $results_url  => 'https://www.mtecresults.com/race/show/%s';
+Readonly::Scalar my $METADATA_URL => 'https://www.mtecresults.com/race/show/%s/';
+Readonly::Scalar my $RESULTS_URL  => 'https://www.mtecresults.com/race/show/%s';
 
 has 'key_map' => (
   traits   => ['Hash'],
@@ -57,11 +57,12 @@ sub _build_import_param_schemas($class) {
 }
 
 sub url ($self) {
-  return sprintf($metadata_url, $self->event_id);
+  return undef unless (defined($self->event_id));
+  return sprintf($METADATA_URL, $self->event_id);
 }
 
 sub _build_results ($self) {
-  my $url = Mojo::URL->new(sprintf($results_url, $self->event_id));
+  my $url = Mojo::URL->new(sprintf($RESULTS_URL, $self->event_id));
   $url->query(overall => 'yes', perPage => 500, offset => 0);
 
   my $ua  = Mojo::UserAgent->new();
