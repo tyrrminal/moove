@@ -59,7 +59,7 @@
             <b-checkbox v-model="filter.combine">Combine</b-checkbox>
           </b-form-group>
           <b-button variant="primary" class="py-0 mb-2" block @click="reloadTable">Apply</b-button>
-          <b-button size="sm" variant="warning" class="py-0 mb-2" block @click="resetFilters">Reset</b-button>
+          <b-button size="sm" variant="secondary" class="py-0 mb-2" block @click="resetFilters">Reset</b-button>
         </b-form>
       </b-col>
       <b-col class="">
