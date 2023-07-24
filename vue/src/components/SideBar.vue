@@ -1,8 +1,9 @@
 <template>
   <b-navbar toggleable="lg" type="dark" variant="info">
     <b-navbar-nav small>
-      <b-nav-item v-for="(item, index) in items" :key="`tbitem-${index}`" :to="item.to"><b-icon v-if="item.icon"
-          :icon="item.icon" class="d-block mx-auto mb-1" scale="1.25" />{{ item.text }}</b-nav-item>
+      <b-nav-item v-for="(item, index) in items" :key="`tbitem-${index}`" :to="item.to"
+        :active="$route.name == item.to.name"><b-icon v-if="item.icon" :icon="item.icon" class="d-block mx-auto mb-1"
+          scale="1.25" />{{ item.text }}</b-nav-item>
     </b-navbar-nav>
   </b-navbar>
 </template>
@@ -15,6 +16,4 @@ export default {
 };
 </script>
 
-<style scope>
-
-</style>
+<style scope></style>

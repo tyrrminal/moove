@@ -1,7 +1,7 @@
 <template>
   <b-container fluid>
     <b-row>
-      <b-col cols="2" class="vh-100 bg-dark pt-3">
+      <b-col cols="2" class="min-vh-100 bg-dark pt-3">
         <b-button variant="primary" @click="save" block><b-icon icon="save" class="mr-2" />Save</b-button>
         <b-button variant="secondary" @click="cancel" block>Cancel</b-button>
       </b-col>

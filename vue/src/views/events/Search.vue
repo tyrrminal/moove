@@ -1,64 +1,71 @@
 <template>
-  <b-container class="mt-3">
-    <h3>Search for Events</h3>
-
-    <b-jumbotron class="pt-1 pb-2">
-      <b-form @submit.prevent="doSearch">
-        <b-form-row>
-          <b-col>
-            <b-form-group label="Name">
-              <b-input v-model="name" name="event_name" />
-            </b-form-group>
-          </b-col>
-        </b-form-row>
-        <b-form-row>
-          <b-col>
-            <b-form-group label="Start">
-              <b-datepicker v-model="start" reset-button />
-            </b-form-group>
-          </b-col>
-          <b-col>
-            <b-form-group label="End">
-              <b-datepicker v-model="end" reset-button />
-            </b-form-group>
-          </b-col>
-        </b-form-row>
-        <b-form-row>
-          <b-col>
-            <b-button type="submit" class="float-right" variant="primary">Search</b-button>
-          </b-col>
-        </b-form-row>
-      </b-form>
-    </b-jumbotron>
-
-    <template v-if="hasSearched">
-      <b-table id="resultsTable" :items="getItems" :fields="fields" :current-page="page.number" :per-page="page.length">
-        <template #cell(name)="data">
-          <b-link :to="{ name: 'event-detail', params: { id: data.item.id } }">{{ data.value }}</b-link>
-          <event-activity-name-list :list="data.item.activities" />
+  <b-container fluid>
+    <b-row>
+      <b-col cols="3" class="min-vh-100 bg-light pt-3">
+        <div class="text-center"><strong>Search Events</strong></div>
+        <b-form @submit.prevent="doSearch">
+          <b-form-row>
+            <b-col>
+              <b-form-group label="Name">
+                <b-input v-model="name" name="event_name" />
+              </b-form-group>
+            </b-col>
+          </b-form-row>
+          <b-form-row>
+            <b-col>
+              <b-form-group label="Start">
+                <b-datepicker v-model="start" reset-button />
+              </b-form-group>
+            </b-col>
+          </b-form-row>
+          <b-form-row>
+            <b-col>
+              <b-form-group label="End">
+                <b-datepicker v-model="end" reset-button />
+              </b-form-group>
+            </b-col>
+          </b-form-row>
+          <b-form-row>
+            <b-col>
+              <b-button type="submit" block variant="primary">Search</b-button>
+            </b-col>
+          </b-form-row>
+        </b-form>
+      </b-col>
+      <b-col>
+        <template v-if="hasSearched">
+          <b-table id="resultsTable" :items="getItems" :fields="fields" :current-page="page.number"
+            :per-page="page.length">
+            <template #cell(name)="data">
+              <b-link :to="{ name: 'event-detail', params: { id: data.item.id } }">{{ data.value }}</b-link>
+              <event-activity-name-list :list="data.item.activities" />
+            </template>
+            <template #cell(address)="data">
+              <span v-if="$options.filters.formatAddress(data.value, false)">
+                {{ data.value | formatAddress(false) }}
+              </span>
+              <span v-else class="font-italic">Virtual</span>
+            </template>
+            <template #cell(edit)="data">
+              <b-button v-if="isAdmin" :to="{ name: 'event-edit', params: { id: data.item.id } }" size="sm"
+                variant="primary" class="text-uppercase">Edit</b-button>
+            </template>
+          </b-table>
+          <DetailedPagination :currentPage.sync="page.number" :perPage.sync="page.length" :totalRows="counts.filter"
+            :totalResults="counts.total" />
         </template>
-        <template #cell(address)="data">
-          <span v-if="$options.filters.formatAddress(data.value, false)">
-            {{ data.value | formatAddress(false) }}
-          </span>
-          <span v-else class="font-italic">Virtual</span>
-        </template>
-        <template #cell(edit)="data">
-          <b-button :to="{ name: 'event-edit', params: { id: data.item.id } }" size="sm" variant="primary"
-            class="text-uppercase">Edit</b-button>
-        </template>
-      </b-table>
-      <DetailedPagination :currentPage.sync="page.number" :perPage.sync="page.length" :totalRows="counts.filter"
-        :totalResults="counts.total" />
-    </template>
+      </b-col>
+    </b-row>
   </b-container>
 </template>
 
 <script>
 import Vue from "vue";
 import EventFilters from "@/mixins/events/Filters.js"
+import { mapGetters } from "vuex";
 
 import DetailedPagination from '@/components/DetailedPagination.vue';
+import { DateTime } from "luxon";
 
 Vue.component('event-activity-name-list', {
   props: {
@@ -89,26 +96,6 @@ export default {
   data: function () {
     return {
       hasSearched: false,
-      fields: [
-        {
-          key: "name",
-          sortable: true
-        },
-        {
-          key: "address",
-          label: "Location",
-          sortable: true
-        },
-        {
-          key: "year",
-          sortable: true
-        },
-        {
-          key: "edit",
-          label: "",
-          sortable: false
-        }
-      ],
       page: {
         number: 1,
         length: 10,
@@ -119,8 +106,8 @@ export default {
         total: 0
       },
       name: "",
-      start: null,
-      end: null
+      start: DateTime.now().toISODate(),
+      end: DateTime.now().plus({ years: 1 }).toISODate()
     };
   },
   methods: {
@@ -141,6 +128,30 @@ export default {
     },
   },
   computed: {
+    ...mapGetters('auth', ['isAdmin']),
+    fields: function () {
+      let f = [
+        {
+          key: "name",
+          sortable: true
+        },
+        {
+          key: "address",
+          label: "Location",
+          sortable: true
+        },
+        {
+          key: "year",
+          sortable: true
+        },
+      ];
+      if (this.isAdmin) f.unshift({
+        key: "edit",
+        label: "",
+        sortable: false
+      })
+      return f;
+    },
     queryParams: function () {
       let p = {};
       if (this.name)

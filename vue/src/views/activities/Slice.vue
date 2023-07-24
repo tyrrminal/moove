@@ -1,80 +1,64 @@
 <template>
-  <b-container>
-    <h2 class="mt-3">Activity Slice</h2>
-    <b-row class="mt-3 mb-3">
-      <b-col cols="4">
-        <b-button-group>
+  <b-container fluid>
+    <b-row>
+      <b-col cols="2" class="bg-light min-vh-100 pt-2">
+        <div class="font-weight-bold text-center mb-2" :style="{ fontSize: '1.0rem' }">Filters</div>
+        <b-input-group class="mb-2">
+          <template #prepend>
+            <b-button variant="primary" :disabled="true" size="sm"><b-icon icon="search"></b-icon></b-button>
+          </template>
+          <b-input v-model="search" placeholder="Quick Filter..." size="sm"></b-input>
+        </b-input-group>
+        <b-button v-b-modal.filters block class="mb-1" size="sm">Activity Types</b-button>
+        <b-form-group label="Start">
+          <b-datepicker v-model="range.start" size="sm" />
+        </b-form-group>
+        <b-form-group label="End">
+          <b-datepicker v-model="range.end" size="sm" />
+        </b-form-group>
+
+      </b-col>
+      <b-col>
+        <b-button-group class="my-3">
           <b-button v-for="l in orderedLevels" :key="l" variant="primary" :pressed.sync="levels[l]"
             :disabled="lastLevelLeft(l)">{{ l | capitalize }}</b-button>
         </b-button-group>
-      </b-col>
-      <b-col cols="3">
-        <b-input-group class="ml-2">
-          <template #prepend>
-            <b-button variant="primary" :disabled="true"><b-icon icon="search"></b-icon></b-button>
-          </template>
-          <b-input v-model="search" placeholder="Quick Filter..."></b-input>
-        </b-input-group>
-      </b-col>
-      <b-col cols="1" class="ml-auto">
-        <b-button v-b-modal.filters>Filters</b-button>
-      </b-col>
-    </b-row>
 
-    <b-row v-if="unloadedDataElements">
-      <b-col cols="12">
-        <b-progress class="mb-3" :animated="true" striped :max="selectedDataElements"
+        <b-progress v-if="unloadedDataElements" class="mb-3" :animated="true" striped :max="selectedDataElements"
           :value="selectedDataElements - unloadedDataElements">
         </b-progress>
+
+        <TreeTable :columns="columns" :rows="rows" :initialState="(item, depth) => depth < 1" class="mb-3"
+          table-class="summary" head-class="px-2 text-uppercase border-top border-bottom border-secondary" striped-rows
+          striped-columns sortable>
+          <template #cell(label)="data"><span class="font-weight-bold">{{ data.value }}</span></template>
+          <template #cell="data">
+            <template v-if="data.value == null">-</template>
+            <template v-else-if="data.column.meta != null && data.column.meta.units != null">
+              {{ data.value | number("0,0.0") }} {{ data.column.meta.units }}
+            </template>
+            <template v-else-if="data.column.key.startsWith('count-')"><b-link :to="{
+              name: 'activities',
+              query: {
+                activityTypeID: data.column.meta.activityTypeID,
+                start: data.item.period.start,
+                end: data.item.period.end,
+              },
+            }">{{ data.value }}</b-link>
+            </template>
+            <template v-else>{{ data.value }}</template></template>
+        </TreeTable>
       </b-col>
     </b-row>
 
-    <TreeTable :columns="columns" :rows="rows" :initialState="(item, depth) => depth < 1" class="mb-3"
-      table-class="summary" head-class="px-2 text-uppercase border-top border-bottom border-secondary" striped-rows
-      striped-columns sortable>
-      <template #cell(label)="data"><span class="font-weight-bold">{{ data.value }}</span></template>
-      <template #cell="data">
-        <template v-if="data.value == null">-</template>
-        <template v-else-if="data.column.meta != null && data.column.meta.units != null">
-          {{ data.value | number("0,0.0") }} {{ data.column.meta.units }}
-        </template>
-        <template v-else-if="data.column.key.startsWith('count-')"><b-link :to="{
-          name: 'activities',
-          query: {
-            activityTypeID: data.column.meta.activityTypeID,
-            start: data.item.period.start,
-            end: data.item.period.end,
-          },
-        }">{{ data.value }}</b-link>
-        </template>
-        <template v-else>{{ data.value }}</template></template>
-    </TreeTable>
-
-    <b-modal id="filters">
-      <b-row>
-        <b-col cols="6">
-          <b-form-group label="Start">
-            <b-datepicker v-model="range.start" />
-          </b-form-group>
-        </b-col>
-        <b-col cols="6">
-          <b-form-group label="End">
-            <b-datepicker v-model="range.end" />
-          </b-form-group>
-        </b-col>
-      </b-row>
-      <hr />
-      <b-form-group label="Activity Types (select up to 3)">
-        <b-button class="mb-2" :variant="
-          selectedActivityTypes.includes(at.id) ? 'primary' : 'secondary'
-        " :disabled="
-  !selectedActivityTypes.includes(at.id) &&
-  selectedActivityTypes.length >= 3
-" block v-for="at in selectableActivityTypes" :key="at.id" :pressed="selectedActivityTypes.includes(at.id)"
-          @click="toggleActivityType(at.id)">
-          {{ at.description }}
-        </b-button>
-      </b-form-group>
+    <b-modal id="filters" title="Activity Types (select up to 3)">
+      <b-button class="mb-2" :variant="selectedActivityTypes.includes(at.id) ? 'primary' : 'secondary'
+        " :disabled="!selectedActivityTypes.includes(at.id) &&
+    selectedActivityTypes.length >= 3
+    " block v-for="at in selectableActivityTypes" :key="at.id" :pressed="selectedActivityTypes.includes(at.id)"
+        @click="toggleActivityType(at.id)">
+        {{ at.description }}
+      </b-button>
     </b-modal>
   </b-container>
 </template>

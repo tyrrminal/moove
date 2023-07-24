@@ -3,18 +3,18 @@
     <h5 v-if="label">{{ label }}</h5>
     <b-table striped small hover :items="events" :fields="fields" :sort-compare="sortCompare" :foot-clone="showFooter"
       no-footer-sorting responsive show-empty :tbody-tr-class="rowClass" :style="{ fontSize: '9pt' }">
-      <template v-slot:table-busy>
+      <template #table-busy>
         <div class="text-center text-info my-2">
           <b-spinner class="align-middle"></b-spinner>
           <strong>Loading...</strong>
         </div>
       </template>
 
-      <template v-slot:empty>
+      <template #empty>
         <slot name="no-data"></slot>
       </template>
 
-      <template v-slot:thead-top="data" v-if="showResults">
+      <template #thead-top="data" v-if="showResults">
         <b-tr :title="data">
           <b-th :colspan="resultsFieldOffset">
             <span class="sr-only">Default Fields</span>
@@ -33,72 +33,72 @@
       <template #foot(frReceived)>{{ totals.frReceived | currency }}</template>
       <template #foot(frPct)>{{ averages.frPct | percent(1) }}</template>
 
-      <template v-slot:cell(index)="data">{{ data.index + 1 }}</template>
+      <template #cell(index)="data">{{ data.index + 1 }}</template>
       <template #cell(year)="data">{{ data.item.eventActivity.scheduledStart.substr(0, 4) }}</template>
-      <template v-slot:cell(date)="data">{{
+      <template #cell(date)="data">{{
         data.item.eventActivity.scheduledStart | luxon({ output: { format: dateFormat } })
       }}</template>
       <template #cell(countdown)="data">
         <Countdown :to="data.item.eventActivity.scheduledStart" />
       </template>
-      <template v-slot:cell(type)="data">{{
+      <template #cell(type)="data">{{
         data.item.eventActivity.eventType.description
       }}</template>
-      <template v-slot:cell(name)="data">
+      <template #cell(name)="data">
         <b-link :to="{
           name: 'registration-detail',
           params: { id: data.item.id },
         }" class="text-muted">{{ data.item.eventActivity.event.name }}</b-link>
       </template>
-      <template v-slot:cell(registrationNumber)="data"><span v-if="data.value">#{{ data.value }}</span></template>
-      <template v-slot:cell(registrationFee)="data"><span
+      <template #cell(registrationNumber)="data"><span v-if="data.value">#{{ data.value }}</span></template>
+      <template #cell(registrationFee)="data"><span
           :class="prHighlightClass(data.value, 'registrationFee', 'text-danger')">{{ data.value | currency
           }}</span></template>
-      <template v-slot:cell(speed)="data">{{ fillUnits(eventVelocity(data.item)) | formatDistance }}</template>
-      <template v-slot:cell(distance)="data">{{ fillUnits(eventDistance(data.item)) | formatDistanceTrim
+      <template #cell(speed)="data">{{ fillUnits(eventVelocity(data.item)) | formatDistance }}</template>
+      <template #cell(distance)="data">{{ fillUnits(eventDistance(data.item)) | formatDistanceTrim
       }}</template>
 
-      <template v-slot:cell(entrants)="data"><span v-if="data.item.placements && data.item.placements.overall">{{
+      <template #cell(entrants)="data"><span v-if="data.item.placements && data.item.placements.overall">{{
         data.item.placements.overall.of }}</span></template>
-      <template v-slot:cell(place)="data"><span v-if="data.item.placements && data.item.placements.overall">
+      <template #cell(place)="data"><span v-if="data.item.placements && data.item.placements.overall">
           <span :class="prHighlightClass(data.item.placements.overall.place, 'place')">{{
             data.item.placements.overall.place }} </span>
           <span v-if="data.item.placements.overall.of" class="placement-partition-size">
             / {{ data.item.placements.overall.of }}</span></span></template>
-      <template v-slot:cell(pct)="data"><span v-if="data.item.placements && data.item.placements.overall"
+      <template #cell(pct)="data"><span v-if="data.item.placements && data.item.placements.overall"
           :class="prHighlightClass(data.item.placements.overall.percentile, 'pct')">{{
             data.item.placements.overall.percentile | percent(1)
           }}</span></template>
-      <template v-slot:cell(placeGender)="data"><span v-if="data.item.placements && data.item.placements.gender">
+      <template #cell(placeGender)="data"><span v-if="data.item.placements && data.item.placements.gender">
           <span :class="prHighlightClass(data.item.placements.gender.place, 'placeGender')">{{
             data.item.placements.gender.place }}</span>
           <span v-if="data.item.placements.gender.of" class="placement-partition-size">
             / {{ data.item.placements.gender.of }}</span></span></template>
-      <template v-slot:cell(pctGender)="data"><span v-if="data.item.placements &&
+      <template #cell(pctGender)="data"><span v-if="data.item.placements &&
         data.item.placements.gender &&
         data.item.placements.gender.percentile != null
         " :class="prHighlightClass(data.item.placements.gender.percentile, 'pctGender')">{{
     data.item.placements.gender.percentile | percent(1) }}</span></template>
-      <template v-slot:cell(placeDivision)="data"><span v-if="data.item.placements && data.item.placements.division">
+      <template #cell(placeDivision)="data"><span v-if="data.item.placements && data.item.placements.division">
           <span :class="prHighlightClass(data.item.placements.division.place, 'placeDivision')">{{
             data.item.placements.division.place }}</span>
           <span v-if="data.item.placements.division.of" class="placement-partition-size">
             / {{ data.item.placements.division.of }}</span></span></template>
-      <template v-slot:cell(pctDivision)="data"><span v-if="data.item.placements &&
+      <template #cell(pctDivision)="data"><span v-if="data.item.placements &&
         data.item.placements.division &&
         data.item.placements.division.percentile != null
         " :class="prHighlightClass(data.item.placements.division.percentile, 'pctDivision')">{{
     data.item.placements.division.percentile | percent(1) }}</span></template>
 
-      <template v-slot:cell(frMinimum)="data"><span v-if="data.item.fundraising"
+      <template #cell(frMinimum)="data"><span v-if="data.item.fundraising"
           :class="prHighlightClass(data.item.fundraising.minimum, 'frMinimum')">{{
             data.item.fundraising.minimum | currency
           }}</span></template>
-      <template v-slot:cell(frReceived)="data"><span v-if="data.item.fundraising"
+      <template #cell(frReceived)="data"><span v-if="data.item.fundraising"
           :class="prHighlightClass(data.item.fundraising.received, 'frReceived')">{{
             data.item.fundraising.received | currency
           }}</span></template>
-      <template v-slot:cell(frPct)="data"><span v-if="data.item.fundraising"
+      <template #cell(frPct)="data"><span v-if="data.item.fundraising"
           :class="prHighlightClass(data.item.fundraising.received / data.item.fundraising.minimum, 'frPct')">{{
             (data.item.fundraising.received / data.item.fundraising.minimum)
             | percent(1)
