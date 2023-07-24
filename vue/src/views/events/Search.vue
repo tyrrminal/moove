@@ -1,7 +1,7 @@
 <template>
   <b-container fluid>
     <b-row>
-      <b-col cols="3" class="vh-100 bg-light pt-3">
+      <b-col cols="3" class="min-vh-100 bg-light pt-3">
         <div class="text-center"><strong>Search Events</strong></div>
         <b-form @submit.prevent="doSearch">
           <b-form-row>
@@ -166,5 +166,4 @@ export default {
 }
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

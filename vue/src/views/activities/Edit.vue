@@ -1,7 +1,7 @@
 <template>
   <b-container fluid>
     <b-row>
-      <b-col cols="2" class="vh-100 bg-dark pt-3">
+      <b-col cols="2" class="min-vh-100 bg-dark pt-3">
         <b-button variant="primary" :disabled="!validated" @click="save" block><b-icon icon="save"
             class="mr-2" />Save</b-button>
         <b-button variant="secondary" class="mr-2" @click="$router.back()" block>Cancel</b-button>
@@ -343,5 +343,4 @@ export default {
 }
 </script>
 
-<style>
-</style>
+<style></style>
