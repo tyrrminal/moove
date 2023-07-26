@@ -1195,31 +1195,41 @@ components:
       name: distance
       required: false
       schema:
-        type: string
+        type: array
+        items:
+          type: string
     SearchNetTime:
       in: query
       name: net_time
       required: false
       schema:
-        type: string
+        type: array
+        items:
+          type: string
     SearchDuration:
       in: query
       name: duration
       required: false
       schema:
-        type: string
+        type: array
+        items:
+          type: string
     SearchPace:
       in: query
       name: pace
       required: false
       schema:
-        type: string
+        type: array
+        items:
+          type: string
     SearchSpeed:
       in: query
       name: speed
       required: false
       schema:
-        type: string
+        type: array
+        items:
+          type: string
     # Pagination Params
     PageNumber:
       in: query
