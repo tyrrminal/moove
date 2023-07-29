@@ -106,40 +106,44 @@ sub resultset ($self, %args) {
   if (my $end_date = $self->validation->param('end')) {
     $rs = $rs->before_date($end_date);
   }
+  if (my $date = $self->validation->param('on')) {
+    say STDERR $date;
+    $rs = $rs->after_date($date)->before_date($date, true)
+  }
   my $event_filter = $self->validation->param('event');
   if(defined($event_filter) ) {
     $rs = $rs->has_event($event_filter);
   }
 
-  if(my $distance_filter = $self->validation->param('distance')) {
+  foreach my $distance_filter (($self->validation->every_param('distance')//[])->@*) {
     my ($value, $op) = $self->decode_distance_param($distance_filter);
     $rs = $rs->search({
       'normalized_distance.value' => {$op => $value}
     })
   }
 
-  if(my $time_filter = $self->validation->param('net_time')) {
+  foreach my $time_filter (($self->validation->every_param('net_time')//[])->@*) {
     my ($value, $op) = $self->decode_time_param($time_filter);
     $rs = $rs->search({
       "activity_result.net_time" => {$op => $value}
     })
   }
 
-  if(my $time_filter = $self->validation->param('duration')) {
+  foreach my $time_filter (($self->validation->every_param('duration')//[])->@*) {
     my ($value, $op) = $self->decode_time_param($time_filter);
     $rs = $rs->search({
       "activity_result.duration" => {$op => $value}
     })
   }
 
-  if(my $time_filter = $self->validation->param('pace')) {
+  foreach my $time_filter (($self->validation->every_param('pace')//[])->@*) {
     my ($value, $op) = $self->decode_time_param($time_filter);
     $rs = $rs->search({
       "activity_result.pace" => {$op => $value}
     })
   }
 
-  if(my $speed_filter = $self->validation->param('speed')) {
+  foreach my $speed_filter (($self->validation->every_param('speed')//[])->@*) {
     my ($value, $op) = $self->decode_distance_param($speed_filter, 'Rate');
     $rs = $rs->search({
       'activity_result.speed' => {$op => $value}
