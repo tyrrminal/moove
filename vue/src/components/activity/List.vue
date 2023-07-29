@@ -21,7 +21,10 @@
       </template>
       <template #cell(startTime)="data">
         <span v-b-tooltip.hover :title="formatDate(data.item.sets[0].startTime)">
-          {{ data.item.sets[0].startTime | luxon }}
+          <b-link class="link-black" @click="$emit('filterDate', data.item.sets[0].startTime)">{{
+            data.item.sets[0].startTime | luxon({ output: { format: "date_med" } })
+          }}</b-link>,
+          {{ data.item.sets[0].startTime | luxon({ output: { format: "time" } }) }}
         </span>
       </template>
       <template #cell(time)="data">
@@ -231,4 +234,8 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+a.link-black:link {
+  color: black !important
+}
+</style>
