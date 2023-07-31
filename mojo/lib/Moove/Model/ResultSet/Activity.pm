@@ -203,6 +203,34 @@ sub before_date ($self, $date, $inclusive = false) {
   );
 }
 
+sub before_now($self) {
+  return $self->search(
+    {
+      'workout.date' => {'<=' => DateTime::Format::MySQL->format_datetime(DateTime->now(time_zone => 'local')->truncate(to => 'day'))}
+    }, {
+      join => 'workout'
+    }
+  )
+}
+
+sub on_date($self, $date) {
+  return $self unless(defined($date));
+  my $d = ref($date) ? DateTime::Format::MySQL->format_datetime($date) : $date;
+  return $self->search({
+    'workout.date' => $d
+  },{
+    join => 'workout'
+  })
+}
+
+sub has_distance ($self) {
+  return $self->search({
+    'base_activity_type.has_distance' => 'Y'
+  }, {
+    join => {activity_type => 'base_activity_type'}
+  })
+}
+
 sub near_distance ($self, $d) {
   my $v      = $d->normalized_value;
   my $margin = $d->normalized_value * 0.05;
@@ -239,7 +267,14 @@ sub max_distance ($self, $d) {
 }
 
 sub total_distance ($self) {
-  return sum(map {$_->distance->normalized_value} $self->related_resultset('activity_result')->with_distance->all) // 0;
+
+sub ordered_by_distance ($self) {
+  return $self->search(undef,
+    { 
+      join => {activity_result => {distance => 'unit_of_measure'}},
+      order_by => { '-asc' => \[ 'distance.value * unit_of_measure.normalization_factor' ] }
+    }
+  )
 }
 
 sub merge ($self, @activities) {
