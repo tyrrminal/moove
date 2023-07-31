@@ -267,6 +267,9 @@ sub max_distance ($self, $d) {
 }
 
 sub total_distance ($self) {
+  my $v = sum(map {$_->distance->normalized_value} $self->related_resultset('activity_result')->with_distance->all) // 0;
+  return $self->result_source->schema->resultset('Distance')->new_normal($v)
+}
 
 sub ordered_by_distance ($self) {
   return $self->search(undef,
