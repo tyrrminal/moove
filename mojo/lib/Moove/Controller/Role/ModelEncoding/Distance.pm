@@ -6,7 +6,7 @@ with 'Moove::Controller::Role::ModelEncoding::UnitOfMeasure';
 
 sub encode_model_distance ($self, $entity) {
   return {
-    id              => $entity->id,
+    # id              => $entity->id,
     value           => $entity->value,
     unitOfMeasureID => $entity->unit_of_measure_id,
   };
