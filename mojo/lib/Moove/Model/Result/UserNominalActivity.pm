@@ -65,11 +65,17 @@ __PACKAGE__->table("UserNominalActivity");
   is_foreign_key: 1
   is_nullable: 0
 
-=head2 year
+=head2 start_date
 
-  data_type: 'integer'
-  extra: {unsigned => 1}
+  data_type: 'date'
+  datetime_undef_if_invalid: 1
   is_nullable: 0
+
+=head2 end_date
+
+  data_type: 'date'
+  datetime_undef_if_invalid: 1
+  is_nullable: 1
 
 =head2 value
 
@@ -100,8 +106,10 @@ __PACKAGE__->add_columns(
     is_foreign_key => 1,
     is_nullable => 0,
   },
-  "year",
-  { data_type => "integer", extra => { unsigned => 1 }, is_nullable => 0 },
+  "start_date",
+  { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 0 },
+  "end_date",
+  { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 1 },
   "value",
   { data_type => "longtext", is_nullable => 0 },
 );
@@ -149,26 +157,11 @@ __PACKAGE__->belongs_to(
   { id => "user_id" },
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
-
-=head2 user_nominal_activity_ranges
-
-Type: has_many
-
-Related object: L<Moove::Model::Result::UserNominalActivityRange>
-
-=cut
-
-__PACKAGE__->has_many(
-  "user_nominal_activity_ranges",
-  "Moove::Model::Result::UserNominalActivityRange",
-  { "foreign.user_nominal_activity_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
 #>>>
 use v5.36;
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-09 16:32:11
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ha97sKhVVZO3ll0DEvEKvw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-07-31 12:52:13
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:diyJtL8B724eIDfD11ii+Q
 use builtin qw(false);
 use experimental qw(builtin);
 
