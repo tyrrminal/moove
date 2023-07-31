@@ -5,7 +5,7 @@ use base qw(DBIx::Class::ResultSet);
 
 use Moove::Util::Unit::Conversion qw(unit_conversion);
 
-sub find_or_create_in_units ($self, $d, $unit) {
+sub find_or_create_in_units ($self, $d, $unit, $create = true) {
   my $rs = $self->search({
     value              => $d,
     unit_of_measure_id => $unit->id
@@ -20,7 +20,12 @@ sub find_or_create_in_units ($self, $d, $unit) {
     if(my $d = $rs->first) {return $d}
   }
 
-  return $self->create({value => $d, unit_of_measure => $unit});
+  if($create) {
+    return $self->create({value => $d, unit_of_measure => $unit});
+  } else {
+    return $self->new({value => $d, unit_of_measure => $unit});
+  }
+}
 }
 
 1;
