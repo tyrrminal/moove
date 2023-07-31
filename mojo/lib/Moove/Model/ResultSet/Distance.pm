@@ -7,6 +7,21 @@ use base qw(DBIx::Class::ResultSet);
 use List::Util qw(uniq sum);
 use Moove::Util::Unit::Conversion qw(unit_conversion);
 
+use experimental qw(builtin);
+
+sub new_normal($self, $value) {
+  my $unit = $self->result_source->schema->resultset('UnitOfMeasure')->search({
+      normal_unit_id          => undef, 
+      'unit_of_measure_type.description' => 'Distance'
+    }, {
+      join => 'unit_of_measure_type'
+    })->first;
+  return $self->new({
+    value => $value,
+    unit_of_measure_id => $unit->id,
+  })
+}
+
 sub find_or_create_in_units ($self, $d, $unit, $create = true) {
   my $rs = $self->search({
     value              => $d,
