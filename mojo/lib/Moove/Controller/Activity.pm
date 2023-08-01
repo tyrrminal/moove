@@ -4,8 +4,14 @@ use v5.36;
 use Mojo::Base 'DCS::Base::API::Model::Controller';
 
 use Role::Tiny::With;
-with 'DCS::Base::Role::Rest::Collection', 'DCS::Base::Role::Rest::Entity';
-with 'Moove::Controller::Role::ModelEncoding::Activity', 'Moove::Controller::Role::ModelEncoding::Activity::UserEventActivity';
+with qw(
+  DCS::Base::Role::Rest::Collection
+  DCS::Base::Role::Rest::Entity
+
+  Moove::Controller::Role::ModelEncoding::Activity 
+  Moove::Controller::Role::ModelEncoding::Activity::UserEventActivity
+  Moove::Controller::Role::ModelEncoding::Distance
+);
 with 'Moove::Role::Import::Activity';
 with 'Moove::Role::Unit::Conversion';
 
@@ -104,7 +110,7 @@ sub resultset ($self, %args) {
     $rs = $rs->after_date($start_date);
   }
   if (my $end_date = $self->validation->param('end')) {
-    $rs = $rs->before_date($end_date);
+    $rs = $end_date eq 'current' ? $rs->before_now : $rs->before_date($end_date, true);
   }
   if (my $date = $self->validation->param('on')) {
     $rs = $rs->after_date($date)->before_date($date, true)
@@ -224,69 +230,75 @@ sub delete_record ($self, $entity) {
   return $self->SUPER::delete_record($entity);
 }
 
-sub summary ($self) {
-  return unless ($self->openapi->valid_input);
-  my $today  = DateTime->today(time_zone => 'local');
-  my $period = $self->validation->param('period');
-
-  try {
-    my $unit = $self->model('UnitOfMeasure')->search({normal_unit_id => undef, abbreviation => 'mi'})->first;
-
-    my @activities = $self->resultset->completed->ordered->all;
-
-    my $start = $self->parse_api_date($self->validation->param('start'))
-      // (@activities > 0 ? $activities[0]->activity_result->start_time->truncate(to => 'day') : $today);
-    my $end = $self->_end_of_period($start, $period) // $today;
-    $end->add(days => 1) if ($start == $end);
-
-    my $ars = $self->resultset()->before_date($end)->completed->ordered;
-    my $ers = $self->resultset(combine => false)->before_date($end)->has_event;
-    my $una = $self->effective_user->user_nominal_activities->search({year => defined($period) ? $start->year : undef});
-
-    my @activity_summaries;
-    foreach ($self->app->model('ActivityType')->all) {
-      my $sl      = $ars->activity_type($_);
-      my $sers = $ers->activity_type($_);
-      my $nominal = $una->search({activity_type_id => $_->id})->first;
-      my %nom;
-      if (defined($nominal)) {
-        my $pd = $nominal->per_day;
-        %nom = (nominal => {(map {$_ => $pd->{$_} * $nominal->days_in_range_between_dates($start, $end, $sl->after_date($today->strftime('%F'))->count > 0)} keys($pd->%*))});
-      }
-      push(
-        @activity_summaries, {
-          activityTypeID => $_->id,
-          distance       => $sl->total_distance,
-          unitID         => $unit->id,
-          eventDistance  => $sers->total_distance,
-          %nom
-        }
-        )
-        if ($sl->count || defined($nominal));
-    }
-
-    $today->add(days => 1) if($ars->after_date($today->strftime('%F'))->count > 0);
-    return $self->render(
-      openapi => {
-        period => {
-          daysElapsed => $start->delta_days($start > $today ? $start : min($end, $today))->delta_days,
-          defined($period) ? (daysTotal => _days_in_period($period, $start)) : (),
-          years => $end->yearfrac($start),
-        },
-        activities => [
-          {
-            activityTypeID => undef,
-            distance       => $ars->total_distance,
-            unitID         => $unit->id,
-            eventDistance  => $ers->total_distance,
-          },
-          @activity_summaries
-        ]
-      }
-    );
-  } catch ($e) {
-    $self->render_error(HTTP_BAD_REQUEST, $e->can('message') ? $e->message : $e)
+sub param_end($self, $check = false) {
+  my $v = $self->validation->param('end');
+  if(defined($v) && $v eq 'current') {
+    my $d = DateTime->now()->truncate(to => 'day');
+    $d->subtract(days => 1) if($check && $self->resultset->on_date($d)->count < 1);
+    return $d;
   }
+  return $self->parse_api_date($v);
+}
+
+sub summary($self) {
+  return unless ($self->openapi->valid_input);
+  my $activities = $self->resultset->completed;
+
+  my @range = $activities->ordered;
+  my $start = $self->parse_api_date($self->validation->param('start')) // $range[0]->start_date;
+  my $end = $self->param_end(true) // $range[-1]->start_date;
+
+  my @partitions;
+  if(!$self->validation->param('partition') || $self->validation->param('includeUnpartitionedSummary')) {
+    push(@partitions, {rs => $activities, label => 'All Activities', start => $start, end => $end});
+  } 
+  if($self->validation->param('partition')//'' eq 'activityType') {
+    push(@partitions, map +{ rs => scalar $activities->activity_type($_), activity_type => $_, start => $start, end => $end }, $self->model('ActivityType')->all)
+  }
+
+  return $self->render(json => [map { $self->summarize_activities($_) } @partitions]);
+}
+
+sub summarize_activities($self, $partition) {
+  my $rs = $partition->{rs};
+  my $event_rs = $rs->has_event;
+  return () unless $rs->count;
+  
+  my $r = {
+    startDate => $self->encode_date($partition->{start}),
+    endDate   => $self->encode_date($partition->{end}),
+    counts    => {
+      total     => $rs->count,
+      event     => $event_rs->count,
+      maxPerDay => $rs->max_activities_per('day'),
+    },
+  };
+
+  my $distance_rs = $rs->has_distance;
+  if($distance_rs->count > 0) {
+    my @d = $distance_rs->ordered_by_distance;
+    my $distance_event_rs = $event_rs->has_distance;
+    $r->{distance} = {
+      total      => $self->encode_model($distance_rs->total_distance),
+      eventTotal => $self->encode_model($distance_event_rs->total_distance),
+      max        => $self->encode_model($d[-1]->activity_result->distance),
+      min        => $self->encode_model($d[0]->activity_result->distance),
+    }
+  }
+
+  if(defined($partition->{activity_type})) {
+    $r->{activityTypes} = [map +{id => $_->id}, $partition->{activity_type}];
+    $r->{label} = $partition->{activity_type}->description;
+
+    my $nom_rs = $self->effective_user->user_nominal_activities->in_range($partition->{start},$partition->{end})->for_type($partition->{activity_type});
+    if($nom_rs->count) {
+      my $nom_d = $nom_rs->nominal_distance_in_range($partition->{start}, $partition->{end});
+      $r->{distance}->{nominal} = $self->encode_model($nom_d);
+    }
+  } elsif(defined($partition->{label})) {
+    $r->{label} = $partition->{label}
+  }
+  return $r;
 }
 
 sub slice ($self) {

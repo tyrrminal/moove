@@ -252,16 +252,31 @@ paths:
       summary: Get a summary of activity in selected time frame
       x-mojo-to: Activity#summary
       parameters:
-        - $ref: "#/components/parameters/SearchUserID"
-        - $ref: "#/components/parameters/OutputPeriod"
+        - $ref: "#/components/parameters/SearchUsername"
+        - $ref: "#/components/parameters/Partitioning"
+        - $ref: "#/components/parameters/IncludeUnpartitionedSummary"
+
+        - $ref: "#/components/parameters/SearchWorkoutID"
+        - $ref: "#/components/parameters/SearchActivityTypes"
         - $ref: "#/components/parameters/SearchStartdate"
+        - $ref: "#/components/parameters/SearchEnddate"
+        - $ref: "#/components/parameters/SearchOnDate"
+        - $ref: "#/components/parameters/SearchWholeActivity"
+        - $ref: "#/components/parameters/SearchEventActivity"
+        - $ref: "#/components/parameters/SearchDistance"
+        - $ref: "#/components/parameters/SearchNetTime"
+        - $ref: "#/components/parameters/SearchDuration"
+        - $ref: "#/components/parameters/SearchPace"
+        - $ref: "#/components/parameters/SearchSpeed"
       responses:
         200:
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ActivitySummary"
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivitySummary"
       tags:
         - Activity
   /activities/slice:
@@ -270,7 +285,7 @@ paths:
       x-mojo-to: Activity#slice
       parameters:
         # Query Params
-        - $ref: "#/components/parameters/SearchUserID"
+        - $ref: "#/components/parameters/SearchUsername"
         - $ref: "#/components/parameters/SearchActivityType"
         - $ref: "#/components/parameters/SearchStartdate"
         - $ref: "#/components/parameters/SearchEnddate"
@@ -657,11 +672,11 @@ paths:
         - $ref: "#/components/parameters/SortField"
         - $ref: "#/components/parameters/SortDirection"
         # Query Params
+        - $ref: "#/components/parameters/SearchUsername"
         - $ref: "#/components/parameters/SearchEventname"
         - $ref: "#/components/parameters/SearchStartdate"
         - $ref: "#/components/parameters/SearchEnddate"
         - $ref: "#/components/parameters/SearchActivityTypes"
-        - $ref: "#/components/parameters/SearchUsername"
         - $ref: "#/components/parameters/SearchEventActivityID"
 
         - $ref: "#/components/parameters/SearchEventGroupID"
@@ -769,8 +784,8 @@ paths:
         - $ref: "#/components/parameters/SortField"
         - $ref: "#/components/parameters/SortDirection"
         # Query Params
-        - $ref: "#/components/parameters/SearchGoalname"
         - $ref: "#/components/parameters/SearchUsername"
+        - $ref: "#/components/parameters/SearchGoalname"
       responses:
         200:
           description: OK
@@ -1147,8 +1162,11 @@ components:
       name: end
       required: false
       schema:
-        type: string
-        format: date
+        anyOf:
+          - type: string
+            format: date
+          - type: string
+            enum: ['current']
       description: End Date
     SearchOnDate:
       in: query
@@ -1239,6 +1257,20 @@ components:
         type: array
         items:
           type: string
+    # Output Params
+    Partitioning:
+      in: query
+      name: partition
+      required: false
+      schema:
+        type: string
+        enum: ['activityType','activityTypeBase']
+    IncludeUnpartitionedSummary:
+      in: query
+      name: includeUnpartitionedSummary
+      required: false
+      schema:
+        type: boolean
     # Pagination Params
     PageNumber:
       in: query
@@ -1391,7 +1423,49 @@ components:
           nullable: true
     ActivitySummary:
       type: object
-      additionalProperties: true
+      additionalProperties: false
+      properties:
+        label:
+          type: string
+        activityTypes:
+          type: array
+          items:
+            $ref: "#/components/schemas/ActivityType"
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        counts:
+          type: object
+          additionalProperties: false
+          properties:
+            total:
+              type: number
+            event:
+              type: number
+            maxPerDay:
+              type: number
+            longestDayStreak:
+              type: number
+            longestDayGap:
+              type: number
+        distance:
+          type: object
+          additionalProperties: false
+          properties:
+            total:
+              $ref: "#/components/schemas/UnitValue"
+            eventTotal:
+              $ref: "#/components/schemas/UnitValue"
+            max:
+              $ref: "#/components/schemas/UnitValue"
+            min:
+              $ref: "#/components/schemas/UnitValue"
+            nominal:
+              $ref: "#/components/schemas/UnitValue"
+
     ActivitySlice:
       type: object
       additionalProperties: false
@@ -1951,6 +2025,9 @@ components:
     UnitValue:
       type: object
       additionalProperties: false
+      required:
+        - value
+        - unitOfMeasureID
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"
