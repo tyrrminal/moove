@@ -231,6 +231,30 @@ sub has_distance ($self) {
   })
 }
 
+sub has_pace ($self) {
+  return $self->search({
+    'base_activity_type.has_pace' => 'Y'
+  }, {
+    join => {activity_type => 'base_activity_type'}
+  })
+}
+
+sub has_speed ($self) {
+  return $self->search({
+    'base_activity_type.has_speed' => 'Y'
+  }, {
+    join => {activity_type => 'base_activity_type'}
+  })
+}
+
+sub has_time ($self) {
+  return $self->search({ 
+    'base_activity_type.has_duration' => 'Y'
+  }, {
+    join => {activity_type => 'base_activity_type'}
+  })
+}
+
 sub max_activities_per($self, $period = 'day') {
   my @grouping;
   if($period eq 'day') {
