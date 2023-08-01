@@ -14,6 +14,6 @@ export function unitValue(f, s) {
 
   return {
     ...f,
-    description: [Number.parseFloat(f.value), uom.abbreviation].join(" "),
+    description: `${Number.parseFloat(f.value)} ${uom.abbreviation}`
   };
 }
