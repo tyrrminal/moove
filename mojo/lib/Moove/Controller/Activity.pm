@@ -107,7 +107,6 @@ sub resultset ($self, %args) {
     $rs = $rs->before_date($end_date);
   }
   if (my $date = $self->validation->param('on')) {
-    say STDERR $date;
     $rs = $rs->after_date($date)->before_date($date, true)
   }
   my $event_filter = $self->validation->param('event');
