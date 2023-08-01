@@ -1,7 +1,7 @@
 <template>
   <b-container fluid>
     <b-row>
-      <b-col cols="2" class="bg-info min-vh-100">
+      <b-col cols="3" class="bg-info min-vh-100">
         <OverallSummary :summaryData="cache.overall" />
       </b-col>
       <b-col class="mt-3">
@@ -27,6 +27,8 @@
 <script>
 import { DateTime } from 'luxon';
 
+import datePeriod from "@/mixins/datePeriod.js";
+
 import OverallSummary from "@/components/activity/summary/Overall";
 import SummaryPeriod from "@/components/activity/summary/Period";
 
@@ -36,6 +38,7 @@ export default {
     OverallSummary,
     SummaryPeriod,
   },
+  mixins: [datePeriod],
   data: function () {
     let startDate = DateTime.now().startOf('week').minus({ days: 1 }).toISODate();
     return {
@@ -62,33 +65,57 @@ export default {
   methods: {
     periodStartDate: function (period) {
       if (!period) return null;
-      if (period == 'week') return this.date;
-      return DateTime.fromISO(this.date).startOf(period).toISODate();
+      const basis = DateTime.fromISO(this.date);
+      let psd;
+      if (period == 'week') {
+        psd = basis
+          .startOf('week')
+          .plus({ week: basis.weekdayShort === 'Sun' ? 1 : 0 })
+          .minus({ day: 1 })
+      } else
+        psd = basis.startOf(period);
+      return psd.toISODate()
+    },
+    periodEndDate: function (period) {
+      let psd = DateTime.fromISO(this.periodStartDate(period));
+      let nextPeriod = {};
+      nextPeriod[`${period}s`] = 1;
+      let ped = psd.plus(nextPeriod).minus({ days: 1 })
+      return ped.toISODate();
     },
     loadPeriod: function (period = null) {
       let params = new URLSearchParams();
       let psd = this.periodStartDate(period);
+      let ped = this.periodEndDate(period);
+      params.append('combine', true)
+      params.append('partition', 'activityType')
+      params.append('includeUnpartitionedSummary', true)
       if (period) {
         params.append("start", psd);
-        params.append("period", period);
+        params.append("end", DateTime.fromISO(ped) > DateTime.now() ? 'current' : ped)
       }
       let p = this.$http.get(["activities", "summary"].join("/"), { params })
         .then((resp) => {
-          if (period) {
-            this.$set(this.cache, psd + period, resp.data)
-          } else {
-            this.$set(this.cache, 'overall', resp.data)
-          }
+          this.addToCache(resp.data, period)
         })
       this.promises.push(p);
     },
     loadMore: function () {
       this.sections.forEach(s => {
-        let key = this.periodStartDate(s) + s;
-        if (!this.cache[key]) {
+        if (!this.cache[this.cacheKey(this.periodStartDate(s), s)]) {
           this.loadPeriod(s)
         }
       });
+    },
+    addToCache: function (data, period) {
+      let psd = this.periodStartDate(period);
+      let ped = this.periodEndDate(period);
+      if (data.length == 0) data.push({
+        startDate: psd,
+        endDate: ped,
+        label: "No Activities"
+      })
+      this.$set(this.cache, this.cacheKey(psd, period), data)
     },
     changeDate: function (by) {
       let newDate = DateTime.fromISO(this.date).plus(by);

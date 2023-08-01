@@ -3,20 +3,19 @@
     <template v-if="metaLoaded">
       <h5>{{ typeDescription }}</h5>
 
-      <b-progress v-if="activity.nominal" height="0.5rem" :max="nominalDistance" :title="nominalProgressText"
-        v-b-tooltip.bottom class="mb-2" :striped="!activity.nominal.distance">
-        <b-progress-bar :value="activity.distance" :variant="nominalProgressVariant" />
+      <b-progress v-if="showNominal" height="0.5rem" :max="normalizedNominalValue" :title="nominalProgressText"
+        v-b-tooltip.bottom class="mb-2" :striped="!activity.distance.nominal?.value">
+        <b-progress-bar :value="normalizedValue" :variant="nominalProgressVariant" />
       </b-progress>
 
       <b-badge :to="{ name: 'activities', query: qs() }" :variant="nominalProgressVariant">
-        {{ formattedDistance(activity.distance) }}
+        {{ formattedDistance(activity.distance.total) }}
       </b-badge>
-      <span v-if="activity.eventDistance"> /
+      <span v-if="activity.distance.eventTotal?.value"> /
         <b-badge :to="{ name: 'activities', query: qs(true) }" variant="none">
-          {{ formattedDistance(activity.eventDistance) }}
+          {{ formattedDistance(activity.distance.eventTotal) }}
         </b-badge>
       </span>
-
     </template>
   </b-list-group-item>
 </template>
@@ -24,6 +23,8 @@
 <script>
 import { mapGetters } from "vuex";
 import { DateTime } from "luxon";
+
+import { convertUnitValue } from "@/utils/unitConversion.js"
 
 export default {
   name: "SummaryElement",
@@ -35,6 +36,10 @@ export default {
     context: {
       type: Object,
       required: false
+    },
+    hideNominal: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
@@ -43,23 +48,27 @@ export default {
       getActivityType: "getActivityType",
       getUnitOfMeasure: "getUnitOfMeasure",
     }),
+    showNominal: function () {
+      return this.activity.distance.nominal && !this.hideNominal;
+    },
     typeDescription: function () {
-      if (this.activityType) return this.activityType.description;
-      return 'All Activities';
+      return this.activity.label;
     },
     activityType: function () {
-      return this.getActivityType(this.activity.activityTypeID)
+      let t = this.activity.activityTypes;
+      if (t) t = t[0]
+      return this.getActivityType(t?.id)
     },
-    unit: function () {
-      return this.getUnitOfMeasure(this.activity.unitID)
+    normalizedValue: function () {
+      return convertUnitValue(this.activity.distance.total.value, this.getUnitOfMeasure(this.activity.distance.total.unitOfMeasureID))
     },
-    nominalDistance: function () {
-      return this.activity.nominal.distance || this.activity.distance
+    normalizedNominalValue: function () {
+      return convertUnitValue(this.activity.distance.nominal.value, this.getUnitOfMeasure(this.activity.distance.total.unitOfMeasureID))
     },
     nominalProgressVariant: function () {
-      if (this.activity.nominal) {
-        let d = this.activity.distance;
-        let n = this.activity.nominal.distance
+      if (this.showNominal) {
+        let d = this.normalizedValue;
+        let n = this.normalizedNominalValue;
         if (d >= n) return "success";
         if (d >= 0.8 * n) return "warning";
         return "danger";
@@ -67,15 +76,15 @@ export default {
       return "none"
     },
     nominalProgressText: function () {
-      if (this.activity.nominal && this.activity.nominal.distance)
-        return this.$options.filters.percent(this.activity.distance / this.activity.nominal.distance)
-          + ' of ' + this.formattedDistance(this.activity.nominal.distance)
+      if (this.activity.distance.nominal?.value)
+        return this.$options.filters.percent(this.normalizedValue / this.normalizedNominalValue)
+          + ' of ' + this.formattedDistance(this.activity.distance.nominal).description
       return "";
     },
   },
   methods: {
     formattedDistance: function (d) {
-      return this.$options.filters.number(d, "0,0.00") + ' ' + this.unit.abbreviation
+      return `${this.$options.filters.number(d.value, "0,0.00")} ${this.getUnitOfMeasure(d.unitOfMeasureID).abbreviation}`
     },
     qs: function (withEvent) {
       let q = {};
@@ -95,6 +104,4 @@ export default {
 }
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -2,20 +2,19 @@
   <b-card no-body>
     <b-card-header>{{ sectionLabel }}</b-card-header>
     <template v-if="loaded">
-      <b-progress v-if="periodIsIncomplete" class="squared-progress" :max="periodData.period.daysTotal"
-        :title="progressTooltip">
-        <b-progress-bar :value="periodData.period.daysElapsed">
+      <b-progress v-if="periodIsIncomplete" class="squared-progress" :max="days" :title="progressTooltip">
+        <b-progress-bar :value="daysElapsed">
           {{ progressTooltip }}
         </b-progress-bar>
       </b-progress>
-      <b-card-body class="pt-1" v-if="activities.length">
+      <b-card-body class="pt-1" v-if="activities[0].counts">
         <b-list-group flush>
-          <SummaryElement v-for="a in activities" :key="a.activityTypeID" :activity="a"
+          <SummaryElement v-for="a in activities" :key="(a.activityTypes || [])[0]?.activityTypeID" :activity="a"
             :context="{ period: period, start: date }" />
         </b-list-group>
       </b-card-body>
       <b-card-body v-else>
-        <h4 class="text-center">No Activities</h4>
+        <h4 class="text-center">{{ activities[0].label }}</h4>
       </b-card-body>
     </template>
     <b-card-body v-else><b-spinner /></b-card-body>
@@ -23,6 +22,7 @@
 </template>
 
 <script>
+import datePeriod from "@/mixins/datePeriod.js";
 import { DateTime } from 'luxon';
 
 import SummaryElement from "@/components/activity/summary/Element";
@@ -32,6 +32,7 @@ export default {
   components: {
     SummaryElement
   },
+  mixins: [datePeriod],
   props: {
     period: {
       type: String,
@@ -47,17 +48,32 @@ export default {
     }
   },
   computed: {
+    startDate: function () {
+      return DateTime.fromISO(this.periodData[0].startDate)
+    },
+    endDate: function () {
+      return this.periodEnd(this.period)
+    },
+    days: function () {
+      return DateTime.fromISO(this.endDate).diff(this.startDate, ['days']).days + 1
+    },
+    daysElapsed: function () {
+      const now = DateTime.now().startOf('day');
+      if (this.endDate < now) return this.days
+      if (this.startDate > now) return 0;
+      return now.diff(this.startDate, ['days']).days
+    },
     loaded: function () {
       return this.periodData != null
     },
     periodData: function () {
-      return this.summaryData[this.date + this.period]
+      return this.summaryData[this.cacheKey()]
     },
     activities: function () {
-      return this.periodData.activities.filter((a) => a.distance > 0);
+      return this.periodData;
     },
     periodIsIncomplete: function () {
-      return this.periodData.period.daysElapsed < this.periodData.period.daysTotal
+      return this.daysElapsed < this.days
     },
     sectionLabel: function () {
       let l;
@@ -72,22 +88,19 @@ export default {
           l = DateTime.fromISO(this.date).get(this.period);
           break;
       }
-      if (this.loaded) l += ` (${this.progressText})`;
+      if (this.loaded && this.daysElapsed) l += ` (${this.progressText})`;
       return l;
     },
     progressTooltip: function () {
       return this.$options.filters.percent(
-        this.periodData.period.daysElapsed / this.periodData.period.daysTotal
+        this.daysElapsed / this.days
       );
     },
     progressText: function () {
       if (!this.loaded) return "";
-      if (this.periodData.period.daysElapsed == this.periodData.period.daysTotal)
-        return `${this.periodData.period.daysTotal} days`;
-      return "Day " + [
-        this.periodData.period.daysElapsed,
-        this.periodData.period.daysTotal,
-      ].join(" of ");
+      if (this.daysElapsed >= this.days)
+        return `${this.days} days`;
+      return `Day ${this.daysElapsed} of ${this.days}`
     },
   },
 };
