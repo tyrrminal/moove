@@ -18,7 +18,12 @@ sub in_range($self, $start, $end) {
   $self->search({
     -or => [
       {start_date => {-between => $range}},
-      {end_date   => {-between => $range}}
+      {end_date   => {-between => $range}},
+      { -and => [
+        { start_date => { '<=' => $range->[0] } },
+        { end_date   => { '>'  => $range->[1] } }
+      ]
+      }
     ]
   })
 }
