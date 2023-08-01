@@ -231,6 +231,33 @@ sub has_distance ($self) {
   })
 }
 
+sub max_activities_per($self, $period = 'day') {
+  my @grouping;
+  if($period eq 'day') {
+    @grouping = 'workout.date'
+  } elsif($period eq 'week') {
+    @grouping = (\['YEAR(workout.date)'], \['WEEK(workout.date)'])
+  } elsif($period eq 'month') {
+    @grouping = (\['YEAR(workout.date)'], \['MONTH(workout.date)'])
+  } elsif($period eq 'year') {
+    @grouping = (\['YEAR(workout.date)'])
+  }
+
+  my $rs = $self->search(undef, { 
+    select => 
+      {count => 'me.id'}, 
+    as => 
+      [qw(count)], 
+    group_by => 
+      [ @grouping ], 
+    order_by => 
+      {-desc => \['COUNT(me.id)']} 
+    }
+  );
+  my ($t) = $rs->all();
+  return $t->get_column('count');
+}
+
 sub near_distance ($self, $d) {
   my $v      = $d->normalized_value;
   my $margin = $d->normalized_value * 0.05;
