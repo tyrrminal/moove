@@ -1443,7 +1443,7 @@ components:
           properties:
             total:
               type: number
-            event:
+            eventTotal:
               type: number
             maxPerDay:
               type: number
