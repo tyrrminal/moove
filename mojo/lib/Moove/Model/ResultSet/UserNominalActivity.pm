@@ -6,10 +6,9 @@ use base qw(DBIx::Class::ResultSet);
 use DateTime::Format::MySQL;
 use List::Util qw(sum);
 
-sub for_type($self, $activity_type) {
-  my $activity_type_id = ref($activity_type) ? $activity_type->id : $activity_type;
+sub for_type($self, @activity_types) {
   $self->search({
-    activity_type_id => $activity_type_id
+    activity_type_id => {-in => [map { ref($_) ? $_->id : $_ } @activity_types]}
   })
 }
 
