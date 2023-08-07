@@ -3,6 +3,7 @@ use v5.36;
 
 use base qw(DBIx::Class::ResultSet);
 
+use DateTime;
 use DateTime::Format::MySQL;
 use List::Util qw(sum);
 
@@ -13,7 +14,7 @@ sub for_type($self, @activity_types) {
 }
 
 sub in_range($self, $start, $end) {
-  my $range = [DateTime::Format::MySQL->format_date($start), DateTime::Format::MySQL->format_date($end)];
+  my $range = [DateTime::Format::MySQL->format_date($start // DateTime->from_epoch(epoch => 0)), DateTime::Format::MySQL->format_date($end // DateTime->new(year => 3000, month => 1, day => 1))];
   $self->search({
     -or => [
       {start_date => {-between => $range}},
