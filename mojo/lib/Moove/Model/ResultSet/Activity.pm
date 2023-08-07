@@ -86,7 +86,7 @@ sub for_person ($self, $person) {
 sub whole ($self) {
   return $self->search(
     {
-      'whole_activity_id' => undef
+      'me.whole_activity_id' => undef
     }
   );
 }
@@ -105,7 +105,7 @@ sub uncombined ($self) {
 sub whole_or_event ($self) {
   return $self->search(
     {
-      '-or' => [{'event_id' => {'!=', undef}}, {'whole_activity_id' => undef}]
+      '-or' => [{'event_id' => {'!=', undef}}, {'me.whole_activity_id' => undef}]
     }
   );
 }
@@ -136,7 +136,7 @@ sub core ($self) {
 sub activity_type ($self, $type) {
   return $self->search(
     {
-      activity_type_id => $type->id,
+      'me.activity_type_id' => $type->id,
     }
   );
 }
@@ -158,7 +158,7 @@ sub year ($self, $year) {
 sub completed ($self) {
   return $self->search(
     {
-      activity_result_id => {'<>' => undef}
+      'me.activity_result_id' => {'<>' => undef}
     }, {
       join => 'activity_result'
     }
