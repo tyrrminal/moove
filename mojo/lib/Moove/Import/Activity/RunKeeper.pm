@@ -122,20 +122,20 @@ sub get_activity_location_points ($self, $activity_id) {
   my ($activity) = grep {$activity_id eq $_->{activity_id}} $self->activity_data->@*;
 
   unzip($self->file => \my $data, Name => $activity->{gpx});
-  my $gpx = Geo::Gpx->new(xml => $data, use_datetime => true);
+  my $gpx = Geo::Gpx->new(xml => $data);
 
   return [map {@{$_->{points}}} map {@{$_->{segments}}} @{$gpx->tracks}];
 }
 
 sub _get_gross_time ($self, $activity) {
   unzip($self->file => \my $data, Name => $activity->{gpx});
-  my $gpx = Geo::Gpx->new(xml => $data, use_datetime => true);
+  my $gpx = Geo::Gpx->new(xml => $data);
 
   my @segments = map {@{$_->{segments}}} @{$gpx->tracks};
   my $f_p      = $segments[0]->{points}->[0];
   my $l_p      = $segments[-1]->{points}->[-1];
 
-  return $l_p->{time}->subtract_datetime($f_p->{time});
+  return $l_p->time_datetime->subtract_datetime($f_p->time_datetime);
 }
 
 1;

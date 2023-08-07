@@ -27,7 +27,7 @@ sub register ($self, $app, $args) {
         $activity_result->add_to_activity_points(
           {
             activity_result_id => $activity_result->id,
-            timestamp          => $ap->{time},
+            timestamp          => $ap->time_datetime,
             location_id        => $location->id
           }
         );
