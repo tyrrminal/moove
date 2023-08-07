@@ -90,8 +90,8 @@ export default {
       let q = {};
       if (withEvent != null)
         q["event"] = withEvent;
-      if (this.activity.activityTypeID)
-        q["activityTypeID"] = this.activity.activityTypeID
+      if (this.activity.activityTypes)
+        q["activityTypeID"] = this.activity.activityTypes[0].id
       if (this.context) {
         q["start"] = this.context.start;
         let d = DateTime.fromISO(this.context.start);
