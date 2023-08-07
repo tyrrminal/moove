@@ -1463,6 +1463,8 @@ components:
               $ref: "#/components/schemas/UnitValue"
             min:
               $ref: "#/components/schemas/UnitValue"
+            avg:
+              $ref: "#/components/schemas/UnitValue"
             nominal:
               $ref: "#/components/schemas/UnitValue"
 
