@@ -202,4 +202,8 @@ around [qw(has_distance has_duration has_repeats has_pace has_speed)] => sub ($o
   return $value eq 'Y';
 };
 
+sub activity_type_ids($self) {
+  $self->activity_types->get_column('id')->all
+}
+
 1;
