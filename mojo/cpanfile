@@ -9,6 +9,7 @@ requires 'DateTime::Format::Strptime';
 requires 'DateTime::Span';
 requires 'DBD::mysql';
 requires 'DBI';
+requires 'DBIx::Class';
 requires 'DBIx::Class::InflateColumn::DateTime';
 requires 'DBIx::Class::InflateColumn::FS';
 requires 'DBIx::Class::InflateColumn::Time';

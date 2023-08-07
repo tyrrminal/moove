@@ -631,10 +631,10 @@ DISTRIBUTIONS
       SQL::Translator 0
       Test::More 0
       ok 0
-  DBIx-Class-0.082842
-    pathname: R/RI/RIBASUSHI/DBIx-Class-0.082842.tar.gz
+  DBIx-Class-0.082843
+    pathname: R/RI/RIBASUSHI/DBIx-Class-0.082843.tar.gz
     provides:
-      DBIx::Class 0.082842
+      DBIx::Class 0.082843
       DBIx::Class::AccessorGroup undef
       DBIx::Class::Admin undef
       DBIx::Class::CDBICompat undef
