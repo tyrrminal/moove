@@ -1264,7 +1264,7 @@ components:
       required: false
       schema:
         type: string
-        enum: ['activityType','activityTypeBase']
+        enum: ['activityType.all','activityType.base','time.week', 'time.quarter','time.month','time.year']
     WithRollup:
       in: query
       name: withRollup
