@@ -230,14 +230,23 @@ sub delete_record ($self, $entity) {
   return $self->SUPER::delete_record($entity);
 }
 
-sub param_end($self, $check = false) {
-  my $v = $self->validation->param('end');
-  if(defined($v) && $v eq 'current') {
-    my $d = DateTime->now()->truncate(to => 'day');
-    $d->subtract(days => 1) if($check && $self->resultset->on_date($d)->count < 1);
-    return $d;
+sub param_start($self) {
+  if(my $v = $self->validation->param('start')) {
+    return $self->parse_api_date($v);
   }
-  return $self->parse_api_date($v);
+  return undef;
+}
+
+sub param_end($self, $check = false) {
+  if(my $v = $self->validation->param('end')) {
+    if($v eq 'current') {
+      my $d = DateTime->now()->truncate(to => 'day');
+      $d->subtract(days => 1) if($check && $self->resultset->on_date($d)->count < 1);
+      return $d;
+    }
+    return $self->parse_api_date($v);
+  }
+  return undef;
 }
 
 sub summary($self) {
