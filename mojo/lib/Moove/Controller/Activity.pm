@@ -104,7 +104,7 @@ sub resultset ($self, %args) {
     foreach my $activity_type_id ($activity_type_ids->@*) {
       $self->model_find(ActivityType => $activity_type_id) or return $self->render_not_found('ActivityType');
     }
-    $rs = $rs->search({activity_type_id => {-in => $activity_type_ids}});
+    $rs = $rs->search({'me.activity_type_id' => {-in => $activity_type_ids}});
   }
   if (my $start_date = $self->validation->param('start')) {
     $rs = $rs->after_date($start_date);
