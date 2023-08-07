@@ -18,7 +18,7 @@ with 'Moove::Role::Unit::Conversion';
 use Data::UUID;
 use DateTime::Format::ISO8601;
 use Module::Util qw(module_path);
-use List::Util   qw(sum min max);
+use List::Util   qw(first sum min max);
 use DCS::DateTime::Extras;
 use Syntax::Keyword::Try;
 use Mojo::Exception qw(raise);
@@ -27,7 +27,7 @@ use JSON::Validator;
 
 use syntax 'junction';
 
-use DCS::Util::NameConversion qw(convert_hash_keys camel_to_snake);
+use DCS::Util::NameConversion qw(convert_hash_keys snake_to_camel camel_to_snake);
 
 use HTTP::Status   qw(:constants);
 use DCS::Constants qw(:symbols);
