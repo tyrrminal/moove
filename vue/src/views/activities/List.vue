@@ -142,6 +142,17 @@ export default {
   },
   mounted: function () {
     this.resetFilters();
+    Object.keys(this.filterTypes).forEach(k => {
+      let v = this.$route.query[k]
+      if (v != null) {
+        if (k == 'activityTypeID') {
+          let t = v;
+          v = {}
+          v[t] = true
+        }
+        this.addFilter(k, v)
+      }
+    })
   },
   computed: {
     operators: function () {
@@ -187,9 +198,10 @@ export default {
       if (k == 'on' && this.filters.find(x => x.key == 'start' || x.key == 'end')) return false;
       return this.filters.filter(x => x.key == k).length < t.multiplicity
     },
-    addFilter: function (k) {
-      if (this.canAddFilter(k))
-        this.filters.push({ key: k, value: cloneDeep(this.filterTypes[k].default) })
+    addFilter: function (k, v = null) {
+      if (this.canAddFilter(k)) {
+        this.filters.push({ key: k, value: v || cloneDeep(this.filterTypes[k].default) })
+      }
     },
     removeAllFilters: function (k) {
       let idx;
