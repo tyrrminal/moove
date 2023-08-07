@@ -115,7 +115,11 @@ export default {
         endDate: ped,
         label: "No Activities"
       })
-      this.$set(this.cache, this.cacheKey(psd, period), data)
+      this.$set(this.cache, this.cacheKey(psd, period), data.sort((a, b) => {
+        if (!a.activityTypes) return -1;
+        if (!b.activityTypes) return 1;
+        return a.activityTypes[0].id - b.activityTypes[0].id
+      }))
     },
     changeDate: function (by) {
       let newDate = DateTime.fromISO(this.date).plus(by);
