@@ -254,7 +254,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/SearchUsername"
         - $ref: "#/components/parameters/Partitioning"
-        - $ref: "#/components/parameters/IncludeUnpartitionedSummary"
+        - $ref: "#/components/parameters/WithRollup"
 
         - $ref: "#/components/parameters/SearchWorkoutID"
         - $ref: "#/components/parameters/SearchActivityTypes"
@@ -1265,9 +1265,9 @@ components:
       schema:
         type: string
         enum: ['activityType','activityTypeBase']
-    IncludeUnpartitionedSummary:
+    WithRollup:
       in: query
-      name: includeUnpartitionedSummary
+      name: withRollup
       required: false
       schema:
         type: boolean
