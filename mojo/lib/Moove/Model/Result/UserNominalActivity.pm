@@ -179,6 +179,9 @@ sub _per_day ($self, $period, $v) {
 sub nominal_distance_in_range($self, $start, $end) {
   my $schema = $self->result_source->schema;
 
+  $start //= DateTime->from_epoch(epoch => 0);
+  $end   //= DateTime->new(year => 3000, month => 1, day => 1);
+
   my $p = decode_json($self->value)->{distance};
   return () unless(defined($p));
   my $d = $self->_per_day($p->{period}, $p->{value});
