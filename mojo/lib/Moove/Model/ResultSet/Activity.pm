@@ -258,13 +258,13 @@ sub has_time ($self) {
 sub max_activities_per($self, $period = 'day') {
   my @grouping;
   if($period eq 'day') {
-    @grouping = 'workout.date'
+    @grouping = (\['DATE(activity_result.start_time)']);
   } elsif($period eq 'week') {
-    @grouping = (\['YEAR(workout.date)'], \['WEEK(workout.date)'])
+    @grouping = (\['YEAR(activity_result.start_time)'], \['WEEK(activity_result.start_time)'])
   } elsif($period eq 'month') {
-    @grouping = (\['YEAR(workout.date)'], \['MONTH(workout.date)'])
+    @grouping = (\['YEAR(activity_result.start_time)'], \['MONTH(activity_result.start_time)'])
   } elsif($period eq 'year') {
-    @grouping = (\['YEAR(workout.date)'])
+    @grouping = (\['YEAR(activity_result.start_time)'])
   }
 
   my $rs = $self->search(undef, { 
