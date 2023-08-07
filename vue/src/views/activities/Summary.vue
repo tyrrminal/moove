@@ -87,7 +87,6 @@ export default {
       let params = new URLSearchParams();
       let psd = this.periodStartDate(period);
       let ped = this.periodEndDate(period);
-      params.append('combine', true)
       params.append('partition', 'activityType.all')
       params.append('withRollup', true)
       if (period) {
