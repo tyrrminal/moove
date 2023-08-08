@@ -251,63 +251,42 @@ sub param_end($self, $check = false) {
 
 sub summary($self) {
   return unless ($self->openapi->valid_input);
-  my $activities = $self->resultset->completed;
+  my $unit = $self->model('UnitOfMeasure')->search({ normal_unit_id => undef, 'unit_of_measure_type.description' => 'Distance' }, {join => 'unit_of_measure_type'})->first;
+  my $una = $self->effective_user->user_nominal_activities;
+  my $activities = $self->resultset(noprefetch => true)->completed;
 
-  my @range = $activities->ordered;
-  my $start = $self->parse_api_date($self->validation->param('start')) // $range[0]->start_date;
-  my $end = $self->param_end(true) // $range[-1]->start_date;
+  my $ps = $self->param_start;
+  my $pe = $self->param_end(true);
 
-  my @partitions;
-  if(!$self->validation->param('partition') || $self->validation->param('includeUnpartitionedSummary')) {
-    push(@partitions, {rs => $activities, label => 'All Activities', start => $start, end => $end});
-  } 
-  if($self->validation->param('partition')//'' eq 'activityType') {
-    push(@partitions, map +{ rs => scalar $activities->activity_type($_), activity_type => $_, start => $start, end => $end }, $self->model('ActivityType')->all)
-  }
+  my @summaries = $activities->summary($self->validation->param('partition'));
+  unshift(@summaries, $activities->summary) if($self->validation->param('partition') && $self->validation->param('withRollup') && @summaries);
+  my @r;
+  foreach my $s (@summaries) {
+    my $ctx = delete($s->{ctx});
+    my $rev = ($self->validation->param('partition')//'') =~ /^time[.]/ ? sub {@_} : sub{reverse(@_)};
+    my $sd = $self->encode_date(first { defined } $rev->($ctx->{min_date}, $ps));
+    my $ed = $self->encode_date(first { defined } $rev->($ctx->{max_date}, $pe));
 
-  return $self->render(json => [map { $self->summarize_activities($_) } @partitions]);
-}
-
-sub summarize_activities($self, $partition) {
-  my $rs = $partition->{rs};
-  my $event_rs = $rs->has_event;
-  return () unless $rs->count;
-  
-  my $r = {
-    startDate => $self->encode_date($partition->{start}),
-    endDate   => $self->encode_date($partition->{end}),
-    counts    => {
-      total     => $rs->count,
-      event     => $event_rs->count,
-      maxPerDay => $rs->max_activities_per('day'),
-    },
-  };
-
-  my $distance_rs = $rs->has_distance;
-  if($distance_rs->count > 0) {
-    my @d = $distance_rs->ordered_by_distance;
-    my $distance_event_rs = $event_rs->has_distance;
-    $r->{distance} = {
-      total      => $self->encode_model($distance_rs->total_distance),
-      eventTotal => $self->encode_model($distance_event_rs->total_distance),
-      max        => $self->encode_model($d[-1]->activity_result->distance),
-      min        => $self->encode_model($d[0]->activity_result->distance),
+    $s->{label} = $ctx->{label} if(defined($ctx->{label}));
+    $s->{activityTypes} = $ctx->{activityTypes} if(defined($ctx->{activityTypes}));
+    $s->{startDate} = $sd if($sd);
+    $s->{endDate}   = $ed if($ed);
+    if($s->{distance}) {
+      foreach my $k (keys($s->{distance}->%*)) {
+        $s->{distance}->{$k} = { value => $s->{distance}->{$k}//0, unitOfMeasureID => $unit->id };
+      }
     }
-  }
 
-  if(defined($partition->{activity_type})) {
-    $r->{activityTypes} = [map +{id => $_->id}, $partition->{activity_type}];
-    $r->{label} = $partition->{activity_type}->description;
-
-    my $nom_rs = $self->effective_user->user_nominal_activities->in_range($partition->{start},$partition->{end})->for_type($partition->{activity_type});
+    my $nom_rs = $una->in_range($self->param_start,$self->param_end)->for_type(map { $_->{id} }$ctx->{activityTypes}->@*);
     if($nom_rs->count) {
-      my $nom_d = $nom_rs->nominal_distance_in_range($partition->{start}, $partition->{end});
-      $r->{distance}->{nominal} = $self->encode_model($nom_d);
+      my $nom_d = $nom_rs->nominal_distance_in_range($self->param_start, $self->param_end(true));
+      $s->{distance}->{nominal} = $self->encode_model($nom_d);
     }
-  } elsif(defined($partition->{label})) {
-    $r->{label} = $partition->{label}
+
+    push(@r, {convert_hash_keys($s->%*, \&snake_to_camel)});
   }
-  return $r;
+
+  return $self->render(openapi => [@r]);
 }
 
 sub slice ($self) {
