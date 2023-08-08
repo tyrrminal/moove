@@ -87,8 +87,9 @@ export default {
       let params = new URLSearchParams();
       let psd = this.periodStartDate(period);
       let ped = this.periodEndDate(period);
-      params.append('partition', 'activityType.all')
-      params.append('withRollup', true)
+      params.append('partition', 'activityType.all');
+      params.append('combine', false);
+      params.append('withRollup', true);
       if (period) {
         params.append("start", psd);
         params.append("end", DateTime.fromISO(ped) > DateTime.now() ? 'current' : ped)
