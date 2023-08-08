@@ -1078,6 +1078,16 @@ DISTRIBUTIONS
       constant 0
       perl 5.006
       strict 0
+  DateTime-Format-Duration-ISO8601-0.008
+    pathname: P/PE/PERLANCAR/DateTime-Format-Duration-ISO8601-0.008.tar.gz
+    provides:
+      DateTime::Format::Duration::ISO8601 0.008
+    requirements:
+      DateTime::Duration 0
+      ExtUtils::MakeMaker 0
+      perl 5.010001
+      strict 0
+      warnings 0
   DateTime-Format-HTTP-0.42
     pathname: C/CK/CKRAS/DateTime-Format-HTTP-0.42.tar.gz
     provides:

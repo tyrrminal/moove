@@ -4,6 +4,7 @@ requires 'Array::Utils';
 requires 'Data::DPath';
 requires 'Data::Printer';
 requires 'DateTime::Format::Duration';
+requires 'DateTime::Format::Duration::ISO8601';
 requires 'DateTime::Format::MySQL';
 requires 'DateTime::Format::Strptime';
 requires 'DateTime::Span';
