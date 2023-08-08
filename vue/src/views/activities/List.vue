@@ -89,7 +89,9 @@
         </b-form>
       </b-col>
       <b-col>
-        <ActivityListSummary :data="summary" v-if="summary?.counts.total > 0" />
+        <ActivityListSummary :data="summary" v-if="summary?.counts.total > 0" bgColor="rgba(214, 147, 255, 0.41)" />
+        <ActivityListSummary :data="eventSummary" v-if="eventSummary?.counts.total > 0" title="Events"
+          bgColor="rgba(142, 134, 255, 0.2)" />
         <ActivityList tableId="activityListTable" :items="getData" :page.sync="page" :total="total"
           @update:currentPage="updateCurrentPage" @update:perPage="updatePerPage" @filterDate="setDateFilter" />
       </b-col>
@@ -134,6 +136,7 @@ export default {
       filters: [],
 
       summary: null,
+      eventSummary: null,
       total: {
         rows: 0,
         results: 0,
@@ -192,8 +195,19 @@ export default {
         })
     },
     loadSummary: function () {
-      this.$http.get("activities/summary", { params: this.searchParams() })
-        .then(resp => this.summary = resp.data[0])
+      let eventFilter = this.filters.find(f => f.key == 'event');
+      let p = this.searchParams();
+      this.summary = null;
+      this.eventSummary = null;
+      if (eventFilter == null || eventFilter.value == false)
+        this.$http.get("activities/summary", { params: p })
+          .then(resp => this.summary = resp.data[0])
+      if (eventFilter == null || eventFilter.value == true) {
+        p.set('combine', false)
+        p.set('event', true);
+        this.$http.get("activities/summary", { params: p })
+          .then(resp => this.eventSummary = resp.data[0])
+      }
     },
     reloadTable: function () {
       this.total = { rows: 0, results: 0 }
