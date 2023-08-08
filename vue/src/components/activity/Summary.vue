@@ -1,7 +1,8 @@
 <template>
   <div class="summary pt-2 px-4 rounded-lg mt-3">
-    <span><label>Distance:</label>{{ formattedDistance(data.distance.total) }} ({{ data.counts.total }})</span>
-    <span v-if="data.distance.eventTotal?.value"><label>Event Distance:</label>{{
+    <label class="mr-2">Distance /</label>
+    <span><label>Total:</label>{{ formattedDistance(data.distance.total) }} ({{ data.counts.total }})</span>
+    <span v-if="data.distance.eventTotal?.value"><label>Event:</label>{{
       formattedDistance(data.distance.eventTotal) }} ({{ data.counts.eventTotal }})</span>
     <span><label>Average:</label>{{ formattedDistance(data.distance.avg) }}</span>
     <span><label>Min:</label>{{ formattedDistance(data.distance.min) }}</span>
