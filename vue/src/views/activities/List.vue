@@ -250,8 +250,6 @@ export default {
           })
           v = ids.length == 0 ? null : ids.join(',');
           break;
-        case 'end':
-          v = DateTime.fromISO(v).plus({ days: 1 }).toISODate(); break;
         case 'distance':
         case 'duration':
         case 'net_time':
