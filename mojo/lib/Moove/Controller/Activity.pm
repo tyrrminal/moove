@@ -240,7 +240,7 @@ sub param_start($self) {
 sub param_end($self, $check = false) {
   if(my $v = $self->validation->param('end')) {
     if($v eq 'current') {
-      my $d = DateTime->now()->truncate(to => 'day');
+      my $d = DateTime->now(time_zone => 'local')->truncate(to => 'day');
       $d->subtract(days => 1) if($check && $self->resultset->on_date($d)->count < 1);
       return $d;
     }
