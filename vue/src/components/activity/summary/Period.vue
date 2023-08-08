@@ -61,7 +61,7 @@ export default {
       const now = DateTime.now().startOf('day');
       if (this.endDate < now) return this.days
       if (this.startDate > now) return 0;
-      return now.diff(this.startDate, ['days']).days
+      return DateTime.fromISO(this.activities[0].endDate).diff(this.startDate, ['days']).days + 1
     },
     loaded: function () {
       return this.periodData != null
