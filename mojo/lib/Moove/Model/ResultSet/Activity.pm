@@ -323,25 +323,24 @@ sub summary($self, $partition = undef) { # qw(activityType baseActivityType week
     join => [
       { activity_type => [qw(base_activity_type activity_context)]},
       { activity_result => 'normalized_distance' },
-      { user_event_activities => { activity => { activity_result => 'normalized_distance' }}}
     ],
     select => [
       # Partitioning context
-      {date => {min   => 'activity_result.start_time'}},
-      {date => {max   => 'activity_result.start_time'}},
+      {DATE => {MIN   => 'activity_result.start_time'}},
+      {DATE => {MAX   => 'activity_result.start_time'}},
       'activity_type.id',
       'base_activity_type.id',
       'base_activity_type.description',
       'activity_context.description',
 
       # Aggregate results
-      {count => 'me.id'},
-      {count => 'activity_result_2.id'},
-      {sum => 'normalized_distance.value'},
-      {sum => 'normalized_distance_2.value'},
-      {max => 'normalized_distance.value'},
-      {min => 'normalized_distance.value'},
-      {avg => 'normalized_distance.value'},
+      ## counts
+      {COUNT => 'me.id'},
+      ## distance
+      {SUM => 'normalized_distance.value'},
+      {MAX => 'normalized_distance.value'},
+      {MIN => 'normalized_distance.value'},
+      {AVG => 'normalized_distance.value'},
     ],
     as => [qw(
       min_date
@@ -351,9 +350,7 @@ sub summary($self, $partition = undef) { # qw(activityType baseActivityType week
       base_activity_type_description
       activity_context_description
       counts_total
-      counts_event_total
       distance_total
-      distance_event_total
       distance_max
       distance_min
       distance_avg
@@ -366,7 +363,6 @@ sub summary($self, $partition = undef) { # qw(activityType baseActivityType week
       ctx => $mk_ctx->($summary),
       counts => {
         total       => $summary->get_column('counts_total'),
-        event_total => $summary->get_column('counts_event_total')
         # maxPerDay => $self->max_activities_per('day'),
         # maxPerWeek => $self->max_activities_per('week'),
         # maxPerMonth => $self->max_activities_per('month'),
@@ -374,7 +370,6 @@ sub summary($self, $partition = undef) { # qw(activityType baseActivityType week
       },
       distance => {
         total       => $summary->get_column('distance_total'),
-        event_total => $summary->get_column('distance_event_total'),
         max         => $summary->get_column('distance_max'),
         min         => $summary->get_column('distance_min'),
         avg         => $summary->get_column('distance_avg'),

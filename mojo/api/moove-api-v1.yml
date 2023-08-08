@@ -1403,8 +1403,6 @@ components:
           properties:
             total:
               type: number
-            eventTotal:
-              type: number
             maxPerDay:
               type: number
             longestDayStreak:
@@ -1417,8 +1415,6 @@ components:
           properties:
             total:
               $ref: "#/components/schemas/UnitValue"
-            eventTotal:
-              $ref: "#/components/schemas/UnitValue"
             max:
               $ref: "#/components/schemas/UnitValue"
             min:
@@ -1427,6 +1423,8 @@ components:
               $ref: "#/components/schemas/UnitValue"
             nominal:
               $ref: "#/components/schemas/UnitValue"
+        time: 
+          type: object
     PaginatedActivities:
       type: object
       required:
