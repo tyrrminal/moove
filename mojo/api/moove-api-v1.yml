@@ -1437,12 +1437,16 @@ components:
       properties:
         total:
           type: string
+          nullable: true
         avg:
           type: string
+          nullable: true
         min:
           type: string
+          nullable: true
         max:
           type: string
+          nullable: true
     PaginatedActivities:
       type: object
       required:
