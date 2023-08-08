@@ -63,7 +63,7 @@ export default {
       return convertUnitValue(this.activity.distance.total.value, this.getUnitOfMeasure(this.activity.distance.total.unitOfMeasureID))
     },
     normalizedNominalValue: function () {
-      return convertUnitValue(this.activity.distance.nominal.value, this.getUnitOfMeasure(this.activity.distance.total.unitOfMeasureID))
+      return convertUnitValue(this.activity.distance.nominal.value, this.getUnitOfMeasure(this.activity.distance.nominal.unitOfMeasureID))
     },
     nominalProgressVariant: function () {
       if (this.showNominal) {
@@ -78,7 +78,7 @@ export default {
     nominalProgressText: function () {
       if (this.activity.distance.nominal?.value)
         return this.$options.filters.percent(this.normalizedValue / this.normalizedNominalValue)
-          + ' of ' + this.formattedDistance(this.activity.distance.nominal).description
+          + ' of ' + this.formattedDistance(this.activity.distance.nominal)
       return "";
     },
   },
