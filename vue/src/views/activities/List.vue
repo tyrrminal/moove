@@ -89,6 +89,7 @@
         </b-form>
       </b-col>
       <b-col>
+        <ActivityListSummary :data="summary" />
         <ActivityList tableId="activityListTable" :items="getData" :page.sync="page" :total="total"
           @update:currentPage="updateCurrentPage" @update:perPage="updatePerPage" @filterDate="setDateFilter" />
       </b-col>
@@ -101,6 +102,7 @@ import cloneDeep from 'clone-deep';
 
 import ActivityTypeSelector from "@/components/ActivityTypeSelector";
 import ActivityList from "@/components/activity/List";
+import ActivityListSummary from "@/components/activity/Summary.vue";
 import { DateTime } from "luxon";
 
 const OPERATORS = ["=", "<", "<=", ">", ">="];
@@ -109,6 +111,7 @@ export default {
   name: 'ActivitiesList',
   components: {
     ActivityList,
+    ActivityListSummary,
     ActivityTypeSelector
   },
   data: function () {
@@ -130,6 +133,7 @@ export default {
       },
       filters: [],
 
+      summary: null,
       total: {
         rows: 0,
         results: 0,
@@ -169,13 +173,17 @@ export default {
     },
   },
   methods: {
-    getData: function (ctx, callback) {
+    searchParams: function () {
       let params = new URLSearchParams();
+      this.filters.forEach(f => params.append(f.key, this.paramValue(f)))
+      return params;
+    },
+    getData: function (ctx, callback) {
+      let params = this.searchParams();
       params.append("order.by", ctx.sortBy || "startTime")
       params.append("order.dir", ctx.sortDesc ? "desc" : "asc")
       params.append("page.number", ctx.currentPage);
       params.append("page.length", ctx.perPage)
-      this.filters.forEach(f => params.append(f.key, this.paramValue(f)))
       this.$http.get("activities", { params: params })
         .then((resp) => {
           this.total.rows = resp.data.pagination.counts.filter;
@@ -183,9 +191,14 @@ export default {
           callback(resp.data.elements)
         })
     },
+    loadSummary: function () {
+      this.$http.get("activities/summary", { params: this.searchParams() })
+        .then(resp => this.summary = resp.data[0])
+    },
     reloadTable: function () {
       this.total = { rows: 0, results: 0 }
       this.$root.$emit("bv::refresh::table", "activityListTable");
+      this.loadSummary();
     },
     resetFilters: function () {
       this.filters = [];
