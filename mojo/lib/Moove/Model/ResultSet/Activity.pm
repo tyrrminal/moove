@@ -341,6 +341,15 @@ sub summary($self, $partition = undef) { # qw(activityType baseActivityType week
       {MAX => 'normalized_distance.value'},
       {MIN => 'normalized_distance.value'},
       {AVG => 'normalized_distance.value'},
+      ## time
+      {SUM => {TIME_TO_SEC => \'COALESCE(activity_result.net_time,activity_result.duration)'}},
+      {MAX => {TIME_TO_SEC => \'COALESCE(activity_result.net_time,activity_result.duration)'}},
+      {MIN => {TIME_TO_SEC => \'COALESCE(activity_result.net_time,activity_result.duration)'}},
+      {AVG => {TIME_TO_SEC => \'COALESCE(activity_result.net_time,activity_result.duration)'}},
+      {SUM => {TIME_TO_SEC => \'COALESCE(activity_result.duration,activity_result.net_time)'}},
+      {MAX => {TIME_TO_SEC => \'COALESCE(activity_result.duration,activity_result.net_time)'}},
+      {MIN => {TIME_TO_SEC => \'COALESCE(activity_result.duration,activity_result.net_time)'}},
+      {AVG => {TIME_TO_SEC => \'COALESCE(activity_result.duration,activity_result.net_time)'}},
     ],
     as => [qw(
       min_date
@@ -354,6 +363,14 @@ sub summary($self, $partition = undef) { # qw(activityType baseActivityType week
       distance_max
       distance_min
       distance_avg
+      time_total
+      time_max
+      time_min
+      time_avg
+      duration_total
+      duration_max
+      duration_min
+      duration_avg
     )],
     group_by => [ @grouping ],
   });
@@ -373,6 +390,20 @@ sub summary($self, $partition = undef) { # qw(activityType baseActivityType week
         max         => $summary->get_column('distance_max'),
         min         => $summary->get_column('distance_min'),
         avg         => $summary->get_column('distance_avg'),
+      },
+      time => {
+        net => {
+          total    => $summary->get_column('time_total'),
+          avg      => $summary->get_column('time_avg'),
+          max      => $summary->get_column('time_max'),
+          min      => $summary->get_column('time_min'),
+        },
+        duration => {
+          total    => $summary->get_column('duration_total'),
+          avg      => $summary->get_column('duration_avg'),
+          max      => $summary->get_column('duration_max'),
+          min      => $summary->get_column('duration_min'),
+        }
       }
     })
   }

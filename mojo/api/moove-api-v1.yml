@@ -1425,6 +1425,24 @@ components:
               $ref: "#/components/schemas/UnitValue"
         time: 
           type: object
+          additionalProperties: false
+          properties:
+            duration:
+              $ref: "#/components/schemas/ActivitySummaryTime"
+            net:
+              $ref: "#/components/schemas/ActivitySummaryTime"
+    ActivitySummaryTime:
+      type: object
+      additionalProperties: false
+      properties:
+        total:
+          type: string
+        avg:
+          type: string
+        min:
+          type: string
+        max:
+          type: string
     PaginatedActivities:
       type: object
       required:

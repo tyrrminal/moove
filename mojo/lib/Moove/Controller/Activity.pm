@@ -23,6 +23,8 @@ use Syntax::Keyword::Try;
 use Mojo::Exception qw(raise);
 use Mojo::JSON qw(decode_json);
 use JSON::Validator;
+use DateTime::Format::Duration::ISO8601;
+use Time::Seconds;
 
 use syntax 'junction';
 
@@ -250,6 +252,7 @@ sub param_end($self, $check = false) {
 
 sub summary($self) {
   return unless ($self->openapi->valid_input);
+  my $time_formatter = DateTime::Format::Duration::ISO8601->new();
   my $unit = $self->model('UnitOfMeasure')->search({ normal_unit_id => undef, 'unit_of_measure_type.description' => 'Distance' }, {join => 'unit_of_measure_type'})->first;
   my $una = $self->effective_user->user_nominal_activities;
   my $activities = $self->resultset(noprefetch => true)->completed;
@@ -273,6 +276,19 @@ sub summary($self) {
     if($s->{distance}) {
       foreach my $k (keys($s->{distance}->%*)) {
         $s->{distance}->{$k} = { value => $s->{distance}->{$k}//0, unitOfMeasureID => $unit->id };
+      }
+    }
+    if($s->{time}) {
+      foreach my $type (keys($s->{time}->%*)) {
+        foreach my $k (keys($s->{time}->{$type}->%*)) {
+          if(defined($s->{time}->{$type}->{$k})) {
+            my ($se,$m,$h,$d) = $s->{time}->{$type}->{$k};
+            ($m, $se) = quotient_remainder($se, ONE_MINUTE);
+            ($h, $m) = quotient_remainder($m, ONE_HOUR/ONE_MINUTE);
+            ($d, $h) = quotient_remainder($h, ONE_DAY/ONE_HOUR);
+            $s->{time}->{$type}->{$k} = $time_formatter->format_duration(DateTime::Duration->new(seconds => $se, minutes => $m, hours => $h, days => $d));
+          }
+        }
       }
     }
 
@@ -350,6 +366,13 @@ sub _cleanup_files ($self, $path) {
     return if ($info->{args}->[1] eq $path);
   }
   unlink($path);
+}
+
+sub quotient_remainder($dividend, $divisor) {
+  use integer;
+  my $quotient = $dividend / $divisor;
+  my $remainder = $dividend % $divisor;
+  return ( $quotient, $remainder );
 }
 
 1;
