@@ -16,7 +16,6 @@ with 'Moove::Role::Import::Activity';
 with 'Moove::Role::Unit::Conversion';
 
 use Data::UUID;
-use DateTime::Format::ISO8601;
 use Module::Util qw(module_path);
 use List::Util   qw(first sum min max);
 use DCS::DateTime::Extras;
@@ -51,7 +50,7 @@ sub decode_model ($self, $data) {
   }
   $d->{pace}       = $self->normalized_pace($d->{pace})   if (defined($d->{pace}));
   $d->{speed}      = $self->normalized_speed($d->{speed}) if (defined($d->{speed}));
-  $d->{start_time} = DateTime::Format::ISO8601->parse_datetime($d->{start_time})->strftime('%FT%T');
+  $d->{start_time} = $self->parse_iso_datetime($d->{start_time})->strftime('%FT%T');
 
   #<<< no tidy because it can't handle for-list syntax properly yet
   foreach my ($field, $key) ((group => "group_num", set => "set_num")) {
@@ -289,118 +288,6 @@ sub summary($self) {
   return $self->render(openapi => [@r]);
 }
 
-sub slice ($self) {
-  return unless ($self->openapi->valid_input);
-
-  my $user = $self->current_user;
-  if (defined($self->validation->param('userID'))) {
-    $user = $self->model_find(User => $self->validation->param('userID')) or return $self->render_not_found('User');
-  }
-  my $activity_type = $self->model_find(ActivityType => $self->validation->param('activityTypeID'));
-  my $period        = $self->validation->param('period');
-  my $showEmpty     = $self->validation->param('includeEmpty') // false;
-
-  my $activities = $self->resultset->whole->ordered;
-  my $start      = $self->parse_api_date($self->validation->param('start'))
-    // $self->model('Activity')->for_user($user)->ordered->first->start_time->clone->truncate(to => 'day');
-  my $end = DateTime->today->add(days => 1)->subtract(seconds => 1);
-
-  my @summaries;
-  my $i   = 0;
-  my @all = $activities->all;
-  foreach my $p (periods_in_range($period, $start, $end)) {
-    my @period_activities;
-    while (defined($all[$i]) && $all[$i]->start_time < $p->{end}) {
-      push(@period_activities, $all[$i++]);
-    }
-    next unless (@period_activities || $showEmpty);
-    my $slice = {
-      period => {
-        daysInPeriod => max(1, $p->{end}->delta_days($p->{start})->delta_days),
-        start        => $p->{start}->strftime('%F'),
-        end          => $p->{end}->strftime('%F'),
-        $p->{t}->%*
-      },
-      count => scalar @period_activities
-    };
-    push(@summaries, $slice);
-    if ($activity_type->base_activity_type->has_distance) {
-      my @distances =
-        map {$_->activity_result->distance->normalized_value}
-        grep {$_->activity_type->base_activity_type->has_distance} @period_activities;
-      $slice->{distance} = {
-        sum => sum(@distances) // 0,
-        max => max(@distances) // 0,
-        min => min(@distances) // 0,
-      };
-    }
-  }
-
-  return $self->render(openapi => [@summaries]);
-}
-
-sub periods_in_range ($period, $start, $end) {
-  my @p;
-  if    ($period eq 'all') {@p = ({start => $start, end => $end, t => {}})}
-  elsif ($period eq 'year') {
-    my $o = $start->clone->truncate(to => 'year');
-    push(
-      @p, {
-        t     => {year => $o->year},
-        start => max($start, $o->clone),
-        end   => min($end, $o->add(years => 1)->clone)
-      }
-      )
-      while ($o < $end);
-  } elsif ($period eq 'quarter') {
-    my $o = $start->clone->truncate(to => 'quarter');
-    push(
-      @p, {
-        t => {
-          year    => $o->year,
-          quarter => $o->quarter,
-        },
-        start => max($start, $o->clone),
-        end   => min($end, $o->add(months => 3)->clone)
-      }
-      )
-      while ($o < $end);
-  } elsif ($period eq 'month') {
-    my $o = $start->clone->truncate(to => 'month');
-    $o->subtract(months => 1)
-      unless ($o->day_of_week == 7);    # back up a month unless the week starts on Sunday
-    push(
-      @p, {
-        t => {
-          year    => $o->year,
-          quarter => $o->quarter,
-          month   => $o->month,
-        },
-        start => max($start, $o->clone),
-        end   => min($end, $o->add(months => 1)->clone)
-      }
-      )
-      while ($o < $end);
-  } elsif ($period eq 'week') {
-    my $o = $start->clone->truncate(to => 'local_week');
-    push(
-      @p, {
-        t => {
-          year        => $o->year,
-          quarter     => $o->quarter,
-          month       => $o->month,
-          weekOfMonth => $o->week_of_month,
-          weekOfYear  => $o->clone->add(days => 1)->week_number,
-        },
-        start => max($start, $o->clone),
-        end   => min($end, $o->add(weeks => 1)->clone)
-      }
-      )
-      while ($o < $end);
-  }
-  return @p;
-}
-
 sub import ($self) {
   return unless ($self->openapi->valid_input);
   my $activities = [];
@@ -463,24 +350,6 @@ sub _cleanup_files ($self, $path) {
     return if ($info->{args}->[1] eq $path);
   }
   unlink($path);
-}
-
-sub _end_of_period ($self, $start, $period) {
-  return undef if (!defined($period));
-
-  my $tomorrow = DateTime->today(time_zone => 'local')->add(days => 1);
-  my $offset   = $period eq 'week' ? 1 : 0;
-  my $end =
-    $start->clone->add(days => $offset)->truncate(to => $period)->add("${period}s" => 1)->subtract(days => $offset);
-  return $end if ($start > DateTime->now(time_zone => 'local'));
-  return min($end, $tomorrow);
-}
-
-sub _days_in_period ($period, $period_start) {
-  return $period_start->year_length  if ($period eq 'year');
-  return $period_start->month_length if ($period eq 'month');
-  return 7                           if ($period eq 'week');
-  return 1;
 }
 
 1;
