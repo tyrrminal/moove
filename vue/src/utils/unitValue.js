@@ -12,11 +12,8 @@ export function unitValue(f, s, n = null) {
   let uom = store.getters["meta/getUnitOfMeasure"](f.unitOfMeasureID);
   if (!uom) return { ...f, abbreviation: "" };
 
-  let nstr = Number.parseFloat(f.value);
-  if (n) nstr = nstr.toFixed(n);
-
   return {
     ...f,
-    description: `${nstr} ${uom.abbreviation}`
+    description: `${Number.parseFloat(f.value).toLocaleString('en-US', { minimumFractionDigits: n, maximumFractionDigits: n })} ${uom.abbreviation}`
   };
 }
