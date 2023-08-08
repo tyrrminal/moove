@@ -76,7 +76,7 @@ sub effective_user ($self) {
 }
 
 sub resultset ($self, %args) {
-  my $rs = $self->SUPER::resultset();
+  my $rs = $self->SUPER::resultset();  
   $rs = $rs->search(
     undef, {
       prefetch => [
@@ -85,7 +85,7 @@ sub resultset ($self, %args) {
         {activity_type => ['base_activity_type', 'activity_context']}
       ]
     }
-  )->grouped;
+  )->grouped unless($args{noprefetch});
 
   if ($self->validation->param('combine') // $args{combine} // true) {
     $rs = $rs->whole;
