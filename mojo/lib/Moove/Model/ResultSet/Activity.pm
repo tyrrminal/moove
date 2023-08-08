@@ -262,8 +262,8 @@ sub summary($self, $partition = undef) { # qw(activityType baseActivityType week
   if(!defined($partition)) {
     $mk_ctx = sub($record) { 
       return {
-        min_date => DateTime::Format::MySQL->parse_date($record->get_column('min_date')),
-        max_date   => DateTime::Format::MySQL->parse_date($record->get_column('max_date')), 
+        min_date => DateTime::Format::MySQL->parse_date($record->get_column('min_date') // '2000-01-01'),
+        max_date   => DateTime::Format::MySQL->parse_date($record->get_column('max_date') // '3000-01-01'), 
         label     => 'All Activities',
       }
     };
