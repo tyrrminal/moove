@@ -89,7 +89,7 @@
         </b-form>
       </b-col>
       <b-col>
-        <ActivityListSummary :data="summary" />
+        <ActivityListSummary :data="summary" v-if="summary?.counts.total > 0" />
         <ActivityList tableId="activityListTable" :items="getData" :page.sync="page" :total="total"
           @update:currentPage="updateCurrentPage" @update:perPage="updatePerPage" @filterDate="setDateFilter" />
       </b-col>
