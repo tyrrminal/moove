@@ -11,9 +11,9 @@
       <b-badge :to="{ name: 'activities', query: qs() }" :variant="nominalProgressVariant">
         {{ formattedDistance(activity.distance.total) }}
       </b-badge>
-      <span v-if="activity.distance.eventTotal?.value"> /
+      <span v-if="activity.event?.distance.total?.value"> /
         <b-badge :to="{ name: 'activities', query: qs(true) }" variant="none">
-          {{ formattedDistance(activity.distance.eventTotal) }}
+          {{ formattedDistance(activity.event.distance.total) }}
         </b-badge>
       </span>
     </template>

@@ -88,15 +88,23 @@ export default {
       let psd = this.periodStartDate(period);
       let ped = this.periodEndDate(period);
       params.append('partition', 'activityType.all');
-      params.append('combine', false);
+      params.append('combine', true);
       params.append('withRollup', true);
       if (period) {
         params.append("start", psd);
         params.append("end", DateTime.fromISO(ped) > DateTime.now() ? 'current' : ped)
       }
-      let p = this.$http.get(["activities", "summary"].join("/"), { params })
+      let p = this.$http.get("activities/summary", { params })
         .then((resp) => {
-          this.addToCache(resp.data, period)
+          let d = resp.data
+          params.set('combine', false)
+          params.append('event', true)
+          this.$http.get("activities/summary", { params }).then(resp => {
+            resp.data.forEach(ed => {
+              d.find(x => x.label == ed.label).event = ed
+            })
+            this.addToCache(d, period)
+          })
         })
       this.promises.push(p);
     },
