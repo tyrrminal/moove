@@ -356,6 +356,14 @@ sub summary($self, $partition = undef) { # qw(activityType baseActivityType week
       {MAX => {TIME_TO_SEC => \'COALESCE(activity_result.duration,activity_result.net_time)'}},
       {MIN => {TIME_TO_SEC => \'COALESCE(activity_result.duration,activity_result.net_time)'}},
       {AVG => {TIME_TO_SEC => \'COALESCE(activity_result.duration,activity_result.net_time)'}},
+      # pace
+      \'(SUM(TIME_TO_SEC(COALESCE(activity_result.net_time,activity_result.duration)))/60)/SUM(normalized_distance.value)',
+      \'MIN(TIME_TO_SEC(activity_result.pace))/60',
+      \'MAX(TIME_TO_SEC(activity_result.pace))/60',
+      # speed
+      \'SUM(normalized_distance.value)/(SUM(TIME_TO_SEC(COALESCE(activity_result.net_time,activity_result.duration)))/(60*60))',
+      {MIN => 'activity_result.speed'},
+      {MAX => 'activity_result.speed'},
     ],
     as => [qw(
       min_date
@@ -378,6 +386,12 @@ sub summary($self, $partition = undef) { # qw(activityType baseActivityType week
       duration_max
       duration_min
       duration_avg
+      pace_avg
+      pace_max
+      pace_min
+      speed_avg
+      speed_min
+      speed_max
     )],
     group_by => [ @grouping ],
   });
@@ -397,6 +411,16 @@ sub summary($self, $partition = undef) { # qw(activityType baseActivityType week
         max         => $summary->get_column('distance_max'),
         min         => $summary->get_column('distance_min'),
         avg         => $summary->get_column('distance_avg'),
+      },
+      pace => {
+        avg        => $summary->get_column('pace_avg'),
+        min        => $summary->get_column('pace_min'),
+        max        => $summary->get_column('pace_max'),
+      },
+      speed => {
+        avg        => $summary->get_column('speed_avg'),
+        min        => $summary->get_column('speed_min'),
+        max        => $summary->get_column('speed_max'),
       },
       time => {
         net => {
