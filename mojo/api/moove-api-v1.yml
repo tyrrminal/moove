@@ -1439,6 +1439,26 @@ components:
               $ref: "#/components/schemas/ActivitySummaryTime"
             net:
               $ref: "#/components/schemas/ActivitySummaryTime"
+        pace:
+          type: object
+          additionalProperties: false
+          properties:
+            max:
+              $ref: "#/components/schemas/UnitValue"
+            min:
+              $ref: "#/components/schemas/UnitValue"
+            avg:
+              $ref: "#/components/schemas/UnitValue"
+        speed:
+          type: object
+          additionalProperties: false
+          properties:
+            max:
+              $ref: "#/components/schemas/UnitValue"
+            min:
+              $ref: "#/components/schemas/UnitValue"
+            avg:
+              $ref: "#/components/schemas/UnitValue"
     ActivitySummaryTime:
       type: object
       additionalProperties: false
