@@ -262,6 +262,7 @@ sub summary($self, $partition = undef) { # qw(activityType baseActivityType week
   if(!defined($partition)) {
     $mk_ctx = sub($record) { 
       return {
+        activityTypes => [map +{id => $_}, split(/,/, $record->get_column('activity_type_ids'))],
         min_date => DateTime::Format::MySQL->parse_date($record->get_column('min_date') // '2000-01-01'),
         max_date   => DateTime::Format::MySQL->parse_date($record->get_column('max_date') // '3000-01-01'), 
         label     => 'All Activities',
@@ -283,6 +284,7 @@ sub summary($self, $partition = undef) { # qw(activityType baseActivityType week
     $mk_ctx = sub($record) {
       my $sd = DateTime::Format::MySQL->parse_date($record->get_column('min_date'))->truncate(to => 'local_week');
       return {
+        activityTypes => [map +{id => $_}, split(/,/, $record->get_column('activity_type_ids'))],
         min_date => $sd,
         max_date => $sd->clone->add(days => 6),
         label => 'Week of ' . $sd->strftime("%F"),
@@ -292,6 +294,7 @@ sub summary($self, $partition = undef) { # qw(activityType baseActivityType week
     $mk_ctx = sub($record) {
       my $sd = DateTime::Format::MySQL->parse_date($record->get_column('min_date'))->truncate(to => 'month');
       return {
+        activityTypes => [map +{id => $_}, split(/,/, $record->get_column('activity_type_ids'))],
         min_date => $sd,
         max_date => $sd->clone->add(months => 1)->subtract(days => 1),
         label => $sd->strftime("%b %Y"),
@@ -301,6 +304,7 @@ sub summary($self, $partition = undef) { # qw(activityType baseActivityType week
     $mk_ctx = sub($record) {
       my $sd = DateTime::Format::MySQL->parse_date($record->get_column('min_date'))->truncate(to => 'quarter');
       return {
+        activityTypes => [map +{id => $_}, split(/,/, $record->get_column('activity_type_ids'))],
         min_date => $sd,
         max_date => $sd->clone->add(months => 3)->subtract(days => 1),
         label => $sd->strftime("%{quarter_abbr} %Y"),
@@ -310,6 +314,7 @@ sub summary($self, $partition = undef) { # qw(activityType baseActivityType week
     $mk_ctx = sub($record) {
       my $sd = DateTime::Format::MySQL->parse_date($record->get_column('min_date'))->truncate(to => 'year');
       return {
+        activityTypes => [map +{id => $_}, split(/,/, $record->get_column('activity_type_ids'))],
         min_date => $sd,
         max_date => $sd->clone->add(years => 1)->subtract(days => 1),
         label => $sd->strftime("%Y"),
@@ -328,6 +333,7 @@ sub summary($self, $partition = undef) { # qw(activityType baseActivityType week
       # Partitioning context
       {DATE => {MIN   => 'activity_result.start_time'}},
       {DATE => {MAX   => 'activity_result.start_time'}},
+      \'GROUP_CONCAT(DISTINCT activity_type.id)',
       'activity_type.id',
       'base_activity_type.id',
       'base_activity_type.description',
@@ -354,6 +360,7 @@ sub summary($self, $partition = undef) { # qw(activityType baseActivityType week
     as => [qw(
       min_date
       max_date
+      activity_type_ids
       activity_type_id
       base_activity_type_id
       base_activity_type_description
