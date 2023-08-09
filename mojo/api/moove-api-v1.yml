@@ -252,36 +252,22 @@ paths:
       summary: Get a summary of activity in selected time frame
       x-mojo-to: Activity#summary
       parameters:
-        - $ref: "#/components/parameters/SearchUserID"
-        - $ref: "#/components/parameters/OutputPeriod"
-        - $ref: "#/components/parameters/SearchStartdate"
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ActivitySummary"
-      tags:
-        - Activity
-  /activities/slice:
-    get:
-      summary: Get activities sliced by time period
-      x-mojo-to: Activity#slice
-      parameters:
-        # Query Params
-        - $ref: "#/components/parameters/SearchUserID"
-        - $ref: "#/components/parameters/SearchActivityType"
+        - $ref: "#/components/parameters/SearchUsername"
+        - $ref: "#/components/parameters/Partitioning"
+        - $ref: "#/components/parameters/WithRollup"
+
+        - $ref: "#/components/parameters/SearchWorkoutID"
+        - $ref: "#/components/parameters/SearchActivityTypes"
         - $ref: "#/components/parameters/SearchStartdate"
         - $ref: "#/components/parameters/SearchEnddate"
-        # Output Params
-        - $ref: "#/components/parameters/OutputPeriod"
-        - in: query
-          name: includeEmpty
-          required: false
-          schema:
-            type: boolean
-          description: Include slices for periods with no activities
+        - $ref: "#/components/parameters/SearchOnDate"
+        - $ref: "#/components/parameters/SearchWholeActivity"
+        - $ref: "#/components/parameters/SearchEventActivity"
+        - $ref: "#/components/parameters/SearchDistance"
+        - $ref: "#/components/parameters/SearchNetTime"
+        - $ref: "#/components/parameters/SearchDuration"
+        - $ref: "#/components/parameters/SearchPace"
+        - $ref: "#/components/parameters/SearchSpeed"
       responses:
         200:
           description: OK
@@ -290,7 +276,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/ActivitySlice"
+                  $ref: "#/components/schemas/ActivitySummary"
       tags:
         - Activity
   /activities/merge:
@@ -657,11 +643,11 @@ paths:
         - $ref: "#/components/parameters/SortField"
         - $ref: "#/components/parameters/SortDirection"
         # Query Params
+        - $ref: "#/components/parameters/SearchUsername"
         - $ref: "#/components/parameters/SearchEventname"
         - $ref: "#/components/parameters/SearchStartdate"
         - $ref: "#/components/parameters/SearchEnddate"
         - $ref: "#/components/parameters/SearchActivityTypes"
-        - $ref: "#/components/parameters/SearchUsername"
         - $ref: "#/components/parameters/SearchEventActivityID"
 
         - $ref: "#/components/parameters/SearchEventGroupID"
@@ -769,8 +755,8 @@ paths:
         - $ref: "#/components/parameters/SortField"
         - $ref: "#/components/parameters/SortDirection"
         # Query Params
-        - $ref: "#/components/parameters/SearchGoalname"
         - $ref: "#/components/parameters/SearchUsername"
+        - $ref: "#/components/parameters/SearchGoalname"
       responses:
         200:
           description: OK
@@ -1097,17 +1083,6 @@ components:
       schema:
         $ref: "#/components/schemas/DatabaseID"
     # Query Params
-    OutputPeriod:
-      in: query
-      name: period
-      schema:
-        enum:
-          - all
-          - year
-          - quarter
-          - month
-          - week
-      description: Periods to slice data into
     SearchActivityType:
       in: query
       name: activityTypeID
@@ -1147,8 +1122,11 @@ components:
       name: end
       required: false
       schema:
-        type: string
-        format: date
+        anyOf:
+          - type: string
+            format: date
+          - type: string
+            enum: ["current"]
       description: End Date
     SearchOnDate:
       in: query
@@ -1239,6 +1217,28 @@ components:
         type: array
         items:
           type: string
+    # Output Params
+    Partitioning:
+      in: query
+      name: partition
+      required: false
+      schema:
+        type: string
+        enum:
+          [
+            "activityType.all",
+            "activityType.base",
+            "time.week",
+            "time.quarter",
+            "time.month",
+            "time.year",
+          ]
+    WithRollup:
+      in: query
+      name: withRollup
+      required: false
+      schema:
+        type: boolean
     # Pagination Params
     PageNumber:
       in: query
@@ -1391,102 +1391,90 @@ components:
           nullable: true
     ActivitySummary:
       type: object
-      additionalProperties: true
-    ActivitySlice:
-      type: object
       additionalProperties: false
-      required:
-        - period
-        - count
       properties:
-        period:
-          $ref: "#/components/schemas/SlicePeriod"
-        count:
-          type: integer
-          minimum: 0
+        label:
+          type: string
+        activityTypes:
+          type: array
+          items:
+            $ref: "#/components/schemas/ActivityType"
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        counts:
+          type: object
+          additionalProperties: false
+          properties:
+            total:
+              type: number
+            maxPerDay:
+              type: number
+            longestDayStreak:
+              type: number
+            longestDayGap:
+              type: number
         distance:
-          $ref: "#/components/schemas/SummaryNumericValue"
+          type: object
+          additionalProperties: false
+          properties:
+            total:
+              $ref: "#/components/schemas/UnitValue"
+            max:
+              $ref: "#/components/schemas/UnitValue"
+            min:
+              $ref: "#/components/schemas/UnitValue"
+            avg:
+              $ref: "#/components/schemas/UnitValue"
+            nominal:
+              $ref: "#/components/schemas/UnitValue"
         time:
-          $ref: "#/components/schemas/SummaryTimeValue"
+          type: object
+          additionalProperties: false
+          properties:
+            duration:
+              $ref: "#/components/schemas/ActivitySummaryTime"
+            net:
+              $ref: "#/components/schemas/ActivitySummaryTime"
         pace:
-          $ref: "#/components/schemas/SummaryTimeValue"
+          type: object
+          additionalProperties: false
+          properties:
+            max:
+              $ref: "#/components/schemas/UnitValue"
+            min:
+              $ref: "#/components/schemas/UnitValue"
+            avg:
+              $ref: "#/components/schemas/UnitValue"
         speed:
-          $ref: "#/components/schemas/SummaryNumericValue"
-    SlicePeriod:
+          type: object
+          additionalProperties: false
+          properties:
+            max:
+              $ref: "#/components/schemas/UnitValue"
+            min:
+              $ref: "#/components/schemas/UnitValue"
+            avg:
+              $ref: "#/components/schemas/UnitValue"
+    ActivitySummaryTime:
       type: object
       additionalProperties: false
-      required:
-        - daysInPeriod
       properties:
-        start:
+        total:
           type: string
-          format: date
-        end:
-          type: string
-          format: date
-        year:
           nullable: true
-          type: integer
-          minimum: 1900
-        quarter:
-          nullable: true
-          type: integer
-          minimum: 1
-          maximum: 4
-        month:
-          nullable: true
-          type: integer
-          minimum: 1
-          maximum: 12
-        weekOfMonth:
-          nullable: true
-          type: integer
-          minimum: 0
-          maximum: 5
-        weekOfYear:
-          nullable: true
-          type: integer
-          minimum: 0
-          maximum: 53
-        daysInPeriod:
-          type: integer
-          minimum: 1
-    SummaryNumericValue:
-      type: object
-      required:
-        - sum
-      additionalProperties: false
-      properties:
-        sum:
-          type: number
-          minimum: 0
-        min:
-          type: number
-          minimum: 0
-        max:
-          type: number
-          minimum: 0
-        avg:
-          type: number
-          minimum: 0
-    SummaryTimeValue:
-      type: object
-      required:
-        - sum
-      additionalProperties: false
-      properties:
-        sum:
-          type: string
-          format: time
-        min:
-          type: string
-          format: time
-        max:
-          type: string
-          format: time
         avg:
           type: string
-          format: time
+          nullable: true
+        min:
+          type: string
+          nullable: true
+        max:
+          type: string
+          nullable: true
     PaginatedActivities:
       type: object
       required:
@@ -1764,7 +1752,7 @@ components:
           type: string
         fields:
           type: array
-          items: 
+          items:
             type: object
             additionalProperties: true
             properties:
@@ -1774,7 +1762,7 @@ components:
                 type: string
               required:
                 type: boolean
-              type: 
+              type:
                 type: string
               activity:
                 type: boolean
@@ -1951,6 +1939,9 @@ components:
     UnitValue:
       type: object
       additionalProperties: false
+      required:
+        - value
+        - unitOfMeasureID
       properties:
         id:
           $ref: "#/components/schemas/DatabaseID"

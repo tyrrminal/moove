@@ -86,7 +86,7 @@ sub for_person ($self, $person) {
 sub whole ($self) {
   return $self->search(
     {
-      'whole_activity_id' => undef
+      'me.whole_activity_id' => undef
     }
   );
 }
@@ -105,7 +105,7 @@ sub uncombined ($self) {
 sub whole_or_event ($self) {
   return $self->search(
     {
-      '-or' => [{'event_id' => {'!=', undef}}, {'whole_activity_id' => undef}]
+      '-or' => [{'event_id' => {'!=', undef}}, {'me.whole_activity_id' => undef}]
     }
   );
 }
@@ -136,7 +136,7 @@ sub core ($self) {
 sub activity_type ($self, $type) {
   return $self->search(
     {
-      activity_type_id => $type->id,
+      'me.activity_type_id' => $type->id,
     }
   );
 }
@@ -158,7 +158,7 @@ sub year ($self, $year) {
 sub completed ($self) {
   return $self->search(
     {
-      activity_result_id => {'<>' => undef}
+      'me.activity_result_id' => {'<>' => undef}
     }, {
       join => 'activity_result'
     }
@@ -203,6 +203,271 @@ sub before_date ($self, $date, $inclusive = false) {
   );
 }
 
+sub before_now($self) {
+  return $self->search(
+    {
+      'workout.date' => {'<=' => DateTime::Format::MySQL->format_datetime(DateTime->now(time_zone => 'local')->truncate(to => 'day'))}
+    }, {
+      join => 'workout'
+    }
+  )
+}
+
+sub on_date($self, $date) {
+  return $self unless(defined($date));
+  my $d = ref($date) ? DateTime::Format::MySQL->format_datetime($date) : $date;
+  return $self->search({
+    'workout.date' => $d
+  },{
+    join => 'workout'
+  })
+}
+
+sub has_distance ($self) {
+  return $self->search({
+    'base_activity_type.has_distance' => 'Y'
+  }, {
+    join => {activity_type => 'base_activity_type'}
+  })
+}
+
+sub has_pace ($self) {
+  return $self->search({
+    'base_activity_type.has_pace' => 'Y'
+  }, {
+    join => {activity_type => 'base_activity_type'}
+  })
+}
+
+sub has_speed ($self) {
+  return $self->search({
+    'base_activity_type.has_speed' => 'Y'
+  }, {
+    join => {activity_type => 'base_activity_type'}
+  })
+}
+
+sub has_time ($self) {
+  return $self->search({ 
+    'base_activity_type.has_duration' => 'Y'
+  }, {
+    join => {activity_type => 'base_activity_type'}
+  })
+}
+
+sub summary($self, $partition = undef) { # qw(activityType baseActivityType week month year)
+  my $mk_ctx = sub($record) { return {} };
+
+  my @grouping;
+  if(!defined($partition)) {
+    $mk_ctx = sub($record) { 
+      return {
+        activityTypes => [map +{id => $_}, split(/,/, $record->get_column('activity_type_ids'))],
+        min_date      => DateTime::Format::MySQL->parse_date($record->get_column('min_date') // '2000-01-01'),
+        max_date      => DateTime::Format::MySQL->parse_date($record->get_column('max_date') // '3000-01-01'), 
+        label         => 'All Activities',
+      }
+    };
+  } elsif($partition eq 'activityType.all') {
+    $mk_ctx = sub($record) { {
+      activityTypes => [{ id => $record->get_column('activity_type_id')}],
+      label => $record->get_column('activity_context_description') . ' ' . $record->get_column('base_activity_type_description') 
+    }};
+    @grouping = 'activity_type.id'
+  } elsif($partition eq 'baseActivityType.base') {
+    $mk_ctx = sub($record) { {
+      activityTypes => [map +{id => $_}, $self->result_source->schema->resultset("BaseActivityType")->find($record->get_column('base_activity_type_id'))->activity_type_ids],
+      label => $record->get_column('base_activity_type_description') 
+    }};
+    @grouping = 'base_activity_type.id'
+  } elsif($partition eq 'time.week') {
+    $mk_ctx = sub($record) {
+      my $sd = DateTime::Format::MySQL->parse_date($record->get_column('min_date'))->truncate(to => 'local_week');
+      return {
+        activityTypes => [map +{id => $_}, split(/,/, $record->get_column('activity_type_ids'))],
+        min_date => $sd,
+        max_date => $sd->clone->add(days => 6),
+        label => 'Week of ' . $sd->strftime("%F"),
+    }};
+    @grouping = (\['WEEK(activity_result.start_time)'], \['YEAR(activity_result.start_time)'])
+  } elsif($partition eq 'time.month') {
+    $mk_ctx = sub($record) {
+      my $sd = DateTime::Format::MySQL->parse_date($record->get_column('min_date'))->truncate(to => 'month');
+      return {
+        activityTypes => [map +{id => $_}, split(/,/, $record->get_column('activity_type_ids'))],
+        min_date => $sd,
+        max_date => $sd->clone->add(months => 1)->subtract(days => 1),
+        label => $sd->strftime("%b %Y"),
+    }};
+    @grouping = (\['MONTH(activity_result.start_time)'], \['YEAR(activity_result.start_time)'])
+  } elsif($partition eq 'time.quarter') {
+    $mk_ctx = sub($record) {
+      my $sd = DateTime::Format::MySQL->parse_date($record->get_column('min_date'))->truncate(to => 'quarter');
+      return {
+        activityTypes => [map +{id => $_}, split(/,/, $record->get_column('activity_type_ids'))],
+        min_date => $sd,
+        max_date => $sd->clone->add(months => 3)->subtract(days => 1),
+        label => $sd->strftime("%{quarter_abbr} %Y"),
+    }};
+    @grouping = (\['FLOOR((MONTH(activity_result.start_time)-1)/3)'], \['YEAR(activity_result.start_time)'])
+  } elsif($partition eq 'time.year') {
+    $mk_ctx = sub($record) {
+      my $sd = DateTime::Format::MySQL->parse_date($record->get_column('min_date'))->truncate(to => 'year');
+      return {
+        activityTypes => [map +{id => $_}, split(/,/, $record->get_column('activity_type_ids'))],
+        min_date => $sd,
+        max_date => $sd->clone->add(years => 1)->subtract(days => 1),
+        label => $sd->strftime("%Y"),
+    }};
+    @grouping = (\['YEAR(activity_result.start_time)'])
+  } else {
+    die("invalid partitioning");
+  }
+
+  my $rs = $self->search(undef, {
+    join => [
+      { activity_type => [qw(base_activity_type activity_context)]},
+      { activity_result => 'normalized_distance' },
+    ],
+    select => [
+      # Partitioning context
+      {DATE => {MIN   => 'activity_result.start_time'}},
+      {DATE => {MAX   => 'activity_result.start_time'}},
+      \'GROUP_CONCAT(DISTINCT activity_type.id)',
+      'activity_type.id',
+      'base_activity_type.id',
+      'base_activity_type.description',
+      'activity_context.description',
+
+      # Aggregate results
+      ## counts
+      {COUNT => 'me.id'},
+      ## distance
+      {SUM => 'normalized_distance.value'},
+      {MAX => 'normalized_distance.value'},
+      {MIN => 'normalized_distance.value'},
+      {AVG => 'normalized_distance.value'},
+      ## time
+      {SUM => {TIME_TO_SEC => \'COALESCE(activity_result.net_time,activity_result.duration)'}},
+      {MAX => {TIME_TO_SEC => \'COALESCE(activity_result.net_time,activity_result.duration)'}},
+      {MIN => {TIME_TO_SEC => \'COALESCE(activity_result.net_time,activity_result.duration)'}},
+      {AVG => {TIME_TO_SEC => \'COALESCE(activity_result.net_time,activity_result.duration)'}},
+      {SUM => {TIME_TO_SEC => \'COALESCE(activity_result.duration,activity_result.net_time)'}},
+      {MAX => {TIME_TO_SEC => \'COALESCE(activity_result.duration,activity_result.net_time)'}},
+      {MIN => {TIME_TO_SEC => \'COALESCE(activity_result.duration,activity_result.net_time)'}},
+      {AVG => {TIME_TO_SEC => \'COALESCE(activity_result.duration,activity_result.net_time)'}},
+      # pace
+      \'(SUM(TIME_TO_SEC(COALESCE(activity_result.net_time,activity_result.duration)))/60)/SUM(normalized_distance.value)',
+      \'MIN(TIME_TO_SEC(activity_result.pace))/60',
+      \'MAX(TIME_TO_SEC(activity_result.pace))/60',
+      # speed
+      \'SUM(normalized_distance.value)/(SUM(TIME_TO_SEC(COALESCE(activity_result.net_time,activity_result.duration)))/(60*60))',
+      {MIN => 'activity_result.speed'},
+      {MAX => 'activity_result.speed'},
+    ],
+    as => [qw(
+      min_date
+      max_date
+      activity_type_ids
+      activity_type_id
+      base_activity_type_id
+      base_activity_type_description
+      activity_context_description
+      counts_total
+      distance_total
+      distance_max
+      distance_min
+      distance_avg
+      time_total
+      time_max
+      time_min
+      time_avg
+      duration_total
+      duration_max
+      duration_min
+      duration_avg
+      pace_avg
+      pace_max
+      pace_min
+      speed_avg
+      speed_min
+      speed_max
+    )],
+    group_by => [ @grouping ],
+  });
+  my @summaries;
+  while (my $summary = $rs->next) {
+    push(@summaries, {
+      ctx => $mk_ctx->($summary),
+      counts => {
+        total       => $summary->get_column('counts_total'),
+        # maxPerDay => $self->max_activities_per('day'),
+        # maxPerWeek => $self->max_activities_per('week'),
+        # maxPerMonth => $self->max_activities_per('month'),
+        # maxPerYear => $self->max_activities_per('year'),
+      },
+      distance => {
+        total       => $summary->get_column('distance_total'),
+        max         => $summary->get_column('distance_max'),
+        min         => $summary->get_column('distance_min'),
+        avg         => $summary->get_column('distance_avg'),
+      },
+      pace => {
+        avg        => $summary->get_column('pace_avg'),
+        min        => $summary->get_column('pace_min'),
+        max        => $summary->get_column('pace_max'),
+      },
+      speed => {
+        avg        => $summary->get_column('speed_avg'),
+        min        => $summary->get_column('speed_min'),
+        max        => $summary->get_column('speed_max'),
+      },
+      time => {
+        net => {
+          total    => $summary->get_column('time_total'),
+          avg      => $summary->get_column('time_avg'),
+          max      => $summary->get_column('time_max'),
+          min      => $summary->get_column('time_min'),
+        },
+        duration => {
+          total    => $summary->get_column('duration_total'),
+          avg      => $summary->get_column('duration_avg'),
+          max      => $summary->get_column('duration_max'),
+          min      => $summary->get_column('duration_min'),
+        }
+      }
+    })
+  }
+  return @summaries;
+}
+
+sub max_activities_per($self, $period = 'day') {
+  my @grouping;
+  if($period eq 'day') {
+    @grouping = (\['DATE(activity_result.start_time)']);
+  } elsif($period eq 'week') {
+    @grouping = (\['YEAR(activity_result.start_time)'], \['WEEK(activity_result.start_time)'])
+  } elsif($period eq 'month') {
+    @grouping = (\['YEAR(activity_result.start_time)'], \['MONTH(activity_result.start_time)'])
+  } elsif($period eq 'year') {
+    @grouping = (\['YEAR(activity_result.start_time)'])
+  }
+
+  my $rs = $self->search(undef, { 
+    select => 
+      {count => 'me.id'}, 
+    as => 
+      [qw(count)], 
+    group_by => 
+      [ @grouping ], 
+    order_by => 
+      {-desc => \['COUNT(me.id)']} 
+    }
+  );
+  my ($t) = $rs->all();
+  return $t->get_column('count');
+}
+
 sub near_distance ($self, $d) {
   my $v      = $d->normalized_value;
   my $margin = $d->normalized_value * 0.05;
@@ -239,7 +504,17 @@ sub max_distance ($self, $d) {
 }
 
 sub total_distance ($self) {
-  return sum(map {$_->distance->normalized_value} $self->related_resultset('activity_result')->with_distance->all) // 0;
+  my $v = sum(map {$_->distance->normalized_value} $self->related_resultset('activity_result')->with_distance->all) // 0;
+  return $self->result_source->schema->resultset('Distance')->new_normal($v)
+}
+
+sub ordered_by_distance ($self) {
+  return $self->search(undef,
+    { 
+      join => {activity_result => {distance => 'unit_of_measure'}},
+      order_by => { '-asc' => \[ 'distance.value * unit_of_measure.normalization_factor' ] }
+    }
+  )
 }
 
 sub merge ($self, @activities) {

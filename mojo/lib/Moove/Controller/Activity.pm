@@ -4,24 +4,31 @@ use v5.36;
 use Mojo::Base 'DCS::Base::API::Model::Controller';
 
 use Role::Tiny::With;
-with 'DCS::Base::Role::Rest::Collection', 'DCS::Base::Role::Rest::Entity';
-with 'Moove::Controller::Role::ModelEncoding::Activity', 'Moove::Controller::Role::ModelEncoding::Activity::UserEventActivity';
+with qw(
+  DCS::Base::Role::Rest::Collection
+  DCS::Base::Role::Rest::Entity
+
+  Moove::Controller::Role::ModelEncoding::Activity 
+  Moove::Controller::Role::ModelEncoding::Activity::UserEventActivity
+  Moove::Controller::Role::ModelEncoding::Distance
+);
 with 'Moove::Role::Import::Activity';
 with 'Moove::Role::Unit::Conversion';
 
 use Data::UUID;
-use DateTime::Format::ISO8601;
 use Module::Util qw(module_path);
-use List::Util   qw(sum min max);
+use List::Util   qw(first sum min max);
 use DCS::DateTime::Extras;
 use Syntax::Keyword::Try;
 use Mojo::Exception qw(raise);
 use Mojo::JSON qw(decode_json);
 use JSON::Validator;
+use DateTime::Format::Duration::ISO8601;
+use Time::Seconds;
 
 use syntax 'junction';
 
-use DCS::Util::NameConversion qw(convert_hash_keys camel_to_snake);
+use DCS::Util::NameConversion qw(convert_hash_keys snake_to_camel camel_to_snake);
 
 use HTTP::Status   qw(:constants);
 use DCS::Constants qw(:symbols);
@@ -45,7 +52,7 @@ sub decode_model ($self, $data) {
   }
   $d->{pace}       = $self->normalized_pace($d->{pace})   if (defined($d->{pace}));
   $d->{speed}      = $self->normalized_speed($d->{speed}) if (defined($d->{speed}));
-  $d->{start_time} = DateTime::Format::ISO8601->parse_datetime($d->{start_time})->strftime('%FT%T');
+  $d->{start_time} = $self->parse_iso_datetime($d->{start_time})->strftime('%FT%T');
 
   #<<< no tidy because it can't handle for-list syntax properly yet
   foreach my ($field, $key) ((group => "group_num", set => "set_num")) {
@@ -70,7 +77,7 @@ sub effective_user ($self) {
 }
 
 sub resultset ($self, %args) {
-  my $rs = $self->SUPER::resultset();
+  my $rs = $self->SUPER::resultset();  
   $rs = $rs->search(
     undef, {
       prefetch => [
@@ -79,7 +86,7 @@ sub resultset ($self, %args) {
         {activity_type => ['base_activity_type', 'activity_context']}
       ]
     }
-  )->grouped;
+  )->grouped unless($args{noprefetch});
 
   if ($self->validation->param('combine') // $args{combine} // true) {
     $rs = $rs->whole;
@@ -98,16 +105,15 @@ sub resultset ($self, %args) {
     foreach my $activity_type_id ($activity_type_ids->@*) {
       $self->model_find(ActivityType => $activity_type_id) or return $self->render_not_found('ActivityType');
     }
-    $rs = $rs->search({activity_type_id => {-in => $activity_type_ids}});
+    $rs = $rs->search({'me.activity_type_id' => {-in => $activity_type_ids}});
   }
   if (my $start_date = $self->validation->param('start')) {
     $rs = $rs->after_date($start_date);
   }
   if (my $end_date = $self->validation->param('end')) {
-    $rs = $rs->before_date($end_date);
+    $rs = $end_date eq 'current' ? $rs->before_now : $rs->before_date($end_date, true);
   }
   if (my $date = $self->validation->param('on')) {
-    say STDERR $date;
     $rs = $rs->after_date($date)->before_date($date, true)
   }
   my $event_filter = $self->validation->param('event');
@@ -225,181 +231,90 @@ sub delete_record ($self, $entity) {
   return $self->SUPER::delete_record($entity);
 }
 
-sub summary ($self) {
+sub param_start($self) {
+  if(my $v = $self->validation->param('start')) {
+    return $self->parse_api_date($v);
+  }
+  return undef;
+}
+
+sub param_end($self, $check = false) {
+  if(my $v = $self->validation->param('end')) {
+    if($v eq 'current') {
+      my $d = DateTime->now(time_zone => 'local')->truncate(to => 'day');
+      $d->subtract(days => 1) if($check && $self->resultset->on_date($d)->count < 1);
+      return $d;
+    }
+    return $self->parse_api_date($v);
+  }
+  return undef;
+}
+
+sub summary($self) {
   return unless ($self->openapi->valid_input);
-  my $today  = DateTime->today(time_zone => 'local');
-  my $period = $self->validation->param('period');
+  my $time_formatter = DateTime::Format::Duration::ISO8601->new();
+  my $d_unit = $self->model('UnitOfMeasure')->search({ normal_unit_id => undef, 'unit_of_measure_type.description' => 'Distance' }, {join => 'unit_of_measure_type'})->first;
+  my $s_unit = $self->model('UnitOfMeasure')->find({ abbreviation => 'mph' });
+  my $p_unit = $self->model('UnitOfMeasure')->find({ abbreviation => '/mi' });
+  my $una = $self->effective_user->user_nominal_activities;
+  my $activities = $self->resultset(noprefetch => true)->completed;
 
-  try {
-    my $unit = $self->model('UnitOfMeasure')->search({normal_unit_id => undef, abbreviation => 'mi'})->first;
+  my $partition_type = $self->validation->param('partition');
+  my $rev = ($partition_type//'') =~ /^time[.]/ ? sub {@_} : sub{reverse(@_)};
 
-    my @activities = $self->resultset->completed->ordered->all;
+  my $ps = $self->param_start;
+  my $pe = $self->param_end(true);
 
-    my $start = $self->parse_api_date($self->validation->param('start'))
-      // (@activities > 0 ? $activities[0]->activity_result->start_time->truncate(to => 'day') : $today);
-    my $end = $self->_end_of_period($start, $period) // $today;
-    $end->add(days => 1) if ($start == $end);
+  my @summaries = $activities->summary($partition_type);
+  unshift(@summaries, $activities->summary) if($partition_type && $self->validation->param('withRollup') && @summaries);
+  my @r;
+  foreach my $s (@summaries) {
+    my $ctx = delete($s->{ctx});
+    my $sd = $self->encode_date(first { defined } $rev->($ctx->{min_date}, $ps));
+    my $ed = $self->encode_date(first { defined } $rev->($ctx->{max_date}, $pe));
 
-    my $ars = $self->resultset()->before_date($end)->completed->ordered;
-    my $ers = $self->resultset(combine => false)->before_date($end)->has_event;
-    my $una = $self->effective_user->user_nominal_activities->search({year => defined($period) ? $start->year : undef});
-
-    my @activity_summaries;
-    foreach ($self->app->model('ActivityType')->all) {
-      my $sl      = $ars->activity_type($_);
-      my $sers = $ers->activity_type($_);
-      my $nominal = $una->search({activity_type_id => $_->id})->first;
-      my %nom;
-      if (defined($nominal)) {
-        my $pd = $nominal->per_day;
-        %nom = (nominal => {(map {$_ => $pd->{$_} * $nominal->days_in_range_between_dates($start, $end, $sl->after_date($today->strftime('%F'))->count > 0)} keys($pd->%*))});
+    $s->{label} = $ctx->{label} if(defined($ctx->{label}));
+    $s->{activityTypes} = $ctx->{activityTypes} if(defined($ctx->{activityTypes}));
+    $s->{startDate} = $sd if($sd);
+    $s->{endDate}   = $ed if($ed);
+    if($s->{distance}) {
+      foreach my $k (keys($s->{distance}->%*)) {
+        $s->{distance}->{$k} = { value => $s->{distance}->{$k}//0, unitOfMeasureID => $d_unit->id };
       }
-      push(
-        @activity_summaries, {
-          activityTypeID => $_->id,
-          distance       => $sl->total_distance,
-          unitID         => $unit->id,
-          eventDistance  => $sers->total_distance,
-          %nom
+    }
+    if($s->{speed}) {
+      foreach my $k (keys($s->{speed}->%*)) {
+        $s->{speed}->{$k} = { value => sprintf('%.03f', $s->{speed}->{$k}//0), unitOfMeasureID => $s_unit->id };
+      }
+    }
+    if($s->{pace}) {
+      foreach my $k (keys($s->{pace}->%*)) {
+        $s->{pace}->{$k} = {value => $self->encode_time(DateTime::Duration->new(minutes => $s->{pace}->{$k}//0)), unitOfMeasureID => $p_unit->id };
+      }
+    }
+    if($s->{time}) {
+      foreach my $type (keys($s->{time}->%*)) {
+        foreach my $k (keys($s->{time}->{$type}->%*)) {
+          if(defined($s->{time}->{$type}->{$k})) {
+            $s->{time}->{$type}->{$k} = $time_formatter->format_duration(sec_to_duration($s->{time}->{$type}->{$k}));
+          }
         }
-        )
-        if ($sl->count || defined($nominal));
+      }
     }
 
-    $today->add(days => 1) if($ars->after_date($today->strftime('%F'))->count > 0);
-    return $self->render(
-      openapi => {
-        period => {
-          daysElapsed => $start->delta_days($start > $today ? $start : min($end, $today))->delta_days,
-          defined($period) ? (daysTotal => _days_in_period($period, $start)) : (),
-          years => $end->yearfrac($start),
-        },
-        activities => [
-          {
-            activityTypeID => undef,
-            distance       => $ars->total_distance,
-            unitID         => $unit->id,
-            eventDistance  => $ers->total_distance,
-          },
-          @activity_summaries
-        ]
+    if(!defined($partition_type) || $partition_type =~ /^activityType[.]/) {
+      my $nom_rs = $una->for_type(map { $_->{id} } $ctx->{activityTypes}->@*);
+      $nom_rs = $nom_rs->in_range($self->param_start,$self->param_end) if(defined($self->param_start) && defined($self->param_end));
+      if($nom_rs->count) {
+        my $nom_d = $nom_rs->nominal_distance_in_range($self->param_start, $self->param_end(true));
+        $s->{distance}->{nominal} = $self->encode_model($nom_d);
       }
-    );
-  } catch ($e) {
-    $self->render_error(HTTP_BAD_REQUEST, $e->can('message') ? $e->message : $e)
-  }
-}
-
-sub slice ($self) {
-  return unless ($self->openapi->valid_input);
-
-  my $user = $self->current_user;
-  if (defined($self->validation->param('userID'))) {
-    $user = $self->model_find(User => $self->validation->param('userID')) or return $self->render_not_found('User');
-  }
-  my $activity_type = $self->model_find(ActivityType => $self->validation->param('activityTypeID'));
-  my $period        = $self->validation->param('period');
-  my $showEmpty     = $self->validation->param('includeEmpty') // false;
-
-  my $activities = $self->resultset->whole->ordered;
-  my $start      = $self->parse_api_date($self->validation->param('start'))
-    // $self->model('Activity')->for_user($user)->ordered->first->start_time->clone->truncate(to => 'day');
-  my $end = DateTime->today->add(days => 1)->subtract(seconds => 1);
-
-  my @summaries;
-  my $i   = 0;
-  my @all = $activities->all;
-  foreach my $p (periods_in_range($period, $start, $end)) {
-    my @period_activities;
-    while (defined($all[$i]) && $all[$i]->start_time < $p->{end}) {
-      push(@period_activities, $all[$i++]);
     }
-    next unless (@period_activities || $showEmpty);
-    my $slice = {
-      period => {
-        daysInPeriod => max(1, $p->{end}->delta_days($p->{start})->delta_days),
-        start        => $p->{start}->strftime('%F'),
-        end          => $p->{end}->strftime('%F'),
-        $p->{t}->%*
-      },
-      count => scalar @period_activities
-    };
-    push(@summaries, $slice);
-    if ($activity_type->base_activity_type->has_distance) {
-      my @distances =
-        map {$_->activity_result->distance->normalized_value}
-        grep {$_->activity_type->base_activity_type->has_distance} @period_activities;
-      $slice->{distance} = {
-        sum => sum(@distances) // 0,
-        max => max(@distances) // 0,
-        min => min(@distances) // 0,
-      };
-    }
+
+    push(@r, {convert_hash_keys($s->%*, \&snake_to_camel)});
   }
 
-  return $self->render(openapi => [@summaries]);
-}
-
-sub periods_in_range ($period, $start, $end) {
-  my @p;
-  if    ($period eq 'all') {@p = ({start => $start, end => $end, t => {}})}
-  elsif ($period eq 'year') {
-    my $o = $start->clone->truncate(to => 'year');
-    push(
-      @p, {
-        t     => {year => $o->year},
-        start => max($start, $o->clone),
-        end   => min($end, $o->add(years => 1)->clone)
-      }
-      )
-      while ($o < $end);
-  } elsif ($period eq 'quarter') {
-    my $o = $start->clone->truncate(to => 'quarter');
-    push(
-      @p, {
-        t => {
-          year    => $o->year,
-          quarter => $o->quarter,
-        },
-        start => max($start, $o->clone),
-        end   => min($end, $o->add(months => 3)->clone)
-      }
-      )
-      while ($o < $end);
-  } elsif ($period eq 'month') {
-    my $o = $start->clone->truncate(to => 'month');
-    $o->subtract(months => 1)
-      unless ($o->day_of_week == 7);    # back up a month unless the week starts on Sunday
-    push(
-      @p, {
-        t => {
-          year    => $o->year,
-          quarter => $o->quarter,
-          month   => $o->month,
-        },
-        start => max($start, $o->clone),
-        end   => min($end, $o->add(months => 1)->clone)
-      }
-      )
-      while ($o < $end);
-  } elsif ($period eq 'week') {
-    my $o = $start->clone->truncate(to => 'local_week');
-    push(
-      @p, {
-        t => {
-          year        => $o->year,
-          quarter     => $o->quarter,
-          month       => $o->month,
-          weekOfMonth => $o->week_of_month,
-          weekOfYear  => $o->clone->add(days => 1)->week_number,
-        },
-        start => max($start, $o->clone),
-        end   => min($end, $o->add(weeks => 1)->clone)
-      }
-      )
-      while ($o < $end);
-  }
-  return @p;
+  return $self->render(openapi => [@r]);
 }
 
 sub import ($self) {
@@ -466,22 +381,20 @@ sub _cleanup_files ($self, $path) {
   unlink($path);
 }
 
-sub _end_of_period ($self, $start, $period) {
-  return undef if (!defined($period));
-
-  my $tomorrow = DateTime->today(time_zone => 'local')->add(days => 1);
-  my $offset   = $period eq 'week' ? 1 : 0;
-  my $end =
-    $start->clone->add(days => $offset)->truncate(to => $period)->add("${period}s" => 1)->subtract(days => $offset);
-  return $end if ($start > DateTime->now(time_zone => 'local'));
-  return min($end, $tomorrow);
+sub quotient_remainder($dividend, $divisor) {
+  use integer;
+  my $quotient = $dividend / $divisor;
+  my $remainder = $dividend % $divisor;
+  return ( $quotient, $remainder );
 }
 
-sub _days_in_period ($period, $period_start) {
-  return $period_start->year_length  if ($period eq 'year');
-  return $period_start->month_length if ($period eq 'month');
-  return 7                           if ($period eq 'week');
-  return 1;
+sub sec_to_duration($t) {
+  $t //= 0;
+  my ($s,$m,$h,$d);
+  ($m, $s) = quotient_remainder($t, ONE_MINUTE);
+  ($h, $m) = quotient_remainder($m, ONE_HOUR/ONE_MINUTE);
+  ($d, $h) = quotient_remainder($h, ONE_DAY/ONE_HOUR);
+  return DateTime::Duration->new(seconds => $s, minutes => $m, hours => $h, days => $d)
 }
 
 1;

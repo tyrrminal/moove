@@ -133,19 +133,39 @@ export default {
         force
       ) {
         let self = this;
+        let params = { ...this.queryParams };
+        params.activityTypeID = a.id
+        if (l != 'all')
+          params.partition = `time.${l}`
         this.$http
-          .get("activities/slice", {
-            params: {
-              activityTypeID: a.id,
-              period: l,
-              ...this.queryParams,
-            },
-          })
+          .get("activities/summary", { params: params })
           .then((resp) => {
             if (self.allSummaries[l] == null)
               self.$set(self.allSummaries, l, {});
-            self.$set(self.allSummaries[l], a.id, resp.data);
+            self.$set(self.allSummaries[l], a.id, resp.data.map(e => this.adaptData(e)));
           });
+      }
+    },
+    adaptData: function (d) {
+      let sd = DateTime.fromISO(d.startDate);
+      let ed = DateTime.fromISO(d.endDate);
+      return {
+        count: d.counts.total,
+        distance: {
+          max: d.distance.max.value,
+          min: d.distance.min.value,
+          sum: d.distance.total.value
+        },
+        period: {
+          start: d.startDate,
+          year: sd.year,
+          month: sd.month,
+          quarter: sd.quarter,
+          weekOfYear: sd.weekNumber,
+          weekOfMonth: sd.weekNumber - sd.startOf('month').plus({ days: -1 }).weekNumber,
+          end: ed.plus({ days: -1 }),
+          daysInPeriod: ed.diff(sd, ['days']).days
+        }
       }
     },
     processData: function (l, a) {
@@ -344,7 +364,7 @@ export default {
       return this.summaries;
     },
     queryParams: function () {
-      let p = { includeEmpty: true };
+      let p = { combine: true };
       if (this.range.start) p.start = this.range.start;
       if (this.range.end) p.end = this.range.end;
       return p;

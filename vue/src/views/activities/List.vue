@@ -89,6 +89,9 @@
         </b-form>
       </b-col>
       <b-col>
+        <ActivityListSummary :data="summary" v-if="summary?.counts.total > 0" bgColor="rgba(214, 147, 255, 0.41)" />
+        <ActivityListSummary :data="eventSummary" v-if="eventSummary?.counts.total > 0" title="Events"
+          bgColor="rgba(142, 134, 255, 0.2)" />
         <ActivityList tableId="activityListTable" :items="getData" :page.sync="page" :total="total"
           @update:currentPage="updateCurrentPage" @update:perPage="updatePerPage" @filterDate="setDateFilter" />
       </b-col>
@@ -101,6 +104,7 @@ import cloneDeep from 'clone-deep';
 
 import ActivityTypeSelector from "@/components/ActivityTypeSelector";
 import ActivityList from "@/components/activity/List";
+import ActivityListSummary from "@/components/activity/Summary.vue";
 import { DateTime } from "luxon";
 
 const OPERATORS = ["=", "<", "<=", ">", ">="];
@@ -109,6 +113,7 @@ export default {
   name: 'ActivitiesList',
   components: {
     ActivityList,
+    ActivityListSummary,
     ActivityTypeSelector
   },
   data: function () {
@@ -130,6 +135,8 @@ export default {
       },
       filters: [],
 
+      summary: null,
+      eventSummary: null,
       total: {
         rows: 0,
         results: 0,
@@ -142,6 +149,17 @@ export default {
   },
   mounted: function () {
     this.resetFilters();
+    Object.keys(this.filterTypes).forEach(k => {
+      let v = this.$route.query[k]
+      if (v != null) {
+        if (k == 'activityTypeID') {
+          let t = v;
+          v = {}
+          v[t] = true
+        }
+        this.addFilter(k, v)
+      }
+    })
   },
   computed: {
     operators: function () {
@@ -158,13 +176,17 @@ export default {
     },
   },
   methods: {
-    getData: function (ctx, callback) {
+    searchParams: function () {
       let params = new URLSearchParams();
+      this.filters.forEach(f => params.append(f.key, this.paramValue(f)))
+      return params;
+    },
+    getData: function (ctx, callback) {
+      let params = this.searchParams();
       params.append("order.by", ctx.sortBy || "startTime")
       params.append("order.dir", ctx.sortDesc ? "desc" : "asc")
       params.append("page.number", ctx.currentPage);
       params.append("page.length", ctx.perPage)
-      this.filters.forEach(f => params.append(f.key, this.paramValue(f)))
       this.$http.get("activities", { params: params })
         .then((resp) => {
           this.total.rows = resp.data.pagination.counts.filter;
@@ -172,9 +194,25 @@ export default {
           callback(resp.data.elements)
         })
     },
+    loadSummary: function () {
+      let eventFilter = this.filters.find(f => f.key == 'event');
+      let p = this.searchParams();
+      this.summary = null;
+      this.eventSummary = null;
+      if (eventFilter == null || eventFilter.value == false)
+        this.$http.get("activities/summary", { params: p })
+          .then(resp => this.summary = resp.data[0])
+      if (eventFilter == null || eventFilter.value == true) {
+        p.set('combine', false)
+        p.set('event', true);
+        this.$http.get("activities/summary", { params: p })
+          .then(resp => this.eventSummary = resp.data[0])
+      }
+    },
     reloadTable: function () {
       this.total = { rows: 0, results: 0 }
       this.$root.$emit("bv::refresh::table", "activityListTable");
+      this.loadSummary();
     },
     resetFilters: function () {
       this.filters = [];
@@ -187,9 +225,10 @@ export default {
       if (k == 'on' && this.filters.find(x => x.key == 'start' || x.key == 'end')) return false;
       return this.filters.filter(x => x.key == k).length < t.multiplicity
     },
-    addFilter: function (k) {
-      if (this.canAddFilter(k))
-        this.filters.push({ key: k, value: cloneDeep(this.filterTypes[k].default) })
+    addFilter: function (k, v = null) {
+      if (this.canAddFilter(k)) {
+        this.filters.push({ key: k, value: v || cloneDeep(this.filterTypes[k].default) })
+      }
     },
     removeAllFilters: function (k) {
       let idx;
@@ -225,8 +264,6 @@ export default {
           })
           v = ids.length == 0 ? null : ids.join(',');
           break;
-        case 'end':
-          v = DateTime.fromISO(v).plus({ days: 1 }).toISODate(); break;
         case 'distance':
         case 'duration':
         case 'net_time':
