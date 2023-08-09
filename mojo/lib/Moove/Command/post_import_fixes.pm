@@ -1,5 +1,5 @@
 package Moove::Command::post_import_fixes;
-use v5.36;
+use v5.38;
 
 use Mojo::Base 'Mojolicious::Command';
 

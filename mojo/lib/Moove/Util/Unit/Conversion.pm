@@ -1,5 +1,5 @@
 package Moove::Util::Unit::Conversion;
-use v5.36;
+use v5.38;
 
 use parent 'Exporter';
 

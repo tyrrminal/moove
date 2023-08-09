@@ -114,7 +114,7 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 #>>>
-use v5.36;
+use v5.38;
 
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-28 10:53:38
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:lmj9n4HwO02HR8y96IA0zQ

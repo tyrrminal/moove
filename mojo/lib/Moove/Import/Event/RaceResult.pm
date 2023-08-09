@@ -1,5 +1,5 @@
 package Moove::Import::Event::RaceResult;
-use v5.36;
+use v5.38;
 use builtin      qw(true);
 
 use Moose;

@@ -158,7 +158,7 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 #>>>
-use v5.36;
+use v5.38;
 
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-07-31 12:52:13
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:diyJtL8B724eIDfD11ii+Q

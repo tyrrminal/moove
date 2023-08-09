@@ -1,5 +1,5 @@
 package Moove::Model::ResultSet::Activity;
-use v5.36;
+use v5.38;
 
 use Role::Tiny::With;
 with 'Moove::Role::Merge::Activity', 'Moove::Role::Merge::ActivityResult';

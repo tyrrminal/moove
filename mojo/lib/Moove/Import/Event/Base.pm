@@ -1,5 +1,5 @@
 package Moove::Import::Event::Base;
-use v5.36;
+use v5.38;
 use builtin      qw(true);
 
 use Moose::Role;

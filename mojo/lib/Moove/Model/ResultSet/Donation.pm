@@ -1,5 +1,5 @@
 package Moove::Model::ResultSet::Donation;
-use v5.36;
+use v5.38;
 
 use base qw(DBIx::Class::ResultSet);
 use List::Util qw(sum);
