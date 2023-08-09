@@ -259,15 +259,17 @@ sub summary($self) {
   my $una = $self->effective_user->user_nominal_activities;
   my $activities = $self->resultset(noprefetch => true)->completed;
 
+  my $partition_type = $self->validation->param('partition');
+  my $rev = ($partition_type//'') =~ /^time[.]/ ? sub {@_} : sub{reverse(@_)};
+
   my $ps = $self->param_start;
   my $pe = $self->param_end(true);
 
-  my @summaries = $activities->summary($self->validation->param('partition'));
-  unshift(@summaries, $activities->summary) if($self->validation->param('partition') && $self->validation->param('withRollup') && @summaries);
+  my @summaries = $activities->summary($partition_type);
+  unshift(@summaries, $activities->summary) if($partition_type && $self->validation->param('withRollup') && @summaries);
   my @r;
   foreach my $s (@summaries) {
     my $ctx = delete($s->{ctx});
-    my $rev = ($self->validation->param('partition')//'') =~ /^time[.]/ ? sub {@_} : sub{reverse(@_)};
     my $sd = $self->encode_date(first { defined } $rev->($ctx->{min_date}, $ps));
     my $ed = $self->encode_date(first { defined } $rev->($ctx->{max_date}, $pe));
 
@@ -300,10 +302,13 @@ sub summary($self) {
       }
     }
 
-    my $nom_rs = $una->in_range($self->param_start,$self->param_end)->for_type(map { $_->{id} }$ctx->{activityTypes}->@*);
-    if($nom_rs->count) {
-      my $nom_d = $nom_rs->nominal_distance_in_range($self->param_start, $self->param_end(true));
-      $s->{distance}->{nominal} = $self->encode_model($nom_d);
+    if(!defined($partition_type) || $partition_type =~ /^activityType[.]/) {
+      my $nom_rs = $una->for_type(map { $_->{id} } $ctx->{activityTypes}->@*);
+      $nom_rs = $nom_rs->in_range($self->param_start,$self->param_end) if(defined($self->param_start) && defined($self->param_end));
+      if($nom_rs->count) {
+        my $nom_d = $nom_rs->nominal_distance_in_range($self->param_start, $self->param_end(true));
+        $s->{distance}->{nominal} = $self->encode_model($nom_d);
+      }
     }
 
     push(@r, {convert_hash_keys($s->%*, \&snake_to_camel)});
