@@ -1,5 +1,5 @@
 package Moove::Import::Event::RaceWire;
-use v5.36;
+use v5.38;
 use Moose;
 with 'Moove::Import::Event::Base';
 

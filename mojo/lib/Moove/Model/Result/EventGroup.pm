@@ -139,7 +139,7 @@ Composing rels: L</event_series_events> -> event
 
 __PACKAGE__->many_to_many("events", "event_series_events", "event");
 #>>>
-use v5.36;
+use v5.38;
 
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-08-02 10:06:54
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:C2kGkq20lYzZq644kFkWnw

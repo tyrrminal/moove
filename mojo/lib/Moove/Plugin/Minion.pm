@@ -1,5 +1,5 @@
 package Moove::Plugin::Minion;
-use v5.36;
+use v5.38;
 
 use Mojo::Base 'Mojolicious::Plugin';
 use Mojo::File;

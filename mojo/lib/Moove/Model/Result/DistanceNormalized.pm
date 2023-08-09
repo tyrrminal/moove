@@ -81,7 +81,7 @@ __PACKAGE__->add_columns(
   { data_type => "integer", extra => { unsigned => 1 }, is_nullable => 1 },
 );
 #>>>
-use v5.36;
+use v5.38;
 
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-09 12:32:18
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ELJKw0iM49NG3RCiu1A6Uw

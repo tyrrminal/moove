@@ -1,5 +1,5 @@
 package Moove::Controller::Role::ModelEncoding::UserEventActivity::Activity;
-use v5.36;
+use v5.38;
 
 use Role::Tiny;
 with 'Moove::Controller::Role::ModelEncoding::ActivityResult';

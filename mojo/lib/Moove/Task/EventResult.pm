@@ -1,5 +1,5 @@
 package Moove::Task::EventResult;
-use v5.36;
+use v5.38;
 
 use Mojo::Base 'Mojolicious::Plugin';
 use Mojo::Util qw(class_to_path);

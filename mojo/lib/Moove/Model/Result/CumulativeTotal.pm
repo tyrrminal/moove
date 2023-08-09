@@ -1,5 +1,5 @@
 package Moove::Model::Result::CumulativeTotal;
-use v5.36;
+use v5.38;
 
 use base 'DBIx::Class::Core';
 

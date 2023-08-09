@@ -1,5 +1,5 @@
 package Moove::Import::Activity::RunKeeper;
-use v5.36;
+use v5.38;
 use Moose;
 
 use File::Spec;
