@@ -253,7 +253,9 @@ sub param_end($self, $check = false) {
 sub summary($self) {
   return unless ($self->openapi->valid_input);
   my $time_formatter = DateTime::Format::Duration::ISO8601->new();
-  my $unit = $self->model('UnitOfMeasure')->search({ normal_unit_id => undef, 'unit_of_measure_type.description' => 'Distance' }, {join => 'unit_of_measure_type'})->first;
+  my $d_unit = $self->model('UnitOfMeasure')->search({ normal_unit_id => undef, 'unit_of_measure_type.description' => 'Distance' }, {join => 'unit_of_measure_type'})->first;
+  my $s_unit = $self->model('UnitOfMeasure')->find({ abbreviation => 'mph' });
+  my $p_unit = $self->model('UnitOfMeasure')->find({ abbreviation => '/mi' });
   my $una = $self->effective_user->user_nominal_activities;
   my $activities = $self->resultset(noprefetch => true)->completed;
 
@@ -275,18 +277,24 @@ sub summary($self) {
     $s->{endDate}   = $ed if($ed);
     if($s->{distance}) {
       foreach my $k (keys($s->{distance}->%*)) {
-        $s->{distance}->{$k} = { value => $s->{distance}->{$k}//0, unitOfMeasureID => $unit->id };
+        $s->{distance}->{$k} = { value => $s->{distance}->{$k}//0, unitOfMeasureID => $d_unit->id };
+      }
+    }
+    if($s->{speed}) {
+      foreach my $k (keys($s->{speed}->%*)) {
+        $s->{speed}->{$k} = { value => sprintf('%.03f', $s->{speed}->{$k}//0), unitOfMeasureID => $s_unit->id };
+      }
+    }
+    if($s->{pace}) {
+      foreach my $k (keys($s->{pace}->%*)) {
+        $s->{pace}->{$k} = {value => $self->encode_time(DateTime::Duration->new(minutes => $s->{pace}->{$k}//0)), unitOfMeasureID => $p_unit->id };
       }
     }
     if($s->{time}) {
       foreach my $type (keys($s->{time}->%*)) {
         foreach my $k (keys($s->{time}->{$type}->%*)) {
           if(defined($s->{time}->{$type}->{$k})) {
-            my ($se,$m,$h,$d) = $s->{time}->{$type}->{$k};
-            ($m, $se) = quotient_remainder($se, ONE_MINUTE);
-            ($h, $m) = quotient_remainder($m, ONE_HOUR/ONE_MINUTE);
-            ($d, $h) = quotient_remainder($h, ONE_DAY/ONE_HOUR);
-            $s->{time}->{$type}->{$k} = $time_formatter->format_duration(DateTime::Duration->new(seconds => $se, minutes => $m, hours => $h, days => $d));
+            $s->{time}->{$type}->{$k} = $time_formatter->format_duration(sec_to_duration($s->{time}->{$type}->{$k}));
           }
         }
       }
@@ -373,6 +381,15 @@ sub quotient_remainder($dividend, $divisor) {
   my $quotient = $dividend / $divisor;
   my $remainder = $dividend % $divisor;
   return ( $quotient, $remainder );
+}
+
+sub sec_to_duration($t) {
+  $t //= 0;
+  my ($s,$m,$h,$d);
+  ($m, $s) = quotient_remainder($t, ONE_MINUTE);
+  ($h, $m) = quotient_remainder($m, ONE_HOUR/ONE_MINUTE);
+  ($d, $h) = quotient_remainder($h, ONE_DAY/ONE_HOUR);
+  return DateTime::Duration->new(seconds => $s, minutes => $m, hours => $h, days => $d)
 }
 
 1;
