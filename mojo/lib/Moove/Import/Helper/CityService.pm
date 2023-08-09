@@ -17,20 +17,20 @@ class Moove::Import::Helper::CityService {
 
   field @city_list;
 
-  ADJUST {
-    my %state_list = reverse from_json(get_gist_content($STATELIST_AUTHOR, $STATELIST_FILENAME))->%*;
-    @city_list = from_json(get_gist_content($CITYLIST_AUTHOR, $CITYLIST_FILENAME))->@*;
-
-    $_->{state_abbrv} = $state_list{$_->{state}} foreach (@city_list);
-  }
-
-  sub get_gist_content($author, $filename) {
+  my sub get_gist_content($author, $filename) {
     my $ua     = Mojo::UserAgent->new();
     my $res    = $ua->get(sprintf($GIT_API_BASE . $GIT_USER_GISTS, $author))->result;
     my ($gist) = grep {exists($_->{files}->{$filename})} $res->json->@*;
 
     $res = $ua->get(sprintf($GIT_API_BASE . $GIT_GIST, $gist->{id}))->result;
     return $res->json->{files}->{$filename}->{content};
+  }
+
+  ADJUST {
+    my %state_list = reverse from_json(get_gist_content($STATELIST_AUTHOR, $STATELIST_FILENAME))->%*;
+    @city_list = from_json(get_gist_content($CITYLIST_AUTHOR, $CITYLIST_FILENAME))->@*;
+
+    $_->{state_abbrv} = $state_list{$_->{state}} foreach (@city_list);
   }
 
   method combos_with_city($city) {

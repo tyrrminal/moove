@@ -91,7 +91,7 @@ class Moove::Import::Activity::RunKeeper {
     return [map {@{$_->{points}}} map {@{$_->{segments}}} @{$gpx->tracks}];
   }
 
-  method calculate_gross_time ($activity) {
+  my method calculate_gross_time ($activity) {
     unzip($file => \my $data, Name => $activity->{gpx});
     my $gpx = Geo::Gpx->new(xml => $data);
 
