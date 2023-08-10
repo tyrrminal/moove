@@ -17,3 +17,4 @@ add_rtrt_external_data_source 2023-04-15T21:00:16Z root <root@9e707f535c7c> # Ad
 add_raceresult_to_externaldatasource 2023-06-21T22:06:27Z root <root@dc2f79778a23> # add RaceResult event importer
 support_arbitrary_fields_for_event_import 2023-07-16T20:30:45Z root <root@abf5018297fb> # convert existing event and event activity identifiers to a key-value pair system
 convert_nominal_time_frames_to_range 2023-07-31T14:35:07Z root <root@62f489b6c9b6> # instead of using a year and optional range, just use a required range for all nominals
+add_missing_activity_types 2023-08-10T11:11:31Z root <root@7a46b26acda8> # create new activity types that may or may not already exist
