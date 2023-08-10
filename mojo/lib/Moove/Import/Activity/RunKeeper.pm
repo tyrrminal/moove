@@ -41,6 +41,17 @@ class Moove::Import::Activity::RunKeeper {
     'Other'    => 'Walk',
   );
 
+  my sub calculate_gross_time ($file, $activity) {
+    unzip($file => \my $data, Name => $activity->{gpx});
+    my $gpx = Geo::Gpx->new(xml => $data);
+
+    my @segments = map {@{$_->{segments}}} @{$gpx->tracks};
+    my $f_p      = $segments[0]->{points}->[0];
+    my $l_p      = $segments[-1]->{points}->[-1];
+
+    return $l_p->time_datetime->subtract_datetime($f_p->time_datetime);
+  }
+
   # Initialize activity_data
   ADJUST {
     my $activities;
@@ -76,7 +87,7 @@ class Moove::Import::Activity::RunKeeper {
     if($activity->{notes} && $activity->{notes}=~ /(\d+(?:\.\d+)?) degrees/) {$activity->{temperature} = $1;}
     foreach (qw(net_time gross_time pace)) {$activity->{$_} = normalize_time($activity->{$_})}
     if ($activity->{gpx}) {
-      $activity->{gross_time}      = $self->calculate_gross_time($activity);
+      $activity->{gross_time}      = calculate_gross_time($file, $activity);
       $activity->{activity_points} = [];
     }
     return $activity;
@@ -89,17 +100,6 @@ class Moove::Import::Activity::RunKeeper {
     my $gpx = Geo::Gpx->new(xml => $data);
 
     return [map {@{$_->{points}}} map {@{$_->{segments}}} @{$gpx->tracks}];
-  }
-
-  method calculate_gross_time ($activity) {
-    unzip($file => \my $data, Name => $activity->{gpx});
-    my $gpx = Geo::Gpx->new(xml => $data);
-
-    my @segments = map {@{$_->{segments}}} @{$gpx->tracks};
-    my $f_p      = $segments[0]->{points}->[0];
-    my $l_p      = $segments[-1]->{points}->[-1];
-
-    return $l_p->time_datetime->subtract_datetime($f_p->time_datetime);
   }
 
 }
