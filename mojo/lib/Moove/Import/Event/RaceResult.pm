@@ -1,10 +1,11 @@
 package Moove::Import::Event::RaceResult;
-use v5.36;
+use v5.38;
 use builtin      qw(true);
 
 use Moose;
 with 'Moove::Import::Event::Base';
 
+use JSON::Validator::Joi qw(joi);
 use Readonly;
 use Scalar::Util qw(looks_like_number);
 use Moove::Util::Unit::Normalization qw(normalize_times);
@@ -14,20 +15,8 @@ use experimental qw(builtin);
 use DCS::Constants qw(:symbols);
 use Moove::Import::Event::Constants qw(:event);
 
-Readonly::Scalar my $metadata_url => 'https://www.secondwindtiming.com/result-page/?id=%s';
-Readonly::Scalar my $results_url  => 'https://my2.raceresult.com/%s/RRPublish/data/list';
-
-has 'event_id' => (
-  is       => 'ro',
-  isa      => 'Str',
-  required => true
-);
-
-has 'race_id' => (
-  is      => 'ro',
-  isa     => 'Str',
-  default => undef
-);
+Readonly::Scalar my $METADATA_URL => 'https://www.secondwindtiming.com/result-page/?id=%s';
+Readonly::Scalar my $RESULTS_URL  => 'https://my2.raceresult.com/%s/RRPublish/data/list';
 
 has 'key_map' => (
   traits   => ['Hash'],
@@ -64,21 +53,36 @@ has 'key_order' => (
   }
 );
 
+sub _build_import_param_schemas($self) {
+  return {
+    event => JSON::Validator->new()->schema(
+      joi->object->strict->props(
+        event_id   => joi->integer->required->min(1),
+        import_key => joi->string->required->min(1),
+      ),
+    ),
+    eventactivity => JSON::Validator->new()->schema(
+      joi->object->strict->props(
+        race_id    => joi->string->required->min(1),
+        contest_id => joi->integer->required->min(1),
+        listname   => joi->string->required->min(1),
+      )
+    )
+  }
+}
+
 sub url ($self) {
-  my ($event_id, $key) = split(/\|/, $self->event_id);
-  return sprintf($metadata_url, $event_id);
+  return undef unless (defined($self->event_id));
+  return sprintf($METADATA_URL, $self->event_id);
 }
 
 sub _build_results ($self) {
-  my ($event_id, $key) = split(/\|/, $self->event_id);
-  my ($race_id, $contest_id) = (split(/\|/, $self->race_id),0);
-
-  my $url = Mojo::URL->new(sprintf($results_url, $event_id));
+  my $url = Mojo::URL->new(sprintf($RESULTS_URL, $self->event_id));
   $url->query(
-    key => $key,
-    listname => 'Result Lists|Overall Results',
+    key => $self->import_params->{import_key},
+    listname => join($PIPE, 'Result Lists', $self->import_params->{listname}),
     page => 'results',
-    contest => $contest_id,
+    contest => $self->import_params->{contest_id},
     r => 'all',
     l => 0
   );
@@ -91,6 +95,7 @@ sub _build_results ($self) {
     push($self->key_order->@*, $self->get_key($f->{Label}));
   }
 
+  my $race_id = $self->race_id;
   my $contest_key;
   foreach (keys($res->json->{data}->%*)) {
     $contest_key = $_ and last if(/^#\d+_$race_id$/);

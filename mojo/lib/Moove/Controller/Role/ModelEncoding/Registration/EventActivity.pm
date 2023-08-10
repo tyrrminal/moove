@@ -1,5 +1,5 @@
 package Moove::Controller::Role::ModelEncoding::Registration::EventActivity;
-use v5.36;
+use v5.38;
 
 use Role::Tiny;
 
@@ -7,7 +7,7 @@ use DateTime;
 use Mojo::Util qw(class_to_path);
 
 sub encode_model_eventactivity ($self, $entity) {
-  my $importable = defined($entity->event->external_identifier) && $entity->scheduled_start < DateTime->now();
+  my $importable = $entity->is_importable && $entity->scheduled_start < DateTime->now();
   my $fields = [];
   if($importable) {
     my $event          = $entity->event;
@@ -27,7 +27,7 @@ sub encode_model_eventactivity ($self, $entity) {
     distance       => $self->encode_model($entity->distance),
     results        => {
       url              => $entity->url,
-      importable       => $importable,
+      importable       => $self->encode_boolean($importable),
       importCompletion => $self->get_task_progress($entity),
       fields           => $fields,
     }

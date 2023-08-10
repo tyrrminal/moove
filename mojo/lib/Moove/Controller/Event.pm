@@ -1,8 +1,10 @@
 package Moove::Controller::Event;
-use v5.36;
+use v5.38;
 
 use Mojo::Base 'DCS::Base::API::Model::Controller';
 use Role::Tiny::With;
+
+use Mojo::JSON qw(encode_json);
 
 with 'DCS::Base::Role::Rest::Collection', 'DCS::Base::Role::Rest::Entity';
 with 'Moove::Controller::Role::ModelEncoding::Event', 'Moove::Controller::Role::ModelEncoding::EventActivity',
@@ -29,10 +31,35 @@ sub decode_model ($self, $data) {
     $data->{event_group}->{name} = $data->{name};
     $data->{event_group}->{url}  = $data->{url};
   }
-  $data->{external_identifier} = undef if(exists($data->{external_identifier}) && !$data->{external_identifier});
   $data->{url} = undef if(exists($data->{url}) && !$data->{url});
-
+  $data->{import_parameters} = encode_json($data->{import_parameters});
   return $data;
+}
+
+sub insert_record($self, $data) {
+  my $event_series = delete($data->{event_series});
+  my $entity = $self->SUPER::insert_record($data);
+  foreach my $series (($event_series//[])->@*) {
+    $entity->add_to_event_series_events({
+      event_series_id => $series->{id}
+    })
+  }
+  return $entity;
+}
+
+sub update_record($self, $entity, $data) {
+  $entity->event_series_events->delete();
+  foreach my $series ((delete($data->{event_series})//[])->@*) {
+    $entity->add_to_event_series_events({
+      event_series_id => $series->{id}
+    })
+  }
+  return $self->SUPER::update_record($entity, $data);
+}
+
+sub delete_record($self, $entity) {
+  $entity->event_series_events->delete();
+  $self->SUPER::delete_record($entity);
 }
 
 sub resultset ($self, @args) {

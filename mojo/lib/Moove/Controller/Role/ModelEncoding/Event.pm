@@ -1,5 +1,5 @@
 package Moove::Controller::Role::ModelEncoding::Event;
-use v5.36;
+use v5.38;
 
 use Role::Tiny;
 
@@ -14,7 +14,7 @@ sub encode_model_event ($self, $event) {
     defined($event->event_group) ? (eventGroup => $self->encode_model($event->event_group)) : (),
     eventSeries          => $self->encode_model([$event->event_series]),
     externalDataSourceID => $event->external_data_source_id,
-    externalIdentifier   => $event->external_identifier,
+    importParameters     => $event->import_params,
   };
 }
 

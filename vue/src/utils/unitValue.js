@@ -1,6 +1,6 @@
 import store from "@/store";
 
-export function unitValue(f, s) {
+export function unitValue(f, s, n = null) {
   if (typeof f != "object") {
     if (typeof s == "object") f = { value: f, unitOfMeasureID: s };
     else f = { value: f, unitOfMeasureID: s };
@@ -14,6 +14,6 @@ export function unitValue(f, s) {
 
   return {
     ...f,
-    description: [Number.parseFloat(f.value), uom.abbreviation].join(" "),
+    description: `${Number.parseFloat(f.value).toLocaleString('en-US', { minimumFractionDigits: n, maximumFractionDigits: n })} ${uom.abbreviation}`
   };
 }

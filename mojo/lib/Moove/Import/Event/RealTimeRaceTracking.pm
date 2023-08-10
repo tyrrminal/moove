@@ -1,8 +1,9 @@
 package Moove::Import::Event::RealTimeRaceTracking;
-use v5.36;
+use v5.38;
 use Moose;
 with 'Moove::Import::Event::Base';
 
+use JSON::Validator::Joi qw(joi);
 use DateTime::Format::Strptime;
 use Readonly;
 use Moove::Util::Unit::Normalization qw(normalize_times);
@@ -16,18 +17,6 @@ Readonly::Scalar my $RESULTS_PAGE => 'https://track.rtrt.me/e/%s#/';
 Readonly::Scalar my $RESULTS_URL  => 'https://api.rtrt.me/events/%s/places/course/%s';
 
 sub import_request_fields ($self) { return [qw(appid token)]}
-
-has 'event_id' => (
-  is       => 'ro',
-  isa      => 'Str',
-  required => true
-);
-
-has 'race_id' => (
-  is       => 'ro',
-  isa      => 'Str|Undef',
-  required => true
-);
 
 has '_url' => (
   is       => 'ro',
@@ -75,6 +64,21 @@ has '_fields' => (
   }
 );
 
+sub _build_import_param_schemas($class) {
+  return {
+    event => JSON::Validator->new()->schema(
+      joi->object->strict->props(
+        event_id => joi->string->required,
+      )
+    ),
+    eventactivity => JSON::Validator->new()->schema(
+      joi->object->strict->props(
+        race_id  => joi->string->required,
+      )
+    )
+  }
+}
+
 sub _build_url ($self) {
   return Mojo::URL->new(sprintf($RESULTS_URL, $self->event_id, $self->race_id));
 }
@@ -120,6 +124,7 @@ sub body($self) {
 }
 
 sub url ($self) {
+  return undef unless(defined($self->race_id));
   return sprintf($RESULTS_PAGE, $self->race_id);
 }
 

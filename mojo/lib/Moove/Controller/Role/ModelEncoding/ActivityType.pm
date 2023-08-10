@@ -1,5 +1,5 @@
 package Moove::Controller::Role::ModelEncoding::ActivityType;
-use v5.36;
+use v5.38;
 
 use Role::Tiny;
 

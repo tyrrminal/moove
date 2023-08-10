@@ -1,143 +1,147 @@
 <template>
-  <b-container class="my-2">
-    <template v-if="workout">
-      <h4 class="float-right">{{ workout.date | luxon(dtSettings) }}</h4>
-      <h2>{{ headerLabel }} <b-link :to="{ name: 'workout', params: { id: workout.id } }">{{
-        workout.name
-      }}</b-link>
-      </h2>
-      <b-form-row>
-        <b-col cols="6">
-          <b-form-group label="Activity Type" label-class="font-weight-bold">
-            <v-select :options="getActivityTypes" label="description" :disabled="activityTypeID != null"
-              :clearable="false" :reduce="type => type.id" v-model="edit.activityTypeID"></v-select>
-          </b-form-group>
-        </b-col>
-        <b-col offset="3">
-          <b-form-group label="Who Can See">
-            <b-select :options="getVisibilityTypes" value-field="id" text-field="description"
-              v-model="edit.visibilityTypeID" />
-          </b-form-group>
-        </b-col>
-      </b-form-row>
-      <b-form-row>
-        <b-col cols="4">
-          <b-form-group label="Activity Start">
-            <TextDateTimePicker v-model="edit.startTime" size="sm" button-variant="secondary" />
-          </b-form-group>
-        </b-col>
-        <b-col offset="5">
-          <b-form-group v-if="activityType != null && activityType.hasMap && activity != null && activity.hasMap"
-            label="Who Can See Map">
-            <b-select :options="getVisibilityTypes" value-field="id" text-field="description"
-              v-model="edit.mapVisibilityTypeID" />
-          </b-form-group>
-        </b-col>
-      </b-form-row>
-      <b-jumbotron class="py-2" v-if="activityType != null">
-        <template #lead>
-          <p class="lead">Activity Details</p>
-        </template>
+  <b-container fluid>
+    <b-row>
+      <b-col cols="2" class="min-vh-100 bg-dark pt-3">
+        <b-button variant="primary" :disabled="!validated" @click="save" block><b-icon icon="save"
+            class="mr-2" />Save</b-button>
+        <b-button variant="secondary" class="mr-2" @click="$router.back()" block>Cancel</b-button>
+      </b-col>
+      <b-col v-if="workout">
+        <h4 class="float-right">{{ workout.date | luxon(dtSettings) }}</h4>
+        <h2>{{ headerLabel }} <b-link :to="{ name: 'workout', params: { id: workout.id } }">{{
+          workout.name
+        }}</b-link>
+        </h2>
         <b-form-row>
-          <b-col v-if="activityType.hasDistance" cols="3">
-            <b-form-group label="Distance">
-              <b-input-group>
-                <b-input number v-model="edit.distance.value" />
-                <template #append>
-                  <b-select :options="uomForType('Distance')" value-field="id" text-field="abbreviation"
-                    v-model="edit.distance.unitOfMeasureID" />
-                </template>
-              </b-input-group>
+          <b-col cols="6">
+            <b-form-group label="Activity Type" label-class="font-weight-bold">
+              <v-select :options="getActivityTypes" label="description" :disabled="activityTypeID != null"
+                :clearable="false" :reduce="type => type.id" v-model="edit.activityTypeID"></v-select>
             </b-form-group>
           </b-col>
-          <b-col v-if="activityType.hasDuration" cols="2">
-            <b-form-group :label="activityType.hasDistance ? 'Total/Gross Time' : 'Time'">
-              <b-timepicker v-model="edit.duration" :hour12="false" :show-seconds="true" :hide-header="true"
-                label-no-time-selected="--:--:--" reset-button />
+          <b-col offset="3">
+            <b-form-group label="Who Can See">
+              <b-select :options="getVisibilityTypes" value-field="id" text-field="description"
+                v-model="edit.visibilityTypeID" />
             </b-form-group>
           </b-col>
-          <b-col v-if="activityType.hasDuration && activityType.hasDistance" cols="2">
-            <b-form-group label="Moving/Net Time">
-              <b-timepicker v-model="edit.netTime" :hour12="false" :show-seconds="true" :hide-header="true"
-                label-no-time-selected="--:--:--" reset-button />
+        </b-form-row>
+        <b-form-row>
+          <b-col cols="4">
+            <b-form-group label="Activity Start">
+              <TextDateTimePicker v-model="edit.startTime" size="sm" button-variant="secondary" />
             </b-form-group>
           </b-col>
-          <b-col cols="3" v-if="activityType.hasPace">
-            <b-form-group label="Pace">
-              <b-input-group>
-                <b-timepicker v-model="edit.pace.value" :hour12="false" :show-seconds="true" :hide-header="true"
+          <b-col offset="5">
+            <b-form-group v-if="activityType != null && activityType.hasMap && activity != null && activity.hasMap"
+              label="Who Can See Map">
+              <b-select :options="getVisibilityTypes" value-field="id" text-field="description"
+                v-model="edit.mapVisibilityTypeID" />
+            </b-form-group>
+          </b-col>
+        </b-form-row>
+        <b-jumbotron class="py-2" v-if="activityType != null">
+          <template #lead>
+            <p class="lead">Activity Details</p>
+          </template>
+          <b-form-row>
+            <b-col v-if="activityType.hasDistance" cols="3">
+              <b-form-group label="Distance">
+                <b-input-group>
+                  <b-input number v-model="edit.distance.value" />
+                  <template #append>
+                    <b-select :options="uomForType('Distance')" value-field="id" text-field="abbreviation"
+                      v-model="edit.distance.unitOfMeasureID" />
+                  </template>
+                </b-input-group>
+              </b-form-group>
+            </b-col>
+            <b-col v-if="activityType.hasDuration" cols="2">
+              <b-form-group :label="activityType.hasDistance ? 'Total/Gross Time' : 'Time'">
+                <b-timepicker v-model="edit.duration" :hour12="false" :show-seconds="true" :hide-header="true"
                   label-no-time-selected="--:--:--" reset-button />
-                <template #append>
-                  <b-select :options="uomForType('Rate').filter(u => u.inverted)" value-field="id"
-                    text-field="abbreviation" v-model="edit.pace.unitOfMeasureID" />
+              </b-form-group>
+            </b-col>
+            <b-col v-if="activityType.hasDuration && activityType.hasDistance" cols="2">
+              <b-form-group label="Moving/Net Time">
+                <b-timepicker v-model="edit.netTime" :hour12="false" :show-seconds="true" :hide-header="true"
+                  label-no-time-selected="--:--:--" reset-button />
+              </b-form-group>
+            </b-col>
+            <b-col cols="3" v-if="activityType.hasPace">
+              <b-form-group label="Pace">
+                <b-input-group>
+                  <b-timepicker v-model="edit.pace.value" :hour12="false" :show-seconds="true" :hide-header="true"
+                    label-no-time-selected="--:--:--" reset-button />
+                  <template #append>
+                    <b-select :options="uomForType('Rate').filter(u => u.inverted)" value-field="id"
+                      text-field="abbreviation" v-model="edit.pace.unitOfMeasureID" />
+                  </template>
+                </b-input-group>
+              </b-form-group>
+            </b-col>
+            <b-col cols="3" v-if="activityType.hasSpeed">
+              <b-form-group label="Speed">
+                <b-input-group>
+                  <b-input v-model="edit.speed.value" number />
+                  <template #append>
+                    <b-select :options="uomForType('Rate').filter(u => !u.inverted)" value-field="id"
+                      text-field="abbreviation" v-model="edit.speed.unitOfMeasureID" />
+                  </template>
+                </b-input-group>
+              </b-form-group>
+            </b-col>
+            <b-col v-if="activityType.hasDistance && activityType.hasDuration" offset="1" cols="1">
+              <b-dropdown class="mt-4" variant="primary" size="sm">
+                <template #button-content>
+                  <b-icon icon="calculator" class="mr-1" />
                 </template>
-              </b-input-group>
-            </b-form-group>
-          </b-col>
-          <b-col cols="3" v-if="activityType.hasSpeed">
-            <b-form-group label="Speed">
-              <b-input-group>
-                <b-input v-model="edit.speed.value" number />
-                <template #append>
-                  <b-select :options="uomForType('Rate').filter(u => !u.inverted)" value-field="id"
-                    text-field="abbreviation" v-model="edit.speed.unitOfMeasureID" />
-                </template>
-              </b-input-group>
-            </b-form-group>
-          </b-col>
-          <b-col v-if="activityType.hasDistance && activityType.hasDuration" offset="1" cols="1">
-            <b-dropdown class="mt-4" variant="primary" size="sm">
-              <template #button-content>
-                <b-icon icon="calculator" class="mr-1" />
-              </template>
-              <b-dropdown-item @click="recalculatePace" v-if="activityType.hasPace" :disabled="!canRecalculatePace">
-                Calculate Pace</b-dropdown-item>
-              <b-dropdown-item @click="recalculateSpeed" v-if="activityType.hasSpeed" :disabled="!canRecalculateSpeed">
-                Calculate Speed</b-dropdown-item>
-              <b-dropdown-item @click="recalculateDistance" :disabled="!canRecalculateDistance">
-                Calculate Distance</b-dropdown-item>
-              <b-dropdown-item @click="recalculateTime" :disabled="!canRecalculateTime">
-                Calculate Time</b-dropdown-item>
-            </b-dropdown>
-          </b-col>
-          <b-col cols="2" v-if="activityType.hasRepeats">
-            <b-form-group label="Reps">
-              <b-input number v-model="edit.repetitions" />
-            </b-form-group>
-          </b-col>
-          <b-col cols="2">
-            <b-form-group label="Weight" :description="activityType.hasDistance ? 'Carry (lbs)' : 'Lift (lbs)'">
-              <b-input number v-model="edit.weight" />
-            </b-form-group>
-          </b-col>
-        </b-form-row>
+                <b-dropdown-item @click="recalculatePace" v-if="activityType.hasPace" :disabled="!canRecalculatePace">
+                  Calculate Pace</b-dropdown-item>
+                <b-dropdown-item @click="recalculateSpeed" v-if="activityType.hasSpeed" :disabled="!canRecalculateSpeed">
+                  Calculate Speed</b-dropdown-item>
+                <b-dropdown-item @click="recalculateDistance" :disabled="!canRecalculateDistance">
+                  Calculate Distance</b-dropdown-item>
+                <b-dropdown-item @click="recalculateTime" :disabled="!canRecalculateTime">
+                  Calculate Time</b-dropdown-item>
+              </b-dropdown>
+            </b-col>
+            <b-col cols="2" v-if="activityType.hasRepeats">
+              <b-form-group label="Reps">
+                <b-input number v-model="edit.repetitions" />
+              </b-form-group>
+            </b-col>
+            <b-col cols="2">
+              <b-form-group label="Weight" :description="activityType.hasDistance ? 'Carry (lbs)' : 'Lift (lbs)'">
+                <b-input number v-model="edit.weight" />
+              </b-form-group>
+            </b-col>
+          </b-form-row>
+          <b-form-row>
+            <b-col cols="2">
+              <b-form-group label="Heart Rate" description="Beats/minute (bpm)">
+                <b-input number v-model="edit.heartRate" />
+              </b-form-group>
+            </b-col>
+            <b-col cols="2">
+              <b-form-group label="Temperature" description="Ambient (ºF)">
+                <b-input number v-model="edit.temperature" />
+              </b-form-group>
+            </b-col>
+          </b-form-row>
+        </b-jumbotron>
         <b-form-row>
-          <b-col cols="2">
-            <b-form-group label="Heart Rate" description="Beats/minute (bpm)">
-              <b-input number v-model="edit.heartRate" />
+          <b-col cols="6">
+            <b-form-group label="Notes">
+              <b-textarea v-model="edit.note" />
             </b-form-group>
           </b-col>
-          <b-col cols="2">
-            <b-form-group label="Temperature" description="Ambient (ºF)">
-              <b-input number v-model="edit.temperature" />
-            </b-form-group>
+          <b-col class="text-right">
+            <b-alert class="text-left" :show="error != null" variant="warning">{{ error }}</b-alert>
           </b-col>
         </b-form-row>
-      </b-jumbotron>
-      <b-form-row>
-        <b-col cols="6">
-          <b-form-group label="Notes">
-            <b-textarea v-model="edit.note" />
-          </b-form-group>
-        </b-col>
-        <b-col class="text-right">
-          <b-alert class="text-left" :show="error != null" variant="warning">{{ error }}</b-alert>
-          <b-button variant="secondary" class="mr-2" @click="$router.back()">Cancel
-          </b-button>
-          <b-button variant="success" :disabled="!validated" @click="save">Save</b-button>
-        </b-col>
-      </b-form-row>
-    </template>
+      </b-col>
+    </b-row>
   </b-container>
 </template>
 

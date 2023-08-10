@@ -88,11 +88,10 @@ __PACKAGE__->table("Event");
   is_foreign_key: 1
   is_nullable: 1
 
-=head2 external_identifier
+=head2 import_parameters
 
-  data_type: 'varchar'
+  data_type: 'longtext'
   is_nullable: 1
-  size: 45
 
 =cut
 
@@ -131,8 +130,8 @@ __PACKAGE__->add_columns(
     is_foreign_key => 1,
     is_nullable => 1,
   },
-  "external_identifier",
-  { data_type => "varchar", is_nullable => 1, size => 45 },
+  "import_parameters",
+  { data_type => "longtext", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -244,10 +243,12 @@ Composing rels: L</event_series_events> -> event_series
 
 __PACKAGE__->many_to_many("event_series", "event_series_events", "event_series");
 #>>>
-use v5.36;
+use v5.38;
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-08-02 10:06:54
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:dxZzTINoF7nRQPgCpt+KEw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-07-19 08:37:35
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:XyfYW4/MOhyPXlj1WGeWew
+
+use Mojo::JSON qw(decode_json);
 
 use DCS::DateTime::Extras;
 use DCS::Constants qw(:symbols);
@@ -278,6 +279,11 @@ sub countdown ($self) {
     weeks  => sprintf("%.01f", $days / 7),
     months => sprintf("%.01f", $start->yearfrac($now) * 12)
   };
+}
+
+sub import_params($self) {
+  return decode_json($self->import_parameters) if($self->import_parameters);
+  return {};
 }
 
 1;

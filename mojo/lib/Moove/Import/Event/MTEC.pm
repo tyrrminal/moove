@@ -1,11 +1,12 @@
 package Moove::Import::Event::MTEC;
-use v5.36;
+use v5.38;
 use Moose;
 with 'Moove::Import::Event::Base';
 
 use Readonly;
 use Scalar::Util qw(looks_like_number);
 use Data::Dumper;
+use JSON::Validator::Joi qw(joi);
 use Moove::Util::Unit::Normalization qw(normalize_times);
 
 use DCS::Constants qw(:symbols);
@@ -15,20 +16,8 @@ use experimental qw(builtin);
 
 use Moove::Import::Event::Constants qw(:event);
 
-Readonly::Scalar my $metadata_url => 'https://www.mtecresults.com/race/show/%s/';
-Readonly::Scalar my $results_url  => 'https://www.mtecresults.com/race/show/%s';
-
-has 'event_id' => (
-  is       => 'ro',
-  isa      => 'Str',
-  required => true
-);
-
-has 'race_id' => (
-  is      => 'ro',
-  isa     => 'Undef',
-  default => undef
-);
+Readonly::Scalar my $METADATA_URL => 'https://www.mtecresults.com/race/show/%s/';
+Readonly::Scalar my $RESULTS_URL  => 'https://www.mtecresults.com/race/show/%s';
 
 has 'key_map' => (
   traits   => ['Hash'],
@@ -54,12 +43,26 @@ has 'key_map' => (
   }
 );
 
+sub _build_import_param_schemas($class) {
+  return {
+    event => JSON::Validator->new()->schema(
+      joi->object->strict->props(
+        event_id => joi->integer->required,
+      )
+    ),
+    eventactivity => JSON::Validator->new()->schema(
+      joi->object->strict->props()
+    )
+  }
+}
+
 sub url ($self) {
-  return sprintf($metadata_url, $self->event_id);
+  return undef unless (defined($self->event_id));
+  return sprintf($METADATA_URL, $self->event_id);
 }
 
 sub _build_results ($self) {
-  my $url = Mojo::URL->new(sprintf($results_url, $self->event_id));
+  my $url = Mojo::URL->new(sprintf($RESULTS_URL, $self->event_id));
   $url->query(overall => 'yes', perPage => 500, offset => 0);
 
   my $ua  = Mojo::UserAgent->new();

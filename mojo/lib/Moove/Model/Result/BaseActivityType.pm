@@ -184,7 +184,7 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 #>>>
-use v5.36;
+use v5.38;
 
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-09 12:32:18
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:GlwD/2QoYnpopen2y9bEVw
@@ -201,5 +201,9 @@ around [qw(has_distance has_duration has_repeats has_pace has_speed)] => sub ($o
   }
   return $value eq 'Y';
 };
+
+sub activity_type_ids($self) {
+  $self->activity_types->get_column('id')->all
+}
 
 1;

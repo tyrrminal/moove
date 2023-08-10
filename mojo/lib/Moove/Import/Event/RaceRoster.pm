@@ -1,8 +1,9 @@
 package Moove::Import::Event::RaceRoster;
-use v5.36;
+use v5.38;
 use Moose;
 with 'Moove::Import::Event::Base';
 
+use JSON::Validator::Joi qw(joi);
 use DateTime::Format::Strptime;
 use Readonly;
 use Moove::Util::Unit::Normalization qw(normalize_times);
@@ -17,18 +18,6 @@ Readonly::Scalar my $RESULTS_URL  => 'https://results.raceroster.com/api/v1/sub-
 Readonly::Hash my %QUERY_PARAMS => (
   condensed      => '1',
   time_precision => 'full_second'
-);
-
-has 'event_id' => (
-  is       => 'ro',
-  isa      => 'Str',
-  required => true
-);
-
-has 'race_id' => (
-  is      => 'ro',
-  isa     => 'Str|Undef',
-  default => undef
 );
 
 has '_url' => (
@@ -103,6 +92,7 @@ sub _build_result_columns ($self) {
 }
 
 sub url ($self) {
+  return undef unless (defined($self->race_id));
   return sprintf($RESULTS_PAGE, $self->race_id);
 }
 

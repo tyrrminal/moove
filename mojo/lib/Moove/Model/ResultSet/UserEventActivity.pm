@@ -1,5 +1,5 @@
 package Moove::Model::ResultSet::UserEventActivity;
-use v5.36;
+use v5.38;
 
 use base qw(DBIx::Class::ResultSet);
 
@@ -49,10 +49,14 @@ sub after ($self, $event) {
 
 sub in_group ($self, $event_group_id) {
   $self->search(
-    {-or => [{'event.event_group_id' => $event_group_id}, {'event_series_events.event_group_id' => $event_group_id}]},
     {
-      join     => {event_registration => {event_activity => {event => 'event_series_events'}}},
-      collapse => 1
+      -or => [
+        {'event.event_group_id' => $event_group_id},
+        {'event_series.id' => $event_group_id}
+      ]
+    },
+    {
+      join     => {event_registration => {event_activity => {event => {event_series_events => 'event_series'} }}},
     }
   );
 }

@@ -12,7 +12,7 @@ use base 'DBIx::Class::Schema';
 
 __PACKAGE__->load_namespaces;
 #>>>
-use v5.36;
+use v5.38;
 
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-09 12:32:18
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:90Rmrg/Dly69P+pu5+DiIA

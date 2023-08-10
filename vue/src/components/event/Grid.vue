@@ -2,19 +2,19 @@
   <div>
     <h5 v-if="label">{{ label }}</h5>
     <b-table striped small hover :items="events" :fields="fields" :sort-compare="sortCompare" :foot-clone="showFooter"
-      no-footer-sorting responsive show-empty :tbody-tr-class="rowClass">
-      <template v-slot:table-busy>
+      no-footer-sorting responsive show-empty :tbody-tr-class="rowClass" :style="{ fontSize: '9pt' }">
+      <template #table-busy>
         <div class="text-center text-info my-2">
           <b-spinner class="align-middle"></b-spinner>
           <strong>Loading...</strong>
         </div>
       </template>
 
-      <template v-slot:empty>
+      <template #empty>
         <slot name="no-data"></slot>
       </template>
 
-      <template v-slot:thead-top="data" v-if="showResults">
+      <template #thead-top="data" v-if="showResults">
         <b-tr :title="data">
           <b-th :colspan="resultsFieldOffset">
             <span class="sr-only">Default Fields</span>
@@ -33,71 +33,72 @@
       <template #foot(frReceived)>{{ totals.frReceived | currency }}</template>
       <template #foot(frPct)>{{ averages.frPct | percent(1) }}</template>
 
-      <template v-slot:cell(index)="data">{{ data.index + 1 }}</template>
+      <template #cell(index)="data">{{ data.index + 1 }}</template>
       <template #cell(year)="data">{{ data.item.eventActivity.scheduledStart.substr(0, 4) }}</template>
-      <template v-slot:cell(date)="data">{{
+      <template #cell(date)="data">{{
         data.item.eventActivity.scheduledStart | luxon({ output: { format: dateFormat } })
       }}</template>
       <template #cell(countdown)="data">
         <Countdown :to="data.item.eventActivity.scheduledStart" />
       </template>
-      <template v-slot:cell(type)="data">{{
+      <template #cell(type)="data">{{
         data.item.eventActivity.eventType.description
       }}</template>
-      <template v-slot:cell(name)="data">
+      <template #cell(name)="data">
         <b-link :to="{
           name: 'registration-detail',
           params: { id: data.item.id },
         }" class="text-muted">{{ data.item.eventActivity.event.name }}</b-link>
       </template>
-      <template v-slot:cell(registrationFee)="data"><span
+      <template #cell(registrationNumber)="data"><span v-if="data.value">#{{ data.value }}</span></template>
+      <template #cell(registrationFee)="data"><span
           :class="prHighlightClass(data.value, 'registrationFee', 'text-danger')">{{ data.value | currency
           }}</span></template>
-      <template v-slot:cell(speed)="data">{{ fillUnits(eventVelocity(data.item)) | formatDistance }}</template>
-      <template v-slot:cell(distance)="data">{{ fillUnits(data.item.eventActivity.distance) | formatDistanceTrim
+      <template #cell(speed)="data">{{ fillUnits(eventVelocity(data.item)) | formatDistance }}</template>
+      <template #cell(distance)="data">{{ fillUnits(eventDistance(data.item)) | formatDistanceTrim
       }}</template>
 
-      <template v-slot:cell(entrants)="data"><span v-if="data.item.placements && data.item.placements.overall">{{
+      <template #cell(entrants)="data"><span v-if="data.item.placements && data.item.placements.overall">{{
         data.item.placements.overall.of }}</span></template>
-      <template v-slot:cell(place)="data"><span v-if="data.item.placements && data.item.placements.overall">
+      <template #cell(place)="data"><span v-if="data.item.placements && data.item.placements.overall">
           <span :class="prHighlightClass(data.item.placements.overall.place, 'place')">{{
             data.item.placements.overall.place }} </span>
           <span v-if="data.item.placements.overall.of" class="placement-partition-size">
             / {{ data.item.placements.overall.of }}</span></span></template>
-      <template v-slot:cell(pct)="data"><span v-if="data.item.placements && data.item.placements.overall"
+      <template #cell(pct)="data"><span v-if="data.item.placements && data.item.placements.overall"
           :class="prHighlightClass(data.item.placements.overall.percentile, 'pct')">{{
             data.item.placements.overall.percentile | percent(1)
           }}</span></template>
-      <template v-slot:cell(placeGender)="data"><span v-if="data.item.placements && data.item.placements.gender">
+      <template #cell(placeGender)="data"><span v-if="data.item.placements && data.item.placements.gender">
           <span :class="prHighlightClass(data.item.placements.gender.place, 'placeGender')">{{
             data.item.placements.gender.place }}</span>
           <span v-if="data.item.placements.gender.of" class="placement-partition-size">
             / {{ data.item.placements.gender.of }}</span></span></template>
-      <template v-slot:cell(pctGender)="data"><span v-if="data.item.placements &&
+      <template #cell(pctGender)="data"><span v-if="data.item.placements &&
         data.item.placements.gender &&
         data.item.placements.gender.percentile != null
         " :class="prHighlightClass(data.item.placements.gender.percentile, 'pctGender')">{{
     data.item.placements.gender.percentile | percent(1) }}</span></template>
-      <template v-slot:cell(placeDivision)="data"><span v-if="data.item.placements && data.item.placements.division">
+      <template #cell(placeDivision)="data"><span v-if="data.item.placements && data.item.placements.division">
           <span :class="prHighlightClass(data.item.placements.division.place, 'placeDivision')">{{
             data.item.placements.division.place }}</span>
           <span v-if="data.item.placements.division.of" class="placement-partition-size">
             / {{ data.item.placements.division.of }}</span></span></template>
-      <template v-slot:cell(pctDivision)="data"><span v-if="data.item.placements &&
+      <template #cell(pctDivision)="data"><span v-if="data.item.placements &&
         data.item.placements.division &&
         data.item.placements.division.percentile != null
         " :class="prHighlightClass(data.item.placements.division.percentile, 'pctDivision')">{{
     data.item.placements.division.percentile | percent(1) }}</span></template>
 
-      <template v-slot:cell(frMinimum)="data"><span v-if="data.item.fundraising"
+      <template #cell(frMinimum)="data"><span v-if="data.item.fundraising"
           :class="prHighlightClass(data.item.fundraising.minimum, 'frMinimum')">{{
             data.item.fundraising.minimum | currency
           }}</span></template>
-      <template v-slot:cell(frReceived)="data"><span v-if="data.item.fundraising"
+      <template #cell(frReceived)="data"><span v-if="data.item.fundraising"
           :class="prHighlightClass(data.item.fundraising.received, 'frReceived')">{{
             data.item.fundraising.received | currency
           }}</span></template>
-      <template v-slot:cell(frPct)="data"><span v-if="data.item.fundraising"
+      <template #cell(frPct)="data"><span v-if="data.item.fundraising"
           :class="prHighlightClass(data.item.fundraising.received / data.item.fundraising.minimum, 'frPct')">{{
             (data.item.fundraising.received / data.item.fundraising.minimum)
             | percent(1)
@@ -111,12 +112,13 @@ import { DateTime } from "luxon";
 import UnitConversion from "@/mixins/UnitConversion.js";
 import { mapGetters } from "vuex";
 import EventFilters from "@/mixins/events/Filters.js";
+import EventUtils from "@/mixins/events/Util.js";
 import { activityRate, convertUnitValue } from "@/utils/unitConversion.js";
 
 import Countdown from "@/components/Countdown.vue";
 
 export default {
-  mixins: [UnitConversion, EventFilters],
+  mixins: [UnitConversion, EventFilters, EventUtils],
   components: {
     Countdown
   },
@@ -152,6 +154,10 @@ export default {
     showFundraising: {
       type: Boolean,
       default: false
+    },
+    showActivityDistance: {
+      type: Boolean,
+      default: false
     }
   },
   methods: {
@@ -170,6 +176,11 @@ export default {
         a = a.eventActivity.scheduledStart;
         b = b.eventActivity.scheduledStart;
       }
+      if (key == "registrationNumber") {
+        t = "num";
+        a = a.registrationNumber || 0;
+        b = b.registrationNumber || 0;
+      }
       if (key == "registrationFee") {
         t = "num";
         a = a.registrationFee || 0;
@@ -177,15 +188,15 @@ export default {
       }
       if (key == "distance") {
         t = "num";
-        let aa = a.eventActivity ?? a.activity;
+        let aa = this.eventDistance(a);
         a = convertUnitValue(
-          aa.distance.value,
-          this.getUnitOfMeasure(aa.distance.unitOfMeasureID)
+          aa.value,
+          this.getUnitOfMeasure(aa.unitOfMeasureID)
         );
-        let ba = b.eventActivity ?? b.activity;
+        let ba = this.eventDistance(b);
         b = convertUnitValue(
-          ba.distance.value,
-          this.getUnitOfMeasure(ba.distance.unitOfMeasureID)
+          ba.value,
+          this.getUnitOfMeasure(ba.unitOfMeasureID)
         );
       }
       if (key == "speed") {
@@ -239,17 +250,9 @@ export default {
       if (t == "str") return a.localeCompare(b, locale, options);
       return a - b;
     },
-    eventVelocity: function (e) {
-      let values = [];
-      ["eventResult", "activity"].filter(k => Object.hasOwn(e, k)).splice(0, 1).forEach(k => {
-        values.push(...[e[k].pace, e[k].speed].filter(x => !!x))
-      });
-      if (e.activity != null) {
-        let t = this.$store.getters["meta/getActivityType"](e.activity.activityTypeID);
-        if (t && t.hasSpeed)
-          values.reverse();
-      }
-      return values[0];
+    eventDistance: function (e) {
+      if (this.showActivityDistance && e.activity) return e.activity.distance
+      return (e.eventActivity ?? e.activity).distance
     },
     getResultsGroup: function (results, partitionType) {
       let g = results[partitionType];
@@ -332,8 +335,8 @@ export default {
       let t = {};
 
       t.distance = {
-        value: events.map((e) => e.eventActivity ?? e.activity)
-          .reduce((a, c) => a + convertUnitValue(c.distance.value, this.getUnitOfMeasure(c.distance.unitOfMeasureID)), 0),
+        value: events.map((e) => this.eventDistance(e))
+          .reduce((a, c) => a + convertUnitValue(c.value, this.getUnitOfMeasure(c.unitOfMeasureID)), 0),
         units: this.getUnitsOfMeasure.find(
           (u) => u.normalUnitID == null && u.type == "Distance"
         ),
@@ -369,6 +372,7 @@ export default {
         { key: "year", sortable: false, predicate: () => self.eventYears.length > 1 && self.separateYear },
         { key: "date", sortable: true },
         { key: "countdown", sortable: false, tdClass: "text-right pr-3", thClass: "text-right", predicate: () => Math.min(...self.events.map(e => DateTime.fromISO(e.eventActivity.scheduledStart))) > DateTime.now() },
+        { key: "registrationNumber", label: "Bib #", sortable: true, predicate: () => self.events.some(e => e.registrationNumber) && !self.showFundraising },
         { key: "name", sortable: true, thClass: "text-center" },
         { key: "type", sortable: true },
         { key: "distance", sortable: true },

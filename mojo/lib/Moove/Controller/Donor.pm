@@ -1,5 +1,5 @@
 package Moove::Controller::Donor;
-use v5.36;
+use v5.38;
 
 use Mojo::Base 'DCS::Base::API::Model::Controller';
 
@@ -24,16 +24,17 @@ sub encode_model_donation ($self, $entity) {
     amount  => $entity->amount,
     date    => $self->encode_date($entity->date),
     address => $self->encode_model($entity->address),
-    event   => $self->encode_model($entity->user_event_activity->event_registration->event_activity)
+    event   => $self->encode_model($entity->user_event_activity)
   };
 }
 
-sub encode_model_eventactivity ($self, $entity) {
+sub encode_model_usereventactivity ($self, $entity) {
+  my $ea = $entity->event_registration->event_activity;
   return {
     id                => $entity->id,
-    eventActivityName => $entity->name,
-    eventName         => $entity->event->name,
-    eventYear         => $entity->event->year,
+    eventActivityName => $ea->name,
+    eventName         => $ea->event->name,
+    eventYear         => $ea->event->year,
   };
 }
 

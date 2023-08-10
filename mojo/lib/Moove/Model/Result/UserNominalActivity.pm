@@ -65,11 +65,17 @@ __PACKAGE__->table("UserNominalActivity");
   is_foreign_key: 1
   is_nullable: 0
 
-=head2 year
+=head2 start_date
 
-  data_type: 'integer'
-  extra: {unsigned => 1}
+  data_type: 'date'
+  datetime_undef_if_invalid: 1
   is_nullable: 0
+
+=head2 end_date
+
+  data_type: 'date'
+  datetime_undef_if_invalid: 1
+  is_nullable: 1
 
 =head2 value
 
@@ -100,8 +106,10 @@ __PACKAGE__->add_columns(
     is_foreign_key => 1,
     is_nullable => 0,
   },
-  "year",
-  { data_type => "integer", extra => { unsigned => 1 }, is_nullable => 0 },
+  "start_date",
+  { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 0 },
+  "end_date",
+  { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 1 },
   "value",
   { data_type => "longtext", is_nullable => 0 },
 );
@@ -149,73 +157,37 @@ __PACKAGE__->belongs_to(
   { id => "user_id" },
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
-
-=head2 user_nominal_activity_ranges
-
-Type: has_many
-
-Related object: L<Moove::Model::Result::UserNominalActivityRange>
-
-=cut
-
-__PACKAGE__->has_many(
-  "user_nominal_activity_ranges",
-  "Moove::Model::Result::UserNominalActivityRange",
-  { "foreign.user_nominal_activity_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
 #>>>
-use v5.36;
+use v5.38;
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-09 16:32:11
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ha97sKhVVZO3ll0DEvEKvw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-07-31 12:52:13
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:diyJtL8B724eIDfD11ii+Q
 use builtin qw(false);
 use experimental qw(builtin);
 
 use Mojo::JSON qw(decode_json);
 
-sub days_in_range_between_dates ($self, $start, $end = undef, $include_today = false) {
-  my $year = $self->year;
-  die('Start date is required') unless (defined($start) && ref($start) eq 'DateTime');
-  die('End date must be a DateTime') if (defined($end) && ref($end) ne 'DateTime');
-  $end   = DateTime->new(year => $self->year + 1) unless (defined($end));
-  $start = $start->clone;
-  $end   = $end->clone->subtract(days => 1);
-  return 1                                    if ($start->ymd eq $end->ymd);
-  die('Start date must come before end date') if ($start > $end);
-  die('Start date out of range') unless ($year == $start->year);
-  die('End date out of range')   unless (abs($year - $end->year) <= 1);
-  $end->add(days => 1) if ($end < DateTime->today || $include_today);
-
-  my $days;
-  if (my @ranges = $self->user_nominal_activity_ranges->all) {
-    $days += $_->intersection($start, $end) foreach (@ranges);
-  } else {
-    $days = $start->delta_days($end)->delta_days;
-  }
-  return $days;
-}
-
-sub per_day ($self) {
-  my %v  = decode_json($self->value)->%*;
-  my $rs = $self->result_source->schema->resultset('UnitOfMeasure');
-  return {
-    map {
-      $_ => $self->_per_day($v{$_}->{period}, $v{$_}->{value}) * $rs->find({abbreviation => $v{$_}->{units}})->normalization_factor
-      }
-      keys(%v)
-  };
-}
-
-sub year_length ($self) {
-  return DateTime->new(year => $self->year)->year_length;
-}
-
 sub _per_day ($self, $period, $v) {
-  return $v / 7                         if ($period eq 'week');
-  return $v / ($self->year_length / 12) if ($period eq 'month');
-  return $v / $self->year_length        if ($period eq 'year');
+  my $yl = DateTime->new(year => $self->start_date->year)->year_length;
+
+  return $v / 7          if ($period eq 'week');
+  return $v / ($yl / 12) if ($period eq 'month');
+  return $v / $yl        if ($period eq 'year');
   return $v;
 }
 
-1;
+sub nominal_distance_in_range($self, $start, $end) {
+  my $schema = $self->result_source->schema;
+
+  $start //= DateTime->from_epoch(epoch => 0);
+  $end   //= DateTime->new(year => 3000, month => 1, day => 1);
+
+  my $p = decode_json($self->value)->{distance};
+  return () unless(defined($p));
+  my $d = $self->_per_day($p->{period}, $p->{value});
+  my $days = ($end < $self->end_date ? $end : $self->end_date)->delta_days($start > $self->start_date ? $start : $self->start_date)->in_units('days')+1; # Add one because the range is open-closed (does not include end date)
+
+  my $units = $schema->resultset('UnitOfMeasure')->find({ abbreviation => $p->{units}});
+  my $distance = $schema->resultset('Distance')->find_or_create_in_units($d * $days, $units, false);
+  return $distance;
+}

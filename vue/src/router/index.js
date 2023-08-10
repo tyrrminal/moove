@@ -26,7 +26,6 @@ import Registrations from "@/views/events/registrations/Base.vue";
 import RegistrationList from "@/views/events/registrations/List.vue";
 import RegistrationDetail from "@/views/events/registrations/Detail.vue";
 import RegistrationEdit from "@/views/events/registrations/Edit.vue";
-import RegistrationSeries from "@/views/events/registrations/Series.vue";
 
 import ErrorNotFound from "@/error/NotFound.vue";
 
@@ -68,7 +67,7 @@ let router = new Router({
         { path: "", name: 'registrations', component: RegistrationList, props: true },
         { path: "new", name: "registration-new", component: RegistrationEdit, props: true },
         { path: "edit/:id", name: "registration-edit", component: RegistrationEdit, props: true },
-        { path: "series/:id", name: "registration-series", component: RegistrationSeries, props: true },
+        { path: "series/:id", name: "registration-series", component: RegistrationList, props: true },
         { path: ":id", name: "registration-detail", component: RegistrationDetail, props: true },
       ]
     },

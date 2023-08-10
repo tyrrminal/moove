@@ -90,11 +90,10 @@ __PACKAGE__->table("EventActivity");
   is_foreign_key: 1
   is_nullable: 0
 
-=head2 external_identifier
+=head2 import_parameters
 
-  data_type: 'varchar'
+  data_type: 'longtext'
   is_nullable: 1
-  size: 45
 
 =cut
 
@@ -137,8 +136,8 @@ __PACKAGE__->add_columns(
     is_foreign_key => 1,
     is_nullable => 0,
   },
-  "external_identifier",
-  { data_type => "varchar", is_nullable => 1, size => 45 },
+  "import_parameters",
+  { data_type => "longtext", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -235,15 +234,16 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 #>>>
-use v5.36;
+use v5.38;
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-09 12:32:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:HhVDw3uoJNS9EbA1NywLog
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-07-18 15:05:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:PeqXVqqzRh4o0uIfGD0Y8Q
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
-use Module::Util qw(module_path);
+use Mojo::Util qw(class_to_path);
 use Scalar::Util qw(looks_like_number);
+use Mojo::JSON qw(decode_json);
 
 use DCS::Constants qw(:symbols);
 
@@ -254,14 +254,33 @@ sub description ($self) {
 sub url ($self) {
   my @urls = ($self->event->url);
   if (my $edc = $self->event->external_data_source) {
-    if(defined($self->event->external_identifier)) {
-      require(module_path($edc->import_class));
-      my $importer = $edc->import_class->new(event_id => $self->event->external_identifier, race_id => $self->external_identifier);
-      push(@urls, $importer->url);
+    require(class_to_path($edc->import_class));
+    if(defined($edc->import_class->import_param_schemas)) {
+      my $importer = $edc->import_class->new(import_params => $self->all_import_params);
+      unshift(@urls, $importer->url);
     }
   }
   @urls = grep {defined} @urls;
   return $urls[0];
+}
+
+sub import_validation_errors ($self) {
+  if(my $edc = $self->event->external_data_source) {
+    my @errors;
+    my $class          = $edc->import_class;
+    require(class_to_path($class));
+    my $schemas = $class->import_param_schemas;
+
+    push(@errors, $schemas->{event}->validate($self->event->import_params));
+    push(@errors, $schemas->{eventactivity}->validate($self->import_params));
+    return @errors;
+  }
+  return ('No import data source configured');
+}
+
+sub is_importable ($self) {
+  my @errors = $self->import_validation_errors;
+  return @errors < 1;
 }
 
 sub has_results ($self) {
@@ -353,8 +372,20 @@ sub add_placements_for_gender ($self, $gender) {
   }
 }
 
+sub import_params($self) {
+  return decode_json($self->import_parameters) if($self->import_parameters);
+  return {};
+}
+
+sub all_import_params($self) {
+  return {
+    $self->event->import_params->%*,
+    $self->import_params->%*
+  }
+}
+
 sub qualified_external_identifier ($self) {
-  return join($UNDERSCORE, grep {defined} ($self->event->external_identifier, $self->external_identifier));
+  return join($UNDERSCORE, grep {defined} ($self->import_params->{event_id}, $self->import_params->{race_id}));
 }
 
 1;

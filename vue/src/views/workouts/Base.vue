@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Sidebar :items="menu" />
+    <Sidebar :items="menu.filter(x => !x.disabled)" />
     <router-view></router-view>
   </div>
 </template>
@@ -16,12 +16,14 @@ export default {
     menu: function () {
       return [
         { text: "Create", icon: "plus", to: { name: "create-workout" } },
+        { text: "List", icon: "list", to: { name: "workouts" } },
         {
           text: "Calendar",
           icon: "calendar2-date",
           to: {
             name: "calendar",
           },
+          disabled: true
         },
       ];
     },
@@ -32,6 +34,4 @@ export default {
 };
 </script>
 
-<style>
-
-</style>
+<style></style>

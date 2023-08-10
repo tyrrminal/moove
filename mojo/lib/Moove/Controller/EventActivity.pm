@@ -1,8 +1,10 @@
 package Moove::Controller::EventActivity;
-use v5.36;
+use v5.38;
 
 use Mojo::Base 'DCS::Base::API::Model::Controller';
 use Role::Tiny::With;
+
+use Mojo::JSON qw(encode_json);
 
 with 'DCS::Base::Role::Rest::Get', 'DCS::Base::Role::Rest::Create', 'DCS::Base::Role::Rest::Update',
   'DCS::Base::Role::Rest::Delete';
@@ -27,6 +29,7 @@ sub import_results ($self) {
   return unless ($self->openapi->valid_input);
 
   my $event_activity = $self->entity;
+  return $self->render_error(HTTP_BAD_REQUEST, "Event Activity is not importable", map { "$_" } $event_activity->import_validation_errors) if(!$event_activity->is_importable);
   $self->app->minion->enqueue(import_event_results => [$event_activity->id, $self->req->json->{importFields}//{}]);
 
   return $self->render(openapi => $self->encode_model($event_activity->event));
@@ -61,6 +64,7 @@ sub decode_model ($self, $data) {
   my $distance = delete($data->{distance});
   $data->{distance_id} = $self->model('Distance')
     ->find_or_create_in_units($distance->{value}, $self->model('UnitOfMeasure')->find($distance->{unit_of_measure_id}))->id;
+  $data->{import_parameters} = encode_json($data->{import_parameters});
   return $data;
 }
 

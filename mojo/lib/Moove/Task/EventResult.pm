@@ -1,12 +1,11 @@
 package Moove::Task::EventResult;
-use v5.36;
+use v5.38;
 
 use Mojo::Base 'Mojolicious::Plugin';
 use Mojo::Util qw(class_to_path);
 
 use DCS::Constants qw(:symbols);
 
-use Data::Printer;
 sub register ($self, $app, $args) {
   $app->minion->add_task(
     import_event_results => sub ($job, $event_activity_id, $import_fields) {
@@ -16,7 +15,7 @@ sub register ($self, $app, $args) {
       my $edc            = $event->external_data_source;
       my $class          = $edc->import_class;
       require(class_to_path($class));
-      my $importer = $class->new(event_id => $event->external_identifier, race_id => $event_activity->external_identifier, import_fields => $import_fields);
+      my $importer = $class->new(import_params => $event_activity->all_import_params, import_fields => $import_fields);
       
       # BEGIN LRP
       my @participants = $importer->results->@*;

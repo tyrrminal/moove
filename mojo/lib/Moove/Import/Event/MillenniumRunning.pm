@@ -1,11 +1,12 @@
 package Moove::Import::Event::MillenniumRunning;
-use v5.36;
+use v5.38;
 use Moose;
 with 'Moove::Import::Event::Base';
 
 use DateTime::Format::Strptime;
 use Lingua::EN::Titlecase;
 use List::MoreUtils qw(uniq);
+use JSON::Validator::Joi qw(joi);
 
 use Moove::Import::Helper::CityService;
 use Moove::Util::Unit::Normalization qw(normalize_times);
@@ -14,18 +15,6 @@ use DCS::Constants qw(:symbols);
 
 use builtin      qw(true);
 use experimental qw(builtin);
-
-has 'event_id' => (
-  is       => 'ro',
-  isa      => 'Str',
-  required => true
-);
-
-has 'race_id' => (
-  is      => 'ro',
-  isa     => 'Undef',
-  default => undef
-);
 
 has 'base_url' => (
   is       => 'ro',
@@ -79,6 +68,19 @@ has 'key_map' => (
   }
 );
 
+sub _build_import_param_schemas($class) {
+  return {
+    event => JSON::Validator->new()->schema(
+      joi->object->strict->props(
+        event_id => joi->integer->required,
+      )
+    ),
+    eventactivity => JSON::Validator->new()->schema(
+      joi->object->strict->props()
+    )
+  }
+}
+
 sub _build_results_page ($self) {
   my $pre = $self->_url;
   my $ua  = Mojo::UserAgent->new();
@@ -95,6 +97,7 @@ sub _build_url ($self) {
 }
 
 sub url ($self) {
+  return undef unless (defined($self->event_id));
   return $self->_url->to_string;
 }
 

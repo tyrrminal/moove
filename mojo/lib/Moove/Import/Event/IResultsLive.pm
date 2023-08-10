@@ -1,25 +1,14 @@
 package Moove::Import::Event::IResultsLive;
-use v5.36;
+use v5.38;
 use Moose;
 with 'Moove::Import::Event::Base';
 
 use DateTime::Format::Strptime;
 use Moove::Util::Unit::Normalization qw(normalize_times);
+use JSON::Validator::Joi qw(joi);
 
 use builtin      qw(true);
 use experimental qw(builtin);
-
-has 'race_id' => (
-  is     => 'rw',
-  isa    => 'Str|Undef',
-  writer => '_set_race_id'
-);
-
-has 'event_id' => (
-  is       => 'ro',
-  isa      => 'Str',
-  required => true
-);
 
 has 'base_url' => (
   is       => 'ro',
@@ -52,12 +41,28 @@ has 'key_map' => (
   }
 );
 
+sub _build_import_param_schemas($class) {
+  return {
+    event => JSON::Validator->new()->schema(
+      joi->object->strict->props(
+        event_id => joi->integer->required,
+      )
+    ),
+    eventactivity => JSON::Validator->new()->schema(
+      joi->object->strict->props(
+        race_id  => joi->string,
+      )
+    )
+  }
+}
+
 sub _build_url ($self) {
   my $md = Mojo::URL->new($self->base_url);
   return $md->query(op => 'overall', eid => $self->event_id, racename => $self->race_id);
 }
 
 sub url ($self) {
+  return undef unless (defined($self->event_id) && defined($self->race_id));
   return $self->_url->to_string;
 }
 
