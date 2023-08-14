@@ -49,7 +49,7 @@ sub merge_distances ($self, @results) {
 }
 
 sub merge_paces ($self, @results) {
-  my $pace_unit = $self->model('UnitOfMeasure')->find({abbreviation => '/mi'});
+  my $pace_unit = $self->model('UnitOfMeasure')->per_mile;
   return minutes_to_time(unit_conversion($self->merge_speeds(@results), from => $pace_unit->normal_unit, to => $pace_unit));
 }
 

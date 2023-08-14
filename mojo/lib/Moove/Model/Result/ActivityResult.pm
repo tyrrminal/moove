@@ -319,8 +319,7 @@ sub recalculate_pace ($self) {
   my $miles = unit_conversion(value => $self->distance->value, from => $self->distance->unit_of_measure);
 
   my $speed = $miles / $hours;
-  my $pace  = minutes_to_time(
-    unit_conversion(value => $speed, from => $u->find({abbreviation => 'mph'}), to => $u->find({abbreviation => '/mi'})));
+  my $pace  = minutes_to_time(unit_conversion(value => $speed, from => $u->mph, to => $u->per_mile));
 
   $self->update({pace => $pace});
 }

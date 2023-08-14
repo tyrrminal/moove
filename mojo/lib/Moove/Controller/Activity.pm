@@ -268,8 +268,8 @@ sub summary ($self) {
   my $time_formatter = DateTime::Format::Duration::ISO8601->new();
   my $d_unit         = $self->model('UnitOfMeasure')
     ->search({normal_unit_id => undef, 'unit_of_measure_type.description' => 'Distance'}, {join => 'unit_of_measure_type'})->first;
-  my $s_unit     = $self->model('UnitOfMeasure')->find({abbreviation => 'mph'});
-  my $p_unit     = $self->model('UnitOfMeasure')->find({abbreviation => '/mi'});
+  my $s_unit     = $self->model('UnitOfMeasure')->mph;
+  my $p_unit     = $self->model('UnitOfMeasure')->per_mile;
   my $una        = $self->effective_user->user_nominal_activities;
   my $activities = $self->resultset(noprefetch => true)->completed;
 

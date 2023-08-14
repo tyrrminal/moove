@@ -45,8 +45,7 @@ sub import_activity ($self, $activity, $user, $workout = undef) {
   };
   if ($activity_type->base_activity_type->has_distance)
   {    # we need a distance_id if applicable, but we don't want to create a distance entity otherwise
-    my $distance = $self->model('Distance')
-      ->find_or_create_in_units($activity->{distance}, $self->model('UnitOfMeasure')->find({abbreviation => 'mi'}));
+    my $distance = $self->model('Distance')->find_or_create_in_units($activity->{distance}, $self->model('UnitOfMeasure')->mile);
     $result_params->{distance_id} = $distance->id;
   }
 
