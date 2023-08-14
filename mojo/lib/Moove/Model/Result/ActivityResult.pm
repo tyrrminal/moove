@@ -116,6 +116,17 @@ __PACKAGE__->table("ActivityResult");
   is_foreign_key: 1
   is_nullable: 1
 
+=head2 speed_to_pace
+
+  data_type: 'time'
+  is_nullable: 1
+
+=head2 pace_to_speed
+
+  data_type: 'decimal'
+  is_nullable: 1
+  size: [7,3]
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -167,6 +178,10 @@ __PACKAGE__->add_columns(
     is_foreign_key => 1,
     is_nullable => 1,
   },
+  "speed_to_pace",
+  { data_type => "time", is_nullable => 1 },
+  "pace_to_speed",
+  { data_type => "decimal", is_nullable => 1, size => [7, 3] },
 );
 
 =head1 PRIMARY KEY
