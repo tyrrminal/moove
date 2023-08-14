@@ -245,8 +245,8 @@ __PACKAGE__->many_to_many("event_series", "event_series_events", "event_series")
 #>>>
 use v5.38;
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-07-19 08:37:35
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:XyfYW4/MOhyPXlj1WGeWew
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2023-08-14 09:22:57
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:3meSjf7VTQOk/Yw90Sin8Q
 
 use Mojo::JSON qw(decode_json);
 
