@@ -44,7 +44,7 @@ export default {
         },
         {
           name: "Activities",
-          to: { name: "activities" },
+          to: { name: "activitiesSummary" },
         },
         {
           name: "Events",
@@ -73,6 +73,4 @@ export default {
 };
 </script>
 
-<style>
-
-</style>
+<style></style>
