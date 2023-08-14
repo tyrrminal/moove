@@ -144,8 +144,8 @@ use v5.38;
 # Created by DBIx::Class::Schema::Loader v0.07051 @ 2023-08-14 09:22:57
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:kggG3f3UeMjid9xA9d3atw
 
-sub description($self) {
-  return join(' ', grep { defined } ($self->year, $self->name));
+sub description ($self) {
+  return join(' ', grep {defined} ($self->year, $self->name));
 }
 
 sub user_event_activities ($self) {

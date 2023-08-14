@@ -12,9 +12,9 @@ with 'Moove::Controller::Role::ModelEncoding::UserEventActivity',
   'Moove::Controller::Role::ModelEncoding::EventType',
   'Moove::Controller::Role::ModelEncoding::Registration::EventActivity';
 
-sub decode_model($self, $data) {
+sub decode_model ($self, $data) {
   my $type = delete($data->{type});
-  die("Parent-type Event Groups cannot be specific to a year") if(defined($type) && $type eq 'parent' && defined($data->{year}));
+  die("Parent-type Event Groups cannot be specific to a year") if (defined($type) && $type eq 'parent' && defined($data->{year}));
   return $data;
 }
 
@@ -34,13 +34,13 @@ sub encode_model_eventgroup ($self, $entity) {
   }
 
   my $r = {
-    id     => $entity->id,
-    name   => $entity->name,
-    year   => $entity->year,
-    url    => $entity->url,
+    id   => $entity->id,
+    name => $entity->name,
+    year => $entity->year,
+    url  => $entity->url,
   };
 
-  if(ref($self->resultset) =~ /UserEventActivity/) {
+  if (ref($self->resultset) =~ /UserEventActivity/) {
     $r->{events} = $self->encode_model([$entity->user_event_activities->for_user($user)->visible_to($self->current_user)->all]);
   }
 
@@ -50,12 +50,12 @@ sub encode_model_eventgroup ($self, $entity) {
 sub resultset ($self, @args) {
   my $rs = $self->SUPER::resultset(@args);
 
-  if(my $name = $self->validation->param('name')) {
+  if (my $name = $self->validation->param('name')) {
     $rs = $rs->filter_name($name);
   }
-  if(my $type = $self->validation->param('type')) {
-    $rs = $rs->type_series if($type eq 'series');
-    $rs = $rs->type_parent if($type eq 'parent');
+  if (my $type = $self->validation->param('type')) {
+    $rs = $rs->type_series if ($type eq 'series');
+    $rs = $rs->type_parent if ($type eq 'parent');
   }
 
   return $rs;

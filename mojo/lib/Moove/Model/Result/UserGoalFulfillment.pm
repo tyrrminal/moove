@@ -219,7 +219,7 @@ sub get_goal_value {
         reduce {$a + $b} @_;
       },
       distance => sub {
-        my $v = reduce {$a + $b} map {$_->normalized_value} @_;
+        my $v      = reduce {$a + $b} map {$_->normalized_value} @_;
         my $schema = $self->result_source->schema;
         return $schema->resultset('Distance')->new_result(
           {
@@ -244,7 +244,7 @@ sub get_goal_value {
 
 sub get_goal_description {
   my $self               = shift;
-  my $tf                 = DateTime::Format::Duration->new(pattern => '%T', normalize => 1);
+  my $tf                 = DateTime::Format::Duration->new(pattern => '%T',     normalize => 1);
   my $pf                 = DateTime::Format::Duration->new(pattern => '%T /mi', normalize => 1);
   my %dimension_desc_map = (
     time     => sub {$tf->format_duration(shift)},

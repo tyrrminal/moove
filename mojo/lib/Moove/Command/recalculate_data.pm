@@ -21,47 +21,40 @@ USAGE
 sub run ($self, @args) {
   my ($recalc_pace, $recalc_speed);
 
-  getopt(\@args, 
-    'type=s'  => \my @activity_type, 
-    'user=s'  => \my $user_id,
-    'pace' => \$recalc_pace,
-    'speed' => \$recalc_speed,
-    'all' => sub { $recalc_pace = true, $recalc_speed = true}
+  getopt(
+    \@args,
+    'type=s' => \my @activity_type,
+    'user=s' => \my $user_id,
+    'pace'   => \$recalc_pace,
+    'speed'  => \$recalc_speed,
+    'all'    => sub {$recalc_pace = true, $recalc_speed = true}
   );
 
-  my $user = $self->app->model('User')->find_user($user_id//'');
-  die("'user' is required\n") unless($user);
+  my $user = $self->app->model('User')->find_user($user_id // '');
+  die("'user' is required\n") unless ($user);
   my $activities = $user->workouts->related_resultset('activities');
-  if(@activity_type) {
+  if (@activity_type) {
     my $activity_type = [map {split(',', $_)} @activity_type];
-    $activities = $activities->search({activity_type_id => {-in => $activity_type}})
+    $activities = $activities->search({activity_type_id => {-in => $activity_type}});
   }
-  my $ars = $activities->related_resultset('activity_result')->search({
-    -or => [
-      {net_time => {'<>' => undef}},
-      {duration => {'<>' => undef}}
-    ],
-    distance_id => {'<>' => undef},
-    -or => [
-      {-or => [
-        {pace => undef},
-        {pace => {'<' => '0:00:10'}}
-      ]},
-      {-or => [
-        {speed => undef},
-        {speed => {'>' => 60}},
-        {speed => {'<' => 0.1}}
-      ]}
-    ]
-  },{
-    order_by => 'start_time'
-  });
+  my $ars = $activities->related_resultset('activity_result')->search(
+    {
+      -or         => [{net_time => {'<>' => undef}}, {duration => {'<>' => undef}}],
+      distance_id => {'<>' => undef},
+      -or         => [
+        {-or => [{pace  => undef}, {pace  => {'<' => '0:00:10'}}]},
+        {-or => [{speed => undef}, {speed => {'>' => 60}}, {speed => {'<' => 0.1}}]}
+      ]
+    }, {
+      order_by => 'start_time'
+    }
+  );
   while (my $ar = $ars->next) {
-    say "Fixing ActivityResult ". $ar->id;
-    $ar->recalculate_pace() if($recalc_pace);
-    $ar->recalculate_speed() if($recalc_speed);
+    say "Fixing ActivityResult " . $ar->id;
+    $ar->recalculate_pace()  if ($recalc_pace);
+    $ar->recalculate_speed() if ($recalc_speed);
   }
-  
+
 }
 
 1;

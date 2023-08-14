@@ -30,26 +30,36 @@ sub encode_model_usereventactivity ($self, $entity) {
   if (my $fr = $self->encode_model_usereventactivity_fundraising($entity)) {
     $r->{fundraising} = $fr;
   }
-  
-  push($r->{nav}->@*, $self->encode_model_usereventactivity_navigation($entity, $self->resultset)); 
-  push($r->{nav}->@*, $self->encode_model_usereventactivity_navigation($entity, scalar $self->resultset->in_group($event->event_group_id), 'group'));
+
+  push($r->{nav}->@*, $self->encode_model_usereventactivity_navigation($entity, $self->resultset));
+  push(
+    $r->{nav}->@*,
+    $self->encode_model_usereventactivity_navigation($entity, scalar $self->resultset->in_group($event->event_group_id), 'group')
+  );
   foreach my $ese ($event->event_series_events) {
-    push($r->{nav}->@*, $self->encode_model_usereventactivity_navigation($entity, scalar $self->resultset->in_group($ese->event_series_id), $ese->event_series->description));
+    push(
+      $r->{nav}->@*,
+      $self->encode_model_usereventactivity_navigation(
+        $entity,
+        scalar $self->resultset->in_group($ese->event_series_id),
+        $ese->event_series->description
+      )
+    );
   }
 
   return $r;
 }
 
-sub encode_model_usereventactivity_navigation($self, $entity, $rs, $description = undef) {
+sub encode_model_usereventactivity_navigation ($self, $entity, $rs, $description = undef) {
   return unless (ref($self->resultset) =~ /UserEventActivity/);
   my $nav;
-  if(my $prev = $rs->before($entity)->for_user($entity->user)->visible_to($self->current_user)->first) {
-    $nav->{prev} = $self->encode_model_simple($prev)
+  if (my $prev = $rs->before($entity)->for_user($entity->user)->visible_to($self->current_user)->first) {
+    $nav->{prev} = $self->encode_model_simple($prev);
   }
-  if(my $next = $rs->after($entity)->for_user($entity->user)->visible_to($self->current_user)->first) {
-    $nav->{next} = $self->encode_model_simple($next)
+  if (my $next = $rs->after($entity)->for_user($entity->user)->visible_to($self->current_user)->first) {
+    $nav->{next} = $self->encode_model_simple($next);
   }
-  return unless(grep { defined } keys($nav->%*));
+  return unless (grep {defined} keys($nav->%*));
   return {$nav->%*, description => $description};
 }
 
@@ -74,7 +84,7 @@ sub encode_model_usereventactivity_fundraising ($self, $entity) {
   if (defined($entity->fundraising_requirement)) {
     $r = {
       minimum  => $entity->fundraising_requirement,
-      received => sum(0,map {$_->amount} $entity->donations->all),
+      received => sum(0, map {$_->amount} $entity->donations->all),
     };
     if ($entity->user->id == $self->current_user->id) {
       $r->{donations} = $self->encode_model([$entity->donations->all]);

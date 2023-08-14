@@ -1,13 +1,13 @@
 package Moove::Import::Event::Base;
 use v5.38;
-use builtin      qw(true);
+use builtin qw(true);
 
 use Moose::Role;
 use MooseX::ClassAttribute;
 
 use JSON::Validator::Joi qw(joi);
 
-use DCS::Constants qw(:symbols);
+use DCS::Constants                  qw(:symbols);
 use Moove::Import::Event::Constants qw(:event);
 
 use experimental qw(builtin);
@@ -47,7 +47,7 @@ class_has 'import_param_schemas' => (
   lazy     => true,
 );
 
-sub _build_import_param_schemas($class) {
+sub _build_import_param_schemas ($class) {
   return {
     event => JSON::Validator->new()->schema(
       joi->object->strict->props(
@@ -56,13 +56,13 @@ sub _build_import_param_schemas($class) {
     ),
     eventactivity => JSON::Validator->new()->schema(
       joi->object->strict->props(
-        race_id  => joi->string->required,
+        race_id => joi->string->required,
       )
     )
-  }
+  };
 }
 
-sub import_request_fields($class) { return [] }
+sub import_request_fields ($class) {return []}
 
 has '_import_fields' => (
   is       => 'ro',
@@ -72,10 +72,10 @@ has '_import_fields' => (
 );
 
 sub import_fields ($self) {
-  return {map { $_ => $self->_import_fields->{$_} } $self->import_request_fields->@*}
+  return {map {$_ => $self->_import_fields->{$_}} $self->import_request_fields->@*};
 }
 
-sub split_names ($self, $v ) {
+sub split_names ($self, $v) {
   my @prefixes = qw(del St St. Van De Von O);
   my @suffixes = qw(Jr Jr. Sr Sr. II II. III IV V);
   my $s;

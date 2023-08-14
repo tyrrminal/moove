@@ -281,8 +281,8 @@ sub countdown ($self) {
   };
 }
 
-sub import_params($self) {
-  return decode_json($self->import_parameters) if($self->import_parameters);
+sub import_params ($self) {
+  return decode_json($self->import_parameters) if ($self->import_parameters);
   return {};
 }
 

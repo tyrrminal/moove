@@ -23,14 +23,22 @@ sub encode_model_result ($self, $type, $entity) {
   }
   if (($base->has_speed || $base->has_pace) && (defined($entity->speed) || defined($entity->pace))) {
     my $speed_units = $self->model('UnitOfMeasure')->find({abbreviation => 'mph'});
-    my $pace_units = $self->model('UnitOfMeasure')->find({abbreviation => '/mi'});
+    my $pace_units  = $self->model('UnitOfMeasure')->find({abbreviation => '/mi'});
     $r->{netTime} = $self->encode_time($entity->net_time);
-    $r->{speed} = $self->encode_value_with_units(
-      (defined($entity->speed) ? $entity->speed : unit_conversion(value => time_to_minutes($entity->pace), from => $pace_units, to => $speed_units)), 
-      $speed_units);
+    $r->{speed}   = $self->encode_value_with_units(
+      (
+        defined($entity->speed)
+        ? $entity->speed
+        : unit_conversion(value => time_to_minutes($entity->pace), from => $pace_units, to => $speed_units)
+      ),
+      $speed_units
+    );
     $r->{pace} = $self->encode_value_with_units(
-      defined($entity->pace) ? $self->encode_time($entity->pace) : minutes_to_time(unit_conversion(value => $entity->speed, from => $speed_units, to => $pace_units)), 
-      $pace_units);
+      defined($entity->pace)
+      ? $self->encode_time($entity->pace)
+      : minutes_to_time(unit_conversion(value => $entity->speed, from => $speed_units, to => $pace_units)),
+      $pace_units
+    );
   }
   if ($base->has_repeats) {
     $r->{repetitions} = $entity->repetitions // 1;

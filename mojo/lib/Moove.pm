@@ -13,12 +13,14 @@ sub startup ($self) {
     'DCS::Base',
     cron          => undef,
     persistentlog => undef,
-    datastore     => {load_schema_options => {
-      components => [@DEFAULT_DBIX_COMPONENTS, qw(InflateColumn::Time)],
-      filter_generated_code   => sub ($type, $class, $text) {
-        return join($NEWLINE, '#<<<', $text . '#>>>', 'use v5.38;');
+    datastore     => {
+      load_schema_options => {
+        components            => [@DEFAULT_DBIX_COMPONENTS, qw(InflateColumn::Time)],
+        filter_generated_code => sub ($type, $class, $text) {
+          return join($NEWLINE, '#<<<', $text . '#>>>', 'use v5.38;');
+        }
       }
-    }},
+    },
   );
   $self->plugin('Moove::Plugin::Minion');
   $self->plugin('Minion::Admin');

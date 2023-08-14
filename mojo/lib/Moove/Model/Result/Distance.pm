@@ -152,20 +152,20 @@ use v5.38;
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 
-sub description($self) {
+sub description ($self) {
   return sprintf("%.2f %s", $self->value, $self->unit_of_measure->abbreviation);
 }
 
-sub description_normalized($self) {
+sub description_normalized ($self) {
   return sprintf("%.2f %s", $self->normalized_value, $self->normalized_unit->abbreviation);
 }
 
-sub normalized_unit($self) {
+sub normalized_unit ($self) {
   return $self->result_source->schema->resultset('UnitOfMeasure')
     ->normalization_unit($self->unit_of_measure->dimension->description);
 }
 
-sub normalized_value($self) {
+sub normalized_value ($self) {
   return $self->value * $self->unit_of_measure->normalization_factor;
 }
 

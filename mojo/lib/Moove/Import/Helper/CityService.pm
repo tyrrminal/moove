@@ -17,7 +17,7 @@ class Moove::Import::Helper::CityService {
 
   field @city_list;
 
-  my sub get_gist_content($author, $filename) {
+  my sub get_gist_content ($author, $filename) {
     my $ua     = Mojo::UserAgent->new();
     my $res    = $ua->get(sprintf($GIT_API_BASE . $GIT_USER_GISTS, $author))->result;
     my ($gist) = grep {exists($_->{files}->{$filename})} $res->json->@*;
@@ -38,11 +38,13 @@ class Moove::Import::Helper::CityService {
   }
 
   method is_valid_city_state($city, $state) {
-    (grep {
-      lc($_->{city}) eq lc($city) && 
-        ( lc($_->{state}) eq lc($state) || 
-         (defined($_->{state_abbrv}) && lc($_->{state_abbrv}) eq lc($state)) )
-    } @city_list) > 0;
+    (
+      grep {
+        lc($_->{city}) eq lc($city)
+          && (lc($_->{state}) eq lc($state)
+          || (defined($_->{state_abbrv}) && lc($_->{state_abbrv}) eq lc($state)))
+        } @city_list
+    ) > 0;
   }
 
 }

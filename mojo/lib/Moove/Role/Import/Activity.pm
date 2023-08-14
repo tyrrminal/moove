@@ -38,12 +38,13 @@ sub import_activity ($self, $activity, $user, $workout = undef) {
     heart_rate  => $activity->{heart_rate} || undef,
     duration    => $activity->{gross_time},
     net_time    => $activity->{net_time},
-    pace        => $actiivty->{pace},
+    pace        => $activity->{pace},
     speed       => $activity->{speed},
     temperature => $activity->{temperature},
-    repetitions => $actrivity->{repetitions},
+    repetitions => $activity->{repetitions},
   };
-  if ($activity_type->base_activity_type->has_distance) { # we need a distance_id if applicable, but we don't want to create a distance entity otherwise
+  if ($activity_type->base_activity_type->has_distance)
+  {    # we need a distance_id if applicable, but we don't want to create a distance entity otherwise
     my $distance = $self->model('Distance')
       ->find_or_create_in_units($activity->{distance}, $self->model('UnitOfMeasure')->find({abbreviation => 'mi'}));
     $result_params->{distance_id} = $distance->id;

@@ -24,7 +24,7 @@ sub new ($class, $dsn, $user, $pass) {
       mysql_auto_reconnect => 1,
       mysql_enable_utf8    => 1
     }
-    );
+  );
 }
 
 1;

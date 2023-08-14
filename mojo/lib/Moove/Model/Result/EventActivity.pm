@@ -241,9 +241,9 @@ use v5.38;
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
-use Mojo::Util qw(class_to_path);
+use Mojo::Util   qw(class_to_path);
 use Scalar::Util qw(looks_like_number);
-use Mojo::JSON qw(decode_json);
+use Mojo::JSON   qw(decode_json);
 
 use Moove::Util::Extraction qw(selective_field_extract);
 
@@ -257,7 +257,7 @@ sub url ($self) {
   my @urls = ($self->event->url);
   if (my $edc = $self->event->external_data_source) {
     require(class_to_path($edc->import_class));
-    if(defined($edc->import_class->import_param_schemas)) {
+    if (defined($edc->import_class->import_param_schemas)) {
       my $importer = $edc->import_class->new(import_params => $self->all_import_params);
       unshift(@urls, $importer->url);
     }
@@ -267,9 +267,9 @@ sub url ($self) {
 }
 
 sub import_validation_errors ($self) {
-  if(my $edc = $self->event->external_data_source) {
+  if (my $edc = $self->event->external_data_source) {
     my @errors;
-    my $class          = $edc->import_class;
+    my $class = $edc->import_class;
     require(class_to_path($class));
     my $schemas = $class->import_param_schemas;
 
@@ -376,16 +376,13 @@ sub add_placements_for_gender ($self, $gender) {
   }
 }
 
-sub import_params($self) {
-  return decode_json($self->import_parameters) if($self->import_parameters);
+sub import_params ($self) {
+  return decode_json($self->import_parameters) if ($self->import_parameters);
   return {};
 }
 
-sub all_import_params($self) {
-  return {
-    $self->event->import_params->%*,
-    $self->import_params->%*
-  }
+sub all_import_params ($self) {
+  return {$self->event->import_params->%*, $self->import_params->%*};
 }
 
 sub qualified_external_identifier ($self) {

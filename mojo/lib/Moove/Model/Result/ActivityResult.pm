@@ -334,7 +334,7 @@ sub recalculate_speed ($self) {
   my $miles = unit_conversion(value => $self->distance->value, from => $self->distance->unit_of_measure);
 
   my $speed = $miles / $hours;
-  $self->update({speed => $speed})
+  $self->update({speed => $speed});
 }
 
 1;

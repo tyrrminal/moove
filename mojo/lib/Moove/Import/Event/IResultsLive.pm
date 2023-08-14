@@ -5,7 +5,7 @@ with 'Moove::Import::Event::Base';
 
 use DateTime::Format::Strptime;
 use Moove::Util::Unit::Normalization qw(normalize_times);
-use JSON::Validator::Joi qw(joi);
+use JSON::Validator::Joi             qw(joi);
 
 use builtin      qw(true);
 use experimental qw(builtin);
@@ -41,7 +41,7 @@ has 'key_map' => (
   }
 );
 
-sub _build_import_param_schemas($class) {
+sub _build_import_param_schemas ($class) {
   return {
     event => JSON::Validator->new()->schema(
       joi->object->strict->props(
@@ -50,10 +50,10 @@ sub _build_import_param_schemas($class) {
     ),
     eventactivity => JSON::Validator->new()->schema(
       joi->object->strict->props(
-        race_id  => joi->string,
+        race_id => joi->string,
       )
     )
-  }
+  };
 }
 
 sub _build_url ($self) {

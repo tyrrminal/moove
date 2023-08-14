@@ -9,7 +9,7 @@ sub encode_model_eventtype ($self, $entity) {
     description  => $entity->description,
     activityType => $self->encode_model($entity->activity_type),
     virtual      => $entity->is_virtual
-    };
+  };
 }
 
 1;

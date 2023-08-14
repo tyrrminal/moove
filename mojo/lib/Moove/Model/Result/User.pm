@@ -258,7 +258,7 @@ __PACKAGE__->has_many(
   {"foreign.user_id" => "self.id"}, {cascade_copy => 0, cascade_delete => 0},
 );
 
-sub is_guest($self) {
+sub is_guest ($self) {
   return $self->id < 1;
 }
 

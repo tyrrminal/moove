@@ -1,7 +1,7 @@
 package Moove::Model::ResultSet::Donation;
 use v5.38;
 
-use base qw(DBIx::Class::ResultSet);
+use base       qw(DBIx::Class::ResultSet);
 use List::Util qw(sum);
 
 sub for_events_for_user ($self, $user) {
