@@ -28,6 +28,7 @@ use Time::Seconds;
 
 use syntax 'junction';
 
+use Moove::Util::Extraction qw(selective_field_extract);
 use DCS::Util::NameConversion qw(convert_hash_keys snake_to_camel camel_to_snake);
 
 use HTTP::Status   qw(:constants);
@@ -63,10 +64,6 @@ sub decode_model ($self, $data) {
   #>>>
 
   return $activity;
-}
-
-sub selective_field_extract ($hash, $fields) {
-  return {map {exists($hash->{$_}) ? ($_ => $hash->{$_}) : ()} $fields->@*};
 }
 
 sub effective_user ($self) {
