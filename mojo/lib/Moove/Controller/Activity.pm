@@ -148,20 +148,12 @@ sub resultset ($self, %args) {
 
   foreach my $time_filter (($self->validation->every_param('pace') // [])->@*) {
     my ($value, $op) = $self->decode_time_param($time_filter);
-    $rs = $rs->search(
-      {
-        "activity_result.pace" => {$op => $value}
-      }
-    );
+    $rs = $rs->search(\["COALESCE(activity_result.pace,activity_result.speed_to_pace) $op '$value'"]);
   }
 
   foreach my $speed_filter (($self->validation->every_param('speed') // [])->@*) {
     my ($value, $op) = $self->decode_distance_param($speed_filter, 'Rate');
-    $rs = $rs->search(
-      {
-        'activity_result.speed' => {$op => $value}
-      }
-    );
+    $rs = $rs->search(\["COALESCE(activity_result.speed,activity_result.pace_to_speed) $op $value"]);
   }
 
   return $rs;
@@ -214,11 +206,11 @@ sub decode_time_param ($self, $txt) {
 }
 
 sub custom_sort_for_column ($self, $col_name) {
-  return 'normalized_distance.value'  if ($col_name eq 'distance');
-  return 'activity_result.net_time'   if ($col_name eq 'time');
-  return 'activity_result.pace'       if ($col_name eq 'pace');
-  return 'activity_result.speed'      if ($col_name eq 'speed');
-  return 'activity_result.start_time' if ($col_name eq 'startTime');
+  return 'normalized_distance.value'                                      if ($col_name eq 'distance');
+  return \'COALESCE(activity_result.net_time,activity_result.duration)'   if ($col_name eq 'time');
+  return \'COALESCE(activity_result.pace,activity_result.speed_to_pace)'  if ($col_name eq 'pace');
+  return \'COALESCE(activity_result.speed,activity_result.pace_to_speed)' if ($col_name eq 'speed');
+  return 'activity_result.start_time'                                     if ($col_name eq 'startTime');
   return undef;
 }
 

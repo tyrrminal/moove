@@ -379,12 +379,12 @@ sub summary ($self, $partition = undef) {    # qw(activityType baseActivityType 
         {AVG => {TIME_TO_SEC => \'COALESCE(activity_result.duration,activity_result.net_time)'}},
         # pace
         \'(SUM(TIME_TO_SEC(COALESCE(activity_result.net_time,activity_result.duration)))/60)/SUM(normalized_distance.value)',
-        \'MIN(TIME_TO_SEC(activity_result.pace))/60',
-        \'MAX(TIME_TO_SEC(activity_result.pace))/60',
+        \'MIN(TIME_TO_SEC(COALESCE(activity_result.pace,activity_result.speed_to_pace)))/60',
+        \'MAX(TIME_TO_SEC(COALESCE(activity_result.pace,activity_result.speed_to_pace)))/60',
         # speed
         \'SUM(normalized_distance.value)/(SUM(TIME_TO_SEC(COALESCE(activity_result.net_time,activity_result.duration)))/(60*60))',
-        {MIN => 'activity_result.speed'},
-        {MAX => 'activity_result.speed'},
+        \'MIN(COALESCE(activity_result.speed,activity_result.pace_to_speed))',
+        \'MAX(COALESCE(activity_result.speed,activity_result.pace_to_speed))',
       ],
       as => [
         qw(

@@ -6,6 +6,7 @@ use Role::Tiny;
 use Moove::Util::Unit::Conversion qw(unit_conversion time_to_minutes minutes_to_time);
 
 sub encode_model_result ($self, $type, $entity) {
+  my $uom     = $self->model('UnitOfMeasure');
   my $base    = $type->base_activity_type;
   my $context = $type->activity_context;
   my $r       = {
@@ -22,23 +23,9 @@ sub encode_model_result ($self, $type, $entity) {
     $r->{duration} = $self->encode_time($entity->duration);
   }
   if (($base->has_speed || $base->has_pace) && (defined($entity->speed) || defined($entity->pace))) {
-    my $speed_units = $self->model('UnitOfMeasure')->find({abbreviation => 'mph'});
-    my $pace_units  = $self->model('UnitOfMeasure')->find({abbreviation => '/mi'});
     $r->{netTime} = $self->encode_time($entity->net_time);
-    $r->{speed}   = $self->encode_value_with_units(
-      (
-        defined($entity->speed)
-        ? $entity->speed
-        : unit_conversion(value => time_to_minutes($entity->pace), from => $pace_units, to => $speed_units)
-      ),
-      $speed_units
-    );
-    $r->{pace} = $self->encode_value_with_units(
-      defined($entity->pace)
-      ? $self->encode_time($entity->pace)
-      : minutes_to_time(unit_conversion(value => $entity->speed, from => $speed_units, to => $pace_units)),
-      $pace_units
-    );
+    $r->{speed}   = $self->encode_value_with_units($entity->speed // $entity->pace_to_speed,                    $uom->mph);
+    $r->{pace}    = $self->encode_value_with_units($self->encode_time($entity->pace // $entity->speed_to_pace), $uom->per_mile);
   }
   if ($base->has_repeats) {
     $r->{repetitions} = $entity->repetitions // 1;
