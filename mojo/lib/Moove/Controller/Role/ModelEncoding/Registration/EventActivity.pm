@@ -8,11 +8,11 @@ use Mojo::Util qw(class_to_path);
 
 sub encode_model_eventactivity ($self, $entity) {
   my $importable = $entity->is_importable && $entity->scheduled_start < DateTime->now();
-  my $fields = [];
-  if($importable) {
-    my $event          = $entity->event;
-    my $edc            = $event->external_data_source;
-    my $class          = $edc->import_class;
+  my $fields     = [];
+  if ($importable) {
+    my $event = $entity->event;
+    my $edc   = $event->external_data_source;
+    my $class = $edc->import_class;
     require(class_to_path($class));
     $fields = $class->import_request_fields;
   }

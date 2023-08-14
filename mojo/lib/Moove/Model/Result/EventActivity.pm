@@ -236,14 +236,16 @@ __PACKAGE__->belongs_to(
 #>>>
 use v5.38;
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-07-18 15:05:17
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:PeqXVqqzRh4o0uIfGD0Y8Q
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2023-08-14 09:22:57
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:BfaWIUCOFXDM6ZUNxT1YJQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
-use Mojo::Util qw(class_to_path);
+use Mojo::Util   qw(class_to_path);
 use Scalar::Util qw(looks_like_number);
-use Mojo::JSON qw(decode_json);
+use Mojo::JSON   qw(decode_json);
+
+use Moove::Util::Extraction qw(selective_field_extract);
 
 use DCS::Constants qw(:symbols);
 
@@ -255,7 +257,7 @@ sub url ($self) {
   my @urls = ($self->event->url);
   if (my $edc = $self->event->external_data_source) {
     require(class_to_path($edc->import_class));
-    if(defined($edc->import_class->import_param_schemas)) {
+    if (defined($edc->import_class->import_param_schemas)) {
       my $importer = $edc->import_class->new(import_params => $self->all_import_params);
       unshift(@urls, $importer->url);
     }
@@ -265,9 +267,9 @@ sub url ($self) {
 }
 
 sub import_validation_errors ($self) {
-  if(my $edc = $self->event->external_data_source) {
+  if (my $edc = $self->event->external_data_source) {
     my @errors;
-    my $class          = $edc->import_class;
+    my $class = $edc->import_class;
     require(class_to_path($class));
     my $schemas = $class->import_param_schemas;
 
@@ -312,9 +314,11 @@ sub add_participant ($self, $p) {
       start_time  => $self->scheduled_start,
       distance_id => $self->distance->id,
       duration    => $p->{gross_time},
+      net_time    => $p->{net_time},
       pace        => $p->{pace},
-      net_time    => $p->{net_time}
-    }
+      speed       => $p->{speed},
+    },
+    $self->event_type->activity_type->valid_fields
   );
 
   my $address = $schema->resultset('Address')->get_address(city => $p->{city}, state => $p->{state}, country => $p->{country});
@@ -372,16 +376,13 @@ sub add_placements_for_gender ($self, $gender) {
   }
 }
 
-sub import_params($self) {
-  return decode_json($self->import_parameters) if($self->import_parameters);
+sub import_params ($self) {
+  return decode_json($self->import_parameters) if ($self->import_parameters);
   return {};
 }
 
-sub all_import_params($self) {
-  return {
-    $self->event->import_params->%*,
-    $self->import_params->%*
-  }
+sub all_import_params ($self) {
+  return {$self->event->import_params->%*, $self->import_params->%*};
 }
 
 sub qualified_external_identifier ($self) {

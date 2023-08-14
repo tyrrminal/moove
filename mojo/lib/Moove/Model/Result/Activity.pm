@@ -382,18 +382,18 @@ __PACKAGE__->many_to_many(
 #>>>
 use v5.38;
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-09 12:32:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:uAeO+EoBhRY6mjqkRNqs3w
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2023-08-14 09:22:57
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:FsSUmN6DWVtUblrG3Df+fQ
 use List::Util qw(max);
 
 use Class::Method::Modifiers;
 
-sub is_event_activity($self) {
+sub is_event_activity ($self) {
   return $self->user_event_activities->count > 0;
 }
 
-sub user_event_activity($self) {
-  return unless($self->is_event_activity);
+sub user_event_activity ($self) {
+  return unless ($self->is_event_activity);
   return $self->user_event_activities->first;
 }
 
@@ -410,8 +410,8 @@ sub start_time ($self) {
 }
 
 sub start_date ($self) {
-  return undef unless(defined($self->activity_result));
-  return undef unless(defined($self->activity_result->start_time));
+  return undef unless (defined($self->activity_result));
+  return undef unless (defined($self->activity_result->start_time));
   return $self->activity_result->start_time->truncate(to => 'day');
 }
 

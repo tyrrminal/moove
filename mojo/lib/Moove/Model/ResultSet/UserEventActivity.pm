@@ -50,13 +50,9 @@ sub after ($self, $event) {
 sub in_group ($self, $event_group_id) {
   $self->search(
     {
-      -or => [
-        {'event.event_group_id' => $event_group_id},
-        {'event_series.id' => $event_group_id}
-      ]
-    },
-    {
-      join     => {event_registration => {event_activity => {event => {event_series_events => 'event_series'} }}},
+      -or => [{'event.event_group_id' => $event_group_id}, {'event_series.id' => $event_group_id}]
+    }, {
+      join => {event_registration => {event_activity => {event => {event_series_events => 'event_series'}}}},
     }
   );
 }

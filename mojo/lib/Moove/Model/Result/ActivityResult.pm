@@ -116,6 +116,17 @@ __PACKAGE__->table("ActivityResult");
   is_foreign_key: 1
   is_nullable: 1
 
+=head2 speed_to_pace
+
+  data_type: 'time'
+  is_nullable: 1
+
+=head2 pace_to_speed
+
+  data_type: 'decimal'
+  is_nullable: 1
+  size: [7,3]
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -167,6 +178,10 @@ __PACKAGE__->add_columns(
     is_foreign_key => 1,
     is_nullable => 1,
   },
+  "speed_to_pace",
+  { data_type => "time", is_nullable => 1 },
+  "pace_to_speed",
+  { data_type => "decimal", is_nullable => 1, size => [7, 3] },
 );
 
 =head1 PRIMARY KEY
@@ -270,8 +285,8 @@ __PACKAGE__->belongs_to(
 #>>>
 use v5.38;
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-09 12:32:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:QdGQ6mqQKDjDNcX33jS2yA
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2023-08-14 09:22:57
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ebF4/vrsIxlyhvHA7xNi6g
 
 use Moove::Util::Unit::Conversion qw(minutes_to_time time_to_minutes unit_conversion);
 
@@ -304,8 +319,7 @@ sub recalculate_pace ($self) {
   my $miles = unit_conversion(value => $self->distance->value, from => $self->distance->unit_of_measure);
 
   my $speed = $miles / $hours;
-  my $pace  = minutes_to_time(
-    unit_conversion(value => $speed, from => $u->find({abbreviation => 'mph'}), to => $u->find({abbreviation => '/mi'})));
+  my $pace  = minutes_to_time(unit_conversion(value => $speed, from => $u->mph, to => $u->per_mile));
 
   $self->update({pace => $pace});
 }
@@ -319,7 +333,7 @@ sub recalculate_speed ($self) {
   my $miles = unit_conversion(value => $self->distance->value, from => $self->distance->unit_of_measure);
 
   my $speed = $miles / $hours;
-  $self->update({speed => $speed})
+  $self->update({speed => $speed});
 }
 
 1;

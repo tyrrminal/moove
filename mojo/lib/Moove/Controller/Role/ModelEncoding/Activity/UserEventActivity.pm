@@ -5,9 +5,9 @@ use Role::Tiny;
 
 sub encode_model_usereventactivity ($self, $entity) {
   return {
-    id => $entity->id,
+    id   => $entity->id,
     name => $entity->name
-  }
+  };
 }
 
 1;

@@ -9,7 +9,7 @@ use DCS::Constants qw(:symbols);
 
 sub normalized_pace ($self, $uv) {
   my $from = $self->model('UnitOfMeasure')->find($uv->{unit_of_measure_id});
-  my $to   = $self->model('UnitOfMeasure')->find({abbreviation => '/mi'});
+  my $to   = $self->model('UnitOfMeasure')->per_mile;
   return $uv->{value} if ($from->id == $to->id);
   return minutes_to_time(
     unit_conversion(

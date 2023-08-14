@@ -6,7 +6,7 @@ with 'Moove::Import::Event::Base';
 use Readonly;
 use Scalar::Util qw(looks_like_number);
 use Data::Dumper;
-use JSON::Validator::Joi qw(joi);
+use JSON::Validator::Joi             qw(joi);
 use Moove::Util::Unit::Normalization qw(normalize_times);
 
 use DCS::Constants qw(:symbols);
@@ -43,17 +43,15 @@ has 'key_map' => (
   }
 );
 
-sub _build_import_param_schemas($class) {
+sub _build_import_param_schemas ($class) {
   return {
     event => JSON::Validator->new()->schema(
       joi->object->strict->props(
         event_id => joi->integer->required,
       )
     ),
-    eventactivity => JSON::Validator->new()->schema(
-      joi->object->strict->props()
-    )
-  }
+    eventactivity => JSON::Validator->new()->schema(joi->object->strict->props())
+  };
 }
 
 sub url ($self) {

@@ -29,8 +29,10 @@ sub import_results ($self) {
   return unless ($self->openapi->valid_input);
 
   my $event_activity = $self->entity;
-  return $self->render_error(HTTP_BAD_REQUEST, "Event Activity is not importable", map { "$_" } $event_activity->import_validation_errors) if(!$event_activity->is_importable);
-  $self->app->minion->enqueue(import_event_results => [$event_activity->id, $self->req->json->{importFields}//{}]);
+  return $self->render_error(HTTP_BAD_REQUEST, "Event Activity is not importable",
+    map {"$_"} $event_activity->import_validation_errors)
+    if (!$event_activity->is_importable);
+  $self->app->minion->enqueue(import_event_results => [$event_activity->id, $self->req->json->{importFields} // {}]);
 
   return $self->render(openapi => $self->encode_model($event_activity->event));
 }
@@ -52,10 +54,10 @@ sub delete_results ($self) {
 sub decode_model ($self, $data) {
   delete($data->{id});
   $data = {convert_hash_keys($data->%*, \&camel_to_snake)};
-  if(my $id = $self->validation->param('eventID')) {
+  if (my $id = $self->validation->param('eventID')) {
     my $event = $self->model_find(Event => $id) or die("Event $id not found");
     $data->{event_id} = $event->id;
-  } elsif($id = $self->validation->param('eventActivityID')) {
+  } elsif ($id = $self->validation->param('eventActivityID')) {
     my $ea = $self->model_find(EventActivity => $id) or die("Event Activity $id not found");
     $data->{event_id} = $ea->event->id;
   }

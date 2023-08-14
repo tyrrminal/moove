@@ -17,7 +17,7 @@ sub decode_model ($self, $data) {
   delete($data->{id});
   $data = {convert_hash_keys($data->%*, \&camel_to_snake)};
   if (exists($data->{address}) && exists($data->{address}->{id})) {
-    if(defined($data->{address}->{id})) {
+    if (defined($data->{address}->{id})) {
       $data->{address_id} = $data->{address}->{id};
     } else {
       $data->{address_id} = $self->app->model('Address')->get_address()->id;
@@ -31,33 +31,37 @@ sub decode_model ($self, $data) {
     $data->{event_group}->{name} = $data->{name};
     $data->{event_group}->{url}  = $data->{url};
   }
-  $data->{url} = undef if(exists($data->{url}) && !$data->{url});
+  $data->{url}               = undef if (exists($data->{url}) && !$data->{url});
   $data->{import_parameters} = encode_json($data->{import_parameters});
   return $data;
 }
 
-sub insert_record($self, $data) {
+sub insert_record ($self, $data) {
   my $event_series = delete($data->{event_series});
-  my $entity = $self->SUPER::insert_record($data);
-  foreach my $series (($event_series//[])->@*) {
-    $entity->add_to_event_series_events({
-      event_series_id => $series->{id}
-    })
+  my $entity       = $self->SUPER::insert_record($data);
+  foreach my $series (($event_series // [])->@*) {
+    $entity->add_to_event_series_events(
+      {
+        event_series_id => $series->{id}
+      }
+    );
   }
   return $entity;
 }
 
-sub update_record($self, $entity, $data) {
+sub update_record ($self, $entity, $data) {
   $entity->event_series_events->delete();
-  foreach my $series ((delete($data->{event_series})//[])->@*) {
-    $entity->add_to_event_series_events({
-      event_series_id => $series->{id}
-    })
+  foreach my $series ((delete($data->{event_series}) // [])->@*) {
+    $entity->add_to_event_series_events(
+      {
+        event_series_id => $series->{id}
+      }
+    );
   }
   return $self->SUPER::update_record($entity, $data);
 }
 
-sub delete_record($self, $entity) {
+sub delete_record ($self, $entity) {
   $entity->event_series_events->delete();
   $self->SUPER::delete_record($entity);
 }

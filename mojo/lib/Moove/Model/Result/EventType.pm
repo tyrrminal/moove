@@ -159,8 +159,8 @@ __PACKAGE__->has_many(
 #>>>
 use v5.38;
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-03-27 16:16:24
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:z7JfY31hXggg3xvk7RDk3g
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2023-08-14 09:22:57
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:E9CCGLLBhQc1/+cqGVQL9A
 use Class::Method::Modifiers;
 
 around [qw(is_virtual)] => sub ($orig, $self, $value = undef) {

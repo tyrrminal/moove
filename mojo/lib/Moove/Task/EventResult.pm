@@ -16,7 +16,7 @@ sub register ($self, $app, $args) {
       my $class          = $edc->import_class;
       require(class_to_path($class));
       my $importer = $class->new(import_params => $event_activity->all_import_params, import_fields => $import_fields);
-      
+
       # BEGIN LRP
       my @participants = $importer->results->@*;
       $job->note(progress => $job->info->{notes}->{progress} + 25);

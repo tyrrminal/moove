@@ -19,11 +19,12 @@
           v-if="(activityData.netTime && (activityData.duration != activityData.netTime)) || (eventResultData.netTime && eventResultData.duration != eventResultData.netTime && eventResultData.netTime != activityData.netTime)" />
       </b-col>
 
-      <b-col cols="2">
-        <ComparisonField v-if="showPace" label="Average Pace" :lvalue="activityData.pace" :rvalue="eventResultData.pace"
-          :comparator="compareDistances" :formatter="v => $options.filters.formatDistance(fillUnits(v))" />
+      <b-col cols="2" v-if="paceSpeedToggle !== null" @click="paceSpeedToggle = !paceSpeedToggle" class="cursor-pointer">
+        <ComparisonField v-if="paceSpeedToggle === true" label="Average Pace" :lvalue="activityData.pace"
+          :rvalue="eventResultData.pace" :comparator="compareDistances"
+          :formatter="v => $options.filters.formatDistance(fillUnits(v))" />
 
-        <ComparisonField v-if="showSpeed" label="Average Speed" :lvalue="activityData.speed"
+        <ComparisonField v-if="paceSpeedToggle === false" label="Average Speed" :lvalue="activityData.speed"
           :rvalue="eventResultData.speed" :comparator="compareDistances"
           :formatter="v => $options.filters.formatDistance(fillUnits(v))" />
       </b-col>
@@ -81,6 +82,11 @@ export default {
       required: false
     },
   },
+  data: function () {
+    return {
+      paceSpeedToggle: null
+    }
+  },
   methods: {
     deleteActivity: function () {
       this.$bvModal
@@ -118,6 +124,11 @@ export default {
         return dd1.toFixed(2) - dd2.toFixed(2)
       return dd1.localeCompare(dd2)
     },
+    initToggle: function () {
+      if (!this.activityData || !this.activityType) this.pace = null;
+      if (this.activityData.pace && this.activityType.hasPace) this.paceSpeedToggle = true;
+      if (this.activityData.speed && this.activityType.hasSpeed) this.paceSpeedToggle = false;
+    }
   },
   computed: {
     activityType: function () {
@@ -139,15 +150,17 @@ export default {
         return { ...this.activity, ...this.activity.sets[0] };
       return this.activity;
     },
-    showPace: function () {
-      if (!this.activityData || !this.activityType) return false;
-      return this.activityData.pace && this.activityType.hasPace
-    },
-    showSpeed: function () {
-      if (!this.activityData || !this.activityType) return false;
-      return this.activityData.speed && this.activityType.hasSpeed
-    }
   },
+  watch: {
+    activityData: function (newV) {
+      console.log(`activityData: ${newV}`)
+      if (this.paceSpeedToggle === null && newV != null) this.initToggle();
+    },
+    activityType: function (newV) {
+      console.log(`activityType: ${newV}`)
+      if (this.paceSpeedToggle === null && newV != null) this.initToggle();
+    }
+  }
 };
 </script>
 

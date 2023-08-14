@@ -247,8 +247,8 @@ __PACKAGE__->has_many(
 #>>>
 use v5.38;
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-07-09 12:32:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:UcbOqIFWAQho4YNcvvfZuQ
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2023-08-14 09:22:57
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:sE1jBRSkbnPy8wiB+UmtTg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
@@ -258,7 +258,7 @@ __PACKAGE__->has_many(
   {"foreign.user_id" => "self.id"}, {cascade_copy => 0, cascade_delete => 0},
 );
 
-sub is_guest($self) {
+sub is_guest ($self) {
   return $self->id < 1;
 }
 

@@ -1,6 +1,6 @@
 use v5.38;
 use experimental qw(class builtin);
-use builtin qw(true);
+use builtin      qw(true);
 
 class Moove::Import::Activity::RunKeeper {
   use DateTime::Format::Strptime;
@@ -11,7 +11,7 @@ class Moove::Import::Activity::RunKeeper {
 
   use Moove::Util::Unit::Normalization qw(normalize_time);
 
-  field $file :param;
+  field $file : param;
 
   field @activity_data;
 
@@ -84,7 +84,7 @@ class Moove::Import::Activity::RunKeeper {
   method get_activity_data($activity_id) {
     my ($activity) = grep {$activity_id eq $_->{activity_id}} @activity_data;
 
-    if($activity->{notes} && $activity->{notes}=~ /(\d+(?:\.\d+)?) degrees/) {$activity->{temperature} = $1;}
+    if ($activity->{notes} && $activity->{notes} =~ /(\d+(?:\.\d+)?) degrees/) {$activity->{temperature} = $1;}
     foreach (qw(net_time gross_time pace)) {$activity->{$_} = normalize_time($activity->{$_})}
     if ($activity->{gpx}) {
       $activity->{gross_time}      = calculate_gross_time($file, $activity);
@@ -93,7 +93,7 @@ class Moove::Import::Activity::RunKeeper {
     return $activity;
   }
 
-  method get_activity_location_points ($activity_id) {
+  method get_activity_location_points($activity_id) {
     my ($activity) = grep {$activity_id eq $_->{activity_id}} @activity_data;
 
     unzip($file => \my $data, Name => $activity->{gpx});
