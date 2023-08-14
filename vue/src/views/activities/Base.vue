@@ -15,20 +15,15 @@ export default {
   data: function () {
     return {
       menu: [
-        { text: "Import", icon: "upload", to: { name: "importActivities" } },
-        { text: "List", icon: "list", to: { name: "activities" } },
-        { text: "Summary", icon: "files", to: { name: "activitiesSummary" } },
-        {
-          text: "Slice",
-          icon: "calendar-range",
-          to: { name: "activitiesSlice" },
-        },
+        { text: "Import", icon: "upload", to: { name: "importActivities" }, },
+
+        { text: "Summary", icon: "files", to: { name: "activitiesSummary" }, section: 'middle' },
+        { text: "List", icon: "list", to: { name: "activities" }, section: 'middle' },
+        { text: "Slice", icon: "calendar-range", to: { name: "activitiesSlice" }, section: 'middle' },
       ],
     };
   },
 };
 </script>
 
-<style>
-
-</style>
+<style></style>

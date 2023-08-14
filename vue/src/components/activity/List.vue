@@ -38,17 +38,12 @@
           {{ getUnitOfMeasure(data.value.unitOfMeasureID).abbreviation }}
         </template>
       </template>
-      <template #cell(pace)="data">
-        <template v-if="data.value">
-          {{
-            data.value.value | trimTime
-          }}{{ getUnitOfMeasure(data.value.unitOfMeasureID).abbreviation }}
-        </template>
-      </template>
       <template #cell(speed)="data">
-        <template v-if="data.value">
-          {{ data.value.value | number("0.0") }}
-          {{ getUnitOfMeasure(data.value.unitOfMeasureID).abbreviation }}
+        <template v-if="getActivityType(data.item.activityTypeID).hasPace">
+          <span :title="describeSpeed(data.item.speed)">{{ describePace(data.item.pace) }}</span>
+        </template>
+        <template v-if="getActivityType(data.item.activityTypeID).hasSpeed">
+          <span :title="describePace(data.item.pace)">{{ describeSpeed(data.item.speed) }}</span>
         </template>
       </template>
       <template #cell(reps)="data">
@@ -116,13 +111,14 @@ export default {
       default: false
     }
   },
-  filters: {
-    trimTime: function (t) {
-      if (t == null) return t;
-      return t.replace(/^[0:]*/, "");
-    },
-  },
   methods: {
+    describeSpeed: function (s) {
+      return `${this.$options.filters.number(s.value, "0.0")} ${this.getUnitOfMeasure(s.unitOfMeasureID).abbreviation}`
+    },
+    describePace: function (p) {
+      if (p.value == null) return "";
+      return `${p.value.replace(/^[0:]*/, "")}${this.getUnitOfMeasure(p.unitOfMeasureID).abbreviation}`
+    },
     dayPart: function (d) {
       let dt = DateTime.fromISO(d);
       if (dt.hour >= 5 && dt.hour < 10) return "Morning";
@@ -182,8 +178,6 @@ export default {
       resultCols.set('hasRepeats', 'reps');
       resultCols.set('hasDistance', 'distance');
       resultCols.set('hasDuration', 'time');
-      resultCols.set('hasPace', 'pace');
-      resultCols.set('hasSpeed', 'speed');
 
       let r = [
         {
@@ -212,6 +206,13 @@ export default {
             sortable: true
           })
         }
+      }
+      if (types.some(t => t.hasSpeed || t.hasPace)) {
+        r.push({
+          key: 'speed',
+          label: this.visibleRows.map(r => this.getActivityType(r.activityTypeID)).some(t => t.hasSpeed) ? 'Speed' : 'Pace',
+          sortable: true
+        })
       }
       ["weight"].forEach(k => {
         if (this.visibleRows.some(row => row.sets.some(s => s[k] != null))) {

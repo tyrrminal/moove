@@ -6,7 +6,7 @@ use Mojo::Base 'Mojolicious::Command';
 use DateTime;
 use Data::Dumper;
 use Mojo::Util 'getopt';
-use List::Util qw(sum);
+use List::Util   qw(sum);
 use Array::Utils qw(intersect);
 
 has 'description' => 'List longest cumulative activity by distance over specified time frame';
@@ -23,18 +23,18 @@ sub run ($self, @args) {
   my $interval = 7;
   getopt(
     \@args,
-    'days=i'   => sub {$interval = pop; $type = shift},
+    'days=i' => sub {$interval = pop; $type = shift},
     # 'weeks=i'  => sub {$interval = pop; $type = shift},
     # 'months=i' => sub {$interval = pop; $type = shift},
     # 'years=i'  => sub {$interval = pop; $type = shift},
-    'top=i'    => \$top,
-    'type=i'   => \$act_type,
-    'user=s'  => \my $user_id
+    'top=i'  => \$top,
+    'type=i' => \$act_type,
+    'user=s' => \my $user_id
   );
-  my $u = $self->app->model('User')->search({-or => [{username => $user_id},{id => $user_id}]})->first;
-  die("User is required\n") unless($u);
+  my $u = $self->app->model('User')->search({-or => [{username => $user_id}, {id => $user_id}]})->first;
+  die("User is required\n") unless ($u);
   my $activity_type = $self->app->model('ActivityType')->find({id => $act_type});
-  die("Type is required\n") unless($activity_type);
+  die("Type is required\n") unless ($activity_type);
   my @activities = $self->app->model('Activity')->for_user($u)->whole->activity_type($activity_type)->ordered;
 
   my @d_sum;
@@ -44,7 +44,8 @@ sub run ($self, @args) {
   }
 
   my @intermediate = sort {
-    sum(map {$_->activity_result->normalized_distance->value} @$b) <=> sum(map {$_->activity_result->normalized_distance->value} @$a)
+    sum(map {$_->activity_result->normalized_distance->value} @$b)
+      <=> sum(map {$_->activity_result->normalized_distance->value} @$a)
   } @d_sum;
   my @sorted_d_sum;
 

@@ -8,7 +8,7 @@ with qw(
   DCS::Base::Role::Rest::Collection
   DCS::Base::Role::Rest::Entity
 
-  Moove::Controller::Role::ModelEncoding::Activity 
+  Moove::Controller::Role::ModelEncoding::Activity
   Moove::Controller::Role::ModelEncoding::Activity::UserEventActivity
   Moove::Controller::Role::ModelEncoding::Distance
 );
@@ -21,13 +21,14 @@ use List::Util   qw(first sum min max);
 use DCS::DateTime::Extras;
 use Syntax::Keyword::Try;
 use Mojo::Exception qw(raise);
-use Mojo::JSON qw(decode_json);
+use Mojo::JSON      qw(decode_json);
 use JSON::Validator;
 use DateTime::Format::Duration::ISO8601;
 use Time::Seconds;
 
 use syntax 'junction';
 
+use Moove::Util::Extraction   qw(selective_field_extract);
 use DCS::Util::NameConversion qw(convert_hash_keys snake_to_camel camel_to_snake);
 
 use HTTP::Status   qw(:constants);
@@ -65,10 +66,6 @@ sub decode_model ($self, $data) {
   return $activity;
 }
 
-sub selective_field_extract ($hash, $fields) {
-  return {map {exists($hash->{$_}) ? ($_ => $hash->{$_}) : ()} $fields->@*};
-}
-
 sub effective_user ($self) {
   if (my $username = $self->validation->param('username')) {
     if (my $user = $self->model('User')->find({username => $username})) {return $user}
@@ -77,7 +74,7 @@ sub effective_user ($self) {
 }
 
 sub resultset ($self, %args) {
-  my $rs = $self->SUPER::resultset();  
+  my $rs = $self->SUPER::resultset();
   $rs = $rs->search(
     undef, {
       prefetch => [
@@ -86,7 +83,8 @@ sub resultset ($self, %args) {
         {activity_type => ['base_activity_type', 'activity_context']}
       ]
     }
-  )->grouped unless($args{noprefetch});
+    )->grouped
+    unless ($args{noprefetch});
 
   if ($self->validation->param('combine') // $args{combine} // true) {
     $rs = $rs->whole;
@@ -114,98 +112,105 @@ sub resultset ($self, %args) {
     $rs = $end_date eq 'current' ? $rs->before_now : $rs->before_date($end_date, true);
   }
   if (my $date = $self->validation->param('on')) {
-    $rs = $rs->after_date($date)->before_date($date, true)
+    $rs = $rs->after_date($date)->before_date($date, true);
   }
   my $event_filter = $self->validation->param('event');
-  if(defined($event_filter) ) {
+  if (defined($event_filter)) {
     $rs = $rs->has_event($event_filter);
   }
 
-  foreach my $distance_filter (($self->validation->every_param('distance')//[])->@*) {
+  foreach my $distance_filter (($self->validation->every_param('distance') // [])->@*) {
     my ($value, $op) = $self->decode_distance_param($distance_filter);
-    $rs = $rs->search({
-      'normalized_distance.value' => {$op => $value}
-    })
+    $rs = $rs->search(
+      {
+        'normalized_distance.value' => {$op => $value}
+      }
+    );
   }
 
-  foreach my $time_filter (($self->validation->every_param('net_time')//[])->@*) {
+  foreach my $time_filter (($self->validation->every_param('net_time') // [])->@*) {
     my ($value, $op) = $self->decode_time_param($time_filter);
-    $rs = $rs->search({
-      "activity_result.net_time" => {$op => $value}
-    })
+    $rs = $rs->search(
+      {
+        "activity_result.net_time" => {$op => $value}
+      }
+    );
   }
 
-  foreach my $time_filter (($self->validation->every_param('duration')//[])->@*) {
+  foreach my $time_filter (($self->validation->every_param('duration') // [])->@*) {
     my ($value, $op) = $self->decode_time_param($time_filter);
-    $rs = $rs->search({
-      "activity_result.duration" => {$op => $value}
-    })
+    $rs = $rs->search(
+      {
+        "activity_result.duration" => {$op => $value}
+      }
+    );
   }
 
-  foreach my $time_filter (($self->validation->every_param('pace')//[])->@*) {
+  foreach my $time_filter (($self->validation->every_param('pace') // [])->@*) {
     my ($value, $op) = $self->decode_time_param($time_filter);
-    $rs = $rs->search({
-      "activity_result.pace" => {$op => $value}
-    })
+    $rs = $rs->search(\["COALESCE(activity_result.pace,activity_result.speed_to_pace) $op '$value'"]);
   }
 
-  foreach my $speed_filter (($self->validation->every_param('speed')//[])->@*) {
+  foreach my $speed_filter (($self->validation->every_param('speed') // [])->@*) {
     my ($value, $op) = $self->decode_distance_param($speed_filter, 'Rate');
-    $rs = $rs->search({
-      'activity_result.speed' => {$op => $value}
-    })
+    $rs = $rs->search(\["COALESCE(activity_result.speed,activity_result.pace_to_speed) $op $value"]);
   }
 
   return $rs;
 }
 
-sub decode_distance_param($self, $txt, $uom_type = 'Distance') {
+sub decode_distance_param ($self, $txt, $uom_type = 'Distance') {
   my $jv = JSON::Validator->new();
-  $jv->schema({
-    type => 'object',
-    required => [qw(value uom_abbr op)],
-    properties => {
-      value => {type => 'number', minimum => 0},
-      uom_abbr => {type => 'string'},
-      op => {type => 'string', enum => [qw(= > >= < <=)]},
+  $jv->schema(
+    {
+      type       => 'object',
+      required   => [qw(value uom_abbr op)],
+      properties => {
+        value    => {type => 'number', minimum => 0},
+        uom_abbr => {type => 'string'},
+        op       => {type => 'string', enum => [qw(= > >= < <=)]},
+      }
     }
-  });
+  );
   my $f = decode_json($txt);
-  if(my @errors = $jv->validate($f)) {
-    die(@errors)
-  }
-  my $v = $f->{value};
-  my $dist_uom_type = $self->model('UnitOfMeasureType')->find({description => $uom_type});
-  my $unit = $self->model('UnitOfMeasure')->search({abbreviation => $f->{uom_abbr}, unit_of_measure_type_id => $dist_uom_type->id})->first;
-  die("Invalid unit: " . $f->{uom_abbr}) unless($unit);
-  $v *= $unit->normalization_factor if(defined($unit->normal_unit));
-  return ($v, $f->{op})
-}
-
-sub decode_time_param($self, $txt) {
-  my $jv = JSON::Validator->new();
-  $jv->schema({
-    type => 'object',
-    required => ['value','op'],
-    properties => {
-      value => {type => 'string'},
-      op => {type => 'string', enum => [qw(= > >= < <=)]}
-    }
-  });
-  my $f = decode_json($txt);
-  if(my @errors = $jv->validate($f)) {
+  if (my @errors = $jv->validate($f)) {
     die(@errors);
   }
-  die('/value: Does not match time format') unless($f->{value} =~ /^\d{1,}:\d{2}:\d{2}$/);
+  my $v             = $f->{value};
+  my $dist_uom_type = $self->model('UnitOfMeasureType')->find({description => $uom_type});
+  my $unit =
+    $self->model('UnitOfMeasure')->search({abbreviation => $f->{uom_abbr}, unit_of_measure_type_id => $dist_uom_type->id})->first;
+  die("Invalid unit: " . $f->{uom_abbr}) unless ($unit);
+  $v *= $unit->normalization_factor if (defined($unit->normal_unit));
+  return ($v, $f->{op});
+}
+
+sub decode_time_param ($self, $txt) {
+  my $jv = JSON::Validator->new();
+  $jv->schema(
+    {
+      type       => 'object',
+      required   => ['value', 'op'],
+      properties => {
+        value => {type => 'string'},
+        op    => {type => 'string', enum => [qw(= > >= < <=)]}
+      }
+    }
+  );
+  my $f = decode_json($txt);
+  if (my @errors = $jv->validate($f)) {
+    die(@errors);
+  }
+  die('/value: Does not match time format') unless ($f->{value} =~ /^\d{1,}:\d{2}:\d{2}$/);
   return ($f->{value}, $f->{op});
 }
 
 sub custom_sort_for_column ($self, $col_name) {
-  return 'normalized_distance.value'  if ($col_name eq 'distance');
-  return 'activity_result.net_time'   if ($col_name eq 'time');
-  return 'activity_result.pace'       if ($col_name eq 'pace');
-  return 'activity_result.speed'      if ($col_name eq 'speed');
-  return 'activity_result.start_time' if ($col_name eq 'startTime');
+  return 'normalized_distance.value'                                      if ($col_name eq 'distance');
+  return \'COALESCE(activity_result.net_time,activity_result.duration)'   if ($col_name eq 'time');
+  return \'COALESCE(activity_result.pace,activity_result.speed_to_pace)'  if ($col_name eq 'pace');
+  return \'COALESCE(activity_result.speed,activity_result.pace_to_speed)' if ($col_name eq 'speed');
+  return 'activity_result.start_time'                                     if ($col_name eq 'startTime');
   return undef;
 }
 
@@ -231,18 +236,18 @@ sub delete_record ($self, $entity) {
   return $self->SUPER::delete_record($entity);
 }
 
-sub param_start($self) {
-  if(my $v = $self->validation->param('start')) {
+sub param_start ($self) {
+  if (my $v = $self->validation->param('start')) {
     return $self->parse_api_date($v);
   }
   return undef;
 }
 
-sub param_end($self, $check = false) {
-  if(my $v = $self->validation->param('end')) {
-    if($v eq 'current') {
+sub param_end ($self, $check = false) {
+  if (my $v = $self->validation->param('end')) {
+    if ($v eq 'current') {
       my $d = DateTime->now(time_zone => 'local')->truncate(to => 'day');
-      $d->subtract(days => 1) if($check && $self->resultset->on_date($d)->count < 1);
+      $d->subtract(days => 1) if ($check && $self->resultset->on_date($d)->count < 1);
       return $d;
     }
     return $self->parse_api_date($v);
@@ -250,62 +255,65 @@ sub param_end($self, $check = false) {
   return undef;
 }
 
-sub summary($self) {
+sub summary ($self) {
   return unless ($self->openapi->valid_input);
   my $time_formatter = DateTime::Format::Duration::ISO8601->new();
-  my $d_unit = $self->model('UnitOfMeasure')->search({ normal_unit_id => undef, 'unit_of_measure_type.description' => 'Distance' }, {join => 'unit_of_measure_type'})->first;
-  my $s_unit = $self->model('UnitOfMeasure')->find({ abbreviation => 'mph' });
-  my $p_unit = $self->model('UnitOfMeasure')->find({ abbreviation => '/mi' });
-  my $una = $self->effective_user->user_nominal_activities;
+  my $d_unit         = $self->model('UnitOfMeasure')
+    ->search({normal_unit_id => undef, 'unit_of_measure_type.description' => 'Distance'}, {join => 'unit_of_measure_type'})->first;
+  my $s_unit     = $self->model('UnitOfMeasure')->mph;
+  my $p_unit     = $self->model('UnitOfMeasure')->per_mile;
+  my $una        = $self->effective_user->user_nominal_activities;
   my $activities = $self->resultset(noprefetch => true)->completed;
 
   my $partition_type = $self->validation->param('partition');
-  my $rev = ($partition_type//'') =~ /^time[.]/ ? sub {@_} : sub{reverse(@_)};
+  my $rev            = ($partition_type // '') =~ /^time[.]/ ? sub {@_} : sub {reverse(@_)};
 
   my $ps = $self->param_start;
   my $pe = $self->param_end(true);
 
   my @summaries = $activities->summary($partition_type);
-  unshift(@summaries, $activities->summary) if($partition_type && $self->validation->param('withRollup') && @summaries);
+  unshift(@summaries, $activities->summary) if ($partition_type && $self->validation->param('withRollup') && @summaries);
   my @r;
   foreach my $s (@summaries) {
     my $ctx = delete($s->{ctx});
-    my $sd = $self->encode_date(first { defined } $rev->($ctx->{min_date}, $ps));
-    my $ed = $self->encode_date(first { defined } $rev->($ctx->{max_date}, $pe));
+    my $sd  = $self->encode_date(first {defined} $rev->($ctx->{min_date}, $ps));
+    my $ed  = $self->encode_date(first {defined} $rev->($ctx->{max_date}, $pe));
 
-    $s->{label} = $ctx->{label} if(defined($ctx->{label}));
-    $s->{activityTypes} = $ctx->{activityTypes} if(defined($ctx->{activityTypes}));
-    $s->{startDate} = $sd if($sd);
-    $s->{endDate}   = $ed if($ed);
-    if($s->{distance}) {
+    $s->{label}         = $ctx->{label}         if (defined($ctx->{label}));
+    $s->{activityTypes} = $ctx->{activityTypes} if (defined($ctx->{activityTypes}));
+    $s->{startDate}     = $sd                   if ($sd);
+    $s->{endDate}       = $ed                   if ($ed);
+    if ($s->{distance}) {
       foreach my $k (keys($s->{distance}->%*)) {
-        $s->{distance}->{$k} = { value => $s->{distance}->{$k}//0, unitOfMeasureID => $d_unit->id };
+        $s->{distance}->{$k} = {value => $s->{distance}->{$k} // 0, unitOfMeasureID => $d_unit->id};
       }
     }
-    if($s->{speed}) {
+    if ($s->{speed}) {
       foreach my $k (keys($s->{speed}->%*)) {
-        $s->{speed}->{$k} = { value => sprintf('%.03f', $s->{speed}->{$k}//0), unitOfMeasureID => $s_unit->id };
+        $s->{speed}->{$k} = {value => sprintf('%.03f', $s->{speed}->{$k} // 0), unitOfMeasureID => $s_unit->id};
       }
     }
-    if($s->{pace}) {
+    if ($s->{pace}) {
       foreach my $k (keys($s->{pace}->%*)) {
-        $s->{pace}->{$k} = {value => $self->encode_time(DateTime::Duration->new(minutes => $s->{pace}->{$k}//0)), unitOfMeasureID => $p_unit->id };
+        $s->{pace}->{$k} =
+          {value => $self->encode_time(DateTime::Duration->new(minutes => $s->{pace}->{$k} // 0)), unitOfMeasureID => $p_unit->id};
       }
     }
-    if($s->{time}) {
+    if ($s->{time}) {
       foreach my $type (keys($s->{time}->%*)) {
         foreach my $k (keys($s->{time}->{$type}->%*)) {
-          if(defined($s->{time}->{$type}->{$k})) {
+          if (defined($s->{time}->{$type}->{$k})) {
             $s->{time}->{$type}->{$k} = $time_formatter->format_duration(sec_to_duration($s->{time}->{$type}->{$k}));
           }
         }
       }
     }
 
-    if(!defined($partition_type) || $partition_type =~ /^activityType[.]/) {
-      my $nom_rs = $una->for_type(map { $_->{id} } $ctx->{activityTypes}->@*);
-      $nom_rs = $nom_rs->in_range($self->param_start,$self->param_end) if(defined($self->param_start) && defined($self->param_end));
-      if($nom_rs->count) {
+    if (!defined($partition_type) || $partition_type =~ /^activityType[.]/) {
+      my $nom_rs = $una->for_type(map {$_->{id}} $ctx->{activityTypes}->@*);
+      $nom_rs = $nom_rs->in_range($self->param_start, $self->param_end)
+        if (defined($self->param_start) && defined($self->param_end));
+      if ($nom_rs->count) {
         my $nom_d = $nom_rs->nominal_distance_in_range($self->param_start, $self->param_end(true));
         $s->{distance}->{nominal} = $self->encode_model($nom_d);
       }
@@ -381,20 +389,20 @@ sub _cleanup_files ($self, $path) {
   unlink($path);
 }
 
-sub quotient_remainder($dividend, $divisor) {
+sub quotient_remainder ($dividend, $divisor) {
   use integer;
-  my $quotient = $dividend / $divisor;
+  my $quotient  = $dividend / $divisor;
   my $remainder = $dividend % $divisor;
-  return ( $quotient, $remainder );
+  return ($quotient, $remainder);
 }
 
-sub sec_to_duration($t) {
+sub sec_to_duration ($t) {
   $t //= 0;
-  my ($s,$m,$h,$d);
+  my ($s, $m, $h, $d);
   ($m, $s) = quotient_remainder($t, ONE_MINUTE);
-  ($h, $m) = quotient_remainder($m, ONE_HOUR/ONE_MINUTE);
-  ($d, $h) = quotient_remainder($h, ONE_DAY/ONE_HOUR);
-  return DateTime::Duration->new(seconds => $s, minutes => $m, hours => $h, days => $d)
+  ($h, $m) = quotient_remainder($m, ONE_HOUR / ONE_MINUTE);
+  ($d, $h) = quotient_remainder($h, ONE_DAY / ONE_HOUR);
+  return DateTime::Duration->new(seconds => $s, minutes => $m, hours => $h, days => $d);
 }
 
 1;

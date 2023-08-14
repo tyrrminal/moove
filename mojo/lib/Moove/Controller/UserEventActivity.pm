@@ -23,7 +23,7 @@ sub decode_model ($self, $data) {
   }
   if (exists($data->{event_activity})) {
     my $ea = delete($data->{event_activity});
-    $data->{event_activity_id} = $ea->{id}
+    $data->{event_activity_id} = $ea->{id};
   }
   return $data;
 }
@@ -49,7 +49,10 @@ sub resultset ($self) {
     foreach my $activity_type_id ($activity_type_ids->@*) {
       $self->model_find(ActivityType => $activity_type_id) or return $self->render_not_found('ActivityType');
     }
-    $rs = $rs->search({'event_type.activity_type_id' => {-in => $activity_type_ids}},{join => {event_registration => {event_activity => 'event_type'}}});
+    $rs = $rs->search(
+      {'event_type.activity_type_id' => {-in                => $activity_type_ids}},
+      {join                          => {event_registration => {event_activity => 'event_type'}}}
+    );
   }
   if (my $event_activity_id = $self->validation->param('eventActivityID')) {
     $rs = $rs->search(
@@ -90,11 +93,11 @@ sub insert_record ($self, $data) {
 
 sub update_record ($self, $entity, $data) {
   my $registration = {};
-  if(my $reg_num = delete($data->{registration_number})) {
+  if (my $reg_num = delete($data->{registration_number})) {
     $registration->{registration_number} = $reg_num;
   }
-  if(my $ea_id = delete($data->{event_activity_id})) {
-    $registration->{event_activity_id} = $ea_id
+  if (my $ea_id = delete($data->{event_activity_id})) {
+    $registration->{event_activity_id} = $ea_id;
   }
   $entity->event_registration->update($registration);
   $self->SUPER::update_record($entity, $data);

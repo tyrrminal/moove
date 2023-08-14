@@ -5,7 +5,7 @@ with 'Moove::Import::Event::Base';
 
 use DateTime::Format::Strptime;
 use Lingua::EN::Titlecase;
-use List::MoreUtils qw(uniq);
+use List::MoreUtils      qw(uniq);
 use JSON::Validator::Joi qw(joi);
 
 use Moove::Import::Helper::CityService;
@@ -68,17 +68,15 @@ has 'key_map' => (
   }
 );
 
-sub _build_import_param_schemas($class) {
+sub _build_import_param_schemas ($class) {
   return {
     event => JSON::Validator->new()->schema(
       joi->object->strict->props(
         event_id => joi->integer->required,
       )
     ),
-    eventactivity => JSON::Validator->new()->schema(
-      joi->object->strict->props()
-    )
-  }
+    eventactivity => JSON::Validator->new()->schema(joi->object->strict->props())
+  };
 }
 
 sub _build_results_page ($self) {

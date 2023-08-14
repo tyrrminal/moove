@@ -9,20 +9,24 @@ use DCS::Constants qw(:semantics :symbols);
 
 sub encode_model_externaldatasource ($self, $entity) {
   my @fields;
-  if(my $class_name = $entity->import_class) {
+  if (my $class_name = $entity->import_class) {
     require(class_to_path($class_name));
-    if($class_name->can('import_param_schemas')) {
+    if ($class_name->can('import_param_schemas')) {
       foreach my $type (qw(event eventactivity)) {
         my $schema = $class_name->import_param_schemas->{$type}->schema->data;
-        next unless(ref($schema->{properties}) eq 'HASH');
+        next unless (ref($schema->{properties}) eq 'HASH');
         my %props = $schema->{properties}->%*;
-        push(@fields, map +{
+        push(
+          @fields,
+          map +{
             name     => $_,
             label    => encode_label($_),
             activity => $type eq 'eventactivity',
-            required => defined({map { $_ => 1 } $schema->{required_props}->@*}->{$_}),
+            required => defined({map {$_ => 1} $schema->{required_props}->@*}->{$_}),
             $props{$_}->%*,
-          }, keys(%props));
+          },
+          keys(%props)
+        );
       }
     }
   }
@@ -36,8 +40,8 @@ sub encode_model_externaldatasource ($self, $entity) {
   };
 }
 
-sub encode_label($name) {
-  return join($SPACE, map { /^id$/i ? 'ID' : ucfirst } split(/_/, $name));
+sub encode_label ($name) {
+  return join($SPACE, map {/^id$/i ? 'ID' : ucfirst} split(/_/, $name));
 
 }
 

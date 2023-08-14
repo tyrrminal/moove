@@ -160,9 +160,9 @@ __PACKAGE__->belongs_to(
 #>>>
 use v5.38;
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-07-31 12:52:13
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:diyJtL8B724eIDfD11ii+Q
-use builtin qw(false);
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2023-08-14 09:22:57
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:5Cj4APnVyyB1TGdolL4OOg
+use builtin      qw(false);
 use experimental qw(builtin);
 
 use Mojo::JSON qw(decode_json);
@@ -176,18 +176,19 @@ sub _per_day ($self, $period, $v) {
   return $v;
 }
 
-sub nominal_distance_in_range($self, $start, $end) {
+sub nominal_distance_in_range ($self, $start, $end) {
   my $schema = $self->result_source->schema;
 
   $start //= DateTime->from_epoch(epoch => 0);
   $end   //= DateTime->new(year => 3000, month => 1, day => 1);
 
   my $p = decode_json($self->value)->{distance};
-  return () unless(defined($p));
-  my $d = $self->_per_day($p->{period}, $p->{value});
-  my $days = ($end < $self->end_date ? $end : $self->end_date)->delta_days($start > $self->start_date ? $start : $self->start_date)->in_units('days')+1; # Add one because the range is open-closed (does not include end date)
+  return () unless (defined($p));
+  my $d    = $self->_per_day($p->{period}, $p->{value});
+  my $days = ($end < $self->end_date ? $end : $self->end_date)->delta_days($start > $self->start_date ? $start : $self->start_date)
+    ->in_units('days') + 1;    # Add one because the range is open-closed (does not include end date)
 
-  my $units = $schema->resultset('UnitOfMeasure')->find({ abbreviation => $p->{units}});
+  my $units    = $schema->resultset('UnitOfMeasure')->find({abbreviation => $p->{units}});
   my $distance = $schema->resultset('Distance')->find_or_create_in_units($d * $days, $units, false);
   return $distance;
 }

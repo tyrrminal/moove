@@ -46,6 +46,10 @@ export default {
 </script>
 
 <style>
+.cursor-pointer {
+  cursor: pointer;
+}
+
 table.rounded-row {
   border-collapse: separate;
   border-spacing: 0 0.5em;
