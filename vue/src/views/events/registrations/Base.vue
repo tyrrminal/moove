@@ -16,7 +16,7 @@ export default {
     menu: function () {
       return [
         { text: "Add", icon: "plus", to: { name: "event-create" } },
-        { text: "List", icon: "list", to: { name: "registrations" } },
+        { text: "List", icon: "list", to: { name: "registrations" }, section: 'middle' },
         { text: "Search", icon: "search", to: { name: "event-search" } },
       ];
     },
@@ -27,6 +27,4 @@ export default {
 };
 </script>
 
-<style>
-
-</style>
+<style></style>
