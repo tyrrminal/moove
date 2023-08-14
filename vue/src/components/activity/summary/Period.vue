@@ -70,7 +70,12 @@ export default {
       return this.summaryData[this.cacheKey()]
     },
     activities: function () {
-      return this.periodData;
+      switch (this.periodData.length) {
+        case 0: null; // No data
+        case 2: return [this.periodData[1]]; // Single activity type
+        case 1: // No activities
+        default: return this.periodData
+      }
     },
     periodIsIncomplete: function () {
       return this.daysElapsed < this.days
