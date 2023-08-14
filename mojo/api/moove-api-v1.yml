@@ -4,7 +4,7 @@ info:
   description: "Moo've Fitness Tracker"
   contact:
     email: moove@digicow.net
-  version: 2.2.0
+  version: 2.2.1
 servers:
   - url: https://moove.digicowsoftware.com/api/v1
 security:

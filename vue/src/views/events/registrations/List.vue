@@ -164,7 +164,7 @@ export default {
       }
     },
     viewOptions: function () {
-      let opt = [{ text: "Registration", value: 'registration' }];
+      let opt = [{ text: "Details", value: 'registration' }];
       if (this.events.some(e => !!e.placements))
         opt.push({ text: "Results", value: 'results' });
       if (this.events.some(e => !!e.fundraising))
