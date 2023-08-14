@@ -6,7 +6,6 @@ use Role::Tiny;
 use DateTime;
 use DateTime::Format::MySQL;
 use DBIx::Class::InflateColumn::Time;
-use Moove::Util::Unit::Conversion qw(unit_conversion time_to_minutes);
 
 use builtin      qw(true false);
 use experimental qw(builtin);
@@ -37,34 +36,21 @@ sub import_activity ($self, $activity, $user, $workout = undef) {
     start_time  => $activity->{date},
     weight      => $activity->{weight}     || undef,
     heart_rate  => $activity->{heart_rate} || undef,
+    duration    => $activity->{gross_time},
+    net_time    => $activity->{net_time},
+    pace        => $actiivty->{pace},
+    speed       => $activity->{speed},
     temperature => $activity->{temperature},
+    repetitions => $actrivity->{repetitions},
   };
-  if ($activity_type->base_activity_type->has_distance) {
+  if ($activity_type->base_activity_type->has_distance) { # we need a distance_id if applicable, but we don't want to create a distance entity otherwise
     my $distance = $self->model('Distance')
       ->find_or_create_in_units($activity->{distance}, $self->model('UnitOfMeasure')->find({abbreviation => 'mi'}));
-    $result_params->{distance} = $distance;
+    $result_params->{distance_id} = $distance->id;
   }
-  if ($activity_type->base_activity_type->has_duration) {
-    $result_params->{duration} = $activity->{gross_time},;
-  }
-  if ($activity_type->base_activity_type->has_pace || $activity_type->base_activity_type->has_speed) {
-    my $pace_units  = $self->model('UnitOfMeasure')->find({abbreviation => '/mi'});
-    my $speed_units = $self->model('UnitOfMeasure')->find({abbreviation => 'mph'});
-    $result_params->{net_time} = $activity->{net_time};
-    $result_params->{pace} =
-        $activity_type->base_activity_type->has_pace
-      ? $activity->{pace}
-      : unit_conversion(value => $activity->{speed}, from => $speed_units, to => $pace_units);
-    $result_params->{speed} = $activity_type->base_activity_type->has_speed ? $activity->{speed} : unit_conversion(
-      value => time_to_minutes(DBIx::Class::InflateColumn::Time::_inflate($activity->{pace})),
-      from  => $pace_units
-    );
-  }
-  if ($activity_type->base_activity_type->has_repeats) {
-    $result_params->{repetitions} = $activity->{repetitions};
-  }
+
   my $uea    = $self->find_matching_user_event_activity($activity, $activity_type, $user);
-  my $result = $self->app->model('ActivityResult')->create($result_params);
+  my $result = $self->app->model('ActivityResult')->create(selective_field_extract($result_params, $activity_type->valid_fields));
 
   my $act = $self->app->model('Activity')->create(
     {

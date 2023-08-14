@@ -245,6 +245,8 @@ use Mojo::Util qw(class_to_path);
 use Scalar::Util qw(looks_like_number);
 use Mojo::JSON qw(decode_json);
 
+use Moove::Util::Extraction qw(selective_field_extract);
+
 use DCS::Constants qw(:symbols);
 
 sub description ($self) {
@@ -312,9 +314,11 @@ sub add_participant ($self, $p) {
       start_time  => $self->scheduled_start,
       distance_id => $self->distance->id,
       duration    => $p->{gross_time},
+      net_time    => $p->{net_time},
       pace        => $p->{pace},
-      net_time    => $p->{net_time}
-    }
+      speed       => $p->{speed},
+    },
+    $self->event_type->activity_type->valid_fields
   );
 
   my $address = $schema->resultset('Address')->get_address(city => $p->{city}, state => $p->{state}, country => $p->{country});
