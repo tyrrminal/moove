@@ -149,6 +149,7 @@ export default {
   },
   mounted: function () {
     this.resetFilters();
+    let dirty = false;
     Object.keys(this.filterTypes).forEach(k => {
       let v = this.$route.query[k]
       if (v != null) {
@@ -158,8 +159,10 @@ export default {
           v[t] = true
         }
         this.addFilter(k, v)
+        dirty = true
       }
-    })
+    });
+    if (dirty) this.loadSummary();
   },
   computed: {
     operators: function () {
