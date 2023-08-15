@@ -7,6 +7,8 @@ use DateTime;
 use DateTime::Format::MySQL;
 use DBIx::Class::InflateColumn::Time;
 
+use Moove::Util::Extraction qw(selective_field_extract);
+
 use builtin      qw(true false);
 use experimental qw(builtin);
 
@@ -50,7 +52,7 @@ sub import_activity ($self, $activity, $user, $workout = undef) {
   }
 
   my $uea    = $self->find_matching_user_event_activity($activity, $activity_type, $user);
-  my $result = $self->app->model('ActivityResult')->create(selective_field_extract($result_params, $activity_type->valid_fields));
+  my $result = $self->app->model('ActivityResult')->create(selective_field_extract($result_params, [$activity_type->valid_fields]));
 
   my $act = $self->app->model('Activity')->create(
     {

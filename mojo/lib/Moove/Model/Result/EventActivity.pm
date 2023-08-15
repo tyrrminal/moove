@@ -310,15 +310,17 @@ sub add_participant ($self, $p) {
   my $person =
     $schema->resultset('Person')->get_person(map {$_ => $p->{$_}} qw(first_name last_name gender age));
   my $result = $schema->resultset('ActivityResult')->create(
-    {
-      start_time  => $self->scheduled_start,
-      distance_id => $self->distance->id,
-      duration    => $p->{gross_time},
-      net_time    => $p->{net_time},
-      pace        => $p->{pace},
-      speed       => $p->{speed},
-    },
-    $self->event_type->activity_type->valid_fields
+    selective_field_extract(
+      {
+        start_time  => $self->scheduled_start,
+        distance_id => $self->distance->id,
+        duration    => $p->{gross_time},
+        net_time    => $p->{net_time},
+        pace        => $p->{pace},
+        speed       => $p->{speed},
+      },
+      [$self->event_type->activity_type->valid_fields]
+    )
   );
 
   my $address = $schema->resultset('Address')->get_address(city => $p->{city}, state => $p->{state}, country => $p->{country});
