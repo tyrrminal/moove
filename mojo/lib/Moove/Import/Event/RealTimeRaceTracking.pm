@@ -6,6 +6,7 @@ with 'Moove::Import::Event::Base';
 use JSON::Validator::Joi qw(joi);
 use DateTime::Format::Strptime;
 use Readonly;
+use List::MoreUtils                  qw(firstidx);
 use Moove::Util::Unit::Normalization qw(normalize_times);
 use Moove::Import::Helper::CityService;
 use Mojo::JSON qw(encode_json);
@@ -13,18 +14,12 @@ use Mojo::JSON qw(encode_json);
 use builtin      qw(true false);
 use experimental qw(builtin try);
 
-Readonly::Scalar my $RESULTS_PAGE => 'https://track.rtrt.me/e/%s#/';
-Readonly::Scalar my $RESULTS_URL  => 'https://api.rtrt.me/events/%s/places/course/%s';
+use DCS::Constants qw(:symbols);
+
+Readonly::Scalar my $RESULTS_PAGE     => 'https://track.rtrt.me/e/%s#/';
+Readonly::Scalar my $RESULTS_BASE_URL => 'https://api.rtrt.me/events/%s/';
 
 sub import_request_fields ($self) {return [qw(appid token)]}
-
-has '_url' => (
-  is       => 'ro',
-  isa      => 'Mojo::URL',
-  init_arg => undef,
-  lazy     => true,
-  builder  => '_build_url'
-);
 
 has 'city_service' => (
   is       => 'ro',
@@ -32,36 +27,6 @@ has 'city_service' => (
   init_arg => undef,
   lazy     => true,
   default  => sub {Moove::Import::Helper::CityService->new()},
-);
-
-has '_fields' => (
-  traits   => ['Hash'],
-  is       => 'ro',
-  isa      => 'HashRef[CodeRef]',
-  init_arg => undef,
-  default  => sub {
-    {
-      age           => sub ($v) {undef},
-      bib_no        => sub ($v) {$v->{bib}},
-      city          => sub ($v) {$v->{city}},
-      country       => sub ($v) {$v->{country}},
-      div_place     => sub ($v) {$v->{results}->{agegroup}->{p}},
-      division      => sub ($v) {$v->{results}->{agegroup}->{n}},
-      first_name    => sub ($v) {my ($fn, $ln) = $v->{name} =~ /^(.*)\s+(\S+)$/; $fn},
-      gender        => sub ($v) {$v->{sex}},
-      gender_place  => sub ($v) {$v->{results}->{gender}->{p}},
-      gross_time    => sub ($v) {$v->{waveTime}},
-      last_name     => sub ($v) {my ($fn, $ln) = $v->{name} =~ /^(.*)\s+(\S+)$/; $ln},
-      net_time      => sub ($v) {$v->{netTime}},
-      overall_place => sub ($v) {$v->{results}->{course}->{p}},
-      pace          => sub ($v) {$v->{milePaceAvg}},
-      'state'       => sub ($v) {undef}
-    }
-  },
-  handles => {
-    fields    => 'keys',
-    extractor => 'get'
-  }
 );
 
 sub _build_import_param_schemas ($class) {
@@ -73,54 +38,79 @@ sub _build_import_param_schemas ($class) {
     ),
     eventactivity => JSON::Validator->new()->schema(
       joi->object->strict->props(
-        race_id => joi->string->required,
+        race_id  => joi->string->required,
+        course   => joi->string->required,
+        division => joi->string
         )->compile
     )
   };
 }
 
-sub _build_url ($self) {
-  return Mojo::URL->new(sprintf($RESULTS_URL, $self->event_id, $self->race_id));
+sub _build_import_param_defaults ($self) {
+  return {division => 'runner'};
+}
+
+sub _placement_list_extract ($list, $key, $value) {
+  if (ref($value) eq 'ARRAY') {
+  ITEM: for (my $i = 0 ; $i < $list->@* ; $i++) {
+      my $cmp_arr = $list->[$i]->{$key};
+      foreach my $v ($value->@*) {
+        next ITEM unless (grep {$v eq $_} $cmp_arr->@*);
+      }
+      return splice($list->@*, $i, 1);
+    }
+  } elsif (!ref($value)) {
+    my $idx = firstidx {$_->{$key} eq $value} $list->@*;
+    return splice($list->@*, $idx, 1) if ($idx >= 0);
+  }
+  die("Could not generate results map for key '$key'");
 }
 
 sub _build_results ($self) {
+  my $headers = {
+    'Accept'       => 'application/json',
+    'Content-Type' => 'application/x-www-form-urlencoded; charset=UTF-8',
+  };
+
+  my $list =
+    [grep {!exists($_->{undefined})}
+      $self->ua->post(sprintf($RESULTS_BASE_URL, $self->event_id) . 'places' => $headers => form => $self->import_fields)
+      ->result->json->{list}->@*];
+  my $place_item  = _placement_list_extract($list, 'label', 'Overall');
+  my $place       = $place_item->{name};
+  my $results_map = {
+    division => _placement_list_extract($list, 'fields', [qw(division sex agegroup)])->{name},
+    gender   => _placement_list_extract($list, 'fields', [qw(division sex)])->{name},
+    overall  => $place_item->{name},
+  };
+
+  my $url  = join($SLASH, sprintf($RESULTS_BASE_URL, $self->event_id) . 'places', $place, $self->race_id);
+  my $body = {
+    $self->import_fields->%*,
+    event  => $self->event_id,
+    source => 'webtracker',
+    sess   => 0,
+    map {sprintf('combo[%s]', $_) => $self->resolve_field_value($_)} ($place_item->{fields}->@*)
+  };
+
+  my $fetch_results = sub ($page = 1) {
+    my $size = 50;
+    my $res  = $self->ua->post($url => $headers => form => {$body->%*, start => ($page - 1) * $size + 1, max => $size});
+    return $res->result;
+  };
+
   my ($page, @results) = (1);
   while (true) {
-    my $res = $self->fetch_results($page++);
+    my $res = $fetch_results->($page++);
 
     my @records = ($res->json->{list} // [])->@*;
     last unless (@records);
     foreach my $r (@records) {
-      my $p = $self->make_participant($r);
+      my $p = $self->make_participant($r, $results_map);
       push(@results, $p);
     }
   }
   return [@results];
-}
-
-sub fetch_results ($self, $page = 1) {
-  my $size = 50;
-  my $res =
-    $self->ua->post($self->_url => $self->headers => form => {$self->body->%*, start => ($page - 1) * $size + 1, max => $size});
-  return $res->result;
-}
-
-sub headers ($self) {
-  return {
-    Accept         => 'application/json',
-    'Content-Type' => 'application/x-www-form-urlencoded; charset=UTF-8',
-    'User-Agent'   => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/111.0'
-  };
-}
-
-sub body ($self) {
-  return {
-    event             => $self->event_id,
-    sess              => 0,
-    'combo[division]' => 'runner',
-    source            => 'webtracker',
-    $self->import_fields->%*,
-  };
 }
 
 sub url ($self) {
@@ -128,8 +118,29 @@ sub url ($self) {
   return sprintf($RESULTS_PAGE, $self->race_id);
 }
 
-sub make_participant ($self, $d) {
-  my $p = {map {$_ => $self->extractor($_)->($d)} $self->fields};
+sub make_participant ($self, $d, $results_map) {
+  my $fields = {
+    bib_no => sub ($v) {$v->{bib}},
+    age    => sub ($v) {undef},
+    gender => sub ($v) {$v->{sex}},
+
+    gross_time => sub ($v) {$v->{waveTime}},
+    net_time   => sub ($v) {$v->{netTime}},
+    pace       => sub ($v) {$v->{milePaceAvg}},
+
+    division      => sub ($v) {$v->{results}->{$results_map->{division}}->{n}},
+    div_place     => sub ($v) {$v->{results}->{$results_map->{division}}->{p}},
+    gender_place  => sub ($v) {$v->{results}->{$results_map->{gender}}->{p}},
+    overall_place => sub ($v) {$v->{place}},
+
+    first_name => sub ($v) {my ($fn, $ln) = $v->{name} =~ /^(.*)\s+(\S+)$/; $fn},
+    last_name  => sub ($v) {my ($fn, $ln) = $v->{name} =~ /^(.*)\s+(\S+)$/; $ln},
+    city       => sub ($v) {$v->{city}},
+    country    => sub ($v) {$v->{country}},
+    'state'    => sub ($v) {undef}
+  };
+
+  my $p = {map {$_ => $fields->{$_}->($d)} keys($fields->%*)};
 
   # Add state if possible
   if (defined($p->{country}) && defined($p->{city}) && $p->{country} eq 'USA') {
