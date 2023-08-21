@@ -73,9 +73,9 @@ sub _build_import_param_schemas ($class) {
     event => JSON::Validator->new()->schema(
       joi->object->strict->props(
         event_id => joi->integer->required,
-      )
+        )->compile
     ),
-    eventactivity => JSON::Validator->new()->schema(joi->object->strict->props())
+    eventactivity => JSON::Validator->new()->schema(joi->object->strict->props()->compile)
   };
 }
 

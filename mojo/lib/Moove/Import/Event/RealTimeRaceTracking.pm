@@ -69,12 +69,12 @@ sub _build_import_param_schemas ($class) {
     event => JSON::Validator->new()->schema(
       joi->object->strict->props(
         event_id => joi->string->required,
-      )
+        )->compile
     ),
     eventactivity => JSON::Validator->new()->schema(
       joi->object->strict->props(
         race_id => joi->string->required,
-      )
+        )->compile
     )
   };
 }
