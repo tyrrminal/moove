@@ -46,6 +46,18 @@ has 'import_params' => (
   }
 );
 
+has 'import_param_defaults' => (
+  is       => 'ro',
+  isa      => 'HashRef[Int|Str|Undef]',
+  init_arg => undef,
+  writer   => undef,
+  builder  => '_build_import_param_defaults'
+);
+
+sub _build_import_param_defaults ($self) {
+  return {};
+}
+
 class_has 'import_param_schemas' => (
   is       => 'ro',
   isa      => 'HashRef[JSON::Validator]',
