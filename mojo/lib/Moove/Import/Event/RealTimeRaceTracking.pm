@@ -100,8 +100,8 @@ sub _build_results ($self) {
 
 sub fetch_results ($self, $page = 1) {
   my $size = 50;
-  my $ua   = Mojo::UserAgent->new();
-  my $res  = $ua->post($self->_url => $self->headers => form => {$self->body->%*, start => ($page - 1) * $size + 1, max => $size});
+  my $res =
+    $self->ua->post($self->_url => $self->headers => form => {$self->body->%*, start => ($page - 1) * $size + 1, max => $size});
   return $res->result;
 }
 

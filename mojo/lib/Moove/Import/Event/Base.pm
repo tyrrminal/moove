@@ -16,6 +16,13 @@ requires qw(
   url
 );
 
+has 'ua' => (
+  is       => 'ro',
+  isa      => 'Mojo::UserAgent',
+  init_arg => undef,
+  default  => sub ($class) {Mojo::UserAgent->new},
+);
+
 has 'results' => (
   is       => 'ro',
   isa      => 'ArrayRef[HashRef]',

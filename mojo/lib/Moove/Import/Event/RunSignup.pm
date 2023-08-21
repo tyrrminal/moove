@@ -90,7 +90,7 @@ sub fetch_results ($self, $page = 1) {
   my $url = Mojo::URL->new(sprintf($RESULTS_API_URL, $self->event_id));
   $url->query(resultSetId => $self->race_id, page => $page, num => $PER_PAGE, search => $EMPTY);
 
-  return Mojo::UserAgent->new()->get($url => {Accept => 'application/json'})->result;
+  return $self->ua->get($url => {Accept => 'application/json'})->result;
 }
 
 sub url ($self) {

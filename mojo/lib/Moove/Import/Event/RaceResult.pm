@@ -88,8 +88,7 @@ sub _build_results ($self) {
   );
 
 
-  my $ua  = Mojo::UserAgent->new();
-  my $res = $ua->get($url)->result;
+  my $res = $self->ua->get($url)->result;
 
   foreach my $f ($res->json->{list}->{Fields}->@*) {
     push($self->key_order->@*, $self->get_key($f->{Label}));

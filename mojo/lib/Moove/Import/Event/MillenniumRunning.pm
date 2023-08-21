@@ -81,11 +81,10 @@ sub _build_import_param_schemas ($class) {
 
 sub _build_results_page ($self) {
   my $pre = $self->_url;
-  my $ua  = Mojo::UserAgent->new();
-  my $res = $ua->get($pre)->result;
+  my $res = $self->ua->get($pre)->result;
 
   unless ($res->body) {
-    return $ua->get($res->headers->location)->result;
+    return $self->ua->get($res->headers->location)->result;
   }
   return $pre;
 }
