@@ -40,10 +40,6 @@ has 'import_params' => (
   is       => 'ro',
   isa      => 'HashRef[Int|Str|Undef]',
   required => true,
-  handles  => {
-    event_id => [get => 'event_id'],
-    race_id  => [get => 'race_id'],
-  }
 );
 
 has 'import_param_defaults' => (
@@ -56,6 +52,14 @@ has 'import_param_defaults' => (
 
 sub _build_import_param_defaults ($self) {
   return {};
+}
+
+sub event_id($self) {
+  return $self->resolve_field_value('event_id')
+}
+
+sub race_id($self) {
+  return $self->resolve_field_value('race_id')
 }
 
 class_has 'import_param_schemas' => (
