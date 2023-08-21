@@ -94,6 +94,13 @@ sub import_fields ($self) {
   return {map {$_ => $self->_import_fields->{$_}} $self->import_request_fields->@*};
 }
 
+sub resolve_field_value ($self, $name) {
+  return $self->_import_fields->{$name}        if (exists($self->_import_fields->{$name}));
+  return $self->import_params->{$name}         if (exists($self->import_params->{$name}));
+  return $self->import_param_defaults->{$name} if (exists($self->import_param_defaults->{$name}));
+  return undef;
+}
+
 sub split_names ($self, $v) {
   my @prefixes = qw(del St St. Van De Von O);
   my @suffixes = qw(Jr Jr. Sr Sr. II II. III IV V);
