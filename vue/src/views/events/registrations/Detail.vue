@@ -133,7 +133,7 @@
                 class="font-weight-bold">Importing Results&hellip;</span></b-progress-bar>
           </b-progress>
           <div v-else-if="canDoResultsFunctions" class="text-center">
-            <b-button pill variant="success" @click="importResults" class="mr-2 px-3">
+            <b-button pill variant="success" @click="initiateResultsImport" class="mr-2 px-3">
               <b-icon icon="download" class="mr-2" :rotate="-90" />Import Results</b-button>
           </div>
           <div v-if="eventActivity.results.url">
@@ -175,12 +175,12 @@
           <b-alert v-if="hasResults" show variant="warning">All existing results will be deleted prior to re-importing
             data.</b-alert>
           <b-alert v-else show variant="secondary">Import event activity results</b-alert>
-          <b-form-group v-for="(f, i) in this.eventActivity.results.fields" :key="i" :label="f">
+          <b-form-group v-for="(f, i) in eventActivity.results.fields" :key="i" :label="f">
             <b-input v-model="importFields[f]" :name="`${f}_${eventActivity.id}`" autocomplete="on" />
           </b-form-group>
         </div>
         <footer class="modal-footer">
-          <b-button variant="secondary" @click="cancelImportResults">Cancel</b-button>
+          <b-button variant="secondary" @click="$bvModal.hide('importResults')">Cancel</b-button>
           <b-button v-if="hasResults" variant="warning" type="submit">Re-import</b-button>
           <b-button v-else variant="primary" type="submit">Import</b-button>
         </footer>
@@ -343,8 +343,11 @@ export default {
       if (i > 0) c.push("separated-progress");
       return c;
     },
-    cancelImportResults: function () {
-      this.$root.$emit('bv::hide::modal', 'importResults')
+    initiateResultsImport: function () {
+      if (this.eventActivity.results.fields.length)
+        this.$bvModal.show('importResults');
+      else
+        this.importResults();
     },
     importResults: function () {
       this.$root.$emit('bv::hide::modal', 'importResults')
