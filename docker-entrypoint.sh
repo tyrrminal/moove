@@ -22,6 +22,7 @@ case "$1" in
     ;;
   devserver)
     echo "Starting server in development mode"
+    include_custom_modules
     exec morbo -l 'http://*:8080' -w lib -w api -w cfg script/moove
     ;;
   prodserver)

@@ -16,6 +16,13 @@ requires qw(
   url
 );
 
+has 'ua' => (
+  is       => 'ro',
+  isa      => 'Mojo::UserAgent',
+  init_arg => undef,
+  default  => sub ($class) {Mojo::UserAgent->new},
+);
+
 has 'results' => (
   is       => 'ro',
   isa      => 'ArrayRef[HashRef]',
@@ -33,11 +40,27 @@ has 'import_params' => (
   is       => 'ro',
   isa      => 'HashRef[Int|Str|Undef]',
   required => true,
-  handles  => {
-    event_id => [get => 'event_id'],
-    race_id  => [get => 'race_id'],
-  }
 );
+
+has 'import_param_defaults' => (
+  is       => 'ro',
+  isa      => 'HashRef[Int|Str|Undef]',
+  init_arg => undef,
+  writer   => undef,
+  builder  => '_build_import_param_defaults'
+);
+
+sub _build_import_param_defaults ($self) {
+  return {};
+}
+
+sub event_id($self) {
+  return $self->resolve_field_value('event_id')
+}
+
+sub race_id($self) {
+  return $self->resolve_field_value('race_id')
+}
 
 class_has 'import_param_schemas' => (
   is       => 'ro',
@@ -52,12 +75,12 @@ sub _build_import_param_schemas ($class) {
     event => JSON::Validator->new()->schema(
       joi->object->strict->props(
         event_id => joi->integer->required,
-      )
+        )->compile
     ),
     eventactivity => JSON::Validator->new()->schema(
       joi->object->strict->props(
         race_id => joi->string->required,
-      )
+        )->compile
     )
   };
 }
@@ -73,6 +96,13 @@ has '_import_fields' => (
 
 sub import_fields ($self) {
   return {map {$_ => $self->_import_fields->{$_}} $self->import_request_fields->@*};
+}
+
+sub resolve_field_value ($self, $name) {
+  return $self->_import_fields->{$name}        if (exists($self->_import_fields->{$name}));
+  return $self->import_params->{$name}         if (exists($self->import_params->{$name}));
+  return $self->import_param_defaults->{$name} if (exists($self->import_param_defaults->{$name}));
+  return undef;
 }
 
 sub split_names ($self, $v) {

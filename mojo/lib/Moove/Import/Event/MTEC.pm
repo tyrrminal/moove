@@ -48,9 +48,9 @@ sub _build_import_param_schemas ($class) {
     event => JSON::Validator->new()->schema(
       joi->object->strict->props(
         event_id => joi->integer->required,
-      )
+        )->compile
     ),
-    eventactivity => JSON::Validator->new()->schema(joi->object->strict->props())
+    eventactivity => JSON::Validator->new()->schema(joi->object->strict->props()->compile)
   };
 }
 
@@ -63,8 +63,7 @@ sub _build_results ($self) {
   my $url = Mojo::URL->new(sprintf($RESULTS_URL, $self->event_id));
   $url->query(overall => 'yes', perPage => 500, offset => 0);
 
-  my $ua  = Mojo::UserAgent->new();
-  my $res = $ua->get($url)->result;
+  my $res = $self->ua->get($url)->result;
 
   my @results;
   my @col_map = map {$self->get_key($_->text)} @{$res->dom->find('.runnersearch-header-cell')->to_array};
@@ -87,7 +86,7 @@ sub _build_results ($self) {
     last unless $n;
 
     $url->query(overall => 'yes', perPage => 500, offset => $n);
-    $res = $ua->get($url)->result;
+    $res = $self->ua->get($url)->result;
   }
 
   return [@results];

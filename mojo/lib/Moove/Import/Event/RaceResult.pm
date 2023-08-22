@@ -59,14 +59,14 @@ sub _build_import_param_schemas ($self) {
       joi->object->strict->props(
         event_id   => joi->integer->required->min(1),
         import_key => joi->string->required->min(1),
-        ),
+        )->compile,
     ),
     eventactivity => JSON::Validator->new()->schema(
       joi->object->strict->props(
         race_id    => joi->string->required->min(1),
         contest_id => joi->integer->required->min(1),
         listname   => joi->string->required->min(1),
-      )
+        )->compile
     )
   };
 }
@@ -88,8 +88,7 @@ sub _build_results ($self) {
   );
 
 
-  my $ua  = Mojo::UserAgent->new();
-  my $res = $ua->get($url)->result;
+  my $res = $self->ua->get($url)->result;
 
   foreach my $f ($res->json->{list}->{Fields}->@*) {
     push($self->key_order->@*, $self->get_key($f->{Label}));
