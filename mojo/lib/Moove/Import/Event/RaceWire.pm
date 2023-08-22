@@ -50,8 +50,7 @@ has 'key_map' => (
 
 sub _build_results ($self) {
   my $results = Mojo::URL->new($RESULTS_API_URL . join('/', grep {defined} ($self->event_id, $self->race_id)));
-  my $ua      = Mojo::UserAgent->new();
-  my $res     = $ua->get($results => {Accept => 'application/json'})->result->json;
+  my $res     = $self->ua->get($results => {Accept => 'application/json'})->result->json;
 
   my $keys = [map {$self->get_key($_)} @{$res->{"Index"}}];
 

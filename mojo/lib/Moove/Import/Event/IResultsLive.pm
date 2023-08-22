@@ -46,12 +46,12 @@ sub _build_import_param_schemas ($class) {
     event => JSON::Validator->new()->schema(
       joi->object->strict->props(
         event_id => joi->integer->required,
-      )
+        )->compile
     ),
     eventactivity => JSON::Validator->new()->schema(
       joi->object->strict->props(
         race_id => joi->string,
-      )
+        )->compile
     )
   };
 }
@@ -67,8 +67,7 @@ sub url ($self) {
 }
 
 sub _build_results ($self) {
-  my $ua  = Mojo::UserAgent->new();
-  my $res = $ua->get($self->_url)->result;
+  my $res = $self->ua->get($self->_url)->result;
 
   #Column Headings
   my @col_map = @{
@@ -105,7 +104,7 @@ sub _build_results ($self) {
 
     my $results = Mojo::URL->new($self->base_url);
     $results->query(op => 'overall', eid => $self->event_id, racename => $self->race_id, place => $n);
-    $res = $ua->get($results)->result;
+    $res = $self->ua->get($results)->result;
   }
 
   return [@results];
