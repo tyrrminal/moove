@@ -195,27 +195,25 @@ DISTRIBUTIONS
       Array::Utils 0.5
     requirements:
       ExtUtils::MakeMaker 0
-  Authen-SASL-2.16
-    pathname: G/GB/GBARR/Authen-SASL-2.16.tar.gz
+  Authen-SASL-2.1700
+    pathname: E/EH/EHUELS/Authen-SASL-2.1700.tar.gz
     provides:
-      Authen::SASL 2.16
-      Authen::SASL::CRAM_MD5 2.14
-      Authen::SASL::EXTERNAL 2.14
-      Authen::SASL::Perl 2.14
-      Authen::SASL::Perl::ANONYMOUS 2.14
-      Authen::SASL::Perl::CRAM_MD5 2.14
-      Authen::SASL::Perl::DIGEST_MD5 2.14
-      Authen::SASL::Perl::EXTERNAL 2.14
-      Authen::SASL::Perl::GSSAPI 0.05
-      Authen::SASL::Perl::LOGIN 2.14
-      Authen::SASL::Perl::Layer 2.14
-      Authen::SASL::Perl::PLAIN 2.14
+      Authen::SASL 2.1700
+      Authen::SASL::CRAM_MD5 2.1700
+      Authen::SASL::EXTERNAL 2.1700
+      Authen::SASL::Perl 2.1700
+      Authen::SASL::Perl::ANONYMOUS 2.1700
+      Authen::SASL::Perl::CRAM_MD5 2.1700
+      Authen::SASL::Perl::DIGEST_MD5 2.1700
+      Authen::SASL::Perl::EXTERNAL 2.1700
+      Authen::SASL::Perl::GSSAPI 2.1700
+      Authen::SASL::Perl::LOGIN 2.1700
+      Authen::SASL::Perl::PLAIN 2.1700
     requirements:
       Digest::HMAC_MD5 0
       Digest::MD5 0
-      ExtUtils::MakeMaker 6.42
-      Test::More 0
-      perl 5.005
+      ExtUtils::MakeMaker 0
+      perl 5.006000
   B-Hooks-EndOfScope-0.26
     pathname: E/ET/ETHER/B-Hooks-EndOfScope-0.26.tar.gz
     provides:
@@ -1184,7 +1182,6 @@ DISTRIBUTIONS
       Set::Infinite::_recurrence undef
     requirements:
       DateTime 0.12
-      ExtUtils::MakeMaker 0
       Params::Validate 0
       Set::Infinite 0.59
       Test::More 0
@@ -3404,10 +3401,10 @@ DISTRIBUTIONS
       Moose::Util 0
       Try::Tiny 0
       warnings 0
-  Mozilla-CA-20230807
-    pathname: L/LW/LWP/Mozilla-CA-20230807.tar.gz
+  Mozilla-CA-20230821
+    pathname: L/LW/LWP/Mozilla-CA-20230821.tar.gz
     provides:
-      Mozilla::CA 20230807
+      Mozilla::CA 20230821
     requirements:
       ExtUtils::MakeMaker 0
   Net-HTTP-6.23
@@ -4519,53 +4516,55 @@ DISTRIBUTIONS
       Exporter::Tiny 1.006000
       ExtUtils::MakeMaker 6.17
       perl 5.008001
-  URI-5.19
-    pathname: S/SI/SIMBABQUE/URI-5.19.tar.gz
+  URI-5.21
+    pathname: O/OA/OALDERS/URI-5.21.tar.gz
     provides:
-      URI 5.19
-      URI::Escape 5.19
-      URI::Heuristic 5.19
-      URI::IRI 5.19
-      URI::QueryParam 5.19
-      URI::Split 5.19
-      URI::URL 5.19
-      URI::WithBase 5.19
-      URI::data 5.19
-      URI::file 5.19
-      URI::file::Base 5.19
-      URI::file::FAT 5.19
-      URI::file::Mac 5.19
-      URI::file::OS2 5.19
-      URI::file::QNX 5.19
-      URI::file::Unix 5.19
-      URI::file::Win32 5.19
-      URI::ftp 5.19
-      URI::gopher 5.19
-      URI::http 5.19
-      URI::https 5.19
-      URI::ldap 5.19
-      URI::ldapi 5.19
-      URI::ldaps 5.19
-      URI::mailto 5.19
-      URI::mms 5.19
-      URI::news 5.19
-      URI::nntp 5.19
-      URI::nntps 5.19
-      URI::pop 5.19
-      URI::rlogin 5.19
-      URI::rsync 5.19
-      URI::rtsp 5.19
-      URI::rtspu 5.19
-      URI::sftp 5.19
-      URI::sip 5.19
-      URI::sips 5.19
-      URI::snews 5.19
-      URI::ssh 5.19
-      URI::telnet 5.19
-      URI::tn3270 5.19
-      URI::urn 5.19
-      URI::urn::isbn 5.19
-      URI::urn::oid 5.19
+      URI 5.21
+      URI::Escape 5.21
+      URI::Heuristic 5.21
+      URI::IRI 5.21
+      URI::QueryParam 5.21
+      URI::Split 5.21
+      URI::URL 5.21
+      URI::WithBase 5.21
+      URI::data 5.21
+      URI::file 5.21
+      URI::file::Base 5.21
+      URI::file::FAT 5.21
+      URI::file::Mac 5.21
+      URI::file::OS2 5.21
+      URI::file::QNX 5.21
+      URI::file::Unix 5.21
+      URI::file::Win32 5.21
+      URI::ftp 5.21
+      URI::gopher 5.21
+      URI::http 5.21
+      URI::https 5.21
+      URI::icap 5.21
+      URI::icaps 5.21
+      URI::ldap 5.21
+      URI::ldapi 5.21
+      URI::ldaps 5.21
+      URI::mailto 5.21
+      URI::mms 5.21
+      URI::news 5.21
+      URI::nntp 5.21
+      URI::nntps 5.21
+      URI::pop 5.21
+      URI::rlogin 5.21
+      URI::rsync 5.21
+      URI::rtsp 5.21
+      URI::rtspu 5.21
+      URI::sftp 5.21
+      URI::sip 5.21
+      URI::sips 5.21
+      URI::snews 5.21
+      URI::ssh 5.21
+      URI::telnet 5.21
+      URI::tn3270 5.21
+      URI::urn 5.21
+      URI::urn::isbn 5.21
+      URI::urn::oid 5.21
     requirements:
       Carp 0
       Cwd 0
@@ -5146,6 +5145,7 @@ DISTRIBUTIONS
       HTTP::Status 0
       IO::File 0
       IO::Socket::SSL 1.26
+      JSON 0
       LWP 0
       LWP::MediaTypes 0
       LWP::Protocol 0
