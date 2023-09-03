@@ -365,7 +365,7 @@ export default {
     },
     blanksToNulls: function (obj) {
       let r = {};
-      Object.keys(obj).forEach(k => r[k] = obj[k] ? obj[k] : null);
+      Object.keys(obj || {}).forEach(k => r[k] = obj[k] ? obj[k] : null);
       return r;
     }
   },
