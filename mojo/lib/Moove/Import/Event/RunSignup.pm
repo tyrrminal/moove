@@ -91,6 +91,7 @@ sub _build_import_param_schemas ($class) {
     eventactivity => JSON::Validator->new()->schema(
       joi->object->strict->props(
         race_id      => joi->string->required,
+        segment_id   => joi->string,
         custom_class => joi->string
         )->compile
     )
