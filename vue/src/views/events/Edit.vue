@@ -138,7 +138,9 @@
                   label-class="importParams-label"
                   :state="f.required ? !!edit.eventActivities[selectedEventActivityIdx].importParameters[f.name] : true"
                   class="my-0 py-0">
-                  <b-input v-model="edit.eventActivities[selectedEventActivityIdx].importParameters[f.name]"
+                  <b-checkbox v-if="f.type == 'boolean'"
+                    v-model="edit.eventActivities[selectedEventActivityIdx].importParameters[f.name]" size="sm" />
+                  <b-input v-else v-model="edit.eventActivities[selectedEventActivityIdx].importParameters[f.name]"
                     :required="f.required"
                     :state="f.required ? !!edit.eventActivities[selectedEventActivityIdx].importParameters[f.name] : true"
                     size="sm" :number="f.type == 'integer'" />
