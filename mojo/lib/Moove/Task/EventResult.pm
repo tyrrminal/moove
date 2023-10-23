@@ -13,7 +13,7 @@ sub register ($self, $app, $args) {
       my $event_activity = $job->app->model('EventActivity')->find($event_activity_id);
       my $event          = $event_activity->event;
       my $edc            = $event->external_data_source;
-      my $class          = $edc->import_class;
+      my $class          = $event_activity->all_import_params->{custom_class} // $edc->import_class;
       require(class_to_path($class));
       my $importer = $class->new(import_params => $event_activity->all_import_params, import_fields => $import_fields);
 
