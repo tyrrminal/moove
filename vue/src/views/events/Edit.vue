@@ -80,9 +80,10 @@
           <b-col v-if="eventDataSource" offset="1" class="bg-success-light p-3 rounded-sm border border-success">
             <strong>Import Parameters</strong>
             <b-form-group v-for="f in eventFields" :label="f.label" label-cols="3" label-class="importParams-label"
-              :state="!f.required == !edit.event.importParameters[f.name]" class="my-0 py-0">
+              :state="f.required ? !!edit.event.importParameters[f.name] : true" class="my-0 py-0">
               <b-input v-model="edit.event.importParameters[f.name]" :required="f.required"
-                :state="!f.required == !edit.event.importParameters[f.name]" size="sm" :number="f.type == 'integer'" />
+                :state="f.required ? !!edit.event.importParameters[f.name] : true" size="sm"
+                :number="f.type == 'integer'" />
             </b-form-group>
           </b-col>
         </b-form-row>
@@ -135,11 +136,13 @@
                 <strong>Import Parameters</strong>
                 <b-form-group v-for="f in eventActivityFields" :label="f.label" label-cols="2"
                   label-class="importParams-label"
-                  :state="!f.required == !edit.eventActivities[selectedEventActivityIdx].importParameters[f.name]"
+                  :state="f.required ? !!edit.eventActivities[selectedEventActivityIdx].importParameters[f.name] : true"
                   class="my-0 py-0">
-                  <b-input v-model="edit.eventActivities[selectedEventActivityIdx].importParameters[f.name]"
+                  <b-checkbox v-if="f.type == 'boolean'"
+                    v-model="edit.eventActivities[selectedEventActivityIdx].importParameters[f.name]" size="sm" />
+                  <b-input v-else v-model="edit.eventActivities[selectedEventActivityIdx].importParameters[f.name]"
                     :required="f.required"
-                    :state="!f.required == !edit.eventActivities[selectedEventActivityIdx].importParameters[f.name]"
+                    :state="f.required ? !!edit.eventActivities[selectedEventActivityIdx].importParameters[f.name] : true"
                     size="sm" :number="f.type == 'integer'" />
                 </b-form-group>
               </b-col>
@@ -364,7 +367,7 @@ export default {
     },
     blanksToNulls: function (obj) {
       let r = {};
-      Object.keys(obj).forEach(k => r[k] = obj[k] ? obj[k] : null);
+      Object.keys(obj || {}).forEach(k => r[k] = obj[k] ? obj[k] : null);
       return r;
     }
   },
