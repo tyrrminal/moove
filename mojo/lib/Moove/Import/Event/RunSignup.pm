@@ -3,6 +3,7 @@ use v5.38;
 use Moose;
 with 'Moove::Import::Event::Base';
 
+use JSON::Validator::Joi qw(joi);
 use Readonly;
 use Moove::Util::Unit::Normalization qw(normalize_times);
 
@@ -78,6 +79,22 @@ sub _build_results ($self) {
   } while ($res->json->{resultSet}->{results}->@*);
 
   return [@results];
+}
+
+sub _build_import_param_schemas ($class) {
+  return {
+    event => JSON::Validator->new()->schema(
+      joi->object->strict->props(
+        event_id => joi->integer->required,
+        )->compile
+    ),
+    eventactivity => JSON::Validator->new()->schema(
+      joi->object->strict->props(
+        race_id      => joi->string->required,
+        custom_class => joi->string
+        )->compile
+    )
+  };
 }
 
 sub make_participant_record ($self, @fields) {
