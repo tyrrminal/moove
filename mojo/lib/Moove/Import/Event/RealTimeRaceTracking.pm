@@ -55,44 +55,63 @@ sub _build_results ($self) {
     'Content-Type' => 'application/x-www-form-urlencoded; charset=UTF-8',
   };
 
-  my $list =
-    [grep {!exists($_->{undefined})}
-      $self->ua->post(sprintf($RESULTS_BASE_URL, $self->event_id) . 'places' => $headers => form => $self->import_fields)
-      ->result->json->{list}->@*];
-  my $place_item  = _placement_list_extract($list, 'label', 'Overall');
-  my $place       = $place_item->{name};
-  my $results_map = {
-    division => _placement_list_extract($list, 'fields', [qw(division sex agegroup)])->{name},
-    gender   => _placement_list_extract($list, 'fields', [qw(division sex)])->{name},
-    overall  => $place_item->{name},
-  };
+  my $base = sprintf($RESULTS_BASE_URL, $self->event_id);
 
-  my $url  = join($SLASH, sprintf($RESULTS_BASE_URL, $self->event_id) . 'places', $place, $self->race_id);
-  my $body = {
-    $self->import_fields->%*,
-    event  => $self->event_id,
-    source => 'webtracker',
-    sess   => 0,
-    map {sprintf('combo[%s]', $_) => $self->resolve_field_value($_)} ($place_item->{fields}->@*)
-  };
-
-  my $fetch_results = sub ($page = 1) {
-    my $size = 50;
-    my $res  = $self->ua->post($url => $headers => form => {$body->%*, start => ($page - 1) * $size + 1, max => $size});
-    return $res->result;
-  };
-
-  my ($page, @results) = (1);
-  while (true) {
-    my $res = $fetch_results->($page++);
-
-    my @records = ($res->json->{list} // [])->@*;
-    last unless (@records);
-    foreach my $r (@records) {
-      my $p = $self->make_participant($r, $results_map);
-      push(@results, $p);
+  my $conf = $self->ua->post(
+    $base
+      . 'conf' => $headers => form => {
+      source => 'webtracker',
+      $self->import_fields->%*,
+      }
+  )->result->json;
+  my ($reg) = grep {$_->{race} eq $self->race_id} $conf->{conf}->{skus}->{reg}->@*;
+  my @categories = grep {
+    $_->{course} eq $reg->{course}     # filter out categories for other races
+      && $_->{title} !~ /Residents/    # exclude "Falmouth Residents" categories
+      && $_->{publish}                 # exclude unpublished categories
+      && $_->{lboard}                  # exclude non-leaderboard categories
+      && $_->{loadmore}                # exclude top finishers categories
+      && $_->{netscore}                # ???
+  } $conf->{conf}->{categories}->@*;
+  foreach my $cat (@categories) {
+    $cat->{$_} = $cat->{$_} // q{} for (qw(name title subtitle));
+    if ($cat->{name} =~ /(fe)?male.*agegroup.*:_ALL$/ || $cat->{subtitle} =~ /^[FMUX]$/) {
+      $cat->{place_key} = 'gender_place';
+    } elsif ($cat->{subtitle} eq 'Overall' || $cat->{subtitle} eq q{}) {
+      $cat->{place_key} = 'overall_place';
+    } else {
+      $cat->{place_key} = 'div_place';
     }
   }
+
+  my %p;
+  foreach my $cat (@categories) {
+    my $url = join($SLASH, $base . 'categories', $cat->{name}, 'splits', $self->import_params->{point});
+    my ($start, $max, $size) = (1, 100);
+    do {
+      my $list = $self->ua->post(
+        $url => $headers => form => {
+          units  => 'standard',
+          source => 'webtracker',
+          start  => $start,
+          max    => $max,
+          $self->import_fields->%*,
+        }
+      )->result->json->{list};
+      last unless (defined($list));
+      $size = $list->@*;
+      foreach my $cat_p ($list->@*) {
+        my $place = delete($cat_p->{place});
+        $p{$cat_p->{pid}}                      = $cat_p unless (defined($p{$cat_p->{pid}}));
+        $p{$cat_p->{pid}}->{$cat->{place_key}} = $place;
+        $p{$cat_p->{pid}}->{division}          = join(" ", $cat->{title} // '', $cat->{subtitle} // '') =~ s/\s+/ /gr
+          if ($cat->{place_key} eq 'div_place');
+      }
+      $start += $max;
+    } until ($size < $max);
+  }
+
+  my @results = map {$self->make_participant($_)} values(%p);
   return [@results];
 }
 
