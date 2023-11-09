@@ -163,7 +163,7 @@ export default {
           quarter: sd.quarter,
           weekOfYear: sd.weekNumber,
           weekOfMonth: sd.weekNumber - sd.startOf('month').plus({ days: -1 }).weekNumber,
-          end: ed.plus({ days: -1 }),
+          end: ed.plus({ days: -1 }).toISODate(),
           daysInPeriod: ed.diff(sd, ['days']).days
         }
       }

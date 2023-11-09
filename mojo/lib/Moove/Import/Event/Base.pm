@@ -42,24 +42,25 @@ has 'import_params' => (
   required => true,
 );
 
-has 'import_param_defaults' => (
+class_has 'import_param_defaults' => (
   is       => 'ro',
   isa      => 'HashRef[Int|Str|Undef]',
   init_arg => undef,
   writer   => undef,
-  builder  => '_build_import_param_defaults'
+  builder  => '_build_import_param_defaults',
+  lazy     => true,
 );
 
 sub _build_import_param_defaults ($self) {
   return {};
 }
 
-sub event_id($self) {
-  return $self->resolve_field_value('event_id')
+sub event_id ($self) {
+  return $self->resolve_field_value('event_id');
 }
 
-sub race_id($self) {
-  return $self->resolve_field_value('race_id')
+sub race_id ($self) {
+  return $self->resolve_field_value('race_id');
 }
 
 class_has 'import_param_schemas' => (

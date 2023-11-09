@@ -11,7 +11,7 @@ use Moove::Util::Unit::Normalization qw(normalize_times);
 use Moove::Import::Helper::CityService;
 use Mojo::JSON qw(encode_json);
 
-use builtin      qw(true false);
+use builtin      qw(true false trim);
 use experimental qw(builtin try);
 
 use DCS::Constants qw(:symbols);
@@ -38,32 +38,15 @@ sub _build_import_param_schemas ($class) {
     ),
     eventactivity => JSON::Validator->new()->schema(
       joi->object->strict->props(
-        race_id  => joi->string->required,
-        course   => joi->string,
-        division => joi->string
+        race_id => joi->string->required,
+        point   => joi->string
         )->compile
     )
   };
 }
 
 sub _build_import_param_defaults ($self) {
-  return {division => 'runner'};
-}
-
-sub _placement_list_extract ($list, $key, $value) {
-  if (ref($value) eq 'ARRAY') {
-  ITEM: for (my $i = 0 ; $i < $list->@* ; $i++) {
-      my $cmp_arr = $list->[$i]->{$key};
-      foreach my $v ($value->@*) {
-        next ITEM unless (grep {$v eq $_} $cmp_arr->@*);
-      }
-      return splice($list->@*, $i, 1);
-    }
-  } elsif (!ref($value)) {
-    my $idx = firstidx {$_->{$key} eq $value} $list->@*;
-    return splice($list->@*, $idx, 1) if ($idx >= 0);
-  }
-  die("Could not generate results map for key '$key'");
+  return {point => 'FINISH'};
 }
 
 sub _build_results ($self) {
@@ -72,53 +55,72 @@ sub _build_results ($self) {
     'Content-Type' => 'application/x-www-form-urlencoded; charset=UTF-8',
   };
 
-  my $list =
-    [grep {!exists($_->{undefined})}
-      $self->ua->post(sprintf($RESULTS_BASE_URL, $self->event_id) . 'places' => $headers => form => $self->import_fields)
-      ->result->json->{list}->@*];
-  my $place_item  = _placement_list_extract($list, 'label', 'Overall');
-  my $place       = $place_item->{name};
-  my $results_map = {
-    division => _placement_list_extract($list, 'fields', [qw(division sex agegroup)])->{name},
-    gender   => _placement_list_extract($list, 'fields', [qw(division sex)])->{name},
-    overall  => $place_item->{name},
-  };
+  my $base = sprintf($RESULTS_BASE_URL, $self->event_id);
 
-  my $url  = join($SLASH, sprintf($RESULTS_BASE_URL, $self->event_id) . 'places', $place, $self->race_id);
-  my $body = {
-    $self->import_fields->%*,
-    event  => $self->event_id,
-    source => 'webtracker',
-    sess   => 0,
-    map {sprintf('combo[%s]', $_) => $self->resolve_field_value($_)} ($place_item->{fields}->@*)
-  };
-
-  my $fetch_results = sub ($page = 1) {
-    my $size = 50;
-    my $res  = $self->ua->post($url => $headers => form => {$body->%*, start => ($page - 1) * $size + 1, max => $size});
-    return $res->result;
-  };
-
-  my ($page, @results) = (1);
-  while (true) {
-    my $res = $fetch_results->($page++);
-
-    my @records = ($res->json->{list} // [])->@*;
-    last unless (@records);
-    foreach my $r (@records) {
-      my $p = $self->make_participant($r, $results_map);
-      push(@results, $p);
+  my $conf = $self->ua->post(
+    $base
+      . 'conf' => $headers => form => {
+      source => 'webtracker',
+      $self->import_fields->%*,
+      }
+  )->result->json;
+  my ($reg) = grep {$_->{race} eq $self->race_id} $conf->{conf}->{skus}->{reg}->@*;
+  my @categories = grep {
+    $_->{course} eq $reg->{course}     # filter out categories for other races
+      && $_->{title} !~ /Residents/    # exclude "Falmouth Residents" categories
+      && $_->{publish}                 # exclude unpublished categories
+      && $_->{lboard}                  # exclude non-leaderboard categories
+      && $_->{loadmore}                # exclude top finishers categories
+      && $_->{netscore}                # ???
+  } $conf->{conf}->{categories}->@*;
+  foreach my $cat (@categories) {
+    $cat->{$_} = $cat->{$_} // q{} for (qw(name title subtitle));
+    if ($cat->{name} =~ /(fe)?male.*agegroup.*:_ALL$/ || $cat->{subtitle} =~ /^[FMUX]$/) {
+      $cat->{place_key} = 'gender_place';
+    } elsif ($cat->{subtitle} eq 'Overall' || $cat->{subtitle} eq q{}) {
+      $cat->{place_key} = 'overall_place';
+    } else {
+      $cat->{place_key} = 'div_place';
     }
   }
+
+  my %p;
+  foreach my $cat (@categories) {
+    my $url = join($SLASH, $base . 'categories', $cat->{name}, 'splits', $self->import_params->{point});
+    my ($start, $max, $size) = (1, 100);
+    do {
+      my $list = $self->ua->post(
+        $url => $headers => form => {
+          units  => 'standard',
+          source => 'webtracker',
+          start  => $start,
+          max    => $max,
+          $self->import_fields->%*,
+        }
+      )->result->json->{list};
+      last unless (defined($list));
+      $size = $list->@*;
+      foreach my $cat_p ($list->@*) {
+        my $place = delete($cat_p->{place});
+        $p{$cat_p->{pid}}                      = $cat_p unless (defined($p{$cat_p->{pid}}));
+        $p{$cat_p->{pid}}->{$cat->{place_key}} = $place;
+        $p{$cat_p->{pid}}->{division}          = join(" ", $cat->{title} // '', $cat->{subtitle} // '') =~ s/\s+/ /gr
+          if ($cat->{place_key} eq 'div_place');
+      }
+      $start += $max;
+    } until ($size < $max);
+  }
+
+  my @results = map {$self->make_participant($_)} values(%p);
   return [@results];
 }
 
 sub url ($self) {
-  return undef unless (defined($self->race_id));
-  return sprintf($RESULTS_PAGE, $self->race_id);
+  return undef unless (defined($self->event_id));
+  return sprintf($RESULTS_PAGE, $self->event_id);
 }
 
-sub make_participant ($self, $d, $results_map) {
+sub make_participant ($self, $d) {
   my $fields = {
     bib_no => sub ($v) {$v->{bib}},
     age    => sub ($v) {undef},
@@ -128,10 +130,10 @@ sub make_participant ($self, $d, $results_map) {
     net_time   => sub ($v) {$v->{netTime}},
     pace       => sub ($v) {$v->{milePaceAvg}},
 
-    division      => sub ($v) {$v->{results}->{$results_map->{division}}->{n}},
-    div_place     => sub ($v) {$v->{results}->{$results_map->{division}}->{p}},
-    gender_place  => sub ($v) {$v->{results}->{$results_map->{gender}}->{p}},
-    overall_place => sub ($v) {$v->{place}},
+    division      => sub ($v) {$v->{division}},
+    div_place     => sub ($v) {$v->{div_place}},
+    gender_place  => sub ($v) {$v->{gender_place}},
+    overall_place => sub ($v) {$v->{overall_place}},
 
     first_name => sub ($v) {my ($fn, $ln) = $v->{name} =~ /^(.*)\s+(\S+)$/; $fn},
     last_name  => sub ($v) {my ($fn, $ln) = $v->{name} =~ /^(.*)\s+(\S+)$/; $ln},
