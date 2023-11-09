@@ -11,7 +11,7 @@ use Moove::Util::Unit::Normalization qw(normalize_times);
 use Moove::Import::Helper::CityService;
 use Mojo::JSON qw(encode_json);
 
-use builtin      qw(true false);
+use builtin      qw(true false trim);
 use experimental qw(builtin try);
 
 use DCS::Constants qw(:symbols);
