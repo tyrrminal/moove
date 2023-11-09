@@ -86,7 +86,7 @@ sub _build_results ($self) {
 
   my %p;
   foreach my $cat (@categories) {
-    my $url = join($SLASH, $base . 'categories', $cat->{name}, 'splits', $self->import_params->{point});
+    my $url = join($SLASH, $base . 'categories', $cat->{name}, 'splits', $self->resolve_field_value('point'));
     my ($start, $max, $size) = (1, 100);
     do {
       my $list = $self->ua->post(
