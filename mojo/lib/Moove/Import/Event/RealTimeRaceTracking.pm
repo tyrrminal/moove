@@ -38,32 +38,15 @@ sub _build_import_param_schemas ($class) {
     ),
     eventactivity => JSON::Validator->new()->schema(
       joi->object->strict->props(
-        race_id  => joi->string->required,
-        course   => joi->string,
-        division => joi->string
+        race_id => joi->string->required,
+        point   => joi->string
         )->compile
     )
   };
 }
 
 sub _build_import_param_defaults ($self) {
-  return {division => 'runner'};
-}
-
-sub _placement_list_extract ($list, $key, $value) {
-  if (ref($value) eq 'ARRAY') {
-  ITEM: for (my $i = 0 ; $i < $list->@* ; $i++) {
-      my $cmp_arr = $list->[$i]->{$key};
-      foreach my $v ($value->@*) {
-        next ITEM unless (grep {$v eq $_} $cmp_arr->@*);
-      }
-      return splice($list->@*, $i, 1);
-    }
-  } elsif (!ref($value)) {
-    my $idx = firstidx {$_->{$key} eq $value} $list->@*;
-    return splice($list->@*, $idx, 1) if ($idx >= 0);
-  }
-  die("Could not generate results map for key '$key'");
+  return {point => 'FINISH'};
 }
 
 sub _build_results ($self) {
