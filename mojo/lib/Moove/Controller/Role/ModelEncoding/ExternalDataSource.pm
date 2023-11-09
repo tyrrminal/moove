@@ -23,6 +23,7 @@ sub encode_model_externaldatasource ($self, $entity) {
             label    => encode_label($_),
             activity => $type eq 'eventactivity',
             required => defined({map {$_ => 1} $schema->{required}->@*}->{$_}),
+            default  => $class_name->import_param_defaults->{$_},
             $props{$_}->%*,
           },
           keys(%props)

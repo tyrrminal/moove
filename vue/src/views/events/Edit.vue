@@ -82,8 +82,8 @@
             <b-form-group v-for="f in eventFields" :label="f.label" label-cols="3" label-class="importParams-label"
               :state="f.required ? !!edit.event.importParameters[f.name] : true" class="my-0 py-0">
               <b-input v-model="edit.event.importParameters[f.name]" :required="f.required"
-                :state="f.required ? !!edit.event.importParameters[f.name] : true" size="sm"
-                :number="f.type == 'integer'" />
+                :state="f.required ? !!edit.event.importParameters[f.name] : true" size="sm" :number="f.type == 'integer'"
+                :placeholder="f.default" />
             </b-form-group>
           </b-col>
         </b-form-row>
@@ -141,7 +141,7 @@
                   <b-checkbox v-if="f.type == 'boolean'"
                     v-model="edit.eventActivities[selectedEventActivityIdx].importParameters[f.name]" size="sm" />
                   <b-input v-else v-model="edit.eventActivities[selectedEventActivityIdx].importParameters[f.name]"
-                    :required="f.required"
+                    :required="f.required" :placeholder="f.default"
                     :state="f.required ? !!edit.eventActivities[selectedEventActivityIdx].importParameters[f.name] : true"
                     size="sm" :number="f.type == 'integer'" />
                 </b-form-group>
