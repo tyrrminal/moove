@@ -97,8 +97,8 @@ sub _build_results ($self) {
 }
 
 sub url ($self) {
-  return undef unless (defined($self->race_id));
-  return sprintf($RESULTS_PAGE, $self->race_id);
+  return undef unless (defined($self->event_id));
+  return sprintf($RESULTS_PAGE, $self->event_id);
 }
 
 sub make_participant ($self, $d, $results_map) {
