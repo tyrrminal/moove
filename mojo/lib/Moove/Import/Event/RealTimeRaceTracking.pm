@@ -120,7 +120,7 @@ sub url ($self) {
   return sprintf($RESULTS_PAGE, $self->event_id);
 }
 
-sub make_participant ($self, $d, $results_map) {
+sub make_participant ($self, $d) {
   my $fields = {
     bib_no => sub ($v) {$v->{bib}},
     age    => sub ($v) {undef},
@@ -130,10 +130,10 @@ sub make_participant ($self, $d, $results_map) {
     net_time   => sub ($v) {$v->{netTime}},
     pace       => sub ($v) {$v->{milePaceAvg}},
 
-    division      => sub ($v) {$v->{results}->{$results_map->{division}}->{n}},
-    div_place     => sub ($v) {$v->{results}->{$results_map->{division}}->{p}},
-    gender_place  => sub ($v) {$v->{results}->{$results_map->{gender}}->{p}},
-    overall_place => sub ($v) {$v->{place}},
+    division      => sub ($v) {$v->{division}},
+    div_place     => sub ($v) {$v->{div_place}},
+    gender_place  => sub ($v) {$v->{gender_place}},
+    overall_place => sub ($v) {$v->{overall_place}},
 
     first_name => sub ($v) {my ($fn, $ln) = $v->{name} =~ /^(.*)\s+(\S+)$/; $fn},
     last_name  => sub ($v) {my ($fn, $ln) = $v->{name} =~ /^(.*)\s+(\S+)$/; $ln},
