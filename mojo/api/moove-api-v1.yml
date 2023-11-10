@@ -1601,9 +1601,8 @@ components:
           type: string
           format: uri
           nullable: true
-        year:
-          type: integer
-          nullable: true
+        isParent:
+          type: boolean
         type:
           type: string
           enum: [parent, series]
