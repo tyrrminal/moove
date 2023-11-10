@@ -62,9 +62,11 @@ __PACKAGE__->table("EventGroup");
   is_nullable: 1
   size: 45
 
-=head2 year
+=head2 is_parent
 
-  data_type: 'smallint'
+  data_type: 'enum'
+  default_value: 'Y'
+  extra: {list => ["Y","N"]}
   is_nullable: 1
 
 =cut
@@ -81,8 +83,13 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 1 },
   "name",
   { data_type => "varchar", is_nullable => 1, size => 45 },
-  "year",
-  { data_type => "smallint", is_nullable => 1 },
+  "is_parent",
+  {
+    data_type => "enum",
+    default_value => "Y",
+    extra => { list => ["Y", "N"] },
+    is_nullable => 1,
+  },
 );
 
 =head1 PRIMARY KEY
@@ -141,8 +148,19 @@ __PACKAGE__->many_to_many("events", "event_series_events", "event");
 #>>>
 use v5.38;
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2023-08-14 09:22:57
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:kggG3f3UeMjid9xA9d3atw
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2023-11-09 16:41:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:RqUtuBTHw7FIc1b/+MQ0Xg
+
+use Class::Method::Modifiers;
+
+around [qw(is_parent)] => sub ($orig, $self, $value = undef) {
+  if (defined($value)) {
+    $value = $self->$orig($value ? 'Y' : 'N');
+  } else {
+    $value = $self->$orig();
+  }
+  return $value eq 'Y';
+};
 
 sub description ($self) {
   return join(' ', grep {defined} ($self->year, $self->name));
