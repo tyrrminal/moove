@@ -569,6 +569,18 @@ paths:
         required: true
         schema:
           type: integer
+    get:
+      summary: Get the details of an event group
+      x-mojo-to: EventGroup#get
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventGroup"
+      tags:
+        - EventGroup
     patch:
       summary: Modify an event group
       x-mojo-to: EventGroup#update
