@@ -3,6 +3,8 @@ use v5.38;
 
 use base qw(DBIx::Class::ResultSet);
 
+__PACKAGE__->load_components(qw{Helper::ResultSet::SetOperations});
+
 use DateTime::Format::MySQL;
 
 sub on_or_before ($self, $date) {
@@ -48,13 +50,21 @@ sub after ($self, $event) {
 }
 
 sub in_group ($self, $event_group_id) {
-  $self->search(
+  my $eg_rs = $self->search(
     {
-      -or => [{'event.event_group_id' => $event_group_id}, {'event_series.id' => $event_group_id}]
+      'event.event_group_id' => $event_group_id,
     }, {
-      join => {event_registration => {event_activity => {event => {event_series_events => 'event_series'}}}},
+      join => {event_registration => {event_activity => 'event'}},
     }
   );
+  my $es_rs = $self->search(
+    {
+      'event_series.id' => $event_group_id
+    }, {
+      join => {event_registration => {event_activity => {event => {event_series_events => 'event_series'}}}}
+    }
+  );
+  return $eg_rs->union($es_rs);
 }
 
 sub for_user ($self, $user) {

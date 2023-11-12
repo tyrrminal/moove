@@ -15,6 +15,7 @@ requires 'DBIx::Class::InflateColumn::DateTime';
 requires 'DBIx::Class::InflateColumn::FS';
 requires 'DBIx::Class::InflateColumn::Time';
 requires 'DBIx::Class::Relationship::Predicate';
+requires 'DBIx::Class::Helper::ResultSet::SetOperations';
 requires 'DBIx::Class::Schema::Loader';
 requires 'DBIx::Class::Stash';
 requires 'DCS::Constants', '== 0.002', dist => 'DIGICOW/DCS-Constants-0.002.tar.gz', mirror => 'http://cpan.digicow.net:5888/orepan';
