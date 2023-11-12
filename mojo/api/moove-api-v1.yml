@@ -1679,7 +1679,11 @@ components:
     Navigation:
       type: object
       additionalProperties: false
+      required:
+        - description
       properties:
+        id:
+          type: integer
         description:
           type: string
           nullable: true
