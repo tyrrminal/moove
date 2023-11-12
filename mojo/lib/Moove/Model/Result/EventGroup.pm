@@ -163,7 +163,7 @@ around [qw(is_parent)] => sub ($orig, $self, $value = undef) {
 };
 
 sub description ($self) {
-  return join(' ', grep {defined} ($self->year, $self->name));
+  return $self->name
 }
 
 sub user_event_activities ($self) {
