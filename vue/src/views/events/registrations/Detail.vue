@@ -3,14 +3,17 @@
     <b-row>
       <b-col cols="2" class="bg-light pt-2">
         <div>
-          <h4 class="float-right" v-if="nav.group && (nav.group.prev || nav.group.next)">
-            <b-link v-if="nav.group.prev" :to="{ name: 'registration-detail', params: { id: nav.group.prev.id } }"><b-icon
-                icon="chevron-left" :title="`${nav.group.prev.year} ${nav.group.prev.name}`" variant="dark" /></b-link>
+          <h4 class="float-right">
+            <b-link v-if="nav.global.prev"
+              :to="{ name: 'registration-detail', params: { id: nav.global.prev.id } }"><b-icon icon="chevron-left"
+                :title="`${nav.global.prev.year} ${nav.global.prev.name}`" variant="dark" /></b-link>
             <b-icon v-else icon="chevron-left" :style="{ color: 'gray' }" />
-            <b-link v-if="nav.group.next" :to="{ name: 'registration-detail', params: { id: nav.group.next.id } }"><b-icon
-                icon="chevron-right" :title="`${nav.group.next.year} ${nav.group.next.name}`" variant="dark" /></b-link>
+            <b-link v-if="nav.global.next"
+              :to="{ name: 'registration-detail', params: { id: nav.global.next.id } }"><b-icon icon="chevron-right"
+                :title="`${nav.global.next.year} ${nav.global.next.name}`" variant="dark" /></b-link>
             <b-icon v-else icon="chevron-right" :style="{ color: 'gray' }" />
           </h4>
+
           <h4>{{ event.year }} </h4>
           <div class="data-value-form">
             <b-form-group v-if="eventActivity" label="What">{{ eventActivityDescription }}
@@ -57,35 +60,39 @@
               size="sm" block pill><b-icon icon="pencil" class="mr-2" />Modify</b-button>
           </div>
         </div>
-
-        <div v-if="nav.series.length" class="mt-2">
-          <hr />
-          <span v-for="s in nav.series.filter(s => s.prev || s.next)" :style="{ fontSize: '10pt' }">
-            <b-link v-if="s.prev" :to="{ name: 'registration-detail', params: { id: s.prev.id } }"><b-icon
-                icon="chevron-left" :title="`${s.prev.year} ${s.prev.name}`" variant="dark" /></b-link>
-            <b-icon v-else icon="chevron-left" :style="{ color: 'gray' }" />
-            <span>{{ s.description }}</span>
-            <b-link v-if="s.next" :to="{ name: 'registration-detail', params: { id: s.next.id } }"><b-icon
-                icon="chevron-right" :title="`${s.next.year} ${s.next.name}`" variant="dark" /></b-link>
-            <b-icon v-else icon="chevron-right" :style="{ color: 'gray' }" />
-          </span>
-        </div>
       </b-col>
 
       <b-col cols="9">
         <h3 class="float-right my-2">
-          <b-link v-if="nav.global.prev" :to="{ name: 'registration-detail', params: { id: nav.global.prev.id } }"><b-icon
-              icon="chevron-left" :title="`${nav.global.prev.year} ${nav.global.prev.name}`" variant="dark" /></b-link>
-          <b-icon v-else icon="chevron-left" :style="{ color: 'gray' }" />
-          <b-link v-if="nav.global.next" :to="{ name: 'registration-detail', params: { id: nav.global.next.id } }"><b-icon
-              icon="chevron-right" :title="`${nav.global.next.year} ${nav.global.next.name}`" variant="dark" /></b-link>
-          <b-icon v-else icon="chevron-right" :style="{ color: 'gray' }" />
+          <div v-if="nav.group && (nav.group.prev || nav.group.next)" :style="{ fontSize: '10pt' }">
+            <b-link v-if="nav.group.prev" :to="{ name: 'registration-detail', params: { id: nav.group.prev.id } }"><b-icon
+                icon="chevron-left" :title="`${nav.group.prev.year} ${nav.group.prev.name}`" variant="dark" /></b-link>
+            <b-icon v-else icon="chevron-left" :style="{ color: 'gray' }" />
+            <b-link :to="{ name: 'registration-series', params: { id: nav.group.id } }"
+              class="text-dark font-weight-bold">{{
+                nav.group.description
+              }}</b-link>
+            <b-link v-if="nav.group.next" :to="{ name: 'registration-detail', params: { id: nav.group.next.id } }"><b-icon
+                icon="chevron-right" :title="`${nav.group.next.year} ${nav.group.next.name}`" variant="dark" /></b-link>
+            <b-icon v-else icon="chevron-right" :style="{ color: 'gray' }" />
+          </div>
+          <div v-if="nav.series.length">
+            <div v-for="s in nav.series.filter(s => s.prev || s.next)" :style="{ fontSize: '10pt' }">
+              <b-link v-if="s.prev" :to="{ name: 'registration-detail', params: { id: s.prev.id } }"><b-icon
+                  icon="chevron-left" :title="`${s.prev.year} ${s.prev.name}`" variant="dark" /></b-link>
+              <b-icon v-else icon="chevron-left" :style="{ color: 'gray' }" />
+              <b-link :to="{ name: 'registration-series', params: { id: s.id } }" class="text-dark">{{ s.description
+              }}</b-link>
+              <b-link v-if="s.next" :to="{ name: 'registration-detail', params: { id: s.next.id } }"><b-icon
+                  icon="chevron-right" :title="`${s.next.year} ${s.next.name}`" variant="dark" /></b-link>
+              <b-icon v-else icon="chevron-right" :style="{ color: 'gray' }" />
+            </div>
+          </div>
         </h3>
 
         <h3 class="my-2">
           <template v-if="eventGroup">
-            <b-link class="text-dark" :to="{ name: 'registration-series', params: { id: eventGroup.id } }">{{
-              event.name }}</b-link>
+            <span class="text-dark">{{ event.name }}</span>
           </template>
           <template v-else>
             <span>{{ event.name }}</span>
@@ -266,9 +273,6 @@ export default {
         .get(["user", "events", this.id].join("/"))
         .then((response) => {
           self.userEventActivity = response.data;
-          self.nav.global = self.userEventActivity.nav.find(x => x.description == null);
-          self.nav.group = self.userEventActivity.nav.find(x => x.description == 'group');
-          self.nav.series = self.userEventActivity.nav.filter(x => x.description != null && x.description != 'group')
           self.eventActivity = self.userEventActivity.eventActivity;
           delete self.userEventActivity.eventActivity;
           self.event = self.eventActivity.event;
@@ -279,6 +283,10 @@ export default {
           delete self.event.eventGroup;
           self.activity = self.userEventActivity.activity;
           delete self.userEventActivity.activity;
+          self.nav.global = self.userEventActivity.nav.find(x => x.description == null);
+          self.nav.group = self.userEventActivity.nav.find(x => x.id = self.eventGroup.id);
+          self.nav.group.description = self.eventGroup.name;
+          self.nav.series = self.userEventActivity.nav.filter(x => x.description != null && x.id != self.eventGroup.id)
           if (self.userEventActivity.eventResult)
             self.eventResult = {
               ...self.userEventActivity.eventResult,
