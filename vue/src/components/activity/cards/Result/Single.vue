@@ -153,11 +153,9 @@ export default {
   },
   watch: {
     activityData: function (newV) {
-      console.log(`activityData: ${newV}`)
       if (this.paceSpeedToggle === null && newV != null) this.initToggle();
     },
     activityType: function (newV) {
-      console.log(`activityType: ${newV}`)
       if (this.paceSpeedToggle === null && newV != null) this.initToggle();
     }
   }

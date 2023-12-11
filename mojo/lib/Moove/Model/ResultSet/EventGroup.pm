@@ -12,11 +12,11 @@ sub filter_name ($self, $name) {
 }
 
 sub type_series ($self) {
-  return $self->search({year => {'<>' => undef}});
+  return $self->search({is_parent => 'N'});
 }
 
 sub type_parent ($self) {
-  return $self->search({year => {'=' => undef}});
+  return $self->search({is_parent => 'Y'});
 }
 
 1;

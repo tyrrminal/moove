@@ -7,8 +7,8 @@ use Role::Tiny::With;
 use Mojo::JSON qw(encode_json);
 
 with 'DCS::Base::Role::Rest::Collection', 'DCS::Base::Role::Rest::Entity';
-with 'Moove::Controller::Role::ModelEncoding::Event', 'Moove::Controller::Role::ModelEncoding::EventActivity',
-  'Moove::Controller::Role::ModelEncoding::Distance';
+with 'Moove::Controller::Role::ModelEncoding::Event', 'Moove::Controller::Role::ModelEncoding::EventGroup',
+  'Moove::Controller::Role::ModelEncoding::EventActivity', 'Moove::Controller::Role::ModelEncoding::Distance';
 with 'Moove::Controller::Role::ModelEncoding::Default';
 
 use DCS::Util::NameConversion qw(camel_to_snake convert_hash_keys);

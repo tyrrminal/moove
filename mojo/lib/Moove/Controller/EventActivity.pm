@@ -8,7 +8,7 @@ use Mojo::JSON qw(encode_json);
 
 with 'DCS::Base::Role::Rest::Get', 'DCS::Base::Role::Rest::Create', 'DCS::Base::Role::Rest::Update',
   'DCS::Base::Role::Rest::Delete';
-with 'Moove::Controller::Role::ModelEncoding::Registration::Event',
+with 'Moove::Controller::Role::ModelEncoding::EventGroup', 'Moove::Controller::Role::ModelEncoding::Registration::Event',
   'Moove::Controller::Role::ModelEncoding::Registration::EventActivity';
 with 'Moove::Controller::Role::ModelEncoding::Default';
 

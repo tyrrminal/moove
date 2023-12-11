@@ -569,6 +569,18 @@ paths:
         required: true
         schema:
           type: integer
+    get:
+      summary: Get the details of an event group
+      x-mojo-to: EventGroup#get
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventGroup"
+      tags:
+        - EventGroup
     patch:
       summary: Modify an event group
       x-mojo-to: EventGroup#update
@@ -1601,9 +1613,8 @@ components:
           type: string
           format: uri
           nullable: true
-        year:
-          type: integer
-          nullable: true
+        isParent:
+          type: boolean
         type:
           type: string
           enum: [parent, series]
@@ -1680,7 +1691,11 @@ components:
     Navigation:
       type: object
       additionalProperties: false
+      required:
+        - description
       properties:
+        id:
+          type: integer
         description:
           type: string
           nullable: true
