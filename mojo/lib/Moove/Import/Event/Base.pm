@@ -38,7 +38,7 @@ has 'results' => (
 has 'import_params' => (
   traits   => ['Hash'],
   is       => 'ro',
-  isa      => 'HashRef[Int|Str|Undef]',
+  isa      => 'HashRef',
   required => true,
 );
 
