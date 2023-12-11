@@ -17,7 +17,7 @@
 
             <b-button v-for="r in results " @click="selectEventGroup(r)"
               :variant="group == null || group.id != r.id ? 'outline-primary' : 'primary'" class="my-1" block size="sm">
-              {{ r.year }} {{ r.name }}
+              {{ r.name }}
             </b-button>
 
             <b-button pill variant="secondary" size="sm" block @click="toggleEditMode" :disabled="!group"><b-icon
@@ -36,13 +36,10 @@
     <template v-if="editMode">
       <hr />
       <b-form @submit.prevent="saveEventGroup">
-        <b-form-group label="Year" label-cols="2" content-cols="4" v-if="type == 'series'">
-          <b-input name="event-group-year" type="number" :number="true" v-model="group.year" />
-        </b-form-group>
         <b-form-group label="Name" label-cols="2">
           <b-input name="event-group-name" v-model="group.name" />
         </b-form-group>
-        <b-form-group label="URL" label-cols="2">
+        <b-form-group label="URL" label-cols="2" description="Optional">
           <b-input type="url" name="event-group-url" v-model="group.url" />
         </b-form-group>
         <b-button pill variant="success" size="sm" block @click="saveEventGroup"><b-icon icon="upload"

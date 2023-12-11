@@ -31,27 +31,26 @@ sub encode_model_usereventactivity ($self, $entity) {
     $r->{fundraising} = $fr;
   }
 
-  push($r->{nav}->@*, $self->encode_model_usereventactivity_navigation($entity, $self->resultset));
+  push($r->{nav}->@*, $self->encode_model_usereventactivity_navigation($entity, undef, $self->resultset));
   push(
     $r->{nav}->@*,
-    $self->encode_model_usereventactivity_navigation($entity, scalar $self->resultset->in_group($event->event_group_id), 'group')
+    $self->encode_model_usereventactivity_navigation($entity, $event->event_group, scalar $self->resultset, 'group')
   );
   foreach my $ese ($event->event_series_events) {
-    push(
-      $r->{nav}->@*,
-      $self->encode_model_usereventactivity_navigation(
-        $entity,
-        scalar $self->resultset->in_group($ese->event_series_id),
-        $ese->event_series->description
-      )
-    );
+    push($r->{nav}->@*, $self->encode_model_usereventactivity_navigation($entity, $ese->event_series, scalar $self->resultset));
   }
 
   return $r;
 }
 
-sub encode_model_usereventactivity_navigation ($self, $entity, $rs, $description = undef) {
+sub encode_model_usereventactivity_navigation ($self, $entity, $event_group, $rs, $description = undef) {
   return unless (ref($self->resultset) =~ /UserEventActivity/);
+  my %id;
+  if (defined($event_group)) {
+    $description = $event_group->description if (!defined($description));
+    $rs          = $rs->in_group($event_group->id);
+    %id = (id => $event_group->id)
+  }
   my $nav;
   if (my $prev = $rs->before($entity)->for_user($entity->user)->visible_to($self->current_user)->first) {
     $nav->{prev} = $self->encode_model_simple($prev);
@@ -60,7 +59,7 @@ sub encode_model_usereventactivity_navigation ($self, $entity, $rs, $description
     $nav->{next} = $self->encode_model_simple($next);
   }
   return unless (grep {defined} keys($nav->%*));
-  return {$nav->%*, description => $description};
+  return {$nav->%*, %id, description => $description};
 }
 
 sub encode_model_user ($self, $entity) {

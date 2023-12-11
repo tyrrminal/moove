@@ -20,28 +20,17 @@ Readonly::Scalar my $RESULTS_URL     => 'https://runsignup.com/Race/Results/%s#r
 Readonly::Scalar my $RESULTS_API_URL => 'https://runsignup.com/Race/Results/%s';
 # ?resultSetId=350160&page=1&num=100&search=';
 
+Readonly::Scalar my $MODE_COMBINED_GENDER_DIVISION => 1;
+Readonly::Scalar my $MODE_SEPARATE_GENDER_DIVISION => 2;
+
 has 'key_map' => (
   traits   => ['Hash'],
   is       => 'ro',
   isa      => 'HashRef[Str]',
   init_arg => undef,
-  default  => sub {
-    {
-      'bib_num'        => 'bib_no',
-      'city'           => 'city',
-      'gender'         => 'gender',
-      'chip_time'      => 'net_time',
-      'clock_time'     => 'gross_time',
-      'race_placement' => 'overall_place',
-      'state'          => 'state',
-      'avg_pace'       => 'pace',
-
-      'division_place' => 'genderdivision_place',
-      'division'       => 'genderdivision_group',
-      'name'           => 'combined_name',
-    };
-  },
-  handles => {
+  lazy     => true,
+  builder  => '_build_key_map',
+  handles  => {
     get_key => 'get'
   }
 );
@@ -57,12 +46,37 @@ has 'record_key_map' => (
   }
 );
 
+sub _build_key_map ($self) {
+  my $m = {
+    bib_num        => 'bib_no',
+    city           => 'city',
+    gender         => 'gender',
+    chip_time      => 'net_time',
+    clock_time     => 'gross_time',
+    race_placement => 'overall_place',
+    'state'        => 'state',
+    avg_pace       => 'pace',
+    name           => 'combined_name',
+  };
+
+  if ($self->import_mode == $MODE_COMBINED_GENDER_DIVISION) {
+    $m->{division_place} = 'genderdivision_place';
+    $m->{division}       = 'genderdivision_group';
+    $m->{name}           = 'combined_name';
+  } elsif ($self->import_mode == $MODE_SEPARATE_GENDER_DIVISION) {
+    $m->{division_place} = 'div_place';
+    $m->{division}       = 'division';
+    $m->{'Gender Place'} = 'gender_place';
+  }
+  return $m;
+}
+
 sub _build_results ($self) {
   my $page = 1;
   my $res  = $self->fetch_results($page);
 
   my $headings = $res->json->{headings};
-  $self->record_key_map([map {$self->get_key($_->{key}) // $EMPTY} $headings->@*]);
+  $self->record_key_map([map {$self->get_key($_->{key}) // $self->get_key($_->{name}) // $EMPTY} $headings->@*]);
 
   my @results;
   do {
@@ -70,7 +84,7 @@ sub _build_results ($self) {
     foreach my $i (0 .. $#resultset) {
       my $p = $self->make_participant_record($resultset[$i]->@*);
       split_names($p, $res->json->{auxData}->{rowFirstNameLens}->[$i]);
-      separate_division_groups($p);
+      separate_division_groups($p) if ($self->import_mode == $MODE_COMBINED_GENDER_DIVISION);
       normalize_times($p);
       push(@results, $p);
     }
@@ -90,12 +104,23 @@ sub _build_import_param_schemas ($class) {
     ),
     eventactivity => JSON::Validator->new()->schema(
       joi->object->strict->props(
-        race_id      => joi->string->required,
-        segment_id   => joi->string,
-        custom_class => joi->string
+        race_id                  => joi->string->required,
+        segment_id               => joi->string,
+        custom_class             => joi->string,
+        combined_gender_division => joi->boolean,
         )->compile
     )
   };
+}
+
+sub import_mode ($self) {
+  my $m = undef;
+  if ($self->resolve_field_value('combined_gender_division')) {
+    $m = $MODE_COMBINED_GENDER_DIVISION;
+  } else {
+    $m = $MODE_SEPARATE_GENDER_DIVISION;
+  }
+  return $m;
 }
 
 sub make_participant_record ($self, @fields) {

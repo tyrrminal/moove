@@ -14,7 +14,7 @@ with 'Moove::Controller::Role::ModelEncoding::UserEventActivity',
 
 sub decode_model ($self, $data) {
   my $type = delete($data->{type});
-  die("Parent-type Event Groups cannot be specific to a year") if (defined($type) && $type eq 'parent' && defined($data->{year}));
+  $data->{is_parent} = $type eq 'parent';
   return $data;
 }
 
@@ -28,19 +28,18 @@ sub encode_model_event ($self, $event) {
 }
 
 sub encode_model_eventgroup ($self, $entity) {
-  my $user = $self->current_user;
-  if (my $username = $self->validation->param('username')) {
-    $user = $self->model('User')->find({username => $username});
-  }
-
   my $r = {
-    id   => $entity->id,
-    name => $entity->name,
-    year => $entity->year,
-    url  => $entity->url,
+    id       => $entity->id,
+    name     => $entity->name,
+    isParent => $entity->is_parent,
+    url      => $entity->url,
   };
 
   if (ref($self->resultset) =~ /UserEventActivity/) {
+    my $user = $self->current_user;
+    if (my $username = $self->validation->param('username')) {
+      $user = $self->model('User')->find({username => $username});
+    }
     $r->{events} = $self->encode_model([$entity->user_event_activities->for_user($user)->visible_to($self->current_user)->all]);
   }
 

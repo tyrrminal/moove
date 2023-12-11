@@ -369,6 +369,7 @@ export default {
     fields: function () {
       let self = this;
       let baseFields = [
+        { key: "index", label: "", predicate: () => self.events.length > 3 },
         { key: "year", sortable: false, predicate: () => self.eventYears.length > 1 && self.separateYear },
         { key: "date", sortable: true },
         { key: "countdown", sortable: false, tdClass: "text-right pr-3", thClass: "text-right", predicate: () => Math.min(...self.events.map(e => DateTime.fromISO(e.eventActivity.scheduledStart))) > DateTime.now() },
