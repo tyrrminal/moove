@@ -362,17 +362,34 @@ sub update_missing_result_paces ($self) {
 }
 
 sub add_placements_for_gender ($self, $gender) {
+  my $n         = 1;
   my $partition = $self->event_placement_partitions->search({division_id => undef, gender_id => $gender->id})->first;
   return if ($partition->event_placements->count > 0);
+
   my $participants = $self->event_placement_partitions->overall->event_placements->ordered->related_resultset('event_participant')
     ->search({gender_id => $gender->id});
-  my $n = 1;
   while (my $participant = $participants->next) {
     $partition->add_to_event_placements(
       {
-        place                        => $n++,
-        event_participant_id         => $participant->id,
-        event_placement_partition_id => $partition->id,
+        place                => $n++,
+        event_participant_id => $participant->id,
+      }
+    );
+  }
+}
+
+sub add_placements_for_division ($self, $division) {
+  my $n         = 1;
+  my $partition = $self->event_placement_partitions->search({division_id => $division->id, gender_id => undef})->first;
+  return if ($partition->event_placements->count > 0);
+
+  my $participants = $self->event_placement_partitions->overall->event_placements->ordered->related_resultset('event_participant')
+    ->search({division_id => $division->id});
+  while (my $participant = $participants->next) {
+    $partition->add_to_event_placements(
+      {
+        place                => $n++,
+        event_participant_id => $participant->id,
       }
     );
   }
