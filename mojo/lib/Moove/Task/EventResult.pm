@@ -41,6 +41,12 @@ sub register ($self, $app, $args) {
         $event_activity->add_placements_for_gender($g);
         $job->note(progress => $job->info->{notes}->{progress} + 1);
       }
+      foreach my $d (
+        $event_activity->event_placement_partitions->search({division_id => {'<>' => undef}})->related_resultset('division')->all)
+      {
+        $event_activity->add_placements_for_division($d);
+        $job->note(progress => $job->info->{notes}->{progress} + 1);
+      }
       # END LRP
       $job->note(progress => 100);
     }

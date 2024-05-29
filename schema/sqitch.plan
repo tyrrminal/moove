@@ -20,3 +20,4 @@ convert_nominal_time_frames_to_range 2023-07-31T14:35:07Z root <root@62f489b6c9b
 add_missing_activity_types 2023-08-10T11:11:31Z root <root@7a46b26acda8> # create new activity types that may or may not already exist
 use_calculated_pace_speed_cols 2023-08-14T13:08:27Z root <root@59cf043a495f> # add pace_to_speed and speed_to_pace calculated columns; ensure only pace OR speed is populated
 add_event_group_parent_flag 2023-11-09T21:39:30Z root <root@068232ea01a5> # make EGs markable as parent/not parent and put the year in the name field
+add_webscorer_to_EDS 2024-05-29T14:09:05Z root <root@218d2959c4e3> # add webscorer event provider

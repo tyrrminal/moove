@@ -26,8 +26,6 @@ use JSON::Validator;
 use DateTime::Format::Duration::ISO8601;
 use Time::Seconds;
 
-use syntax 'junction';
-
 use Moove::Util::Extraction   qw(selective_field_extract);
 use DCS::Util::NameConversion qw(convert_hash_keys snake_to_camel camel_to_snake);
 
