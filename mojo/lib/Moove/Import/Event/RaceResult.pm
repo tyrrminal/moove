@@ -63,9 +63,10 @@ sub _build_import_param_schemas ($self) {
     ),
     eventactivity => JSON::Validator->new()->schema(
       joi->object->strict->props(
-        race_id    => joi->string->required->min(1),
-        contest_id => joi->integer->required->min(1),
-        listname   => joi->string->required->min(1),
+        race_id       => joi->string->required->min(1),
+        contest_id    => joi->integer->required->min(1),
+        list_category => joi->string,
+        listname      => joi->string->required->min(1),
         )->compile
     )
   };
@@ -80,7 +81,7 @@ sub _build_results ($self) {
   my $url = Mojo::URL->new(sprintf($RESULTS_URL, $self->event_id));
   $url->query(
     key      => $self->import_params->{import_key},
-    listname => join($PIPE, 'Result Lists', $self->import_params->{listname}),
+    listname => join($PIPE, ($self->import_params->{list_category} // 'Result Lists'), $self->import_params->{listname}),
     page     => 'results',
     contest  => $self->import_params->{contest_id},
     r        => 'all',
