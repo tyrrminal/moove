@@ -185,7 +185,8 @@
             data.</b-alert>
           <b-alert v-else show variant="secondary">Import event activity results</b-alert>
           <b-form-group v-for="(f, i) in eventActivity.results.fields" :key="i" :label="f">
-            <b-input v-model="importFields[f]" :name="`${f}_${eventActivity.id}`" autocomplete="on" />
+            <b-textarea v-if="f == 'data'" v-model="importFields[f]" :name="`${f}_${eventActivity.id}`" rows="5" />
+            <b-input v-else v-model="importFields[f]" :name="`${f}_${eventActivity.id}`" autocomplete="on" />
           </b-form-group>
         </div>
         <footer class="modal-footer">
