@@ -32,7 +32,7 @@
             <b-form-group label="Website" v-if="eventGroup != null && eventGroup.url">
               <b-link :href="eventGroup.url" target="_blank">{{
                 eventGroup.url
-              }}</b-link>
+                }}</b-link>
             </b-form-group>
 
             <b-button variant="secondary" :to="{ name: 'event-edit', params: { id: event.id } }" size="sm" block pill
@@ -65,15 +65,17 @@
       <b-col cols="9">
         <h3 class="float-right my-2">
           <div v-if="nav.group && (nav.group.prev || nav.group.next)" :style="{ fontSize: '10pt' }">
-            <b-link v-if="nav.group.prev" :to="{ name: 'registration-detail', params: { id: nav.group.prev.id } }"><b-icon
-                icon="chevron-left" :title="`${nav.group.prev.year} ${nav.group.prev.name}`" variant="dark" /></b-link>
+            <b-link v-if="nav.group.prev"
+              :to="{ name: 'registration-detail', params: { id: nav.group.prev.id } }"><b-icon icon="chevron-left"
+                :title="`${nav.group.prev.year} ${nav.group.prev.name}`" variant="dark" /></b-link>
             <b-icon v-else icon="chevron-left" :style="{ color: 'gray' }" />
             <b-link :to="{ name: 'registration-series', params: { id: nav.group.id } }"
               class="text-dark font-weight-bold">{{
                 nav.group.description
               }}</b-link>
-            <b-link v-if="nav.group.next" :to="{ name: 'registration-detail', params: { id: nav.group.next.id } }"><b-icon
-                icon="chevron-right" :title="`${nav.group.next.year} ${nav.group.next.name}`" variant="dark" /></b-link>
+            <b-link v-if="nav.group.next"
+              :to="{ name: 'registration-detail', params: { id: nav.group.next.id } }"><b-icon icon="chevron-right"
+                :title="`${nav.group.next.year} ${nav.group.next.name}`" variant="dark" /></b-link>
             <b-icon v-else icon="chevron-right" :style="{ color: 'gray' }" />
           </div>
           <div v-if="nav.series.length">
@@ -82,7 +84,7 @@
                   icon="chevron-left" :title="`${s.prev.year} ${s.prev.name}`" variant="dark" /></b-link>
               <b-icon v-else icon="chevron-left" :style="{ color: 'gray' }" />
               <b-link :to="{ name: 'registration-series', params: { id: s.id } }" class="text-dark">{{ s.description
-              }}</b-link>
+                }}</b-link>
               <b-link v-if="s.next" :to="{ name: 'registration-detail', params: { id: s.next.id } }"><b-icon
                   icon="chevron-right" :title="`${s.next.year} ${s.next.name}`" variant="dark" /></b-link>
               <b-icon v-else icon="chevron-right" :style="{ color: 'gray' }" />
@@ -145,8 +147,8 @@
           </div>
           <div v-if="eventActivity.results.url">
             <hr v-if="hasResults" />
-            <b-button v-if="hasResults && canDoResultsFunctions" pill variant="warning" v-b-modal.importResults size="sm"
-              class="float-right mr-2 px-3">
+            <b-button v-if="hasResults && canDoResultsFunctions" pill variant="warning" v-b-modal.importResults
+              size="sm" class="float-right mr-2 px-3">
               <b-icon icon="arrow-repeat" class="mr-2" />Re-import Results</b-button>
             <b-link :href="eventActivity.results.url" target="_blank" :style="{ fontSize: '10pt' }">
               Original Results
@@ -183,7 +185,8 @@
             data.</b-alert>
           <b-alert v-else show variant="secondary">Import event activity results</b-alert>
           <b-form-group v-for="(f, i) in eventActivity.results.fields" :key="i" :label="f">
-            <b-input v-model="importFields[f]" :name="`${f}_${eventActivity.id}`" autocomplete="on" />
+            <b-textarea v-if="f == 'data'" v-model="importFields[f]" :name="`${f}_${eventActivity.id}`" rows="5" />
+            <b-input v-else v-model="importFields[f]" :name="`${f}_${eventActivity.id}`" autocomplete="on" />
           </b-form-group>
         </div>
         <footer class="modal-footer">
