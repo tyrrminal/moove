@@ -25,14 +25,22 @@ has 'key_map' => (
   init_arg => undef,
   default  => sub {
     {
+      'BIB'        => 'bib_no',
       'Bib'        => 'bib_no',
       'Name'       => 'name',
+      'Sex'        => 'gender',
       'Gender'     => 'gender',
       'Club'       => 'city',
+      'Age Group'  => 'division',
       'Group'      => 'division',
+      'Overall'    => 'overall_place',
       'Place'      => 'overall_place',
+      'By Sex'     => 'gender_place',
       'Group Rank' => 'div_place',
+      'By Age'     => 'div_place',
+      'Pace'       => 'pace',
       'Chip Pace'  => 'pace',
+      'Time'       => 'net_time',
       'Chip Time'  => 'net_time'
     };
   },
@@ -63,7 +71,7 @@ sub _build_import_param_schemas ($self) {
     ),
     eventactivity => JSON::Validator->new()->schema(
       joi->object->strict->props(
-        race_id       => joi->string->required->min(1),
+        race_id       => joi->string->min(1),
         contest_id    => joi->integer->required->min(1),
         list_category => joi->string,
         listname      => joi->string->required->min(1),
@@ -72,6 +80,7 @@ sub _build_import_param_schemas ($self) {
   };
 }
 
+use DDP;
 sub url ($self) {
   return undef unless (defined($self->event_id));
   return sprintf($METADATA_URL, $self->event_id);
@@ -88,21 +97,26 @@ sub _build_results ($self) {
     l        => 0
   );
 
-
   my $res = $self->ua->get($url)->result;
 
   foreach my $f ($res->json->{list}->{Fields}->@*) {
     push($self->key_order->@*, $self->get_key($f->{Label}));
   }
 
-  my $race_id = $self->race_id;
-  my $contest_key;
-  foreach (keys($res->json->{data}->%*)) {
-    $contest_key = $_ and last if (/^#\d+_$race_id$/);
+  my $data;
+  if (ref($res->json->{data}) eq 'ARRAY') {
+    $data = $res->json->{data};
+  } else {
+    my $race_id = $self->race_id;
+    my $contest_key;
+    foreach (keys($res->json->{data}->%*)) {
+      $contest_key = $_ and last if (/^#\d+_$race_id$/);
+    }
+    die("Race contest not found") unless ($contest_key);
+    $data = $res->json->{data}->{$contest_key};
   }
-  die("Race contest not found") unless ($contest_key);
 
-  my @results = map {$self->make_participant($_)} $res->json->{data}->{$contest_key}->@*;
+  my @results = map {$self->make_participant($_)} $data->@*;
 
   return [@results];
 }
@@ -118,6 +132,7 @@ sub make_participant ($self, $p) {
   }
 
   $self->_post_fix_city_state($participant);
+  $self->_post_fix_gender_place($participant);
   $self->_post_fix_div_place($participant);
   $self->split_names($participant);
   normalize_times($participant);
@@ -134,12 +149,24 @@ sub _fix_pace ($self, $v) {
 }
 
 sub _post_fix_city_state ($self, $p) {
+  return unless (defined($p->{city}));
   if ($p->{city} =~ /(.*?),\s+([A-Z]{2})/) {
     $p->{city}    = $1;
     $p->{'state'} = $2;
   } else {
     delete($p->{city});
   }
+}
+
+sub _post_fix_gender_place ($self, $p) {
+  return unless (defined($p->{gender_place}));
+  if ($p->{gender_place} =~ /^(\d+)\w+ Overall$/) {
+    $p->{gender_place} = $1;
+    return;
+  }
+  my ($place, $count) = split('/', $p->{gender_place});
+  $p->{gender_place}       = $place;
+  $p->{gender_place_count} = $count;
 }
 
 sub _post_fix_div_place ($self, $p) {
