@@ -249,6 +249,10 @@ use Moove::Util::Extraction qw(selective_field_extract);
 
 use DCS::Constants qw(:symbols);
 
+sub _without_nulls ($hash) {
+  return {map {$_ => $hash->{$_}} grep {defined($hash->{$_})} keys($hash->%*)};
+}
+
 sub description ($self) {
   return join($SPACE, grep {defined} ($self->event->name, $self->name || undef));
 }
@@ -273,8 +277,8 @@ sub import_validation_errors ($self) {
     require(class_to_path($class));
     my $schemas = $class->import_param_schemas;
 
-    push(@errors, $schemas->{event}->validate($self->event->import_params));
-    push(@errors, $schemas->{eventactivity}->validate($self->import_params));
+    push(@errors, $schemas->{event}->validate(_without_nulls($self->event->import_params)));
+    push(@errors, $schemas->{eventactivity}->validate(_without_nulls($self->import_params)));
     return @errors;
   }
   return ('No import data source configured');
