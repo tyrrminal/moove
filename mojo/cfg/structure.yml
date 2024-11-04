@@ -64,3 +64,8 @@ import_overrides:
   event_results:
     isa: HashRef
     default: {}
+
+external_systems:
+  zipcode_service:
+    apikey:
+      isa: Str
