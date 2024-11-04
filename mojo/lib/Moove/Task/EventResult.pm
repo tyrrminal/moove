@@ -15,7 +15,11 @@ sub register ($self, $app, $args) {
       my $edc            = $event->external_data_source;
       my $class          = $event_activity->all_import_params->{custom_class} // $edc->import_class;
       require(class_to_path($class));
-      my $importer = $class->new(import_params => $event_activity->all_import_params, import_fields => $import_fields);
+      my $importer = $class->new(
+        import_params => $event_activity->all_import_params,
+        import_fields => $import_fields,
+        keys          => {zip => $app->conf->external_systems->zipcode_service->apikey}
+      );
 
       # BEGIN LRP
       my @participants = $importer->results->@*;
