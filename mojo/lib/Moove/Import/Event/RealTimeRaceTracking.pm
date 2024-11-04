@@ -9,6 +9,7 @@ use Readonly;
 use List::MoreUtils                  qw(firstidx);
 use Moove::Util::Unit::Normalization qw(normalize_times);
 use Moove::Import::Helper::CityService;
+use Moove::Import::Helper::ZipCodeService;
 use Mojo::JSON qw(encode_json);
 
 use builtin      qw(true false trim);
@@ -29,6 +30,14 @@ has 'city_service' => (
   default  => sub {Moove::Import::Helper::CityService->new()},
 );
 
+has 'zipcode_service' => (
+  is       => 'ro',
+  isa      => 'Moove::Import::Helper::ZipCodeService',
+  init_arg => undef,
+  lazy     => true,
+  builder  => '_build_zipservice'
+);
+
 sub _build_import_param_schemas ($class) {
   return {
     event => JSON::Validator->new()->schema(
@@ -47,6 +56,10 @@ sub _build_import_param_schemas ($class) {
 
 sub _build_import_param_defaults ($self) {
   return {point => 'FINISH'};
+}
+
+sub _build_zipservice ($self) {
+  Moove::Import::Helper::ZipCodeService->new(api_key => $self->keys->{zip});
 }
 
 sub _build_results ($self) {
