@@ -158,7 +158,15 @@ sub make_participant ($self, $d) {
   my $p = {map {$_ => $fields->{$_}->($d)} keys($fields->%*)};
 
   # Add state if possible
-  if (defined($p->{country}) && defined($p->{city}) && $p->{country} eq 'USA') {
+  if (defined($p->{city}) && $p->{city} =~ /(\d{5})(-\d{4})?$/) {
+    my @combos = $self->zipcode_service->zip_lookup($1);
+    if (@combos) {
+      $p->{city}    = $combos[0]->{city};
+      $p->{'state'} = $combos[0]->{state_code};
+    } else {
+      $p->{city} = undef;
+    }
+  } elsif (defined($p->{country}) && defined($p->{city}) && $p->{country} eq 'USA') {
     my @combos = $self->city_service->combos_with_city($p->{city});
     $p->{'state'} = $combos[0]->{state_abbrv} if (@combos == 1);
   }
