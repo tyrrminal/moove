@@ -80,7 +80,6 @@ sub _build_import_param_schemas ($self) {
   };
 }
 
-use DDP;
 sub url ($self) {
   return undef unless (defined($self->event_id));
   return sprintf($METADATA_URL, $self->event_id);
