@@ -42,6 +42,13 @@ has 'import_params' => (
   required => true,
 );
 
+has 'keys' => (
+  traits  => ['Hash'],
+  is      => 'ro',
+  isa     => 'HashRef[Str]',
+  default => sub {{}}
+);
+
 class_has 'import_param_defaults' => (
   is       => 'ro',
   isa      => 'HashRef[Int|Str|Undef]',

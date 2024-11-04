@@ -9,6 +9,7 @@ use Readonly;
 use List::MoreUtils                  qw(firstidx);
 use Moove::Util::Unit::Normalization qw(normalize_times);
 use Moove::Import::Helper::CityService;
+use Moove::Import::Helper::ZipCodeService;
 use Mojo::JSON qw(encode_json);
 
 use builtin      qw(true false trim);
@@ -29,6 +30,14 @@ has 'city_service' => (
   default  => sub {Moove::Import::Helper::CityService->new()},
 );
 
+has 'zipcode_service' => (
+  is       => 'ro',
+  isa      => 'Moove::Import::Helper::ZipCodeService',
+  init_arg => undef,
+  lazy     => true,
+  builder  => '_build_zipservice'
+);
+
 sub _build_import_param_schemas ($class) {
   return {
     event => JSON::Validator->new()->schema(
@@ -47,6 +56,10 @@ sub _build_import_param_schemas ($class) {
 
 sub _build_import_param_defaults ($self) {
   return {point => 'FINISH'};
+}
+
+sub _build_zipservice ($self) {
+  Moove::Import::Helper::ZipCodeService->new(api_key => $self->keys->{zip});
 }
 
 sub _build_results ($self) {
@@ -145,7 +158,15 @@ sub make_participant ($self, $d) {
   my $p = {map {$_ => $fields->{$_}->($d)} keys($fields->%*)};
 
   # Add state if possible
-  if (defined($p->{country}) && defined($p->{city}) && $p->{country} eq 'USA') {
+  if (defined($p->{city}) && $p->{city} =~ /(\d{5})(-\d{4})?$/) {
+    my @combos = $self->zipcode_service->zip_lookup($1);
+    if (@combos) {
+      $p->{city}    = $combos[0]->{city};
+      $p->{'state'} = $combos[0]->{state_code};
+    } else {
+      $p->{city} = undef;
+    }
+  } elsif (defined($p->{country}) && defined($p->{city}) && $p->{country} eq 'USA') {
     my @combos = $self->city_service->combos_with_city($p->{city});
     $p->{'state'} = $combos[0]->{state_abbrv} if (@combos == 1);
   }
