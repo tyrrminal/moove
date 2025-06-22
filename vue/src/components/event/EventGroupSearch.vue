@@ -15,7 +15,7 @@
           <div v-if="results.length > 0">
             <hr class="my-2" />
 
-            <b-button v-for="r in results " @click="selectEventGroup(r)"
+            <b-button v-for="r in results" :key="r.id" @click="selectEventGroup(r)"
               :variant="group == null || group.id != r.id ? 'outline-primary' : 'primary'" class="my-1" block size="sm">
               {{ r.name }}
             </b-button>

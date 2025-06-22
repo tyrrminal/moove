@@ -13,10 +13,10 @@
         </b-button-group>
       </div>
       <b-row>
-        <b-col v-for="at in activityTypes">
+        <b-col v-for="at in activityTypes" :key="at.id">
           <b-checkbox switch class="font-weight-bold" :checked="activityTypeIsEnabled(at)"
             @change="toggleActivityType(at)">{{ at.labels.base }}</b-checkbox>
-          <b-checkbox v-for=" et in getEventTypesForActivityType(at)" :key="et.id" :checked="eventTypes[et.id]"
+          <b-checkbox v-for="et in getEventTypesForActivityType(at)" :key="et.id" :checked="eventTypes[et.id]"
             @change="toggleEventType(et)">{{
               et.description }}</b-checkbox>
         </b-col>
