@@ -24,8 +24,8 @@
                 <b-icon icon="chevron-right" class="mr-2" />
                 <label :style="{ fontSize: '1.0rem ' }">{{ s.year }} {{
                   s.name }}</label>
-                <b-button pill size="sm" variant="danger" class="py-0 ml-2" @click="edit.eventSeries.splice(i, 1)"><b-icon
-                    icon="x" class="mr-1" />Remove</b-button>
+                <b-button pill size="sm" variant="danger" class="py-0 ml-2"
+                  @click="edit.eventSeries.splice(i, 1)"><b-icon icon="x" class="mr-1" />Remove</b-button>
               </div>
             </div>
           </b-col>
@@ -79,10 +79,11 @@
           </b-col>
           <b-col v-if="eventDataSource" offset="1" class="bg-success-light p-3 rounded-sm border border-success">
             <strong>Import Parameters</strong>
-            <b-form-group v-for="f in eventFields" :label="f.label" label-cols="3" label-class="importParams-label"
-              :state="f.required ? !!edit.event.importParameters[f.name] : true" class="my-0 py-0">
+            <b-form-group v-for="f in eventFields" :key="f.id" :label="f.label" label-cols="3"
+              label-class="importParams-label" :state="fieldState(f, edit.event.importParameters[f.name])"
+              class="my-0 py-0">
               <b-input v-model="edit.event.importParameters[f.name]" :required="f.required"
-                :state="f.required ? !!edit.event.importParameters[f.name] : true" size="sm" :number="f.type == 'integer'"
+                :state="fieldState(f, edit.event.importParameters[f.name])" size="sm" :number="f.type == 'integer'"
                 :placeholder="f.default" />
             </b-form-group>
           </b-col>
@@ -99,7 +100,8 @@
               <b-list-group-item v-for="(ea, i) in edit.eventActivities" :style="{ fontSize: '0.9rem' }" class="py-1"
                 button @click="selectEventActivity(i)" :active="i == selectedEventActivityIdx"><b-icon icon="x-diamond"
                   class="mr-1" /><b-icon class="float-right" icon="arrow-right-circle-fill" :scale="1.25"
-                  :shift-v="-4" />{{ ea.name
+                  :shift-v="-4" />{{
+                    ea.name
                   }}</b-list-group-item>
             </b-list-group>
           </b-col>
@@ -134,15 +136,15 @@
               </b-col>
               <b-col v-if="eventDataSource" class="bg-success-light p-3 rounded-sm border border-success ml-2">
                 <strong>Import Parameters</strong>
-                <b-form-group v-for="f in eventActivityFields" :label="f.label" label-cols="2"
+                <b-form-group v-for="f in eventActivityFields" :key="f.id" :label="f.label" label-cols="2"
                   label-class="importParams-label"
-                  :state="f.required ? !!edit.eventActivities[selectedEventActivityIdx].importParameters[f.name] : true"
+                  :state="fieldState(f, edit.eventActivities[selectedEventActivityIdx].importParameters[f.name])"
                   class="my-0 py-0">
                   <b-checkbox v-if="f.type == 'boolean'"
                     v-model="edit.eventActivities[selectedEventActivityIdx].importParameters[f.name]" size="sm" />
                   <b-input v-else v-model="edit.eventActivities[selectedEventActivityIdx].importParameters[f.name]"
                     :required="f.required" :placeholder="f.default"
-                    :state="f.required ? !!edit.eventActivities[selectedEventActivityIdx].importParameters[f.name] : true"
+                    :state="fieldState(f, edit.eventActivities[selectedEventActivityIdx].importParameters[f.name])"
                     size="sm" :number="f.type == 'integer'" />
                 </b-form-group>
               </b-col>
@@ -369,6 +371,16 @@ export default {
       let r = {};
       Object.keys(obj || {}).forEach(k => r[k] = obj[k] ? obj[k] : null);
       return r;
+    },
+    fieldState: function (f, fieldValue) {
+      if (!f.required) return true;
+
+      if (f.type == 'string' && Object.hasOwn(f, 'minLength'))
+        return fieldValue.length >= f.minLength;
+      if ((f.type == 'integer' || f.type == 'number') && Object.hasOwn(f, 'minimum'))
+        return fieldValue.toString().length >= 1 && fieldValue >= f.minimum;
+
+      return true;
     }
   },
   computed: {
@@ -405,7 +417,7 @@ export default {
     },
     eventActivityFields: function () {
       return this.eventDataSource.fields.filter(f => f.activity).sort((a, b) => a.label.localeCompare(b.label));
-    }
+    },
   },
   watch: {
     '$route.name': function () {

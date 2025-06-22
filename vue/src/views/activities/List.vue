@@ -7,7 +7,7 @@
             <template #button-content>
               <b-icon icon="plus-circle" class="mr-2" />Add Filter
             </template>
-            <b-dropdown-item v-for="f in addableFilters" @click="addFilter(f)" class="pl-0">
+            <b-dropdown-item v-for="(f, i) in addableFilters" :key="i" @click="addFilter(f)" class="pl-0">
               {{ filterTypes[f].label }}
             </b-dropdown-item>
           </b-dropdown>
@@ -71,8 +71,8 @@
                   <b-input-group>
                     <template #prepend><b-select :options="operators" v-model="f.value.op" size="sm" /></template>
                     <b-input name="filter.speed" number v-model="f.value.value" size="sm" class="text-right" />
-                    <template #append><b-select :options="rate_units" value-field="abbreviation" text-field="abbreviation"
-                        v-model="f.value.uom_abbr" size="sm" /></template>
+                    <template #append><b-select :options="rate_units" value-field="abbreviation"
+                        text-field="abbreviation" v-model="f.value.uom_abbr" size="sm" /></template>
                   </b-input-group>
                 </b-form-group>
               </b-col>

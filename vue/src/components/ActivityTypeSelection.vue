@@ -2,14 +2,15 @@
   <b-container :style="{ width: '60rem' }">
     <label class="font-weight-bold">Activity Types</label><b-button size="sm" variant="warning"
       class="ml-1 py-0 float-right" @click="clearSelection()">Reset</b-button>
-    <b-row v-for="i in activityTypeRows" class="mb-2">
+    <b-row v-for="i in activityTypeRows" :key="i.id" class="mb-2">
       <b-col v-for="c in activityTypesInRow(i)" :key="c" :cols="cols">
-        <b-checkbox switch class="font-weight-bold" :checked="baseActivityIsEnabled(c)" @change="toggleBaseActivity(c)">{{
-          c }}</b-checkbox>
+        <b-checkbox switch class="font-weight-bold" :checked="baseActivityIsEnabled(c)"
+          @change="toggleBaseActivity(c)">{{
+            c }}</b-checkbox>
         <div v-for="at in getActivityTypesForBase(c)" :key="at.id">
           <b-checkbox class="ml-2" :checked="activityTypes[at.id]" @change="toggleActivityType(at)">{{
             at.labels.context
-          }}</b-checkbox>
+            }}</b-checkbox>
         </div>
       </b-col>
     </b-row>

@@ -25,23 +25,32 @@ has 'key_map' => (
   init_arg => undef,
   default  => sub {
     {
-      'BIB'        => 'bib_no',
-      'Bib'        => 'bib_no',
-      'Name'       => 'name',
-      'Sex'        => 'gender',
-      'Gender'     => 'gender',
-      'Club'       => 'city',
-      'Age Group'  => 'division',
-      'Group'      => 'division',
-      'Overall'    => 'overall_place',
-      'Place'      => 'overall_place',
-      'By Sex'     => 'gender_place',
-      'Group Rank' => 'div_place',
-      'By Age'     => 'div_place',
-      'Pace'       => 'pace',
-      'Chip Pace'  => 'pace',
-      'Time'       => 'net_time',
-      'Chip Time'  => 'net_time'
+      'BIB'                        => 'bib_no',
+      'Bib'                        => 'bib_no',
+      'Name'                       => 'name',
+      'DisplayName'                => 'name',
+      'Sex'                        => 'gender',
+      'Gender'                     => 'gender',
+      'GenderMF'                   => 'gender',
+      'Club'                       => 'city',
+      'ClubOrCity'                 => 'city',
+      'Age Group'                  => 'division',
+      'AgeGroupPostRace'           => 'division_place',
+      'Group'                      => 'division',
+      'division'                   => 'division',
+      'Overall'                    => 'overall_place',
+      'Place'                      => 'overall_place',
+      'WithStatus([OverallRankp])' => 'overall_place',
+      'By Sex'                     => 'gender_place',
+      'Group Rank'                 => 'div_place',
+      'By Age'                     => 'div_place',
+      'Pace'                       => 'pace',
+      'Chip Pace'                  => 'pace',
+      'Finish.CHIP.SPEEDORPACE'    => 'pace',
+      'Time'                       => 'net_time',
+      'Chip Time'                  => 'net_time',
+      'Finish.CHIP'                => 'net_time',
+      'Finish.GUN'                 => 'gross_time',
     };
   },
   handles => {
@@ -54,7 +63,7 @@ has 'key_order' => (
   is       => 'rw',
   isa      => 'ArrayRef[Str|Undef]',
   init_arg => undef,
-  default  => sub {[undef]},
+  default  => sub {[]},
   handles  => {
     key_name       => 'get',
     key_order_size => 'count'
@@ -72,7 +81,7 @@ sub _build_import_param_schemas ($self) {
     eventactivity => JSON::Validator->new()->schema(
       joi->object->strict->props(
         race_id       => joi->string->min(1),
-        contest_id    => joi->integer->required->min(1),
+        contest_id    => joi->integer->required->min(0),
         list_category => joi->string,
         listname      => joi->string->required->min(1),
         )->compile
@@ -98,8 +107,11 @@ sub _build_results ($self) {
 
   my $res = $self->ua->get($url)->result;
 
-  foreach my $f ($res->json->{list}->{Fields}->@*) {
-    push($self->key_order->@*, $self->get_key($f->{Label}));
+  if (exists($res->json->{DataFields})) {
+    push($self->key_order->@*, $self->get_key($_)) foreach ($res->json->{DataFields}->@*);
+  } else {
+    push($self->key_order->@*, undef);
+    push($self->key_order->@*, $self->get_key($_->{Label})) foreach ($res->json->{list}->{Fields}->@*);
   }
 
   my $data;
