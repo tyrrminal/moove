@@ -369,11 +369,12 @@ export default {
     },
     blanksToNulls: function (obj) {
       let r = {};
-      Object.keys(obj || {}).forEach(k => r[k] = obj[k] ? obj[k] : null);
+      Object.keys(obj || {}).forEach(k => r[k] = obj[k] === "" ? null : obj[k]);
       return r;
     },
     fieldState: function (f, fieldValue) {
       if (!f.required) return true;
+      if(fieldValue == null) return false;
 
       if (f.type == 'string' && Object.hasOwn(f, 'minLength'))
         return fieldValue.length >= f.minLength;
