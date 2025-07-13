@@ -94,7 +94,7 @@
           <b-button size="sm" pill variant="success" class="ml-2 py-0 mt-1 px-3" @click="addEventActivity"><b-icon
               icon="plus-circle" class="mr-2" />Add</b-button>
         </div>
-        <b-row class="mt-2">
+        <b-row class="mt-2" v-if="edit.eventActivities[selectedEventActivityIdx]">
           <b-col cols="3">
             <b-list-group>
               <b-list-group-item v-for="(ea, i) in edit.eventActivities" :style="{ fontSize: '0.9rem' }" class="py-1"
@@ -369,11 +369,12 @@ export default {
     },
     blanksToNulls: function (obj) {
       let r = {};
-      Object.keys(obj || {}).forEach(k => r[k] = obj[k] ? obj[k] : null);
+      Object.keys(obj || {}).forEach(k => r[k] = obj[k] === "" ? null : obj[k]);
       return r;
     },
     fieldState: function (f, fieldValue) {
       if (!f.required) return true;
+      if(fieldValue == null) return false;
 
       if (f.type == 'string' && Object.hasOwn(f, 'minLength'))
         return fieldValue.length >= f.minLength;

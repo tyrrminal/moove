@@ -12,12 +12,12 @@
           <h6 class="float-right">{{
             eventActivity.scheduledStart | luxon({ input: { zone: "local" }, output: "short" })
           }}</h6>
-          <h3 v-if="event.activities.length == 1">{{ eventActivity.name }}</h3>
+          <h3 v-if="event.activities && event.activities.length == 1">{{ eventActivity.name }}</h3>
         </div>
         <hr :style="{ clear: 'both' }" />
 
         <b-form class="mt-2">
-          <b-form-group v-if="event.activities.length > 1" label="Activity" label-cols="2">
+          <b-form-group v-if="event.activities && event.activities.length > 1" label="Activity" label-cols="2">
             <b-select :options="event.activities" text-field="name" value-field="id" v-model="selectedEventActivity" />
           </b-form-group>
           <b-form-group label="Registered On" label-cols="2" content-cols="4">

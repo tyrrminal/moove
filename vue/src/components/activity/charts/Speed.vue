@@ -167,7 +167,7 @@ export default {
       };
       return {
         datasets: [{
-          data: this.addYearGaps(this.data.map(e => {
+          data: this.addYearGaps(this.sortedData.map(e => {
             let v = e ? e[this.velocityType.toLowerCase()].value : null;
             return { x: DateTime.fromISO(e.startTime), y: this.getNumericVelocity(v), v: v };
           })),

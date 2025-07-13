@@ -1,6 +1,6 @@
 <template>
   <b-container fluid>
-    <b-row>
+    <b-row v-if="event">
       <b-col cols="3 " class="bg-light min-vh-100 pt-3">
         <strong :style="{ fontSize: '1.2rem' }">
           <b-link v-if="event.url" :href="event.url" target="_blank">{{ event.name }}</b-link>
