@@ -94,7 +94,7 @@
           <b-button size="sm" pill variant="success" class="ml-2 py-0 mt-1 px-3" @click="addEventActivity"><b-icon
               icon="plus-circle" class="mr-2" />Add</b-button>
         </div>
-        <b-row class="mt-2">
+        <b-row class="mt-2" v-if="edit.eventActivities[selectedEventActivityIdx]">
           <b-col cols="3">
             <b-list-group>
               <b-list-group-item v-for="(ea, i) in edit.eventActivities" :style="{ fontSize: '0.9rem' }" class="py-1"
