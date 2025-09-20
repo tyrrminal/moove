@@ -1,5 +1,6 @@
 package Moove::Task::EventResult;
 use v5.38;
+use experimental qw(try);
 
 use Mojo::Base 'Mojolicious::Plugin';
 use Mojo::Util qw(class_to_path);
@@ -9,7 +10,7 @@ use DCS::Constants qw(:symbols);
 sub register ($self, $app, $args) {
   $app->minion->add_task(
     import_event_results => sub ($job, $event_activity_id, $import_fields) {
-      $job->note(progress => 0);
+      $job->note(progress => 0, status => 'running');
       my $event_activity = $job->app->model('EventActivity')->find($event_activity_id);
       my $event          = $event_activity->event;
       my $edc            = $event->external_data_source;
@@ -31,28 +32,37 @@ sub register ($self, $app, $args) {
       my $overrides     = $edc_overrides ? $edc_overrides->{$event_activity->qualified_external_identifier} : {};
 
       # BEGIN LRP
-      $event_activity->delete_results();
-      $event_activity->update({entrants => $importer->total_entrants});
-      foreach my $p (@participants) {
-        apply_overrides($overrides, $p);
-        $event_activity->add_participant($p);
-        $job->note(progress => $job->info->{notes}->{progress} + 70 / @participants);
-      }
-      $job->note(progress => 95);
-      $event_activity->update_missing_result_paces;
-      $job->note(progress => $job->info->{notes}->{progress} + 2);
-      foreach my $g ($job->app->model("Gender")->all) {
-        $event_activity->add_placements_for_gender($g);
-        $job->note(progress => $job->info->{notes}->{progress} + 1);
-      }
-      foreach my $d (
-        $event_activity->event_placement_partitions->search({division_id => {'<>' => undef}})->related_resultset('division')->all)
-      {
-        $event_activity->add_placements_for_division($d);
-        $job->note(progress => $job->info->{notes}->{progress} + 1);
-      }
-      # END LRP
-      $job->note(progress => 100);
+      try {
+        $app->db->txn_do(
+          sub {
+            $event_activity->delete_results();
+            $event_activity->update({entrants => $importer->total_entrants});
+            foreach my $p (@participants) {
+              apply_overrides($overrides, $p);
+              $event_activity->add_participant($p);
+              $job->note(progress => $job->info->{notes}->{progress} + 70 / @participants);
+            }
+            $job->note(progress => 95);
+            $event_activity->update_missing_result_paces;
+            $job->note(progress => $job->info->{notes}->{progress} + 2);
+            foreach my $g ($job->app->model("Gender")->all) {
+              $event_activity->add_placements_for_gender($g);
+              $job->note(progress => $job->info->{notes}->{progress} + 1);
+            }
+            foreach my $d (
+              $event_activity->event_placement_partitions->search({division_id => {'<>' => undef}})->related_resultset('division')
+              ->all)
+            {
+              $event_activity->add_placements_for_division($d);
+              $job->note(progress => $job->info->{notes}->{progress} + 1);
+            }
+            # END LRP
+            $job->note(progress => 100, status => 'completed');
+          }
+        );
+      } catch ($exception) {
+        $job->note(progress => 0, status => 'failed', message => "Import failed: $exception");
+      };
     }
   );
 }

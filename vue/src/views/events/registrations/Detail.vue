@@ -117,6 +117,11 @@
           <ActivityNote v-if="activity && activity.note" class="mb-2">{{ activity.note }}</ActivityNote>
         </div>
 
+        <b-alert v-if="importFailure" show variant="danger" class="my-3">
+          <b-icon icon="exclamation-triangle-fill" class="mr-2" />There was an error importing results: {{
+            importFailure }}
+        </b-alert>
+
         <div class="bg-light p-2 mb-3 border border-gray" v-if="fundraising">
           <b-button @click="addDonation" size="sm" pill class="float-right mr-2 px-3"
             :variant="isOutOfDate ? 'warning' : 'success'"><b-icon icon="plus-circle" class="mr-2" />Add
@@ -259,7 +264,8 @@ export default {
 
       person: null,
 
-      importFields: {}
+      importFields: {},
+      importFailure: null,
     };
   },
   props: {
@@ -362,6 +368,7 @@ export default {
     },
     importResults: function () {
       this.$root.$emit('bv::hide::modal', 'importResults')
+      this.importFailure = null;
       let self = this;
       if (this.hasResults) {
         self.$nextTick(() => {
@@ -387,8 +394,15 @@ export default {
           ["events", "activities", this.eventActivity.id, "results"].join("/")
         )
         .then((resp) => {
+          let d = resp.data;
+          if (d.importStatus == 'failed') {
+            this.importFailure = d.message;
+            this.init();
+            return;
+          } 
+          
           this.eventActivity.results.importCompletion =
-            resp.data.importCompletion;
+            d.importCompletion;
           if (this.eventActivity.results.importCompletion == 100) {
             this.eventActivity.results.importCompletion = 99.9;
             this.init();

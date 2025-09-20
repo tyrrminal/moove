@@ -13,6 +13,7 @@ use Moove::Util::Unit::Normalization qw(normalize_times);
 use experimental qw(builtin);
 
 use DCS::Constants                  qw(:symbols);
+use Moove::Import::Event::Constants qw(:key_fields);
 use Moove::Import::Event::Constants qw(:event);
 
 Readonly::Scalar my $METADATA_URL => 'https://www.secondwindtiming.com/result-page/?id=%s';
@@ -21,39 +22,19 @@ Readonly::Scalar my $RESULTS_URL  => 'https://my2.raceresult.com/%s/RRPublish/da
 has 'key_map' => (
   traits   => ['Hash'],
   is       => 'ro',
-  isa      => 'HashRef[Str]',
+  isa      => 'HashRef[Str|Undef]',
   init_arg => undef,
   default  => sub {
     {
-      'BIB'                             => 'bib_no',
-      'Bib'                             => 'bib_no',
-      'Name'                            => 'name',
-      'DisplayName'                     => 'name',
-      'DisplayName_Public'              => 'name',
-      'Sex'                             => 'gender',
-      'Gender'                          => 'gender',
-      'GenderMF'                        => 'gender',
-      'Club'                            => 'city',
-      'ClubOrCity'                      => 'city',
-      'Age Group'                       => 'division',
-      'AgeGroupPostRace'                => 'division_place',
-      'Group'                           => 'division',
-      'division'                        => 'division',
-      'Overall'                         => 'overall_place',
-      'Place'                           => 'overall_place',
-      'WithStatus([OverallRankp])'      => 'overall_place',
-      'WithStatus([OverallRank_Chipp])' => 'overall_place',
-      'By Sex'                          => 'gender_place',
-      'Group Rank'                      => 'div_place',
-      'By Age'                          => 'div_place',
-      'Pace'                            => 'pace',
-      'Chip Pace'                       => 'pace',
-      'Finish.CHIP.SPEEDORPACE'         => 'pace',
-      'Finish.SPEEDORPACE'              => 'pace',
-      'Time'                            => 'net_time',
-      'Chip Time'                       => 'net_time',
-      'Finish.CHIP'                     => 'net_time',
-      'Finish.GUN'                      => 'gross_time',
+      'Overall'   => $OVERALL_PLACE,
+      'Name'      => $FULL_NAME,
+      'BIB'       => $BIB_NUMBER,
+      'Time'      => $NET_TIME,
+      'Pace'      => $PACE,
+      'Sex'       => $GENDER,
+      'By Sex'    => $GENDER_PLACE,
+      'By Age'    => $DIVISION_PLACE,
+      'Age Group' => $DIVISION,
     };
   },
   handles => {
@@ -110,11 +91,9 @@ sub _build_results ($self) {
 
   my $res = $self->ua->get($url)->result;
 
-  if (exists($res->json->{DataFields})) {
-    push($self->key_order->@*, $self->get_key($_)) foreach ($res->json->{DataFields}->@*);
-  } else {
-    push($self->key_order->@*, undef);
-    push($self->key_order->@*, $self->get_key($_->{Label})) foreach ($res->json->{list}->{Fields}->@*);
+  foreach my $df ($res->json->{DataFields}->@*) {
+    my ($f) = grep {$_->{Expression} eq $df} $res->json->{list}->{Fields}->@*;
+    push($self->key_order->@*, (defined($f) ? $self->get_key($f->{Label}) : undef));
   }
 
   my $data;
@@ -142,7 +121,7 @@ sub make_participant ($self, $p) {
     my $kn = $self->key_name($i);
     my $fn = "_fix_$kn";
 
-    $participant->{$self->key_name($i)} = $self->can($fn) ? $self->$fn($p->[$i]) : $p->[$i];
+    $participant->{$kn} = $self->can($fn) ? $self->$fn($p->[$i]) : $p->[$i];
   }
 
   $self->_post_fix_city_state($participant);
@@ -159,43 +138,48 @@ sub _fix_overall_place ($self, $v) {
 }
 
 sub _fix_pace ($self, $v) {
-  return substr($v, 0, length($v) - length(" min/mile"));
+  $v =~ s/[^0-9:]//gr;
 }
 
 sub _post_fix_city_state ($self, $p) {
-  return unless (defined($p->{city}));
-  if ($p->{city} =~ /(.*?),\s+([A-Z]{2})/) {
-    $p->{city}    = $1;
-    $p->{'state'} = $2;
+  return unless (defined($p->{$CITY}));
+  if ($p->{$CITY} =~ /(.*?),\s+([A-Z]{2})/) {
+    $p->{$CITY}  = $1;
+    $p->{$STATE} = $2;
   } else {
-    delete($p->{city});
+    delete($p->{$CITY});
   }
 }
 
 sub _post_fix_gender_place ($self, $p) {
-  return unless (defined($p->{gender_place}));
-  if ($p->{gender_place} =~ /^(\d+)\w+ Overall$/) {
-    $p->{gender_place} = $1;
+  return unless (defined($p->{$GENDER_PLACE}));
+  if ($p->{$GENDER_PLACE} =~ /^(\d+)\w+ Overall$/) {
+    $p->{$GENDER_PLACE} = $1;
     return;
   }
-  my ($place, $count) = split('/', $p->{gender_place});
-  $p->{gender_place}       = $place;
-  $p->{gender_place_count} = $count;
+  my ($place, $count) = split('/', $p->{$GENDER_PLACE});
+  $p->{$GENDER_PLACE}       = $place;
+  $p->{$GENDER_PLACE_COUNT} = $count;
 }
 
 sub _post_fix_div_place ($self, $p) {
-  return unless (defined($p->{div_place}));
-  if ($p->{div_place} eq 'Age Group Champ') {
-    $p->{div_place} = 1;
+  return unless (defined($p->{$DIVISION_PLACE}));
+  if ($p->{$DIVISION_PLACE} eq 'Age Group Champ') {
+    $p->{$DIVISION_PLACE} = 1;
     return;
   }
-  if ($p->{div_place} =~ /^(\d+)\w+ Overall$/) {
-    $p->{div_place} = $1;
+  if ($p->{$DIVISION_PLACE} =~ /^(\d+)\w+ Overall$/) {
+    $p->{$DIVISION_PLACE} = $1;
     return;
   }
-  my ($place, $count) = split('/', $p->{div_place});
-  $p->{div_place}       = $place;
-  $p->{div_place_count} = $count;
+  my ($place, $count) = split('/', $p->{$DIVISION_PLACE});
+  $p->{$DIVISION_PLACE}       = $place;
+  $p->{$DIVISION_PLACE_COUNT} = $count;
+
+  $p->{$DIVISION_PLACE}       = undef unless (looks_like_number($p->{$DIVISION_PLACE}));
+  $p->{$DIVISION_PLACE_COUNT} = undef unless (looks_like_number($p->{$DIVISION_PLACE_COUNT}));
 }
 
 1;
+
+__END__
