@@ -247,7 +247,8 @@ use Mojo::JSON   qw(decode_json);
 
 use Moove::Util::Extraction qw(selective_field_extract);
 
-use DCS::Constants qw(:symbols);
+use DCS::Constants                  qw(:symbols);
+use Moove::Import::Event::Constants qw(:key_fields);
 
 sub _without_nulls ($hash) {
   return {map {$_ => $hash->{$_}} grep {defined($hash->{$_})} keys($hash->%*)};
@@ -303,35 +304,36 @@ sub delete_results ($self) {
 sub add_participant ($self, $p) {
   my $schema = $self->result_source->schema;
 
-  my $reg_no = $p->{bib_no};
+  my $reg_no = $p->{$BIB_NUMBER};
   if ($reg_no =~ /\W/) {
     say STDERR "Truncating $reg_no";
     $reg_no =~ s/\W//g;
   }
 
   my $reg =
-    $schema->resultset('EventRegistration')->find_or_create({event_activity_id => $self->id, registration_number => $p->{bib_no}});
+    $schema->resultset('EventRegistration')
+    ->find_or_create({event_activity_id => $self->id, registration_number => $p->{$BIB_NUMBER}});
   my $person =
-    $schema->resultset('Person')->get_person(map {$_ => $p->{$_}} qw(first_name last_name gender age));
+    $schema->resultset('Person')->get_person(map {$_ => $p->{$_}} ($FIRST_NAME, $LAST_NAME, $GENDER, $AGE));
   my $result = $schema->resultset('ActivityResult')->create(
     selective_field_extract(
       {
         start_time  => $self->scheduled_start,
         distance_id => $self->distance->id,
-        duration    => $p->{gross_time},
-        net_time    => $p->{net_time},
-        pace        => $p->{pace},
-        speed       => $p->{speed},
+        duration    => $p->{$GROSS_TIME},
+        net_time    => $p->{$NET_TIME},
+        pace        => $p->{$PACE},
+        speed       => $p->{$SPEED},
       },
       [$self->event_type->activity_type->valid_fields]
     )
   );
 
-  my $address = $schema->resultset('Address')->get_address(city => $p->{city}, state => $p->{state}, country => $p->{country});
-  my $gender  = $schema->resultset('Gender')->find({abbreviation => $p->{gender}});
+  my $address = $schema->resultset('Address')->get_address(city => $p->{$CITY}, state => $p->{$STATE}, country => $p->{$COUNTRY});
+  my $gender  = $schema->resultset('Gender')->find({abbreviation => $p->{$GENDER}});
   my $division =
-    $p->{division} ? $schema->resultset('Division')->find_or_create({name => $p->{division}}) : undef;
-  $p->{age} = undef unless (looks_like_number($p->{age}));
+    $p->{$DIVISION} ? $schema->resultset('Division')->find_or_create({name => $p->{$DIVISION}}) : undef;
+  $p->{$AGE} = undef unless (looks_like_number($p->{$AGE}));
 
   my $participant = $schema->resultset('EventParticipant')->create(
     {
@@ -340,7 +342,7 @@ sub add_participant ($self, $p) {
         registration_number => $reg_no,
       },
       event_result => $result,
-      age          => $p->{age},
+      age          => $p->{$AGE},
       person_id    => $person->id,
       address_id   => $address->id,
       gender_id    => defined($gender)   ? $gender->id   : undef,
@@ -349,9 +351,9 @@ sub add_participant ($self, $p) {
   );
 
   my %partitions = $schema->resultset('EventPlacementPartition')->get_partitions($self, $gender, $division);
-  $participant->add_placement($partitions{overall},  $p->{overall_place});
-  $participant->add_placement($partitions{gender},   $p->{gender_place}) if ($p->{gender_place});
-  $participant->add_placement($partitions{division}, $p->{div_place})    if ($p->{div_place});
+  $participant->add_placement($partitions{overall},  $p->{$OVERALL_PLACE});
+  $participant->add_placement($partitions{gender},   $p->{$GENDER_PLACE})   if ($p->{$GENDER_PLACE});
+  $participant->add_placement($partitions{division}, $p->{$DIVISION_PLACE}) if ($p->{$DIVISION_PLACE});
 
   return $participant;
 }

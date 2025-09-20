@@ -28,20 +28,20 @@ sub encode_model_eventactivity ($self, $entity) {
     results        => {
       url              => $entity->url,
       importable       => $self->encode_boolean($importable),
-      importCompletion => $self->get_task_progress($entity),
+      importCompletion => $self->get_task_status($entity)->{progress} // 0,
       fields           => $fields,
     }
   };
 }
 
-sub get_task_progress ($self, $event_activity) {
+sub get_task_status ($self, $event_activity) {
   my $jobs = $self->app->minion->jobs({states => ['inactive', 'active'], tasks => ['import_event_results']});
   while (my $job = $jobs->next) {
     next unless ($job->{args}->[0] == $event_activity->id);
-    return $job->{notes}->{progress} // 0;
+    return $job->{notes};
   }
-  return 100 if ($event_activity->has_results);
-  return undef;
+  return {progress => 100, status => 'completed'} if ($event_activity->has_results);
+  return {progress => undef};
 }
 
 1;

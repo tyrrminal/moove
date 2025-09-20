@@ -4,7 +4,7 @@ info:
   description: "Moo've Fitness Tracker"
   contact:
     email: moove@digicow.net
-  version: 2.2.7
+  version: 2.2.13
 servers:
   - url: https://moove.digicowsoftware.com/api/v1
 security:
@@ -471,9 +471,18 @@ paths:
             application/json:
               schema:
                 type: object
+                additionalProperties: false
+                required:
+                  - importStatus
+                  - importCompletion
                 properties:
+                  importStatus:
+                    type: string
+                    enum: [pending, running, completed, failed]
                   importCompletion:
                     type: number
+                  message:
+                    type: string
       tags:
         - Event
     post:
