@@ -12,7 +12,8 @@ with 'Moove::Controller::Role::ModelEncoding::EventGroup', 'Moove::Controller::R
   'Moove::Controller::Role::ModelEncoding::Registration::EventActivity';
 with 'Moove::Controller::Role::ModelEncoding::Default';
 
-use DCS::Util::NameConversion qw(camel_to_snake convert_hash_keys);
+use DCS::Util::NameConversion       qw(camel_to_snake convert_hash_keys);
+use Moove::Import::Event::Constants qw(:statuses);
 
 use HTTP::Status qw(:constants);
 
@@ -32,7 +33,10 @@ sub import_results ($self) {
   return $self->render_error(HTTP_BAD_REQUEST, "Event Activity is not importable",
     map {"$_"} $event_activity->import_validation_errors)
     if (!$event_activity->is_importable);
-  $self->app->minion->enqueue(import_event_results => [$event_activity->id, $self->req->json->{importFields} // {}]);
+  $self->app->minion->enqueue(
+    import_event_results => [$event_activity->id, $self->req->json->{importFields} // {}],
+    {notes => {progress => 0, status => $STATUS_PENDING}},
+  );
 
   return $self->render(openapi => $self->encode_model($event_activity->event));
 }
@@ -41,13 +45,7 @@ sub result_import_status ($self) {
   return unless ($self->openapi->valid_input);
 
   my $status = $self->get_task_status($self->entity);
-  return $self->render(
-    openapi => {
-      importCompletion => $status->{progress} // 0,
-      importStatus     => $status->{status}   // 'pending',
-      (defined($status->{message}) ? (message => $status->{message}) : ()),
-    }
-  );
+  return $self->render(openapi => $status);
 }
 
 sub delete_results ($self) {

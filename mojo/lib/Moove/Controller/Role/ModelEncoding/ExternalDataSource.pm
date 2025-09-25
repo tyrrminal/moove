@@ -13,7 +13,8 @@ sub encode_model_externaldatasource ($self, $entity) {
     require(class_to_path($class_name));
     if ($class_name->can('import_param_schemas')) {
       foreach my $type (qw(event eventactivity)) {
-        my $schema = $class_name->import_param_schemas->{$type}->schema->data;
+        my $validator = $class_name->import_param_schemas->{$type};
+        my $schema    = $validator->can('data') ? $validator->data : $validator->schema->data;
         next unless (ref($schema->{properties}) eq 'HASH');
         my %props = $schema->{properties}->%*;
         push(

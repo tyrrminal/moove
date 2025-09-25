@@ -5,12 +5,13 @@ use experimental qw(try);
 use Mojo::Base 'Mojolicious::Plugin';
 use Mojo::Util qw(class_to_path);
 
-use DCS::Constants qw(:symbols);
+use DCS::Constants                  qw(:symbols);
+use Moove::Import::Event::Constants qw(:statuses);
 
 sub register ($self, $app, $args) {
   $app->minion->add_task(
     import_event_results => sub ($job, $event_activity_id, $import_fields) {
-      $job->note(progress => 0, status => 'running');
+      $job->note(status => $STATUS_RUNNING);
       my $event_activity = $job->app->model('EventActivity')->find($event_activity_id);
       my $event          = $event_activity->event;
       my $edc            = $event->external_data_source;
@@ -57,11 +58,11 @@ sub register ($self, $app, $args) {
               $job->note(progress => $job->info->{notes}->{progress} + 1);
             }
             # END LRP
-            $job->note(progress => 100, status => 'completed');
+            $job->note(progress => 100, status => $STATUS_COMPLETED);
           }
         );
       } catch ($exception) {
-        $job->note(progress => 0, status => 'failed', message => "Import failed: $exception");
+        $job->note(progress => 0, status => $STATUS_FAILED, message => "Import failed: $exception");
       };
     }
   );
