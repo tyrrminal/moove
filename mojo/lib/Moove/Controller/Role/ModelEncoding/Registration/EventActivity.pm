@@ -58,7 +58,7 @@ sub get_task_status ($self, $event_activity) {
   return {importCompletion => 100, importStatus => $STATUS_COMPLETED} if ($event_activity->has_results);
 
   # No minion job and no results
-  return {importCompletion => undef, importStatus => $STATUS_INACTIVE};
+  return {importCompletion => 0, importStatus => $STATUS_INACTIVE};
 }
 
 1;
