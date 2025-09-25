@@ -30,6 +30,13 @@ our @EXPORT_OK = (
     $OVERALL_PLACE
     $PACE
     $SPEED
+  ),
+  qw(
+    $STATUS_INACTIVE
+    $STATUS_PENDING
+    $STATUS_RUNNING
+    $STATUS_COMPLETED
+    $STATUS_FAILED
     )
 );
 
@@ -62,7 +69,16 @@ our %EXPORT_TAGS = (
       $PACE
       $SPEED
       )
-  ]
+  ],
+  statuses => [
+    qw(
+      $STATUS_INACTIVE
+      $STATUS_PENDING
+      $STATUS_RUNNING
+      $STATUS_COMPLETED
+      $STATUS_FAILED
+      )
+  ],
 );
 
 Readonly::Scalar our $DEFAULT_FIRST_NAME => 'Unknown';
@@ -87,5 +103,11 @@ Readonly::Scalar our $NET_TIME             => 'net_time';
 Readonly::Scalar our $OVERALL_PLACE        => 'overall_place';
 Readonly::Scalar our $PACE                 => 'pace';
 Readonly::Scalar our $SPEED                => 'speed';
+
+Readonly::Scalar our $STATUS_INACTIVE  => 'inactive';
+Readonly::Scalar our $STATUS_PENDING   => 'pending';
+Readonly::Scalar our $STATUS_RUNNING   => 'running';
+Readonly::Scalar our $STATUS_COMPLETED => 'completed';
+Readonly::Scalar our $STATUS_FAILED    => 'failed';
 
 1;

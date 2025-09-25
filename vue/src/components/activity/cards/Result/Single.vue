@@ -126,8 +126,8 @@ export default {
     },
     initToggle: function () {
       if (!this.activityData || !this.activityType) this.pace = null;
-      if (this.activityData.pace && this.activityType.hasPace) this.paceSpeedToggle = true;
-      if (this.activityData.speed && this.activityType.hasSpeed) this.paceSpeedToggle = false;
+      if (this.activityData.pace && this.activityType && this.activityType.hasPace) this.paceSpeedToggle = true;
+      if (this.activityData.speed && this.activityType && this.activityType.hasSpeed) this.paceSpeedToggle = false;
     }
   },
   computed: {

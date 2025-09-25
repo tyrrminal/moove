@@ -472,17 +472,14 @@ paths:
               schema:
                 type: object
                 additionalProperties: false
-                required:
-                  - importStatus
-                  - importCompletion
                 properties:
                   importStatus:
-                    type: string
-                    enum: [pending, running, completed, failed]
+                    $ref: "#/components/schemas/ImportStatus"
                   importCompletion:
-                    type: number
+                    $ref: "#/components/schemas/Percentage"
                   message:
                     type: string
+                    nullable: true
       tags:
         - Event
     post:
@@ -1304,6 +1301,12 @@ components:
     DatabaseID:
       type: integer
       minimum: 1
+    ImportStatus:
+      type: string
+      enum: [inactive, pending, running, completed, failed]
+    Percentage:
+      type: number
+      nullable: false
     ActivityType:
       type: object
       additionalProperties: false
@@ -1597,9 +1600,8 @@ components:
               nullable: true
             importable:
               type: boolean
-            importCompletion:
-              type: number
-              nullable: true
+            importStatus:
+              $ref: "#/components/schemas/ImportStatus"
             fields:
               type: array
               items:

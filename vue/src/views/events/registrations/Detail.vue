@@ -32,7 +32,7 @@
             <b-form-group label="Website" v-if="eventGroup != null && eventGroup.url">
               <b-link :href="eventGroup.url" target="_blank">{{
                 eventGroup.url
-                }}</b-link>
+              }}</b-link>
             </b-form-group>
 
             <b-button variant="secondary" :to="{ name: 'event-edit', params: { id: event.id } }" size="sm" block pill
@@ -84,7 +84,7 @@
                   icon="chevron-left" :title="`${s.prev.year} ${s.prev.name}`" variant="dark" /></b-link>
               <b-icon v-else icon="chevron-left" :style="{ color: 'gray' }" />
               <b-link :to="{ name: 'registration-series', params: { id: s.id } }" class="text-dark">{{ s.description
-                }}</b-link>
+              }}</b-link>
               <b-link v-if="s.next" :to="{ name: 'registration-detail', params: { id: s.next.id } }"><b-icon
                   icon="chevron-right" :title="`${s.next.year} ${s.next.name}`" variant="dark" /></b-link>
               <b-icon v-else icon="chevron-right" :style="{ color: 'gray' }" />
@@ -143,8 +143,8 @@
         <div v-if="hasResults || canDoResultsFunctions" class="bg-light p-2 border border-gray mb-3">
           <EventResultChart v-if="hasResults" :data="orderedPlacements" class="px-3" :style="{ clear: 'both' }" />
           <b-progress v-else-if="isLoading" height="1.5rem" class="my-2">
-            <b-progress-bar variant="info" :value="eventActivity.results.importCompletion" :max="100"><span
-                class="font-weight-bold">Importing Results&hellip;</span></b-progress-bar>
+            <b-progress-bar variant="info" :value="importCompletion" :max="100"><span class="font-weight-bold">Importing
+                Results&hellip;</span></b-progress-bar>
           </b-progress>
           <div v-else-if="canDoResultsFunctions" class="text-center">
             <b-button pill variant="success" @click="initiateResultsImport" class="mr-2 px-3">
@@ -266,6 +266,7 @@ export default {
 
       importFields: {},
       importFailure: null,
+      importCompletion: 0,
     };
   },
   props: {
@@ -305,11 +306,7 @@ export default {
           delete self.userEventActivity.eventResult;
           self.fundraising = self.userEventActivity.fundraising;
           delete self.userEventActivity.fundraising;
-          if (
-            self.eventActivity.results.importable &&
-            self.eventActivity.results.importCompletion != null &&
-            self.eventActivity.results.importCompletion < 100
-          )
+          if (this.isLoading)
             self.checkImportStatus();
         })
         .catch((err) => (self.error = err.response.data.message));
@@ -380,7 +377,7 @@ export default {
       this.$http
         .post(["events", "activities", this.eventActivity.id, "results"].join("/"), { importFields: this.importFields })
         .then((resp) => {
-          self.eventActivity.results.importCompletion = 1;
+          self.importCompletion = self.eventActivity.results.importCompletion = 1;
           self.checkImportStatus();
         });
     },
@@ -394,22 +391,19 @@ export default {
           ["events", "activities", this.eventActivity.id, "results"].join("/")
         )
         .then((resp) => {
-          let d = resp.data;
-          if (d.importStatus == 'failed') {
-            this.importFailure = d.message;
-            this.init();
-            return;
-          } 
-          
-          this.eventActivity.results.importCompletion =
-            d.importCompletion;
-          if (this.eventActivity.results.importCompletion == 100) {
-            this.eventActivity.results.importCompletion = 99.9;
-            this.init();
-          } else
+          self.importCompletion = self.eventActivity.results.importCompletion = resp.data.importCompletion;
+          let status = self.eventActivity.results.importStatus = resp.data.importStatus;
+
+          if (status == 'completed') {
+            self.init();
+          } else if (status == 'failed') {
+            self.importFailure = d.message;
+            self.init();
+          } else if (self.isLoading) {
             setTimeout(function () {
               self.checkImportStatus();
             }, timeout());
+          }
         });
     },
   },
@@ -429,8 +423,8 @@ export default {
     ...mapGetters("meta", { uom: "getUnitOfMeasure", at: "getActivityType" }),
     isLoading: function () {
       return (
-        this.eventActivity.results.importCompletion != null &&
-        this.eventActivity.results.importCompletion < 100
+        this.eventActivity.results.importStatus == 'pending' ||
+        this.eventActivity.results.importStatus == 'running'
       );
     },
     title: function () {
