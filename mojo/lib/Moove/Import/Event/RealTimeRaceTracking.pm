@@ -20,8 +20,6 @@ use DCS::Constants qw(:symbols);
 Readonly::Scalar my $RESULTS_PAGE     => 'https://track.rtrt.me/e/%s#/';
 Readonly::Scalar my $RESULTS_BASE_URL => 'https://api.rtrt.me/events/%s/';
 
-sub import_request_fields ($self) {return [qw(appid token)]}
-
 has 'city_service' => (
   is       => 'ro',
   isa      => 'Moove::Import::Helper::CityService',
@@ -37,6 +35,15 @@ has 'zipcode_service' => (
   lazy     => true,
   builder  => '_build_zipservice'
 );
+
+sub import_request_fields ($self) {
+  return [
+    qw(
+      appid
+      token
+      )
+  ];
+}
 
 sub _build_import_param_schemas ($class) {
   return {
@@ -100,8 +107,8 @@ sub _build_results ($self) {
   my %p;
   foreach my $cat (@categories) {
     my $url = join($SLASH, $base . 'categories', $cat->{name}, 'splits', $self->resolve_field_value('point'));
-    my ($start, $max, $size) = (1, 100);
-    do {
+    my ($start, $max, $size) = (1, 100, 100);
+    while ($size >= $max) {
       my $list = $self->ua->post(
         $url => $headers => form => {
           units  => 'standard',
@@ -111,17 +118,19 @@ sub _build_results ($self) {
           $self->import_fields->%*,
         }
       )->result->json->{list};
+
       last unless (defined($list));
+      $start += $max;
       $size = $list->@*;
-      foreach my $cat_p ($list->@*) {
-        my $place = delete($cat_p->{place});
-        $p{$cat_p->{pid}}                      = $cat_p unless (defined($p{$cat_p->{pid}}));
-        $p{$cat_p->{pid}}->{$cat->{place_key}} = $place;
-        $p{$cat_p->{pid}}->{division}          = join(" ", $cat->{title} // '', $cat->{subtitle} // '') =~ s/\s+/ /gr
+
+      foreach my $category_partcipant ($list->@*) {
+        my $place = delete($category_partcipant->{place});
+        $p{$category_partcipant->{pid}} = $category_partcipant unless (defined($p{$category_partcipant->{pid}}));
+        $p{$category_partcipant->{pid}}->{$cat->{place_key}} = $place;
+        $p{$category_partcipant->{pid}}->{division}          = join(" ", $cat->{title} // '', $cat->{subtitle} // '') =~ s/\s+/ /gr
           if ($cat->{place_key} eq 'div_place');
       }
-      $start += $max;
-    } until ($size < $max);
+    }
   }
 
   my @results = map {$self->make_participant($_)} values(%p);
