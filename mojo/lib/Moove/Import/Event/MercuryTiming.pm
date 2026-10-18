@@ -60,7 +60,7 @@ sub make_participant($self, $d) {
         pace          => $d->{pace},
 
         gender        => $gender,
-        divison       => $d->{sex} . ' ' . $d->{ageGroup},
+        division       => $d->{sex} . ' ' . $d->{ageGroup},
     };
 
     normalize_times($p);
