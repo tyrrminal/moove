@@ -6,6 +6,8 @@ with 'Moove::Import::Event::Base';
 use Readonly;
 use Moove::Util::Unit::Normalization qw(normalize_times);
 
+use JSON::Validator::Joi qw(joi);
+
 Readonly::Scalar my $RESULTS_PAGE => 'https://live.rr.mercurytiming.com/?event=%s';
 Readonly::Scalar my $RESULTS_BASE_URL => 'https://%s/functions/v1/live-results?slug=%s';
 
