@@ -17,7 +17,7 @@ use Moove::Import::Event::Constants qw(:key_fields);
 use Moove::Import::Event::Constants qw(:event);
 
 Readonly::Scalar my $METADATA_URL => 'https://www.secondwindtiming.com/result-page/?id=%s';
-Readonly::Scalar my $RESULTS_URL  => 'https://my2.raceresult.com/%s/RRPublish/data/list';
+Readonly::Scalar my $RESULTS_URL  => 'https://my-us-1.raceresult.com/%s/results/list';
 
 has 'key_map' => (
   traits   => ['Hash'],
@@ -27,14 +27,22 @@ has 'key_map' => (
   default  => sub {
     {
       'Overall'   => $OVERALL_PLACE,
+      'Place'     => $OVERALL_PLACE,
       'Name'      => $FULL_NAME,
       'BIB'       => $BIB_NUMBER,
+      'Bib'       => $BIB_NUMBER,
       'Time'      => $NET_TIME,
+      'Chip Time' => $NET_TIME,
+      'Gun Time'  => $GROSS_TIME,
       'Pace'      => $PACE,
+      'Chip Pace' => $PACE,
       'Sex'       => $GENDER,
+      'Gender'    => $GENDER,
       'By Sex'    => $GENDER_PLACE,
       'By Age'    => $DIVISION_PLACE,
       'Age Group' => $DIVISION,
+      'Group'     => $DIVISION,
+      'Club'      => $CITY,
     };
   },
   handles => {
